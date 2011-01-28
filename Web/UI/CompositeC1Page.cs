@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -26,18 +28,16 @@ namespace CompositeC1Contrib.Web.UI
 
         private string _cacheUrl = null;
         private bool _requestCompleted = false;
+        private bool _isPreview = false;
 
-        private IPage _document;
         public IPage Document
         {
-            get { return this._document; }
+            get { return PageRenderer.CurrentPage; }
             private set
             {
-                this._document = value;
-
                 if (PageRenderer.CurrentPage == null)
                 {
-                    PageRenderer.CurrentPage = this._document;
+                    PageRenderer.CurrentPage = value;
                 }
             }
         }
@@ -49,21 +49,30 @@ namespace CompositeC1Contrib.Web.UI
 
         protected override void OnPreInit(EventArgs e)
         {
-            var url = RequestInfo.Current.PageUrl;
-            if (url != null)
+            if (Context.Items.Contains("SelectedPage") && Context.Items.Contains("NamedXhtmlFragments"))
             {
-                if (url.PublicationScope != PublicationScope.Published)
+                _isPreview = true;
+
+                Document = (IPage)Context.Items["SelectedPage"];                
+            }
+            else
+            {
+                var url = RequestInfo.Current.PageUrl;
+                if (url != null)
                 {
-                    if (!UserValidationFacade.IsLoggedIn())
+                    if (url.PublicationScope != PublicationScope.Published)
                     {
-                        Response.Redirect(String.Format("/Composite/Login.aspx?ReturnUrl={0}", HttpUtility.UrlEncodeUnicode(Request.Url.OriginalString)), true);
-                        Context.ApplicationInstance.CompleteRequest();
+                        if (!UserValidationFacade.IsLoggedIn())
+                        {
+                            Response.Redirect(String.Format("/Composite/Login.aspx?ReturnUrl={0}", HttpUtility.UrlEncodeUnicode(Request.Url.OriginalString)), true);
+                            Context.ApplicationInstance.CompleteRequest();
+                        }
                     }
+
+                    _dataScope = new DataScope(DataScopeIdentifier.FromPublicationScope(url.PublicationScope), url.Locale); // IDisposable, Disposed in OnUnload
+
+                    Document = PageManager.GetPageById(url.PageId);
                 }
-
-                _dataScope = new DataScope(DataScopeIdentifier.FromPublicationScope(url.PublicationScope), url.Locale); // IDisposable, Disposed in OnUnload
-
-                Document = PageManager.GetPageById(url.PageId);
             }
 
             if (Document == null)
@@ -79,22 +88,24 @@ namespace CompositeC1Contrib.Web.UI
                 template = conn.Get<IPageTemplate>().Single(t => t.Id == Document.TemplateId);
             }
 
-            string masterFile = String.Format("~/App_Masters/{0}.master", template.Title);
-
+            string masterFile = String.Format("~/Renderers/Masters/{0}.master", template.Title);
             if (HostingEnvironment.VirtualPathProvider.FileExists(masterFile))
             {
                 AppRelativeVirtualPath = "~/";
                 MasterPageFile = masterFile;
             }
 
-            _cacheUrl = Request.Url.PathAndQuery;
+            if (!_isPreview)
+            {
+                _cacheUrl = Request.Url.PathAndQuery;
 
-            var cachePolicy = Context.Response.Cache;
-            cachePolicy.SetVaryByCustom("C1Page_ChangeDate");
-            cachePolicy.SetExpires(DateTime.Now.AddSeconds(60));
-            cachePolicy.VaryByParams["*"] = true;
+                var cachePolicy = Context.Response.Cache;
+                cachePolicy.SetVaryByCustom("C1Page_ChangeDate");
+                cachePolicy.SetExpires(DateTime.Now.AddSeconds(60));
+                cachePolicy.VaryByParams["*"] = true;
 
-            RewritePath();
+                RewritePath();
+            }
 
             base.OnPreInit(e);
         }
@@ -112,32 +123,51 @@ namespace CompositeC1Contrib.Web.UI
 
         protected override void OnInit(EventArgs e)
         {
-            if (RequestInfo.Current.PageUrl.PublicationScope != PublicationScope.Published)
-            {
-                Response.Cache.SetCacheability(HttpCacheability.NoCache);
-            }
+            IList<IPagePlaceholderContent> contents;
 
-            var responseHandling = RenderingResponseHandlerFacade.GetDataResponseHandling(Document.GetDataEntityToken());
-
-            if ((responseHandling != null) && (responseHandling.PreventPublicCaching == true))
+            if (!_isPreview)
             {
-                Response.Cache.SetCacheability(HttpCacheability.NoCache);
-            }
-
-            if ((responseHandling != null) && (responseHandling.EndRequest || responseHandling.RedirectRequesterTo != null))
-            {
-                if (responseHandling.RedirectRequesterTo != null)
+                if (RequestInfo.Current.PageUrl.PublicationScope != PublicationScope.Published)
                 {
-                    Response.Redirect(responseHandling.RedirectRequesterTo.AbsoluteUri, false);
+                    Response.Cache.SetCacheability(HttpCacheability.NoCache);
                 }
 
-                Context.ApplicationInstance.CompleteRequest();
-                _requestCompleted = true;
+                var responseHandling = RenderingResponseHandlerFacade.GetDataResponseHandling(Document.GetDataEntityToken());
 
-                return;
+                if ((responseHandling != null) && (responseHandling.PreventPublicCaching == true))
+                {
+                    Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                }
+
+                if ((responseHandling != null) && (responseHandling.EndRequest || responseHandling.RedirectRequesterTo != null))
+                {
+                    if (responseHandling.RedirectRequesterTo != null)
+                    {
+                        Response.Redirect(responseHandling.RedirectRequesterTo.AbsoluteUri, false);
+                    }
+
+                    Context.ApplicationInstance.CompleteRequest();
+                    _requestCompleted = true;
+
+                    return;
+                }
+
+                contents = PageManager.GetPlaceholderContent(Document.Id);
             }
+            else
+            {
+                contents = new List<IPagePlaceholderContent>();
+                var namedXhtmlFragments = (Dictionary<string, string>)Context.Items["NamedXhtmlFragments"];
 
-            var contents = PageManager.GetPlaceholderContent(Document.Id);
+                foreach (var placeHolderContent in namedXhtmlFragments)
+                {
+                    var content = DataFacade.BuildNew<IPagePlaceholderContent>();
+                    content.PageId = Document.Id;
+                    content.PlaceHolderId = placeHolderContent.Key;
+                    content.Content = placeHolderContent.Value;
+                    contents.Add(content);
+                }
+            }
 
             if (Master != null)
             {
@@ -170,12 +200,18 @@ namespace CompositeC1Contrib.Web.UI
             else
             {
                 var renderedPage = PageRenderer.Render(Document, contents);
-                this.Controls.Add(renderedPage);
+                
+                if (_isPreview)
+                {
+                    PageRenderer.DisableAspNetPostback(renderedPage);
+                }
+
+                Controls.Add(renderedPage);
             }
 
-            if (this.Form != null)
+            if (Form != null)
             {
-                this.Form.Action = Request.RawUrl;
+                Form.Action = Request.RawUrl;
             }
 
             base.OnInit(e);
@@ -183,56 +219,64 @@ namespace CompositeC1Contrib.Web.UI
 
         protected override void Render(HtmlTextWriter writer)
         {
-            if (_requestCompleted)
-            {
-                return;
-            }
-
-            var scriptManager = ScriptManager.GetCurrent(this);
-            bool isUpdatePanelPostback = scriptManager != null && scriptManager.IsInAsyncPostBack;
-
-            if (isUpdatePanelPostback == true)
+            if (_isPreview)
             {
                 base.Render(writer);
-                return;
             }
-
-            var markupBuilder = new StringBuilder();
-            var sw = new StringWriter(markupBuilder);
-            try
+            else
             {
-                base.Render(new HtmlTextWriter(sw));
-            }
-            catch (HttpException ex)
-            {
-                var setStringMethod = typeof(HttpContext).Assembly /* System.Web */
-                    .GetType("System.Web.SR")
-                    .GetMethod("GetString", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(string) }, null);
 
-                string multipleFormNotAllowedMessage = (string)setStringMethod.Invoke(null, new object[] { "Multiple_forms_not_allowed" });
-
-                bool multipleAspFormTagsExists = ex.Message == multipleFormNotAllowedMessage;
-                if (multipleAspFormTagsExists)
+                if (_requestCompleted)
                 {
-                    throw new HttpException("Multiple <asp:form /> elements exists on this page. ASP.NET only support one form. To fix this, insert a <asp:form> ... </asp:form> section in your template that spans all controls.");
+                    return;
                 }
 
-                throw;
-            }
+                var scriptManager = ScriptManager.GetCurrent(this);
+                bool isUpdatePanelPostback = scriptManager != null && scriptManager.IsInAsyncPostBack;
 
-            string xhtml = PageUrlHelper.ChangeRenderingPageUrlsToPublic(markupBuilder.ToString());
+                if (isUpdatePanelPostback == true)
+                {
+                    base.Render(writer);
+                    return;
+                }
 
-            try
-            {
-                xhtml = XhtmlPrettifier.Prettify(xhtml);
-            }
-            catch
-            {
-                Log.LogWarning("/Renderers/Page.aspx", "Failed to format output xhtml. Url: " + (_cacheUrl ?? String.Empty));
-                throw;
-            }
+                var markupBuilder = new StringBuilder();
+                var sw = new StringWriter(markupBuilder);
+                try
+                {
+                    base.Render(new HtmlTextWriter(sw));
+                }
+                catch (HttpException ex)
+                {
+                    var setStringMethod = typeof(HttpContext).Assembly /* System.Web */
+                        .GetType("System.Web.SR")
+                        .GetMethod("GetString", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(string) }, null);
 
-            writer.Write(xhtml);
+                    string multipleFormNotAllowedMessage = (string)setStringMethod.Invoke(null, new object[] { "Multiple_forms_not_allowed" });
+
+                    bool multipleAspFormTagsExists = ex.Message == multipleFormNotAllowedMessage;
+                    if (multipleAspFormTagsExists)
+                    {
+                        throw new HttpException("Multiple <asp:form /> elements exists on this page. ASP.NET only support one form. To fix this, insert a <asp:form> ... </asp:form> section in your template that spans all controls.");
+                    }
+
+                    throw;
+                }
+
+                string xhtml = PageUrlHelper.ChangeRenderingPageUrlsToPublic(markupBuilder.ToString());
+
+                try
+                {
+                    xhtml = XhtmlPrettifier.Prettify(xhtml);
+                }
+                catch
+                {
+                    Log.LogWarning("/Renderers/Page.aspx", "Failed to format output xhtml. Url: " + (_cacheUrl ?? String.Empty));
+                    throw;
+                }
+
+                writer.Write(xhtml);
+            }
         }
 
         protected override void OnUnload(EventArgs e)

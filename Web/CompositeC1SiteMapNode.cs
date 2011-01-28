@@ -16,31 +16,22 @@ namespace CompositeC1Contrib.Web
             Title = node.MenuTitle;
             DocumentTitle = node.Title;
             Description = node.Description;
-            Url = fixUrl(node.Url);
+            Url = fixUrl(node.Url, data);
             Depth = node.Level;
             LastModified = data.Get<IPage>().Single(p => p.Id == node.Id).ChangeDate;
 
             PageNode = node;
         }
 
-        private string fixUrl(string url)
+        private string fixUrl(string url, DataConnection data)
         {
-            url = url.Replace(".aspx", String.Empty);
-            url = removeLanguagePrefix(url);
-            url = UrlUtils.GetCleanUrl(url);
-
-            return url;
-        }
-
-        private string removeLanguagePrefix(string url)
-        {
-            foreach (var ci in DataLocalizationFacade.ActiveLocalizationCultures)
+            if (data.Get<IPageStructure>().Count(p => p.ParentId == Guid.Empty) == 1)
             {
-                if (url.StartsWith("/" + ci.TwoLetterISOLanguageName))
-                {
-                    url = url.Remove(0, 3);
-                }
+                url = url.Remove(0, url.IndexOf("/", 1));
             }
+
+            url = url.Replace(".aspx", String.Empty);
+            url = UrlUtils.GetCleanUrl(url);
 
             return url;
         }

@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Web;
 
+using Composite.Core.WebClient.Renderings.Page;
 using Composite.Data;
 using Composite.Data.Types;
 
@@ -27,7 +28,7 @@ namespace CompositeC1Contrib.Web
 
         protected override string GetCurrentKey()
         {
-            return RequestInfo.Current.PageUrl.PageId.ToString();
+            return PageRenderer.CurrentPage.Id.ToString();
         }
 
         public override bool IsAccessibleToUser(HttpContext ctx, SiteMapNode node)
@@ -97,6 +98,12 @@ namespace CompositeC1Contrib.Web
             DataEventSystemFacade.SubscribeToDataDeleted<ISystemActiveLocale>(handler);
 
             base.Initialize(name, attributes);
+        }
+
+        public static void DataBeforeAdd(object sender, DataEventArgs e)
+        {
+            var page = e.GetData<IPage>();
+            page.UrlTitle = UrlUtils.GetCleanUrl(page.UrlTitle);
         }
     }
 }
