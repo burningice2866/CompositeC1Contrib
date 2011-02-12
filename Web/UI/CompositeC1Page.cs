@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +12,7 @@ using System.Xml.Linq;
 
 using Composite.C1Console.Security;
 using Composite.Core;
+using Composite.Core.Instrumentation;
 using Composite.Core.WebClient;
 using Composite.Core.WebClient.Renderings;
 using Composite.Core.WebClient.Renderings.Page;
@@ -24,7 +24,13 @@ namespace CompositeC1Contrib.Web.UI
 {
     public class CompositeC1Page : Page
     {
+        private static readonly string ProfilerXslPath = HostingEnvironment.MapPath("~/Composite/Transformations/page_profiler.xslt");
+
         private IDisposable _dataScope;
+
+        private bool _profilingEnabled = false;
+        private IDisposable _pagePerfMeasuring;
+        private IDisposable _pageEventsPageMeasuring;
 
         private string _cacheUrl = null;
         private bool _requestCompleted = false;
@@ -42,21 +48,22 @@ namespace CompositeC1Contrib.Web.UI
             }
         }
 
-        public SiteMapNode SiteMapNode
-        {
-            get { return SiteMap.Provider.FindSiteMapNodeFromKey(Document.Id.ToString()); }
-        }
-
         protected override void OnPreInit(EventArgs e)
         {
-            if (Context.Items.Contains("SelectedPage") && Context.Items.Contains("NamedXhtmlFragments"))
+            if (Context.Items.Contains("SelectedPage") && Context.Items.Contains("SelectedContents"))
             {
+                Document = (IPage)Context.Items["SelectedPage"];
                 _isPreview = true;
-
-                Document = (IPage)Context.Items["SelectedPage"];                
             }
             else
             {
+                _profilingEnabled = UserValidationFacade.IsLoggedIn() && Request.Url.OriginalString.Contains("c1mode=perf");
+                if (_profilingEnabled)
+                {
+                    Profiler.BeginProfiling();
+                    _pagePerfMeasuring = Profiler.Measure("C1 Page");
+                }
+
                 var url = RequestInfo.Current.PageUrl;
                 if (url != null)
                 {
@@ -123,8 +130,6 @@ namespace CompositeC1Contrib.Web.UI
 
         protected override void OnInit(EventArgs e)
         {
-            IList<IPagePlaceholderContent> contents;
-
             if (!_isPreview)
             {
                 if (RequestInfo.Current.PageUrl.PublicationScope != PublicationScope.Published)
@@ -151,68 +156,77 @@ namespace CompositeC1Contrib.Web.UI
 
                     return;
                 }
-
-                contents = PageManager.GetPlaceholderContent(Document.Id);
             }
-            else
-            {
-                contents = new List<IPagePlaceholderContent>();
-                var namedXhtmlFragments = (Dictionary<string, string>)Context.Items["NamedXhtmlFragments"];
 
-                foreach (var placeHolderContent in namedXhtmlFragments)
-                {
-                    var content = DataFacade.BuildNew<IPagePlaceholderContent>();
-                    content.PageId = Document.Id;
-                    content.PlaceHolderId = placeHolderContent.Key;
-                    content.Content = placeHolderContent.Value;
-                    contents.Add(content);
-                }
-            }
+            var contents = _isPreview ? (IEnumerable<IPagePlaceholderContent>)Context.Items["SelectedContents"] : PageManager.GetPlaceholderContent(Document.Id);
 
             if (Master != null)
             {
-                var mi = typeof(PageRenderer).GetMethod("NormalizeXhtmlDocument", BindingFlags.Static | BindingFlags.NonPublic);
-
-                foreach (var content in contents)
+                using (Profiler.Measure("Executing Page as Master"))
                 {
-                    var doc = XElement.Parse(content.Content);
-                    var context = PageRenderer.GetPageRenderFunctionContextContainer();
+                    var normalizeXhtmlDocument = typeof(PageRenderer).GetMethod("NormalizeXhtmlDocument", BindingFlags.Static | BindingFlags.NonPublic);
+                    var resolveRelativePaths = typeof(PageRenderer).GetMethod("ResolveRelativePaths", BindingFlags.Static | BindingFlags.NonPublic);
 
-                    PageRenderer.ExecuteEmbeddedFunctions(doc, context);
-                    mi.Invoke(null, new[] { new XhtmlDocument(doc) });
-
-                    var plc = FindControlRecursive(Master, content.PlaceHolderId);
-                    if (plc != null)
+                    foreach (var content in contents)
                     {
-                        var body = doc.Descendants().Single(el => el.Name.LocalName == "body");
-                        var c = body.AsAspNetControl((IXElementToControlMapper)context.XEmbedableMapper);
+                        var doc = XElement.Parse(content.Content);
+                        var context = PageRenderer.GetPageRenderFunctionContextContainer();
 
-                        plc.Controls.Add(c);
-                    }
+                        using (Profiler.Measure("Executing C1 functions"))
+                        {
+                            PageRenderer.ExecuteEmbeddedFunctions(doc, context);
 
-                    var head = doc.Descendants().SingleOrDefault(el => el.Name.LocalName == "head");
-                    if (Header != null && head != null)
-                    {
-                        Header.Controls.Add(new LiteralControl(String.Concat(head.Elements())));
+                            var xDoc = new XhtmlDocument(doc);
+
+                            normalizeXhtmlDocument.Invoke(null, new[] { xDoc });
+                            resolveRelativePaths.Invoke(null, new[] { xDoc }); 
+                        }
+
+                        using (Profiler.Measure("ASP.NET controls: PageInit"))
+                        {
+                            var plc = FindControlRecursive(Master, content.PlaceHolderId);
+                            if (plc != null)
+                            {
+                                var body = doc.Descendants().Single(el => el.Name.LocalName == "body");
+                                var c = body.AsAspNetControl((IXElementToControlMapper)context.XEmbedableMapper);
+
+                                plc.Controls.Add(c);
+                            }
+
+                            var head = doc.Descendants().SingleOrDefault(el => el.Name.LocalName == "head");
+                            if (Header != null && head != null)
+                            {
+                                Header.Controls.Add(new LiteralControl(String.Concat(head.Elements())));
+                            }
+                        }
                     }
                 }
             }
             else
             {
-                var renderedPage = PageRenderer.Render(Document, contents);
-                
+                Control renderedPage;
+                using (Profiler.Measure("Executing C1 functions"))
+                {
+                    renderedPage = PageRenderer.Render(Document, contents);
+                }
+
                 if (_isPreview)
                 {
                     PageRenderer.DisableAspNetPostback(renderedPage);
                 }
 
-                Controls.Add(renderedPage);
+                using (Profiler.Measure("ASP.NET controls: PageInit"))
+                {
+                    Controls.Add(renderedPage);
+                }
             }
 
             if (Form != null)
             {
                 Form.Action = Request.RawUrl;
             }
+
+            _pageEventsPageMeasuring = Profiler.Measure("ASP.NET controls: PageLoad, Event handling, PreRender");
 
             base.OnInit(e);
         }
@@ -225,10 +239,14 @@ namespace CompositeC1Contrib.Web.UI
             }
             else
             {
-
                 if (_requestCompleted)
                 {
                     return;
+                }
+
+                if (_pageEventsPageMeasuring != null)
+                {
+                    _pageEventsPageMeasuring.Dispose();
                 }
 
                 var scriptManager = ScriptManager.GetCurrent(this);
@@ -244,7 +262,11 @@ namespace CompositeC1Contrib.Web.UI
                 var sw = new StringWriter(markupBuilder);
                 try
                 {
-                    base.Render(new HtmlTextWriter(sw));
+                    using (Profiler.Measure("ASP.NET controls: Render"))
+                    {
+                        base.Render(new HtmlTextWriter(sw));
+                    }
+
                 }
                 catch (HttpException ex)
                 {
@@ -262,17 +284,35 @@ namespace CompositeC1Contrib.Web.UI
 
                     throw;
                 }
+                
+                string xhtml;
 
-                string xhtml = PageUrlHelper.ChangeRenderingPageUrlsToPublic(markupBuilder.ToString());
+                using (Profiler.Measure("Changing 'internal' page urls to 'public'"))
+                {
+                    xhtml = PageUrlHelper.ChangeRenderingPageUrlsToPublic(markupBuilder.ToString());
+                }
 
                 try
                 {
-                    xhtml = XhtmlPrettifier.Prettify(xhtml);
+                    using (Profiler.Measure("Formatting output XHTML with Composite.Core.Xml.XhtmlPrettifier"))
+                    {
+                        xhtml = Composite.Core.Xml.XhtmlPrettifier.Prettify(xhtml);
+                    }
+
                 }
                 catch
                 {
                     Log.LogWarning("/Renderers/Page.aspx", "Failed to format output xhtml. Url: " + (_cacheUrl ?? String.Empty));
                     throw;
+                }
+
+                if (_profilingEnabled)
+                {
+                    _pagePerfMeasuring.Dispose();
+
+                    xhtml = BuildProfilerReport(Profiler.EndProfiling());
+
+                    Response.ContentType = "text/xml";
                 }
 
                 writer.Write(xhtml);
@@ -311,6 +351,20 @@ namespace CompositeC1Contrib.Web.UI
 
             string pathInfo = new UrlBuilder(_cacheUrl).PathInfo;
             Context.RewritePath(structuredUrl.FilePath, pathInfo, structuredUrl.QueryString);
+        }
+
+        private string BuildProfilerReport(Measurement measurement)
+        {
+            string xmlHeader = String.Format(@"<?xml version=""1.0""?>
+                             <?xml-stylesheet type=""text/xsl"" href=""{0}""?>", ProfilerXslPath);
+
+            var reportXml = ProfilerReport.BuildReportXml(measurement);
+            var url = new UrlBuilder(Context.Request.Url.ToString());
+            url["c1mode"] = null;
+
+            reportXml.Add(new XAttribute("description", "URL: " + url));
+
+            return xmlHeader + reportXml.ToString();
         }
 
         public Control FindControlRecursive(Control current, string controlID)

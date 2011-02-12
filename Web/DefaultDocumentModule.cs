@@ -7,12 +7,17 @@ namespace CompositeC1Contrib.Web
 {
     public class DefaultDocumentModule : IHttpModule
     {
+        public static bool IsDefaultDocumentUrl(string url)
+        {
+            return url == "/" || url.StartsWith("/default.aspx", StringComparison.OrdinalIgnoreCase);
+        }
+
         private void app_BeginRequest(object sender, EventArgs e)
         {
             var ctx = ((HttpApplication)sender).Context;
 
             string path = ctx.Request.RawUrl.ToLower();
-            if (path == "/" || path.StartsWith("/default.aspx", StringComparison.OrdinalIgnoreCase))
+            if (IsDefaultDocumentUrl(path))
             {
                 var ci = CultureInfo.CurrentCulture;
                 var provider = SiteMap.Provider;                
@@ -36,7 +41,7 @@ namespace CompositeC1Contrib.Web
                     node = provider.RootNode;
                 }
 
-                if (node != null)
+                if (node != null && !IsDefaultDocumentUrl(node.Url))
                 {
                     ctx.Response.StatusCode = 301;
                     ctx.Response.StatusDescription = "301 Moved Permanently";

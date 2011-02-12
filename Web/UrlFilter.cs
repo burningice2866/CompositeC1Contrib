@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 
 using Composite.Data;
+using Composite.Data.Types;
 
 namespace CompositeC1Contrib.Web
 {
@@ -15,8 +16,19 @@ namespace CompositeC1Contrib.Web
 
         static UrlFilter()
         {
-            var cultures = DataLocalizationFacade.ActiveLocalizationCultures.Select(ci => ci.TwoLetterISOLanguageName).ToArray();
-            var _pageUri = String.Format(@"(?<![\w/])/({0})/.+\.aspx", String.Join("|", cultures));
+            var prepends = DataLocalizationFacade.UrlMappingNames.ToList();
+
+            using (var data = new DataConnection())
+            {
+                var websites = data.Get<IPageStructure>().Where(p => p.ParentId == Guid.Empty);
+                foreach (var site in websites)
+                {
+                    var page = data.Get<IPage>().Single(p => p.Id == site.Id);
+                    prepends.Add(page.UrlTitle);
+                }
+            }
+
+            var _pageUri = String.Format(@"(?<![\w/])/(({0})/.+\.aspx|({0}).aspx)", String.Join("|", prepends));
 
             _pageUriRegEx = new Regex(_pageUri, RegexOptions.Compiled);
         }

@@ -99,11 +99,5 @@ namespace CompositeC1Contrib.Web
 
             base.Initialize(name, attributes);
         }
-
-        public static void DataBeforeAdd(object sender, DataEventArgs e)
-        {
-            var page = e.GetData<IPage>();
-            page.UrlTitle = UrlUtils.GetCleanUrl(page.UrlTitle);
-        }
     }
 }
