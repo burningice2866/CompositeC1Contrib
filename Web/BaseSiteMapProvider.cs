@@ -28,7 +28,7 @@ namespace CompositeC1Contrib.Web
             }
         }
 
-        private const string key = "sitemap";
+        private const string _key = "sitemap";
         private static readonly object _lock = new object();
 
         private DateTime? _lastRefreshedTime;
@@ -79,8 +79,6 @@ namespace CompositeC1Contrib.Web
         {
             SiteMapNode node = null;
             var container = GetContainer(ci);
-            rawUrl = rawUrl.Contains('?') ? rawUrl.Substring(0, rawUrl.IndexOf('?')) : rawUrl;
-
             container.RawUrlToNodesMap.TryGetValue(rawUrl, out node);
 
             return node;
@@ -230,7 +228,11 @@ namespace CompositeC1Contrib.Web
 
         public void Flush()
         {
-            MemoryCache.Default.Remove(key);
+            var keys = MemoryCache.Default.Where(o => o.Key.StartsWith(_key)).Select(o => o.Key);
+            foreach (var key in keys)
+            {
+                MemoryCache.Default.Remove(key);
+            }
         }
 
         protected void AddNode(SiteMapNode node, SiteMapNode parentNode, SiteMapContainer container)
@@ -259,18 +261,19 @@ namespace CompositeC1Contrib.Web
 
         private SiteMapContainer GetContainer(CultureInfo ci)
         {
-            var containers = loadSiteMap();
+            var containers = loadSiteMap();            
             return containers[ci];
         }
 
         private IDictionary<CultureInfo, SiteMapContainer> loadSiteMap()
         {
+            string host = HttpContext.Current.Request.Url.Host;
             bool forceRefresh = AutoRefreshInterval.HasValue
                 && _lastRefreshedTime.HasValue
                 && DateTime.Now - _lastRefreshedTime > AutoRefreshInterval;
 
             IDictionary<CultureInfo, SiteMapContainer> list = null;
-            if (forceRefresh || ((list = loadFromCache()) == null))
+            if (forceRefresh || ((list = loadFromCache(host)) == null))
             {
                 lock (_lock)
                 {
@@ -278,10 +281,10 @@ namespace CompositeC1Contrib.Web
                     {
                         list = new Dictionary<CultureInfo, SiteMapContainer>();
 
-                        LoadSiteMapInternal(list);
+                        LoadSiteMapInternal(list, host);
                         AddRolesInternal(list);
 
-                        addToCache(list);
+                        addToCache(list, host);
                     }
                 }
             }
@@ -289,9 +292,10 @@ namespace CompositeC1Contrib.Web
             return list;
         }
 
-        private IDictionary<CultureInfo, SiteMapContainer> loadFromCache()
+        private IDictionary<CultureInfo, SiteMapContainer> loadFromCache(string host)
         {
             var ctx = HttpContext.Current;
+            var key = _key + host;
 
             var container = ctx.Items[key] as IDictionary<CultureInfo, SiteMapContainer>;
             if (container == null)
@@ -308,9 +312,12 @@ namespace CompositeC1Contrib.Web
             return container;
         }
 
-        private void addToCache(IDictionary<CultureInfo, SiteMapContainer> container)
+        private void addToCache(IDictionary<CultureInfo, SiteMapContainer> container, string host)
         {
-            HttpContext.Current.Items[key] = container;
+            var ctx = HttpContext.Current;
+            var key = _key + host;
+
+            ctx.Items[key] = container;
 
             if (CanCache)
             {
@@ -320,7 +327,7 @@ namespace CompositeC1Contrib.Web
         }
 
         protected abstract string GetCurrentKey();
-        protected abstract void LoadSiteMapInternal(IDictionary<CultureInfo, SiteMapContainer> list);
+        protected abstract void LoadSiteMapInternal(IDictionary<CultureInfo, SiteMapContainer> list, string host);
         protected abstract void AddRolesInternal(IDictionary<CultureInfo, SiteMapContainer> list);
     }
 }

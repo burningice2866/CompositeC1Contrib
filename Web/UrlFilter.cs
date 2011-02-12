@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,24 +14,24 @@ namespace CompositeC1Contrib.Web
     public class UrlFilter : BaseResponseFilter
     {
         private static readonly Regex _pageUriRegEx;
+        private static readonly Regex _hrefRegEx = new Regex("(?<=href\\s*=\\s*(?<quote>['\"])).*?(?=\\k<quote>\\s*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         static UrlFilter()
         {
-            var prepends = DataLocalizationFacade.UrlMappingNames.ToList();
+            IEnumerable<string> prepends = DataLocalizationFacade.UrlMappingNames;
 
             using (var data = new DataConnection())
             {
-                var websites = data.Get<IPageStructure>().Where(p => p.ParentId == Guid.Empty);
-                foreach (var site in websites)
-                {
-                    var page = data.Get<IPage>().Single(p => p.Id == site.Id);
-                    prepends.Add(page.UrlTitle);
-                }
+                var websites = data.Get<IPageStructure>()
+                    .Where(p => p.ParentId == Guid.Empty)
+                    .Select(p => data.Get<IPage>().Single(o => o.Id == p.Id).UrlTitle);
+
+                prepends = prepends.Concat(websites).ToList();
             }
 
-            var _pageUri = String.Format(@"(?<![\w/])/(({0})/.+\.aspx|({0}).aspx)", String.Join("|", prepends));
+            var _pageUri = String.Format("(?<![\\w/])/(({0})/.+\\.aspx|({0}).aspx)", String.Join("|", prepends));
 
-            _pageUriRegEx = new Regex(_pageUri, RegexOptions.Compiled);
+            _pageUriRegEx = new Regex(_pageUri, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         }
 
         public UrlFilter(Stream responseStream, HttpContext ctx) : base(responseStream, ctx) { }
@@ -49,8 +50,8 @@ namespace CompositeC1Contrib.Web
 
         public string FixUrls(string unparsedString)
         {
-            var matches = _pageUriRegEx.Matches(unparsedString);
-            if (matches.Count == 0)
+            var hrefs = _hrefRegEx.Matches(unparsedString);
+            if (hrefs.Count == 0)
             {
                 return unparsedString;
             }
@@ -58,37 +59,49 @@ namespace CompositeC1Contrib.Web
             var builder = new StringBuilder();
             int startIndex = 0;
 
-            foreach (Match match in matches)
+            foreach (Match href in hrefs)
             {
-                string url = match.Value;
-                if (String.IsNullOrEmpty(url))
+                var isC1PageLink = _pageUriRegEx.IsMatch(href.Value);
+
+                if (isC1PageLink)
                 {
-                    continue;
-                }
+                    string url = href.Value;
+                    if (String.IsNullOrEmpty(url))
+                    {
+                        continue;
+                    }
 
-                builder.Append(unparsedString.Substring(startIndex, match.Index - startIndex));
+                    builder.Append(unparsedString.Substring(startIndex, href.Index - startIndex));
 
-                url = url.ToLower();
+                    url = url.ToLower();
 
-                string fullUrl = String.Format("{0}://{1}{2}", Context.Request.Url.Scheme, Context.Request.Url.Host, url);
-                var pageUrl = PageUrl.Parse(fullUrl);
+                    string fullUrl = String.Format("{0}://{1}{2}", Context.Request.Url.Scheme, Context.Request.Url.Host, url);
+                    var pageUrl = PageUrl.Parse(fullUrl);
 
-                if (pageUrl != null)
-                {
-                    var provider = (BaseSiteMapProvider)SiteMap.Provider;
-                    var guid = pageUrl.PageId;
-                    var ci = pageUrl.Locale;
+                    if (pageUrl != null)
+                    {
+                        var provider = (BaseSiteMapProvider)SiteMap.Provider;
+                        var guid = pageUrl.PageId;
+                        var ci = pageUrl.Locale;
+                        var node = provider.FindSiteMapNodeFromKey(guid.ToString(), ci);
 
-                    url = provider.FindSiteMapNodeFromKey(guid.ToString(), ci).Url;
+                        if (node != null)
+                        {
+                            url = node.Url;
+                        }
+                        else
+                        {
+                            url = href.Value;
+                        }
+                    }
+                    else
+                    {
+                        url = href.Value;
+                    }
 
                     builder.Append(url);
+                    startIndex = href.Index + href.Length;
                 }
-                else
-                {
-                    builder.Append(match.Value);
-                }
-
-                startIndex = match.Index + match.Length;
             }
 
             builder.Append(unparsedString.Substring(startIndex, unparsedString.Length - startIndex));

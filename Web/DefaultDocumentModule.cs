@@ -9,7 +9,9 @@ namespace CompositeC1Contrib.Web
     {
         public static bool IsDefaultDocumentUrl(string url)
         {
-            return url == "/" || url.StartsWith("/default.aspx", StringComparison.OrdinalIgnoreCase);
+            return url == "/" 
+            || url.StartsWith("/?") 
+            || url.StartsWith("/default.aspx", StringComparison.OrdinalIgnoreCase);
         }
 
         private void app_BeginRequest(object sender, EventArgs e)

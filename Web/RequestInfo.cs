@@ -16,7 +16,7 @@ namespace CompositeC1Contrib.Web
                 var ctx = HttpContext.Current;
                 var ri = ctx.Items[key] as RequestInfo;
 
-                if (ri == null || ri.PageUrl == null)
+                if (ri == null)
                 {
                     ctx.Items[key] = ri = new RequestInfo(ctx);
                 }
@@ -25,15 +25,19 @@ namespace CompositeC1Contrib.Web
             }
         }
 
-        public NameValueCollection ForeignQueryStringParameters { get; private set; }
-        public PageUrl PageUrl { get; private set; }
+        public bool IsPreview
+        {
+            get
+            {
+                var ctx = HttpContext.Current;
+
+                return ctx.Items.Contains("SelectedPage") && ctx.Items.Contains("SelectedContents");
+            }
+        }
 
         private RequestInfo(HttpContext ctx)
         {
-            NameValueCollection _foreignQueryStringParameters;
-
-            PageUrl = PageUrl.Parse(ctx.Request.Url.OriginalString, out _foreignQueryStringParameters);
-            ForeignQueryStringParameters = _foreignQueryStringParameters;
+            
         }
     }
 }

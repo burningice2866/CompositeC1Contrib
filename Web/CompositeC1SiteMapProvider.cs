@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.Linq;
 using System.Web;
 
+using Composite.C1Console.Security;
 using Composite.Core.WebClient.Renderings.Page;
 using Composite.Data;
 using Composite.Data.Types;
@@ -12,18 +14,23 @@ namespace CompositeC1Contrib.Web
 {
     public class CompositeC1SiteMapProvider : BaseSiteMapProvider
     {
-        protected override bool CanCache
+        private PublicationScope PublicationScope
         {
             get
             {
-                var pageUrl = RequestInfo.Current.PageUrl;
-                if (pageUrl == null)
+                if ((HttpContext.Current.Request.QueryString["dataScope"] == "administrated" || RequestInfo.Current.IsPreview)
+                    && UserValidationFacade.IsLoggedIn())
                 {
-                    return false;
+                    return PublicationScope.Unpublished;
                 }
 
-                return pageUrl.PublicationScope != PublicationScope.Published;
+                return PublicationScope.Published;
             }
+        }
+
+        protected override bool CanCache
+        {
+            get { return PublicationScope == PublicationScope.Published; }
         }
 
         protected override string GetCurrentKey()
@@ -33,8 +40,7 @@ namespace CompositeC1Contrib.Web
 
         public override bool IsAccessibleToUser(HttpContext ctx, SiteMapNode node)
         {
-            var pageUrl = RequestInfo.Current.PageUrl;
-            if (pageUrl != null && pageUrl.PublicationScope == PublicationScope.Unpublished)
+            if (PublicationScope == PublicationScope.Unpublished)
             {
                 return true;
             }
@@ -47,14 +53,44 @@ namespace CompositeC1Contrib.Web
             return true;
         }
 
-        protected override void LoadSiteMapInternal(IDictionary<CultureInfo, SiteMapContainer> list)
+        protected override void LoadSiteMapInternal(IDictionary<CultureInfo, SiteMapContainer> list, string host)
         {
+            if (PublicationScope == PublicationScope.Unpublished)
+            {
+                var path = HttpContext.Current.Request.Url.LocalPath;
+
+                using (var data = new DataConnection())
+                {
+                    var numberOfLocales = data.Get<ISystemActiveLocale>().Count();
+                    if (numberOfLocales > 1)
+                    {
+                        int secondSlash = path.IndexOf("/", 1);
+                        path = path.Remove(0, secondSlash == -1 ? path.Length : secondSlash);
+                    }
+
+                    var websites = data.Get<IPageStructure>().Where(s => s.ParentId == Guid.Empty);
+                    if (websites.Count() > 1)
+                    {
+                        int secondSlash = path.IndexOf("/", 1);
+                        var currentWebsite = path.Substring(1, (secondSlash == -1 ? path.Length : secondSlash) - 1);
+
+                        var page = websites
+                            .Select(s => data.Get<IPage>().Single(p => p.Id == s.Id))
+                            .Single(p => p.UrlTitle.Equals(currentWebsite, StringComparison.OrdinalIgnoreCase));
+
+                        var hostNameBinding = data.Get<IPageHostNameBinding>().SingleOrDefault(p => p.PageId == page.Id);
+                        if (hostNameBinding != null)
+                        {
+                            host = hostNameBinding.HostName;
+                        }
+                    }
+                }
+            }
+
             foreach (var ci in DataLocalizationFacade.ActiveLocalizationCultures)
             {
-                using (var data = new DataConnection(ci))
+                using (var data = new DataConnection(PublicationScope, ci))
                 {
-                    var host = HttpContext.Current.Request.Url.Host;
-
                     var root = data.SitemapNavigator.GetPageNodeByHostname(host);
                     if (root != null)
                     {
@@ -68,6 +104,25 @@ namespace CompositeC1Contrib.Web
         }
 
         protected override void AddRolesInternal(IDictionary<CultureInfo, SiteMapContainer> list) { }
+
+        public override SiteMapNode FindSiteMapNode(string rawUrl)
+        {
+            int index = rawUrl.IndexOf("?");
+            if (index > -1)
+            {
+                string query = rawUrl.Substring(index, rawUrl.Length - index);
+                var qs = HttpUtility.ParseQueryString(query);
+
+                rawUrl = rawUrl.Substring(0, index);
+
+                if (qs["dataScope"] == "administrated")
+                {
+                    rawUrl += "?dataScope=administrated";
+                }
+            }
+
+            return base.FindSiteMapNode(rawUrl);
+        }
 
         private void loadNodes(PageNode pageNode, SiteMapNode parent, SiteMapContainer container, DataConnection data)
         {

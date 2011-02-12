@@ -19,6 +19,7 @@ using Composite.Core.WebClient.Renderings.Page;
 using Composite.Core.Xml;
 using Composite.Data;
 using Composite.Data.Types;
+using System.Collections.Specialized;
 
 namespace CompositeC1Contrib.Web.UI
 {
@@ -32,28 +33,21 @@ namespace CompositeC1Contrib.Web.UI
         private IDisposable _pagePerfMeasuring;
         private IDisposable _pageEventsPageMeasuring;
 
+        private NameValueCollection _foreignQueryStringParameters;
+        private PageUrl _url;
         private string _cacheUrl = null;
         private bool _requestCompleted = false;
-        private bool _isPreview = false;
 
         public IPage Document
         {
             get { return PageRenderer.CurrentPage; }
-            private set
-            {
-                if (PageRenderer.CurrentPage == null)
-                {
-                    PageRenderer.CurrentPage = value;
-                }
-            }
         }
 
         protected override void OnPreInit(EventArgs e)
         {
-            if (Context.Items.Contains("SelectedPage") && Context.Items.Contains("SelectedContents"))
+            if (RequestInfo.Current.IsPreview)
             {
-                Document = (IPage)Context.Items["SelectedPage"];
-                _isPreview = true;
+                PageRenderer.CurrentPage = (IPage)Context.Items["SelectedPage"];
             }
             else
             {
@@ -64,10 +58,10 @@ namespace CompositeC1Contrib.Web.UI
                     _pagePerfMeasuring = Profiler.Measure("C1 Page");
                 }
 
-                var url = RequestInfo.Current.PageUrl;
-                if (url != null)
+                _url = PageUrl.Parse(Context.Request.Url.OriginalString, out _foreignQueryStringParameters);
+                if (_url != null)
                 {
-                    if (url.PublicationScope != PublicationScope.Published)
+                    if (_url.PublicationScope != PublicationScope.Published)
                     {
                         if (!UserValidationFacade.IsLoggedIn())
                         {
@@ -76,9 +70,9 @@ namespace CompositeC1Contrib.Web.UI
                         }
                     }
 
-                    _dataScope = new DataScope(DataScopeIdentifier.FromPublicationScope(url.PublicationScope), url.Locale); // IDisposable, Disposed in OnUnload
+                    _dataScope = new DataScope(DataScopeIdentifier.FromPublicationScope(_url.PublicationScope), _url.Locale); // IDisposable, Disposed in OnUnload
 
-                    Document = PageManager.GetPageById(url.PageId);
+                    PageRenderer.CurrentPage = PageManager.GetPageById(_url.PageId);
                 }
             }
 
@@ -102,7 +96,7 @@ namespace CompositeC1Contrib.Web.UI
                 MasterPageFile = masterFile;
             }
 
-            if (!_isPreview)
+            if (!RequestInfo.Current.IsPreview)
             {
                 _cacheUrl = Request.Url.PathAndQuery;
 
@@ -130,9 +124,9 @@ namespace CompositeC1Contrib.Web.UI
 
         protected override void OnInit(EventArgs e)
         {
-            if (!_isPreview)
+            if (!RequestInfo.Current.IsPreview)
             {
-                if (RequestInfo.Current.PageUrl.PublicationScope != PublicationScope.Published)
+                if (_url.PublicationScope != PublicationScope.Published)
                 {
                     Response.Cache.SetCacheability(HttpCacheability.NoCache);
                 }
@@ -158,7 +152,7 @@ namespace CompositeC1Contrib.Web.UI
                 }
             }
 
-            var contents = _isPreview ? (IEnumerable<IPagePlaceholderContent>)Context.Items["SelectedContents"] : PageManager.GetPlaceholderContent(Document.Id);
+            var contents = RequestInfo.Current.IsPreview ? (IEnumerable<IPagePlaceholderContent>)Context.Items["SelectedContents"] : PageManager.GetPlaceholderContent(Document.Id);
 
             if (Master != null)
             {
@@ -210,7 +204,7 @@ namespace CompositeC1Contrib.Web.UI
                     renderedPage = PageRenderer.Render(Document, contents);
                 }
 
-                if (_isPreview)
+                if (RequestInfo.Current.IsPreview)
                 {
                     PageRenderer.DisableAspNetPostback(renderedPage);
                 }
@@ -233,7 +227,7 @@ namespace CompositeC1Contrib.Web.UI
 
         protected override void Render(HtmlTextWriter writer)
         {
-            if (_isPreview)
+            if (RequestInfo.Current.IsPreview)
             {
                 base.Render(writer);
             }
@@ -341,13 +335,13 @@ namespace CompositeC1Contrib.Web.UI
 
         private void RewritePath()
         {
-            var structuredUrl = RequestInfo.Current.PageUrl.Build(PageUrlType.Public);
+            var structuredUrl = _url.Build(PageUrlType.Public);
             if (structuredUrl == null)
             {
                 return;
             }
 
-            structuredUrl.AddQueryParameters(RequestInfo.Current.ForeignQueryStringParameters);
+            structuredUrl.AddQueryParameters(_foreignQueryStringParameters);
 
             string pathInfo = new UrlBuilder(_cacheUrl).PathInfo;
             Context.RewritePath(structuredUrl.FilePath, pathInfo, structuredUrl.QueryString);

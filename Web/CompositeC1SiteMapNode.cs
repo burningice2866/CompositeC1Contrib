@@ -29,38 +29,41 @@ namespace CompositeC1Contrib.Web
         {
             url = url.Replace(".aspx", String.Empty);
 
-            var websites = data.Get<IPageStructure>().Where(p => p.ParentId == Guid.Empty);
-            if (websites.Count() == 1)
-            {
-                var numberOfLocales = data.Get<ISystemActiveLocale>().Count();
-                if (numberOfLocales > 1)
-                {
-                    url = url.Remove(0, url.IndexOf("/", 1));
-                }
-                else
-                {
-                    int secondSlash = url.IndexOf("/", 1);
-                    url = url.Remove(0, secondSlash == -1 ? url.Length : secondSlash);
-                }
-            }
-
             int index = url.IndexOf("?");
-            if (index == -1)
-            {
-                url = UrlUtils.GetCleanUrl(url);
-            }
-            else
+            if (index > -1)
             {
                 string query = url.Substring(index, url.Length - index);
                 url = url.Substring(0, index);
-
-                url = UrlUtils.GetCleanUrl(url);
-                url = url + query;
             }
 
-            if (String.IsNullOrEmpty(url))
+            var numberOfLocales = data.Get<ISystemActiveLocale>().Count();
+            if (numberOfLocales == 1)
             {
-                url = "/";
+                int secondSlash = url.IndexOf("/", 1);
+                url = url.Remove(0, secondSlash == -1 ? url.Length : secondSlash);
+            }
+            else
+            {
+                var parts = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                url = parts[0];
+
+                if (parts.Length > 1)
+                {
+                    int partsToSkip = data.CurrentPublicationScope == PublicationScope.Published ? 2 : 1;
+                    url = parts[0] + "/" + String.Join("/", parts.Skip(partsToSkip));
+                }
+            }            
+
+            url = UrlUtils.GetCleanUrl(url);
+
+            if (!url.StartsWith("/"))
+            {
+                url = "/" + url;
+            }
+
+            if (data.CurrentPublicationScope == PublicationScope.Unpublished)
+            {
+                url += "?dataScope=administrated";
             }
 
             return url;

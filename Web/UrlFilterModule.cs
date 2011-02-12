@@ -3,10 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
-using System.Web.UI;
 
 using Composite.Data;
-using Composite.Data.Types;
+
+using CompositeC1Contrib.Web.UI;
 
 namespace CompositeC1Contrib.Web
 {
@@ -24,17 +24,22 @@ namespace CompositeC1Contrib.Web
         {
             var ctx = ((HttpApplication)sender).Context;
 
-            string path = ctx.Request.RawUrl.ToLower();
+            string path = ctx.Request.Url.LocalPath;
             string extension = Path.GetExtension(ctx.Request.Url.LocalPath);
 
             if (DefaultDocumentModule.IsDefaultDocumentUrl(path) || String.IsNullOrEmpty(extension))
             {
-                var provider = (BaseSiteMapProvider)SiteMap.Provider;
+                var provider = (CompositeC1SiteMapProvider)SiteMap.Provider;
                 var ci = DataLocalizationFacade.ActiveLocalizationCultures.SingleOrDefault(c => path.StartsWith("/" + c.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase));
 
                 if (ci == null)
                 {
                     ci = DataLocalizationFacade.DefaultLocalizationCulture;
+                }
+
+                if (ctx.Request.QueryString["dataScope"] == "administrated")
+                {
+                    path += "?dataScope=administrated";
                 }
 
                 var node = provider.FindSiteMapNode(path, ci) as CompositeC1SiteMapNode;
@@ -57,9 +62,8 @@ namespace CompositeC1Contrib.Web
         {
             var ctx = ((HttpApplication)sender).Context;
 
-            if (ctx.Response.StatusCode != (int)HttpStatusCode.InternalServerError
-                && ctx.Handler is Page
-                && RequestInfo.Current.PageUrl != null)
+            if (ctx.Handler is CompositeC1Page 
+                && ctx.Response.StatusCode != (int)HttpStatusCode.InternalServerError)
             {
                 ctx.Response.Filter = new UrlFilter(ctx.Response.Filter, ctx);
             }
