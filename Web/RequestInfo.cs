@@ -2,12 +2,15 @@
 using System.Web;
 
 using Composite.Data;
+using System;
 
 namespace CompositeC1Contrib.Web
 {
     public class RequestInfo
     {
         private const string key = "___RI___";
+
+        private HttpContext _ctx;
 
         public static RequestInfo Current
         {
@@ -25,19 +28,19 @@ namespace CompositeC1Contrib.Web
             }
         }
 
+        public string PreviewKey
+        {
+            get { return _ctx.Request.QueryString["previewKey"]; }
+        }
+
         public bool IsPreview
         {
-            get
-            {
-                var ctx = HttpContext.Current;
-
-                return ctx.Items.Contains("SelectedPage") && ctx.Items.Contains("SelectedContents");
-            }
+            get { return !String.IsNullOrEmpty(PreviewKey); }
         }
 
         private RequestInfo(HttpContext ctx)
         {
-            
+            _ctx = ctx;
         }
     }
 }

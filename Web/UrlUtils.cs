@@ -54,6 +54,13 @@ namespace CompositeC1Contrib.Web
             replaceChars[' '] = "_";
         }
 
+        public static bool IsDefaultDocumentUrl(string url)
+        {
+            return url == "/"
+            || url.StartsWith("/?")
+            || url.StartsWith("/default.aspx", StringComparison.OrdinalIgnoreCase);
+        }
+
         public static string GetCleanUrl(string url)
         {
             var sb = new StringBuilder();

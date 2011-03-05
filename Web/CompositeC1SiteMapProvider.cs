@@ -6,7 +6,6 @@ using System.Linq;
 using System.Web;
 
 using Composite.C1Console.Security;
-using Composite.Core.WebClient.Renderings.Page;
 using Composite.Data;
 using Composite.Data.Types;
 
@@ -18,8 +17,8 @@ namespace CompositeC1Contrib.Web
         {
             get
             {
-                if ((HttpContext.Current.Request.QueryString["dataScope"] == "administrated" || RequestInfo.Current.IsPreview)
-                    && UserValidationFacade.IsLoggedIn())
+                if ((HttpContext.Current.Request.QueryString["dataScope"] == "administrated" && UserValidationFacade.IsLoggedIn())
+                    || RequestInfo.Current.IsPreview)
                 {
                     return PublicationScope.Unpublished;
                 }
@@ -35,7 +34,7 @@ namespace CompositeC1Contrib.Web
 
         protected override string GetCurrentKey()
         {
-            return PageRenderer.CurrentPage.Id.ToString();
+            return SitemapNavigator.CurrentPageId.ToString();
         }
 
         public override bool IsAccessibleToUser(HttpContext ctx, SiteMapNode node)
@@ -51,89 +50,6 @@ namespace CompositeC1Contrib.Web
             }
 
             return true;
-        }
-
-        protected override void LoadSiteMapInternal(IDictionary<CultureInfo, SiteMapContainer> list, string host)
-        {
-            if (PublicationScope == PublicationScope.Unpublished)
-            {
-                var path = HttpContext.Current.Request.Url.LocalPath;
-
-                using (var data = new DataConnection())
-                {
-                    var numberOfLocales = data.Get<ISystemActiveLocale>().Count();
-                    if (numberOfLocales > 1)
-                    {
-                        int secondSlash = path.IndexOf("/", 1);
-                        path = path.Remove(0, secondSlash == -1 ? path.Length : secondSlash);
-                    }
-
-                    var websites = data.Get<IPageStructure>().Where(s => s.ParentId == Guid.Empty);
-                    if (websites.Count() > 1)
-                    {
-                        int secondSlash = path.IndexOf("/", 1);
-                        var currentWebsite = path.Substring(1, (secondSlash == -1 ? path.Length : secondSlash) - 1);
-
-                        var page = websites
-                            .Select(s => data.Get<IPage>().Single(p => p.Id == s.Id))
-                            .Single(p => p.UrlTitle.Equals(currentWebsite, StringComparison.OrdinalIgnoreCase));
-
-                        var hostNameBinding = data.Get<IPageHostNameBinding>().SingleOrDefault(p => p.PageId == page.Id);
-                        if (hostNameBinding != null)
-                        {
-                            host = hostNameBinding.HostName;
-                        }
-                    }
-                }
-            }
-
-            foreach (var ci in DataLocalizationFacade.ActiveLocalizationCultures)
-            {
-                using (var data = new DataConnection(PublicationScope, ci))
-                {
-                    var root = data.SitemapNavigator.GetPageNodeByHostname(host);
-                    if (root != null)
-                    {
-                        var container = new SiteMapContainer() { Root = new CompositeC1SiteMapNode(this, root, data) };
-                        list.Add(ci, container);
-
-                        loadNodes(root, null, container, data);
-                    }
-                }
-            }
-        }
-
-        protected override void AddRolesInternal(IDictionary<CultureInfo, SiteMapContainer> list) { }
-
-        public override SiteMapNode FindSiteMapNode(string rawUrl)
-        {
-            int index = rawUrl.IndexOf("?");
-            if (index > -1)
-            {
-                string query = rawUrl.Substring(index, rawUrl.Length - index);
-                var qs = HttpUtility.ParseQueryString(query);
-
-                rawUrl = rawUrl.Substring(0, index);
-
-                if (qs["dataScope"] == "administrated")
-                {
-                    rawUrl += "?dataScope=administrated";
-                }
-            }
-
-            return base.FindSiteMapNode(rawUrl);
-        }
-
-        private void loadNodes(PageNode pageNode, SiteMapNode parent, SiteMapContainer container, DataConnection data)
-        {
-            var node = new CompositeC1SiteMapNode(this, pageNode, data);
-            AddNode(node, parent, container);
-
-            var childs = pageNode.ChildPages;
-            foreach (var child in childs)
-            {
-                loadNodes(child, node, container, data);
-            }
         }
 
         public override void Initialize(string name, NameValueCollection attributes)
@@ -153,6 +69,97 @@ namespace CompositeC1Contrib.Web
             DataEventSystemFacade.SubscribeToDataDeleted<ISystemActiveLocale>(handler);
 
             base.Initialize(name, attributes);
+        }
+
+        protected override void LoadSiteMapInternal(IDictionary<CultureInfo, SiteMapContainer> list, string host)
+        {
+            var scope = PublicationScope;
+
+            if (scope == PublicationScope.Unpublished)
+            {
+                host = ensureCorrectHost(host);
+            }
+
+            foreach (var ci in DataLocalizationFacade.ActiveLocalizationCultures)
+            {
+                using (var data = new DataConnection(scope, ci))
+                {
+                    var root = data.SitemapNavigator.GetPageNodeByHostname(host);
+                    if (root != null)
+                    {
+                        var container = new SiteMapContainer()
+                        {
+                            Root = new CompositeC1SiteMapNode(this, root, data)
+                        };
+
+                        list.Add(ci, container);
+
+                        loadNodes(root, null, container, data);
+                    }
+                }
+            }
+        }
+
+        protected override void AddRolesInternal(IDictionary<CultureInfo, SiteMapContainer> list) { }
+
+        private string ensureCorrectHost(string host)
+        {
+            using (var data = new DataConnection())
+            {
+                var websites = data.SitemapNavigator.HomePageIds;
+                if (websites.Count() > 1)
+                {
+                    IPage page = null;
+
+                    var currentNode = data.SitemapNavigator.CurrentHomePageNode;
+                    if (currentNode != null)
+                    {
+                        page = data.Get<IPage>().SingleOrDefault(p => p.Id == currentNode.Id);
+                    }
+                    
+                    if (page == null)
+                    {
+                        var path = HttpContext.Current.Request.Url.LocalPath;
+                        int secondSlash;
+
+                        if (data.Get<ISystemActiveLocale>().Count() > 1)
+                        {
+                            secondSlash = path.IndexOf("/", 1);
+                            path = path.Remove(0, secondSlash == -1 ? path.Length : secondSlash);
+                        }
+
+                        secondSlash = path.IndexOf("/", 1);
+                        var currentWebsite = path.Substring(1, (secondSlash == -1 ? path.Length : secondSlash) - 1).Replace(".aspx", String.Empty);
+
+                        page = websites
+                            .Select(site => data.Get<IPage>().Single(p => p.Id == site))
+                            .SingleOrDefault(p => p.UrlTitle.Equals(currentWebsite, StringComparison.OrdinalIgnoreCase));
+                    }
+
+                    if (page != null)
+                    {
+                        var hostNameBinding = data.Get<IPageHostNameBinding>().SingleOrDefault(p => p.PageId == page.Id);
+                        if (hostNameBinding != null)
+                        {
+                            return hostNameBinding.HostName;
+                        }
+                    }
+                }
+            }
+
+            return host;
+        }
+
+        private void loadNodes(PageNode pageNode, SiteMapNode parent, SiteMapContainer container, DataConnection data)
+        {
+            var node = new CompositeC1SiteMapNode(this, pageNode, data);
+            AddNode(node, parent, container);
+
+            var childs = pageNode.ChildPages;
+            foreach (var child in childs)
+            {
+                loadNodes(child, node, container, data);
+            }
         }
     }
 }

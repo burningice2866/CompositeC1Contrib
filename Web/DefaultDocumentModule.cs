@@ -7,23 +7,15 @@ namespace CompositeC1Contrib.Web
 {
     public class DefaultDocumentModule : IHttpModule
     {
-        public static bool IsDefaultDocumentUrl(string url)
-        {
-            return url == "/" 
-            || url.StartsWith("/?") 
-            || url.StartsWith("/default.aspx", StringComparison.OrdinalIgnoreCase);
-        }
-
         private void app_BeginRequest(object sender, EventArgs e)
         {
             var ctx = ((HttpApplication)sender).Context;
 
             string path = ctx.Request.RawUrl.ToLower();
-            if (IsDefaultDocumentUrl(path))
+            if (UrlUtils.IsDefaultDocumentUrl(path))
             {
                 var ci = CultureInfo.CurrentCulture;
-                var provider = SiteMap.Provider;                
-                var node = default(SiteMapNode);
+                var provider = (BaseSiteMapProvider)SiteMap.Provider;                
 
                 var cookie = ctx.Request.Cookies["dotgl_lang"];
                 if (cookie != null)
@@ -33,17 +25,8 @@ namespace CompositeC1Contrib.Web
                     catch (ArgumentException) { }
                 }
 
-                var baseProvider = provider as BaseSiteMapProvider;
-                if (baseProvider != null)
-                {
-                    node = baseProvider.GetRootNodes().FirstOrDefault(n => n.Culture.Equals(ci));
-                }
-                else
-                {
-                    node = provider.RootNode;
-                }
-
-                if (node != null && !IsDefaultDocumentUrl(node.Url))
+                var node = provider.GetRootNodes().FirstOrDefault(n => n.Culture.Equals(ci));
+                if (node != null && !UrlUtils.IsDefaultDocumentUrl(node.Url))
                 {
                     ctx.Response.StatusCode = 301;
                     ctx.Response.StatusDescription = "301 Moved Permanently";

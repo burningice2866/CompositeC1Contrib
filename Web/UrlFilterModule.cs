@@ -25,9 +25,9 @@ namespace CompositeC1Contrib.Web
             var ctx = ((HttpApplication)sender).Context;
 
             string path = ctx.Request.Url.LocalPath;
-            string extension = Path.GetExtension(ctx.Request.Url.LocalPath);
+            string extension = Path.GetExtension(path);
 
-            if (DefaultDocumentModule.IsDefaultDocumentUrl(path) || String.IsNullOrEmpty(extension))
+            if (UrlUtils.IsDefaultDocumentUrl(path) || String.IsNullOrEmpty(extension))
             {
                 var provider = (CompositeC1SiteMapProvider)SiteMap.Provider;
                 var ci = DataLocalizationFacade.ActiveLocalizationCultures.SingleOrDefault(c => path.StartsWith("/" + c.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase));
@@ -45,7 +45,7 @@ namespace CompositeC1Contrib.Web
                 var node = provider.FindSiteMapNode(path, ci) as CompositeC1SiteMapNode;
                 if (node == null)
                 {
-                    if (DefaultDocumentModule.IsDefaultDocumentUrl(path))
+                    if (UrlUtils.IsDefaultDocumentUrl(path))
                     {
                         node = provider.RootNode as CompositeC1SiteMapNode;
                     }
@@ -53,7 +53,13 @@ namespace CompositeC1Contrib.Web
 
                 if (node != null)
                 {
-                    ctx.RewritePath(node.PageNode.Url, ctx.Request.PathInfo, ctx.Request.QueryString.ToString());
+                    string query = ctx.Request.Url.Query;
+                    if (!String.IsNullOrEmpty(query))
+                    {
+                        query = query.Remove(0, 1);
+                    }
+
+                    ctx.RewritePath(node.PageNode.Url, ctx.Request.PathInfo, query);
                 }
             }
         }

@@ -37,6 +37,14 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -63,12 +71,13 @@
     <Compile Include="Web\RequestInfo.cs" />
     <Compile Include="Web\SiteMapHandler.cs" />
     <Compile Include="Web\SitemapNodeChangeFrequency.cs" />
+    <Compile Include="Web\UI\SideMenu.cs" />
     <Compile Include="Web\UrlFilter.cs" />
     <Compile Include="Web\UrlFilterModule.cs" />
     <Compile Include="Web\UrlUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Composite\Composite.csproj">
+    <ProjectReference Include="\\192.168.20.136\c%24\CompositeC1Cms\Websites\Sermersooq\Composite\Composite.csproj">
       <Project>{F8D87A5F-D090-4D24-80C1-DBCD938C6CAB}</Project>
       <Name>Composite</Name>
     </ProjectReference>

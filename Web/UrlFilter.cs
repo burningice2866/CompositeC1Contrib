@@ -58,6 +58,8 @@ namespace CompositeC1Contrib.Web
 
             var builder = new StringBuilder();
             int startIndex = 0;
+            var provider = (BaseSiteMapProvider)SiteMap.Provider;
+            string host = String.Format("{0}://{1}", Context.Request.Url.Scheme, Context.Request.Url.Host);
 
             foreach (Match href in hrefs)
             {
@@ -65,7 +67,7 @@ namespace CompositeC1Contrib.Web
 
                 if (isC1PageLink)
                 {
-                    string url = href.Value;
+                    string url = href.Value.ToLower();
                     if (String.IsNullOrEmpty(url))
                     {
                         continue;
@@ -73,14 +75,9 @@ namespace CompositeC1Contrib.Web
 
                     builder.Append(unparsedString.Substring(startIndex, href.Index - startIndex));
 
-                    url = url.ToLower();
-
-                    string fullUrl = String.Format("{0}://{1}{2}", Context.Request.Url.Scheme, Context.Request.Url.Host, url);
-                    var pageUrl = PageUrl.Parse(fullUrl);
-
+                    var pageUrl = PageUrl.Parse(String.Concat(host, url));
                     if (pageUrl != null)
                     {
-                        var provider = (BaseSiteMapProvider)SiteMap.Provider;
                         var guid = pageUrl.PageId;
                         var ci = pageUrl.Locale;
                         var node = provider.FindSiteMapNodeFromKey(guid.ToString(), ci);
