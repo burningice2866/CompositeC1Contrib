@@ -8,6 +8,7 @@ using System.Web;
 using Composite.C1Console.Security;
 using Composite.Data;
 using Composite.Data.Types;
+using System.IO;
 
 namespace CompositeC1Contrib.Web
 {
@@ -160,6 +161,41 @@ namespace CompositeC1Contrib.Web
             {
                 loadNodes(child, node, container, data);
             }
+        }
+
+        public static CompositeC1SiteMapNode ResolveNodeFromUrl(Uri url)
+        {
+            string path = url.LocalPath;
+            string extension = Path.GetExtension(path);
+
+            if (UrlUtils.IsDefaultDocumentUrl(path) || String.IsNullOrEmpty(extension))
+            {
+                var provider = (CompositeC1SiteMapProvider)SiteMap.Provider;
+                var ci = DataLocalizationFacade.ActiveLocalizationCultures.SingleOrDefault(c => path.StartsWith("/" + c.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase));
+
+                if (ci == null)
+                {
+                    ci = DataLocalizationFacade.DefaultLocalizationCulture;
+                }
+
+                if (url.Query.Contains("dataScope=administrated"))
+                {
+                    path += "?dataScope=administrated";
+                }
+
+                var node = provider.FindSiteMapNode(path, ci) as CompositeC1SiteMapNode;
+                if (node == null)
+                {
+                    if (UrlUtils.IsDefaultDocumentUrl(path))
+                    {
+                        node = provider.RootNode as CompositeC1SiteMapNode;
+                    }
+                }
+
+                return node;
+            }
+
+            return null;
         }
     }
 }

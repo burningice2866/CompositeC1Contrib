@@ -18,7 +18,7 @@ namespace CompositeC1Contrib.Web
 
         static UrlFilter()
         {
-            IEnumerable<string> prepends = DataLocalizationFacade.UrlMappingNames;
+            var prepends = DataLocalizationFacade.UrlMappingNames;
 
             using (var data = new DataConnection())
             {

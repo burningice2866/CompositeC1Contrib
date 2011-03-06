@@ -19,7 +19,6 @@ using Composite.Core.Instrumentation;
 using Composite.Core.WebClient;
 using Composite.Core.WebClient.Renderings;
 using Composite.Core.WebClient.Renderings.Page;
-using Composite.Core.Xml;
 using Composite.Data;
 using Composite.Data.Types;
 
@@ -161,45 +160,33 @@ namespace CompositeC1Contrib.Web.UI
                 }
             }
 
-            var contents = rq.IsPreview ? (IEnumerable<IPagePlaceholderContent>)Cache.Get(rq.PreviewKey + "_SelectedContents") : PageManager.GetPlaceholderContent(PageRenderer.CurrentPage.Id);
+            var contents = rq.IsPreview ? (IEnumerable<IPagePlaceholderContent>)Cache.Get(rq.PreviewKey + "_SelectedContents") : PageManager.GetPlaceholderContent(Document.Id);
 
             if (Master != null)
             {
                 using (Profiler.Measure("Executing Page as Master"))
                 {
-                    var normalizeXhtmlDocument = typeof(PageRenderer).GetMethod("NormalizeXhtmlDocument", BindingFlags.Static | BindingFlags.NonPublic);
-                    var resolveRelativePaths = typeof(PageRenderer).GetMethod("ResolveRelativePaths", BindingFlags.Static | BindingFlags.NonPublic);
+                    var helper = new PageRendererHelper();
 
                     foreach (var content in contents)
                     {
-                        var doc = XElement.Parse(content.Content);
-                        var context = PageRenderer.GetPageRenderFunctionContextContainer();
-
-                        using (Profiler.Measure("Executing C1 functions"))
-                        {
-                            PageRenderer.ExecuteEmbeddedFunctions(doc, context);
-
-                            var xDoc = new XhtmlDocument(doc);
-
-                            normalizeXhtmlDocument.Invoke(null, new[] { xDoc });
-                            resolveRelativePaths.Invoke(null, new[] { xDoc });
-                        }
-
+                        var doc = helper.RenderDocument(content);
+                        
                         using (Profiler.Measure("ASP.NET controls: PageInit"))
                         {
                             var plc = FindControlRecursive(Master, content.PlaceHolderId);
                             if (plc != null)
                             {
-                                var body = doc.Descendants().Single(el => el.Name.LocalName == "body");
-                                var c = body.AsAspNetControl((IXElementToControlMapper)context.XEmbedableMapper);
+                                var body = PageRendererHelper.GetDocumentPart(doc, "body");
+                                var c = body.AsAspNetControl((IXElementToControlMapper)helper.FunctionContext.XEmbedableMapper);
 
                                 plc.Controls.Add(c);
                             }
 
-                            var head = doc.Descendants().SingleOrDefault(el => el.Name.LocalName == "head");
+                            var head = PageRendererHelper.GetDocumentPart(doc, "header");
                             if (Header != null && head != null)
                             {
-                                Header.Controls.Add(new LiteralControl(String.Concat(head.Elements())));
+                                Header.Controls.Add(new LiteralControl(String.Concat(head.Nodes())));
                             }
                         }
                     }
@@ -266,7 +253,7 @@ namespace CompositeC1Contrib.Web.UI
             }
             catch (HttpException ex)
             {
-                MethodInfo setStringMethod = typeof(HttpContext).Assembly /* System.Web */
+                var setStringMethod = typeof(HttpContext).Assembly /* System.Web */
                     .GetType("System.Web.SR")
                     .GetMethod("GetString", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(string) }, null);
 

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Web;
-
-using Composite.Data;
+using System.Web.Mvc;
 
 using CompositeC1Contrib.Web.UI;
 
@@ -22,34 +19,10 @@ namespace CompositeC1Contrib.Web
 
         private void app_BeginRequest(object sender, EventArgs e)
         {
-            var ctx = ((HttpApplication)sender).Context;
-
-            string path = ctx.Request.Url.LocalPath;
-            string extension = Path.GetExtension(path);
-
-            if (UrlUtils.IsDefaultDocumentUrl(path) || String.IsNullOrEmpty(extension))
+            if (!AppSettings.UseMvcForContentRendering)
             {
-                var provider = (CompositeC1SiteMapProvider)SiteMap.Provider;
-                var ci = DataLocalizationFacade.ActiveLocalizationCultures.SingleOrDefault(c => path.StartsWith("/" + c.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase));
-
-                if (ci == null)
-                {
-                    ci = DataLocalizationFacade.DefaultLocalizationCulture;
-                }
-
-                if (ctx.Request.QueryString["dataScope"] == "administrated")
-                {
-                    path += "?dataScope=administrated";
-                }
-
-                var node = provider.FindSiteMapNode(path, ci) as CompositeC1SiteMapNode;
-                if (node == null)
-                {
-                    if (UrlUtils.IsDefaultDocumentUrl(path))
-                    {
-                        node = provider.RootNode as CompositeC1SiteMapNode;
-                    }
-                }
+                var ctx = ((HttpApplication)sender).Context;
+                var node = CompositeC1SiteMapProvider.ResolveNodeFromUrl(ctx.Request.Url);
 
                 if (node != null)
                 {
@@ -60,7 +33,7 @@ namespace CompositeC1Contrib.Web
                     }
 
                     ctx.RewritePath(node.PageNode.Url, ctx.Request.PathInfo, query);
-                }
+                }                
             }
         }
 
@@ -68,7 +41,7 @@ namespace CompositeC1Contrib.Web
         {
             var ctx = ((HttpApplication)sender).Context;
 
-            if (ctx.Handler is CompositeC1Page 
+            if ((ctx.Handler is CompositeC1Page || ctx.Handler is MvcHandler)
                 && ctx.Response.StatusCode != (int)HttpStatusCode.InternalServerError)
             {
                 ctx.Response.Filter = new UrlFilter(ctx.Response.Filter, ctx);
