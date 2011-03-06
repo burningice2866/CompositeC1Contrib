@@ -39,12 +39,15 @@ namespace CompositeC1Contrib.Web
 
         private void app_PostRequestHandlerExecute(object sender, EventArgs e)
         {
-            var ctx = ((HttpApplication)sender).Context;
-
-            if ((ctx.Handler is CompositeC1Page || ctx.Handler is MvcHandler)
-                && ctx.Response.StatusCode != (int)HttpStatusCode.InternalServerError)
+            if (AppSettings.UseFriendlyExtensionlessUrls)
             {
-                ctx.Response.Filter = new UrlFilter(ctx.Response.Filter, ctx);
+                var ctx = ((HttpApplication)sender).Context;
+
+                if ((ctx.Handler is CompositeC1Page || ctx.Handler is MvcHandler)
+                    && ctx.Response.StatusCode != (int)HttpStatusCode.InternalServerError)
+                {
+                    ctx.Response.Filter = new UrlFilter(ctx.Response.Filter, ctx);
+                }
             }
         }
     }

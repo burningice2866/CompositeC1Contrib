@@ -129,12 +129,15 @@ namespace CompositeC1Contrib.Web
                             path = path.Remove(0, secondSlash == -1 ? path.Length : secondSlash);
                         }
 
-                        secondSlash = path.IndexOf("/", 1);
-                        var currentWebsite = path.Substring(1, (secondSlash == -1 ? path.Length : secondSlash) - 1).Replace(".aspx", String.Empty);
+                        if (path.Length > 0)
+                        {
+                            secondSlash = path.IndexOf("/", 1);
+                            var currentWebsite = path.Substring(1, (secondSlash == -1 ? path.Length : secondSlash) - 1).Replace(".aspx", String.Empty);
 
-                        page = websites
-                            .Select(site => data.Get<IPage>().Single(p => p.Id == site))
-                            .SingleOrDefault(p => p.UrlTitle.Equals(currentWebsite, StringComparison.OrdinalIgnoreCase));
+                            page = websites
+                                .Select(site => data.Get<IPage>().Single(p => p.Id == site))
+                                .SingleOrDefault(p => p.UrlTitle.Equals(currentWebsite, StringComparison.OrdinalIgnoreCase));
+                        }
                     }
 
                     if (page != null)

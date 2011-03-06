@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 
 using Composite.C1Console.Security;
+using Composite.Data;
 using Composite.Data.Types;
 
 namespace CompositeC1Contrib.Web.Mvc
@@ -30,9 +31,20 @@ namespace CompositeC1Contrib.Web.Mvc
             base.OnActionExecuting(filterContext);
         }
 
+        protected override void OnResultExecuted(ResultExecutedContext filterContext)
+        {
+            var dataScope = RouteData.Values["dataScope"] as DataScope;
+            if (dataScope != null)
+            {
+                dataScope.Dispose();
+            }
+
+            base.OnResultExecuted(filterContext);
+        }
+
         protected virtual void ValidateViewUnpublishedRequest(ActionExecutingContext filterContext)
         {
-            if (filterContext.HttpContext.Request.QueryString["dataScope"] == "administrated" && UserValidationFacade.IsLoggedIn())
+            if (Request.QueryString["dataScope"] == "administrated" && !UserValidationFacade.IsLoggedIn())
             {
                 string url = String.Format("{0}/Composite/Login.aspx?ReturnUrl={1}", Composite.Core.WebClient.UrlUtils.PublicRootPath, HttpUtility.UrlEncodeUnicode(Request.Url.OriginalString));
                 filterContext.Result = new RedirectResult(url);

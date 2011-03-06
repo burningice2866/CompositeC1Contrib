@@ -17,5 +17,19 @@ namespace CompositeC1Contrib
                 return false;
             }
         }
+
+        public static bool UseFriendlyExtensionlessUrls
+        {
+            get
+            {
+                var b = true;
+                if (bool.TryParse(ConfigurationManager.AppSettings["useFriendlyExtensionlessUrls"], out b))
+                {
+                    return b;
+                }
+
+                return true;
+            }
+        }
     }
 }
