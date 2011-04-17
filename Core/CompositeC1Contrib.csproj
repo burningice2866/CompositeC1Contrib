@@ -46,11 +46,16 @@
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Mvc, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -70,6 +75,11 @@
     <Compile Include="Web\BaseSiteMapProvider.cs" />
     <Compile Include="Web\CompositeC1Application.cs" />
     <Compile Include="Web\GlobalizationModule.cs" />
+    <Compile Include="Web\Security\CompositeC1MembershipProvider.cs" />
+    <Compile Include="Web\Security\CompositeC1MembershipUser.cs" />
+    <Compile Include="Web\Security\IMembershipUser.cs" />
+    <Compile Include="Web\Security\LoginProviderHelper.cs" />
+    <Compile Include="Web\ShopHttpModule.cs" />
     <Compile Include="Web\UI\BaseCompositeC1Control.cs" />
     <Compile Include="Web\UI\CompositeC1Page.cs">
       <SubType>ASPXCodeBehind</SubType>
@@ -91,7 +101,7 @@
     <Compile Include="Web\UrlUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="\\192.168.20.136\c%24\CompositeC1Cms\Websites\Sermersooq\Composite\Composite.csproj">
+    <ProjectReference Include="C:\Websites\Sermersooq\Composite\Composite.csproj">
       <Project>{F8D87A5F-D090-4D24-80C1-DBCD938C6CAB}</Project>
       <Name>Composite</Name>
     </ProjectReference>
