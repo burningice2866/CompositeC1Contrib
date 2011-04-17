@@ -59,7 +59,7 @@
       <Project>{1E76E3BE-F575-4E2D-A791-8A0EDA53C1B2}</Project>
       <Name>CompositeC1Contrib</Name>
     </ProjectReference>
-    <ProjectReference Include="\\192.168.20.136\c%24\CompositeC1Cms\Websites\Sermersooq\Composite\Composite.csproj">
+    <ProjectReference Include="..\..\..\Websites\Sermersooq\Composite\Composite.csproj">
       <Project>{F8D87A5F-D090-4D24-80C1-DBCD938C6CAB}</Project>
       <Name>Composite</Name>
     </ProjectReference>

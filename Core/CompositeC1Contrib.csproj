@@ -79,7 +79,6 @@
     <Compile Include="Web\Security\CompositeC1MembershipUser.cs" />
     <Compile Include="Web\Security\IMembershipUser.cs" />
     <Compile Include="Web\Security\LoginProviderHelper.cs" />
-    <Compile Include="Web\ShopHttpModule.cs" />
     <Compile Include="Web\UI\BaseCompositeC1Control.cs" />
     <Compile Include="Web\UI\CompositeC1Page.cs">
       <SubType>ASPXCodeBehind</SubType>
