@@ -24,17 +24,44 @@ namespace CompositeC1Contrib.Web
 
             if (UrlUtils.IsDefaultDocumentUrl(path) || String.IsNullOrEmpty(extension) || String.Equals(extension, ".aspx", StringComparison.OrdinalIgnoreCase))
             {
-                var node = CompositeC1SiteMapProvider.ResolveNodeFromUrl(ctx.Request.Url);
+                string pathInfo = String.Empty;
+                CompositeC1SiteMapNode node = null;
+                var url = ctx.Request.Url;
+
+                var localPath = url.LocalPath;
+                string query = url.Query;                
+
+                while (node == null && !String.IsNullOrEmpty(localPath))
+                {
+                    node = CompositeC1SiteMapProvider.ResolveNodeFromUrl(localPath, query);
+                    if (node == null)
+                    {
+                        int lastIndex = localPath.LastIndexOf('/');
+                        if (lastIndex > 0)
+                        {
+                            pathInfo += "/" + localPath.Substring(lastIndex, localPath.Length - lastIndex);
+                            localPath = localPath.Substring(0, lastIndex);
+                        }
+                        else
+                        {
+                            localPath = String.Empty;
+                        }
+                    }
+                }
 
                 if (node != null)
                 {
-                    string query = ctx.Request.Url.Query;
                     if (!String.IsNullOrEmpty(query))
                     {
                         query = query.Remove(0, 1);
                     }
 
-                    ctx.RewritePath(node.PageNode.Url, ctx.Request.PathInfo, query);
+                    if (String.IsNullOrEmpty(pathInfo))
+                    {
+                        pathInfo = ctx.Request.PathInfo;
+                    }
+
+                    ctx.RewritePath(node.PageNode.Url, pathInfo, query);
                 }
             }
         }

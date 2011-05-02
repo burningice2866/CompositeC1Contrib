@@ -33,7 +33,7 @@ namespace CompositeC1Contrib.Web.Mvc
             IPage page = null;
             DataScope dataScope = null;
 
-            var node = CompositeC1SiteMapProvider.ResolveNodeFromUrl(ctx.Request.Url);
+            var node = CompositeC1SiteMapProvider.ResolveNodeFromUrl(ctx.Request.Url.LocalPath, ctx.Request.Url.Query);
             if (node != null)
             {
                 dataScope = new DataScope(DataScopeIdentifier.FromPublicationScope(scope), node.Culture);

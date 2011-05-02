@@ -165,26 +165,25 @@ namespace CompositeC1Contrib.Web
             }
         }
 
-        public static CompositeC1SiteMapNode ResolveNodeFromUrl(Uri url)
+        public static CompositeC1SiteMapNode ResolveNodeFromUrl(string localPath, string query)
         {
-            string path = url.LocalPath;
             var provider = (CompositeC1SiteMapProvider)SiteMap.Provider;
 
-            var ci = DataLocalizationFacade.ActiveLocalizationCultures.SingleOrDefault(c => path.StartsWith("/" + c.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase));
+            var ci = DataLocalizationFacade.ActiveLocalizationCultures.SingleOrDefault(c => localPath.StartsWith("/" + c.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase));
             if (ci == null)
             {
                 ci = DataLocalizationFacade.DefaultLocalizationCulture;
             }
 
-            if (url.Query.Contains("dataScope=administrated"))
+            if (query.Contains("dataScope=administrated"))
             {
-                path += "?dataScope=administrated";
+                localPath += "?dataScope=administrated";
             }
 
-            var node = provider.FindSiteMapNode(path, ci) as CompositeC1SiteMapNode;
+            var node = provider.FindSiteMapNode(localPath, ci) as CompositeC1SiteMapNode;
             if (node == null)
             {
-                if (UrlUtils.IsDefaultDocumentUrl(path))
+                if (UrlUtils.IsDefaultDocumentUrl(localPath))
                 {
                     node = provider.RootNode as CompositeC1SiteMapNode;
                 }

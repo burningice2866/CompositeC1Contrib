@@ -13,16 +13,18 @@ namespace CompositeC1Contrib.Web.UI.Rendering
         public string Title { get; set; }
         public bool Default { get; set; }
 
-        protected override void CreateChildControls()
+        protected override XElement CreateElementToRender()
         {
             var rq = RequestInfo.Current;
-
             var contents = rq.IsPreview ? (IEnumerable<IPagePlaceholderContent>)Page.Cache.Get(rq.PreviewKey + "_SelectedContents") : PageManager.GetPlaceholderContent(Document.Id);
-            var content = contents.Single(c => c.PlaceHolderId == ID);
 
-            elementToRender = XElement.Parse(content.Content);
+            var content = contents.SingleOrDefault(c => c.PlaceHolderId == ID);
+            if (content != null)
+            {
+                return XElement.Parse(content.Content);
+            }
 
-            base.CreateChildControls();
+            return null;
         }
     }
 }
