@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Web;
 
 using CompositeC1Contrib.Web.UI;
@@ -24,12 +25,12 @@ namespace CompositeC1Contrib.Web
 
             if (UrlUtils.IsDefaultDocumentUrl(path) || String.IsNullOrEmpty(extension) || String.Equals(extension, ".aspx", StringComparison.OrdinalIgnoreCase))
             {
-                string pathInfo = String.Empty;
+                var pathInfo = new StringBuilder();
                 CompositeC1SiteMapNode node = null;
                 var url = ctx.Request.Url;
 
                 var localPath = url.LocalPath;
-                string query = url.Query;                
+                string query = url.Query;
 
                 while (node == null && !String.IsNullOrEmpty(localPath))
                 {
@@ -39,7 +40,7 @@ namespace CompositeC1Contrib.Web
                         int lastIndex = localPath.LastIndexOf('/');
                         if (lastIndex > 0)
                         {
-                            pathInfo += "/" + localPath.Substring(lastIndex, localPath.Length - lastIndex);
+                            pathInfo.Insert(0, "/" + localPath.Substring(lastIndex, localPath.Length - lastIndex));
                             localPath = localPath.Substring(0, lastIndex);
                         }
                         else
@@ -56,12 +57,12 @@ namespace CompositeC1Contrib.Web
                         query = query.Remove(0, 1);
                     }
 
-                    if (String.IsNullOrEmpty(pathInfo))
+                    if (pathInfo.Length == 0)
                     {
-                        pathInfo = ctx.Request.PathInfo;
+                        pathInfo.Append(ctx.Request.PathInfo);
                     }
 
-                    ctx.RewritePath(node.PageNode.Url, pathInfo, query);
+                    ctx.RewritePath(node.PageNode.Url, pathInfo.ToString(), query);
                 }
             }
         }

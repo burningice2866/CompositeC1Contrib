@@ -69,9 +69,8 @@ namespace CompositeC1Contrib.Web
 
             foreach (Match href in hrefs)
             {
-                var isC1PageLink = _pageUriRegEx.IsMatch(href.Value);
-
-                if (isC1PageLink)
+                var c1PageLink = _pageUriRegEx.Match(href.Value);
+                if (c1PageLink.Success)
                 {
                     string url = href.Value.ToLower();
                     if (String.IsNullOrEmpty(url))
@@ -90,7 +89,7 @@ namespace CompositeC1Contrib.Web
 
                         if (node != null)
                         {
-                            url = node.Url;
+                            url = Regex.Replace(url, c1PageLink.Value, node.Url, RegexOptions.IgnoreCase);
                         }
                         else
                         {
