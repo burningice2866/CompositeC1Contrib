@@ -38,6 +38,12 @@ namespace CompositeC1Contrib.Web
                     url = url.Remove(0, C1UrlUtils.PublicRootPath.Length);
                 }
 
+                var localeMapping = DataLocalizationFacade.GetUrlMappingName(data.CurrentLocale);
+                if (!String.IsNullOrEmpty(localeMapping))
+                {
+                    url = url.Remove(0, localeMapping.Length + 1);
+                }
+
                 int index = url.IndexOf("?");
                 if (index > -1)
                 {
@@ -45,23 +51,8 @@ namespace CompositeC1Contrib.Web
                     url = url.Substring(0, index);
                 }
 
-                var numberOfLocales = data.Get<ISystemActiveLocale>().Count();
-                if (numberOfLocales == 1)
-                {
-                    int secondSlash = url.IndexOf("/", 1);
-                    url = url.Remove(0, secondSlash == -1 ? url.Length : secondSlash);
-                }
-                else
-                {
-                    var parts = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                    url = parts[0];
-
-                    if (parts.Length > 1)
-                    {
-                        int partsToSkip = data.CurrentPublicationScope == PublicationScope.Published ? 2 : 1;
-                        url = parts[0] + "/" + String.Join("/", parts.Skip(partsToSkip));
-                    }
-                }
+                int secondSlash = url.IndexOf("/", 1);
+                url = url.Remove(0, secondSlash == -1 ? url.Length : secondSlash);
 
                 url = UrlUtils.GetCleanUrl(url);
 
@@ -70,14 +61,19 @@ namespace CompositeC1Contrib.Web
                     url += ".aspx";
                 }
 
-                if (!url.StartsWith("/"))
-                {
-                    url = "/" + url;
-                }
-
                 if (!String.IsNullOrEmpty(C1UrlUtils.PublicRootPath))
                 {
                     url = C1UrlUtils.PublicRootPath + url;
+                }
+
+                if (!String.IsNullOrEmpty(localeMapping))
+                {
+                    url = "/" + localeMapping + url;
+                }
+
+                if (!url.StartsWith("/"))
+                {
+                    url = "/" + url;
                 }
 
                 if (data.CurrentPublicationScope == PublicationScope.Unpublished)

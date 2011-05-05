@@ -122,10 +122,10 @@ namespace CompositeC1Contrib.Web
                         var path = HttpContext.Current.Request.Url.LocalPath;
                         int secondSlash;
 
-                        if (data.Get<ISystemActiveLocale>().Count() > 1)
+                        var localeMapping = DataLocalizationFacade.GetUrlMappingName(data.CurrentLocale);
+                        if (!String.IsNullOrEmpty(localeMapping))
                         {
-                            secondSlash = path.IndexOf("/", 1);
-                            path = path.Remove(0, secondSlash == -1 ? path.Length : secondSlash);
+                            path = path.Remove(0, localeMapping.Length + 1);
                         }
 
                         if (path.Length > 0)

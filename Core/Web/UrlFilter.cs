@@ -26,7 +26,9 @@ namespace CompositeC1Contrib.Web
             {
                 var websites = data.Get<IPageStructure>()
                     .Where(p => p.ParentId == Guid.Empty)
-                    .Select(p => data.Get<IPage>().Single(o => o.Id == p.Id).UrlTitle);
+                    .Select(ws => data.Get<IPage>().SingleOrDefault(o => o.Id == ws.Id))
+                    .Where(p => p != null)
+                    .Select(p => p.UrlTitle);                    
 
                 prepends = prepends.Concat(websites).ToList();
             }

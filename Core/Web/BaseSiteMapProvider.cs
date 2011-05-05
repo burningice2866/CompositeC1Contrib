@@ -79,7 +79,10 @@ namespace CompositeC1Contrib.Web
         {
             SiteMapNode node = null;
             var container = GetContainer(ci);
-            container.RawUrlToNodesMap.TryGetValue(rawUrl, out node);
+            if (container != null)
+            {
+                container.RawUrlToNodesMap.TryGetValue(rawUrl, out node);
+            }
 
             return node;
         }
@@ -261,8 +264,12 @@ namespace CompositeC1Contrib.Web
 
         private SiteMapContainer GetContainer(CultureInfo ci)
         {
-            var containers = loadSiteMap();            
-            return containers[ci];
+            var containers = loadSiteMap();
+            SiteMapContainer container = null;
+
+            containers.TryGetValue(ci, out container);
+
+            return container;
         }
 
         private IDictionary<CultureInfo, SiteMapContainer> loadSiteMap()
