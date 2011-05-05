@@ -33,6 +33,11 @@ namespace CompositeC1Contrib.Web
             {
                 url = url.Replace(".aspx", String.Empty);
 
+                if (!String.IsNullOrEmpty(C1UrlUtils.PublicRootPath))
+                {
+                    url = url.Remove(0, C1UrlUtils.PublicRootPath.Length);
+                }
+
                 int index = url.IndexOf("?");
                 if (index > -1)
                 {
