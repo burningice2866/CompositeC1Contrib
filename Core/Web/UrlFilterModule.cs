@@ -6,6 +6,8 @@ using System.Web;
 
 using CompositeC1Contrib.Web.UI;
 
+using C1UrlUtils = Composite.Core.WebClient.UrlUtils;
+
 namespace CompositeC1Contrib.Web
 {
     public class UrlFilterModule : IHttpModule
@@ -23,7 +25,8 @@ namespace CompositeC1Contrib.Web
             string path = ctx.Request.Url.LocalPath;
             string extension = Path.GetExtension(path);
 
-            if (UrlUtils.IsDefaultDocumentUrl(path) || String.IsNullOrEmpty(extension) || String.Equals(extension, ".aspx", StringComparison.OrdinalIgnoreCase))
+            if (!path.StartsWith(C1UrlUtils.AdminRootPath, StringComparison.OrdinalIgnoreCase) 
+                && (UrlUtils.IsDefaultDocumentUrl(path) || String.IsNullOrEmpty(extension) || String.Equals(extension, ".aspx", StringComparison.OrdinalIgnoreCase)))
             {
                 var pathInfo = new StringBuilder();
                 CompositeC1SiteMapNode node = null;
