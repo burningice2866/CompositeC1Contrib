@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Web.UI;
 using System.Xml.Linq;
 
@@ -16,24 +16,33 @@ namespace CompositeC1Contrib.Web.UI.Rendering
             if (elementToRender != null)
             {
                 var helper = new PageRendererHelper();
+                var mapper = (IXElementToControlMapper)helper.FunctionContext.XEmbedableMapper;
 
                 var doc = helper.RenderDocument(elementToRender);
                 var body = PageRendererHelper.GetDocumentPart(doc, "body");
-                var control = body.AsAspNetControl((IXElementToControlMapper)helper.FunctionContext.XEmbedableMapper);
 
-                Controls.Add(control);
+                addNodesAsControls(body.Nodes(), this, mapper);
 
                 if (Page.Header != null)
                 {
                     var head = PageRendererHelper.GetDocumentPart(doc, "head");
                     if (head != null)
                     {
-                        Page.Header.Controls.Add(new LiteralControl(String.Concat(head.Nodes())));
+                        addNodesAsControls(head.Nodes(), Page.Header, mapper);
                     }
                 }
             }
 
             base.CreateChildControls();
+        }
+
+        private static void addNodesAsControls(IEnumerable<XNode> nodes, Control parent, IXElementToControlMapper mapper)
+        {
+            foreach (var node in nodes)
+            {
+                var c = node.AsAspNetControl(mapper);
+                parent.Controls.Add(c);
+            }
         }
     }
 }
