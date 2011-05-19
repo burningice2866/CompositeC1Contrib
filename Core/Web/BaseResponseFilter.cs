@@ -1,9 +1,10 @@
 ﻿using System.IO;
+using System.Text;
 using System.Web;
 
 namespace CompositeC1Contrib.Web
 {
-    public class BaseResponseFilter : Stream
+    public abstract class BaseResponseFilter : Stream
     {
         private Stream _innerStream;
 
@@ -69,7 +70,16 @@ namespace CompositeC1Contrib.Web
 
         public override void Write(byte[] buffer, int offset, int count)
         {
+            var encoding = Encoding.UTF8;
+
+            var s = encoding.GetString(buffer, offset, count);
+            s = Process(s);
+
+            buffer = encoding.GetBytes(s);
+
             _innerStream.Write(buffer, 0, buffer.Length);
         }
+
+        public abstract string Process(string s);
     }
 }

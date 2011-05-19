@@ -3,8 +3,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Web;
-
-using CompositeC1Contrib.Web.UI;
+using System.Web.UI;
 
 using C1UrlUtils = Composite.Core.WebClient.UrlUtils;
 
@@ -72,7 +71,7 @@ namespace CompositeC1Contrib.Web
 
         protected virtual bool ShouldRewriteUrls(HttpContext ctx)
         {
-            return ctx.Handler is CompositeC1Page;       
+            return ctx.Handler is Page && !ctx.Request.Url.LocalPath.StartsWith(C1UrlUtils.AdminRootPath);
         }
 
         private void app_BeginRequest(object sender, EventArgs e)

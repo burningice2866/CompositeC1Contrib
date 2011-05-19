@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -44,16 +43,9 @@ namespace CompositeC1Contrib.Web
 
         public UrlFilter(Stream responseStream, HttpContext ctx) : base(responseStream, ctx) { }
 
-        public override void Write(byte[] buffer, int offset, int count)
+        public override string Process(string s)
         {
-            var encoding = Encoding.UTF8;
-
-            var s = encoding.GetString(buffer, offset, count);
-            s = FixUrls(s);
-
-            buffer = encoding.GetBytes(s);
-
-            base.Write(buffer, 0, buffer.Length);
+            return FixUrls(s);
         }
 
         public string FixUrls(string unparsedString)

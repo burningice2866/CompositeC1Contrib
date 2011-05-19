@@ -78,6 +78,8 @@
     <Compile Include="Web\BaseSiteMapNode.cs" />
     <Compile Include="Web\BaseSiteMapProvider.cs" />
     <Compile Include="Web\CompositeC1Application.cs" />
+    <Compile Include="Web\MediaUrlFilter.cs" />
+    <Compile Include="Web\MediaUrlFilterModule.cs" />
     <Compile Include="Web\GlobalizationModule.cs" />
     <Compile Include="Web\Security\CompositeC1MembershipProvider.cs" />
     <Compile Include="Web\Security\CompositeC1MembershipUser.cs" />
