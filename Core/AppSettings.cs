@@ -4,12 +4,12 @@ namespace CompositeC1Contrib
 {
     public static class AppSettings
     {
-        public static bool UseBetterUrls
+        public static bool UseNicerUrls
         {
             get
             {
                 var b = true;
-                if (bool.TryParse(ConfigurationManager.AppSettings["useBetterUrls"], out b))
+                if (bool.TryParse(ConfigurationManager.AppSettings["useNicerUrls"], out b))
                 {
                     return b;
                 }
@@ -24,6 +24,20 @@ namespace CompositeC1Contrib
             {
                 var b = true;
                 if (bool.TryParse(ConfigurationManager.AppSettings["useExtensionlessUrls"], out b))
+                {
+                    return b;
+                }
+
+                return true;
+            }
+        }
+
+        public static bool UseFolderPathsForMediaUrls
+        {
+            get
+            {
+                var b = true;
+                if (bool.TryParse(ConfigurationManager.AppSettings["useFolderPathsForMediaUrls"], out b))
                 {
                     return b;
                 }

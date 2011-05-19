@@ -29,7 +29,7 @@ namespace CompositeC1Contrib.Web
 
         private string fixUrl(string url, DataConnection data)
         {
-            if (AppSettings.UseBetterUrls)
+            if (AppSettings.UseNicerUrls)
             {
                 url = url.Replace(".aspx", String.Empty);
 

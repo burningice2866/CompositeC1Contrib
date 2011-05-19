@@ -38,7 +38,7 @@ namespace CompositeC1Contrib.Web
                         {
                             builder.Append(unparsedString.Substring(startIndex, m.Index - startIndex));
 
-                            var friendlyUrl = "/media" + mediaFile.FolderPath + "/" + mediaFile.FileName;
+                            var friendlyUrl = getFriendlyUrl(mediaFile);
                             builder.Append(friendlyUrl);
 
                             startIndex = m.Index + m.Length;
@@ -50,6 +50,18 @@ namespace CompositeC1Contrib.Web
             builder.Append(unparsedString.Substring(startIndex, unparsedString.Length - startIndex));
 
             return builder.ToString();
+        }
+
+        private static string getFriendlyUrl(IMediaFile file)
+        {
+            if (AppSettings.UseFolderPathsForMediaUrls)
+            {
+                return String.Format("/media{0}/{1}", file.FolderPath, file.FileName);
+            }
+            else
+            {
+                return String.Format("/media/{0}/{1}", file.Id, file.FileName);
+            }
         }
     }
 }

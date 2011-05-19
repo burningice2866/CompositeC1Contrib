@@ -9,18 +9,15 @@ namespace CompositeC1Contrib.Web
     public class MediaUrlFilterModule : IHttpModule
     {
         private static readonly string _mediaUrlPrefix = C1UrlUtils.PublicRootPath + "/media/";
-        private static readonly string _handlerUrlPrefix = C1UrlUtils.PublicRootPath + "/Renderers/ShowMedia.ashx?id=MediaArchive:/";
-
-        public void Dispose()
-        {
-            
-        }
+        private static readonly string _handlerUrlPrefix = C1UrlUtils.PublicRootPath + "/Renderers/ShowMedia.ashx?id=";
 
         public void Init(HttpApplication app)
         {
             app.BeginRequest += new EventHandler(ctx_BeginRequest);
             app.PostMapRequestHandler += new EventHandler(ctx_PostMapRequestHandler);
         }
+
+        public void Dispose() { }
 
         private void ctx_PostMapRequestHandler(object sender, EventArgs e)
         {
@@ -39,7 +36,15 @@ namespace CompositeC1Contrib.Web
 
             if (pathAndQuery.StartsWith(_mediaUrlPrefix))
             {
-                ctx.RewritePath(_handlerUrlPrefix + pathAndQuery.Substring(_mediaUrlPrefix.Length));
+                if (AppSettings.UseFolderPathsForMediaUrls)
+                {
+                    ctx.RewritePath(_handlerUrlPrefix + "MediaArchive:/" + pathAndQuery.Substring(_mediaUrlPrefix.Length));
+                }
+                else
+                {
+                    string guid = pathAndQuery.Substring(_mediaUrlPrefix.Length, 36);
+                    ctx.RewritePath(_handlerUrlPrefix + guid);
+                }
             }
         }
     }
