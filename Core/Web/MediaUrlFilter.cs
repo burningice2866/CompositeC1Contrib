@@ -12,7 +12,7 @@ namespace CompositeC1Contrib.Web
 {
     public class MediaUrlFilter : BaseResponseFilter
     {
-        private static readonly Regex _regex = new Regex(@"/Renderers/ShowMedia\.ashx\?id=([A-F0-9]{8}(?:-[A-F0-9]{4}){3}-[A-Z0-9]{12})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex _regex = new Regex("/Renderers/ShowMedia\\.ashx\\?id=(?<id>[A-F0-9]{8}(?:-[A-F0-9]{4}){3}-[A-Z0-9]{12})(?<extra_query>.*?)\"", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public MediaUrlFilter (Stream responseStream, HttpContext ctx) : base(responseStream, ctx) { }
 
@@ -31,7 +31,7 @@ namespace CompositeC1Contrib.Web
                 using (var data = new DataConnection())
                 {
                     Guid id;
-                    if (Guid.TryParse(m.Groups[1].Value, out id))
+                    if (Guid.TryParse(m.Groups["id"].Value, out id))
                     {
                         var mediaFile = data.Get<IMediaFile>().FirstOrDefault(file => file.Id == id);
                         if (mediaFile != null)
@@ -39,9 +39,19 @@ namespace CompositeC1Contrib.Web
                             builder.Append(unparsedString.Substring(startIndex, m.Index - startIndex));
 
                             var friendlyUrl = getFriendlyUrl(mediaFile);
+
+                            if (!String.IsNullOrEmpty(m.Groups["extra_query"].Value))
+                            {
+                                var query = HttpUtility.ParseQueryString(HttpUtility.HtmlDecode(m.Groups["extra_query"].Value));
+                                if (query.Count > 0)
+                                {
+                                    friendlyUrl += "?" + String.Join("&amp;", query.AllKeys.Where(k => !String.IsNullOrEmpty(k)).Select(k => k + "=" + query[k]));
+                                }
+                            }
+
                             builder.Append(friendlyUrl);
 
-                            startIndex = m.Index + m.Length;
+                            startIndex = m.Index + m.Length - 1;
                         }
                     }
                 }                

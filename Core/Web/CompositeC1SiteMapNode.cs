@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
 
 using Composite.Data;
-using Composite.Data.Types;
 
 using C1UrlUtils = Composite.Core.WebClient.UrlUtils;
 
@@ -21,7 +19,7 @@ namespace CompositeC1Contrib.Web
 
             DocumentTitle = node.Title;
             Depth = node.Level;
-            LastModified = data.Get<IPage>().Single(p => p.Id == node.Id).ChangeDate;
+            LastModified = DateTime.Parse(node.SitemapXml.Attribute("ChangedDate").Value);
             Priority = 5;
 
             PageNode = node;
@@ -53,8 +51,6 @@ namespace CompositeC1Contrib.Web
 
                 int secondSlash = url.IndexOf("/", 1);
                 url = url.Remove(0, secondSlash == -1 ? url.Length : secondSlash);
-
-                url = UrlUtils.GetCleanUrl(url);
 
                 if (!AppSettings.UseExtensionlessUrls && !String.IsNullOrEmpty(url))
                 {

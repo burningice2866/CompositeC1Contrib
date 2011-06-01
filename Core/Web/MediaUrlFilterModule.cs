@@ -11,15 +11,34 @@ namespace CompositeC1Contrib.Web
         private static readonly string _mediaUrlPrefix = C1UrlUtils.PublicRootPath + "/media/";
         private static readonly string _handlerUrlPrefix = C1UrlUtils.PublicRootPath + "/Renderers/ShowMedia.ashx?id=";
 
-        public void Init(HttpApplication app)
+        private void OnBeginRequest(object sender, EventArgs e)
         {
-            app.BeginRequest += new EventHandler(ctx_BeginRequest);
-            app.PostMapRequestHandler += new EventHandler(ctx_PostMapRequestHandler);
+            var ctx = ((HttpApplication)sender).Context;
+            string path = ctx.Request.Url.LocalPath;
+
+            if (path.StartsWith(_mediaUrlPrefix))
+            {
+                string rewrite;
+                if (AppSettings.UseFolderPathsForMediaUrls)
+                {
+                    rewrite = _handlerUrlPrefix + "MediaArchive://" + path.Substring(_mediaUrlPrefix.Length);
+                }
+                else
+                {
+                    string guid = path.Substring(_mediaUrlPrefix.Length, 36);
+                    rewrite = _handlerUrlPrefix + guid;                    
+                }
+
+                if (!String.IsNullOrEmpty(ctx.Request.Url.Query))
+                {
+                    rewrite = rewrite + "&" + ctx.Request.Url.Query.Remove(0, 1);
+                }
+
+                ctx.RewritePath(rewrite);
+            }
         }
 
-        public void Dispose() { }
-
-        private void ctx_PostMapRequestHandler(object sender, EventArgs e)
+        private void OnPostMapRequestHandler(object sender, EventArgs e)
         {
             var ctx = ((HttpApplication)sender).Context;
 
@@ -29,23 +48,12 @@ namespace CompositeC1Contrib.Web
             }
         }
 
-        private void ctx_BeginRequest(object sender, EventArgs e)
+        void IHttpModule.Init(HttpApplication app)
         {
-            var ctx = ((HttpApplication)sender).Context;
-            string pathAndQuery = ctx.Request.Url.PathAndQuery;
-
-            if (pathAndQuery.StartsWith(_mediaUrlPrefix))
-            {
-                if (AppSettings.UseFolderPathsForMediaUrls)
-                {
-                    ctx.RewritePath(_handlerUrlPrefix + "MediaArchive:/" + pathAndQuery.Substring(_mediaUrlPrefix.Length));
-                }
-                else
-                {
-                    string guid = pathAndQuery.Substring(_mediaUrlPrefix.Length, 36);
-                    ctx.RewritePath(_handlerUrlPrefix + guid);
-                }
-            }
+            app.BeginRequest += OnBeginRequest;
+            app.PostMapRequestHandler += OnPostMapRequestHandler;
         }
+
+        void IHttpModule.Dispose() { }
     }
 }

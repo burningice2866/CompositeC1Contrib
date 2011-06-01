@@ -15,8 +15,8 @@ namespace CompositeC1Contrib.Web
 
         void IHttpModule.Init(HttpApplication app)
         {
-            app.BeginRequest += new EventHandler(app_BeginRequest);
-            app.PostRequestHandlerExecute += new EventHandler(app_PostRequestHandlerExecute);
+            app.BeginRequest += OnBeginRequest;
+            app.PostRequestHandlerExecute += OnPostRequestHandlerExecute;
         }
 
         protected virtual void RewritePath(HttpContext ctx)
@@ -64,7 +64,13 @@ namespace CompositeC1Contrib.Web
                         pathInfo.Append(ctx.Request.PathInfo);
                     }
 
-                    ctx.RewritePath(node.PageNode.Url, pathInfo.ToString(), query);
+                    string nodeUrl = node.PageNode.Url;
+                    if (nodeUrl.Contains("?"))
+                    {
+                        nodeUrl = nodeUrl.Substring(0, nodeUrl.IndexOf("?"));
+                    }
+
+                    ctx.RewritePath(nodeUrl, pathInfo.ToString(), query);
                 }
             }
         }
@@ -74,13 +80,13 @@ namespace CompositeC1Contrib.Web
             return ctx.Handler is Page && !ctx.Request.Url.LocalPath.StartsWith(C1UrlUtils.AdminRootPath);
         }
 
-        private void app_BeginRequest(object sender, EventArgs e)
+        private void OnBeginRequest(object sender, EventArgs e)
         {
             var ctx = ((HttpApplication)sender).Context;
             RewritePath(ctx);
         }
 
-        private void app_PostRequestHandlerExecute(object sender, EventArgs e)
+        private void OnPostRequestHandlerExecute(object sender, EventArgs e)
         {
             var ctx = ((HttpApplication)sender).Context;
 
