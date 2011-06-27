@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web.UI;
 using System.Xml.Linq;
 
@@ -9,6 +10,16 @@ namespace CompositeC1Contrib.Web.UI.Rendering
     public abstract class C1MarkupControl : BaseCompositeC1Control
     {
         protected abstract XElement CreateElementToRender();
+
+        protected override void OnInit(EventArgs e)
+        {
+            if (Page.IsPostBack)
+            {
+                EnsureChildControls();
+            }
+
+            base.OnInit(e);
+        }
 
         protected override void CreateChildControls()
         {

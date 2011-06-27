@@ -77,7 +77,6 @@
     <Compile Include="Web\BaseResponseFilter.cs" />
     <Compile Include="Web\BaseSiteMapNode.cs" />
     <Compile Include="Web\BaseSiteMapProvider.cs" />
-    <Compile Include="Web\CompositeC1Application.cs" />
     <Compile Include="Web\MediaUrlFilter.cs" />
     <Compile Include="Web\MediaUrlFilterModule.cs" />
     <Compile Include="Web\GlobalizationModule.cs" />
@@ -85,16 +84,16 @@
     <Compile Include="Web\Security\CompositeC1MembershipUser.cs" />
     <Compile Include="Web\Security\IMembershipUser.cs" />
     <Compile Include="Web\Security\LoginProviderHelper.cs" />
-    <Compile Include="Web\UI\BaseCompositeC1Control.cs" />
-    <Compile Include="Web\UI\CompositeC1Page.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
     <Compile Include="Web\CompositeC1SiteMapNode.cs" />
     <Compile Include="Web\CompositeC1SiteMapProvider.cs" />
     <Compile Include="Web\DefaultDocumentModule.cs" />
     <Compile Include="Web\RequestInfo.cs" />
     <Compile Include="Web\SiteMapHandler.cs" />
     <Compile Include="Web\SitemapNodeChangeFrequency.cs" />
+    <Compile Include="Web\UI\BaseCompositeC1Control.cs" />
+    <Compile Include="Web\UI\CompositeC1Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Web\UI\Rendering\C1MarkupControl.cs" />
     <Compile Include="Web\UI\Rendering\Function.cs" />
     <Compile Include="Web\UI\Rendering\Description.cs" />

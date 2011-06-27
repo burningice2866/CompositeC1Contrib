@@ -7,7 +7,7 @@ namespace CompositeC1Contrib.Web
 {
     public class DefaultDocumentModule : IHttpModule
     {
-        private void app_BeginRequest(object sender, EventArgs e)
+        private void OnBeginRequest(object sender, EventArgs e)
         {
             var ctx = ((HttpApplication)sender).Context;
 
@@ -38,7 +38,7 @@ namespace CompositeC1Contrib.Web
 
         void IHttpModule.Init(HttpApplication app)
         {
-            app.BeginRequest += new EventHandler(app_BeginRequest);
+            app.BeginRequest += OnBeginRequest;
         }
 
         void IHttpModule.Dispose() { }
