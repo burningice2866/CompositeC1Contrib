@@ -10,11 +10,10 @@
     <system.web>
       <httpHandlers>
         <add verb="*" path="Renderers/Page.aspx" type="CompositeC1Contrib.Web.UI.CompositeC1Page, CompositeC1Contrib" />
-        <add verb="GET" path="sitemap.axd" type="CompositeC1Contrib.Web.SiteMapHandler, CompositeC1Contrib" />
+        <add verb="GET" path="sitemap.xml" type="CompositeC1Contrib.Web.SiteMapHandler, CompositeC1Contrib" />
       </httpHandlers>
       
       <httpModules>
-        <add name="UrlFilter" type="CompositeC1Contrib.Web.UrlFilterModule, CompositeC1Contrib" />
         <add name="Globalization" type="CompositeC1Contrib.Web.GlobalizationModule, CompositeC1Contrib"/>
       </httpModules>     
 
@@ -34,11 +33,10 @@
     <system.webServer>
       <handlers>
         <add name="CompositePage" verb="*" path="Renderers/Page.aspx" type="CompositeC1Contrib.Web.UI.CompositeC1Page, CompositeC1Contrib" />
-        <add name="SiteMap" verb="GET" path="sitemap.axd" type="CompositeC1Contrib.Web.SiteMapHandler, CompositeC1Contrib" />
+        <add name="SiteMap" verb="GET" path="sitemap.xml" type="CompositeC1Contrib.Web.SiteMapHandler, CompositeC1Contrib" />
       </handlers>
       
       <modules>
-        <add name="UrlFilter" type="CompositeC1Contrib.Web.UrlFilterModule, CompositeC1Contrib" />
         <add name="Globalization" type="CompositeC1Contrib.Web.GlobalizationModule, CompositeC1Contrib"/>
       </modules>      
     </system.webServer>

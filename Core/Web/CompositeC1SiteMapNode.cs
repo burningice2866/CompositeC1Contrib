@@ -1,8 +1,4 @@
-﻿using System;
-
-using Composite.Data;
-
-using C1UrlUtils = Composite.Core.WebClient.UrlUtils;
+﻿using Composite.Data;
 
 namespace CompositeC1Contrib.Web
 {
@@ -15,70 +11,14 @@ namespace CompositeC1Contrib.Web
         {
             Title = node.MenuTitle;
             Description = node.Description;
-            Url = fixUrl(node.Url, data);
+            Url = node.Url;
 
             DocumentTitle = node.Title;
             Depth = node.Level;
-            LastModified = DateTime.Parse(node.SitemapXml.Attribute("ChangedDate").Value);
+            LastModified = node.ChangedDate;
             Priority = 5;
 
             PageNode = node;
-        }
-
-        private string fixUrl(string url, DataConnection data)
-        {
-            if (AppSettings.UseNicerUrls)
-            {
-                url = url.Replace(".aspx", String.Empty);
-
-                if (!String.IsNullOrEmpty(C1UrlUtils.PublicRootPath))
-                {
-                    url = url.Remove(0, C1UrlUtils.PublicRootPath.Length);
-                }
-
-                var localeMapping = DataLocalizationFacade.GetUrlMappingName(data.CurrentLocale);
-                if (!String.IsNullOrEmpty(localeMapping))
-                {
-                    url = url.Remove(0, localeMapping.Length + 1);
-                }
-
-                int index = url.IndexOf("?");
-                if (index > -1)
-                {
-                    string query = url.Substring(index, url.Length - index);
-                    url = url.Substring(0, index);
-                }
-
-                int secondSlash = url.IndexOf("/", 1);
-                url = url.Remove(0, secondSlash == -1 ? url.Length : secondSlash);
-
-                if (!AppSettings.UseExtensionlessUrls && !String.IsNullOrEmpty(url))
-                {
-                    url += ".aspx";
-                }
-
-                if (!String.IsNullOrEmpty(C1UrlUtils.PublicRootPath))
-                {
-                    url = C1UrlUtils.PublicRootPath + url;
-                }
-
-                if (!String.IsNullOrEmpty(localeMapping))
-                {
-                    url = "/" + localeMapping + url;
-                }
-
-                if (!url.StartsWith("/"))
-                {
-                    url = "/" + url;
-                }
-
-                if (data.CurrentPublicationScope == PublicationScope.Unpublished)
-                {
-                    url += "?dataScope=administrated";
-                }
-            }
-
-            return url;
         }
     }
 }

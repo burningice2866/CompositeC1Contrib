@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 
 using Composite.C1Console.Security;
+using Composite.Core.Routing;
 using Composite.Data;
 using Composite.Data.Types;
 
@@ -17,7 +18,7 @@ namespace CompositeC1Contrib.Web
         {
             get
             {
-                if ((HttpContext.Current.Request.QueryString["dataScope"] == "administrated" && UserValidationFacade.IsLoggedIn())
+                if ((HttpContext.Current.Request.Url.LocalPath.IndexOf("/c1mode(unpublished)") > -1 && UserValidationFacade.IsLoggedIn())
                     || RequestInfo.Current.IsPreview)
                 {
                     return PublicationScope.Unpublished;
@@ -75,26 +76,30 @@ namespace CompositeC1Contrib.Web
         {
             var scope = PublicationScope;
 
-            if (scope == PublicationScope.Unpublished)
+            var urlData = PageUrls.ParseUrl(HttpContext.Current.Request.Url.ToString());
+            var publicUrl = PageUrls.BuildUrl(urlData, UrlKind.Public, new UrlSpace() { Hostname = host, ForceRelativeUrls = false });
+
+            if (Uri.IsWellFormedUriString(publicUrl, UriKind.Absolute))
             {
-                host = ensureCorrectHost(host);
+                host = new Uri(publicUrl).Host;
             }
 
             foreach (var ci in DataLocalizationFacade.ActiveLocalizationCultures)
             {
                 using (var data = new DataConnection(scope, ci))
                 {
-                    var root = data.SitemapNavigator.GetPageNodeByHostname(host);
-                    if (root != null)
+                    var rootPage = data.SitemapNavigator.GetPageNodeByHostname(host);
+
+                    if (rootPage != null)
                     {
                         var container = new SiteMapContainer()
                         {
-                            Root = new CompositeC1SiteMapNode(this, root, data)
+                            Root = new CompositeC1SiteMapNode(this, rootPage, data)
                         };
 
                         list.Add(ci, container);
 
-                        loadNodes(root, null, container, data);
+                        loadNodes(rootPage, null, container, data);
                     }
                 }
             }
@@ -102,59 +107,17 @@ namespace CompositeC1Contrib.Web
 
         protected override void AddRolesInternal(IDictionary<CultureInfo, SiteMapContainer> list) { }
 
-        private string ensureCorrectHost(string host)
-        {
-            using (var data = new DataConnection())
-            {
-                var websites = data.SitemapNavigator.HomePageIds;
-                if (websites.Count() > 1)
-                {
-                    IPage page = null;
-
-                    var currentNode = data.SitemapNavigator.CurrentHomePageNode;
-                    if (currentNode != null)
-                    {
-                        page = data.Get<IPage>().SingleOrDefault(p => p.Id == currentNode.Id);
-                    }
-                    
-                    if (page == null)
-                    {
-                        var path = HttpContext.Current.Request.Url.LocalPath;
-                        int secondSlash;
-
-                        var localeMapping = DataLocalizationFacade.GetUrlMappingName(data.CurrentLocale);
-                        if (!String.IsNullOrEmpty(localeMapping))
-                        {
-                            path = path.Remove(0, localeMapping.Length + 1);
-                        }
-
-                        if (path.Length > 0)
-                        {
-                            secondSlash = path.IndexOf("/", 1);
-                            var currentWebsite = path.Substring(1, (secondSlash == -1 ? path.Length : secondSlash) - 1).Replace(".aspx", String.Empty);
-
-                            page = websites
-                                .Select(site => data.Get<IPage>().Single(p => p.Id == site))
-                                .SingleOrDefault(p => p.UrlTitle.Equals(currentWebsite, StringComparison.OrdinalIgnoreCase));
-                        }
-                    }
-
-                    if (page != null)
-                    {
-                        var hostNameBinding = data.Get<IPageHostNameBinding>().SingleOrDefault(p => p.PageId == page.Id);
-                        if (hostNameBinding != null)
-                        {
-                            return hostNameBinding.HostName;
-                        }
-                    }
-                }
-            }
-
-            return host;
-        }
-
         private void loadNodes(PageNode pageNode, SiteMapNode parent, SiteMapContainer container, DataConnection data)
         {
+            try
+            {
+                string url = pageNode.Url;
+            }
+            catch (NullReferenceException)
+            {
+                return;
+            }
+
             var node = new CompositeC1SiteMapNode(this, pageNode, data);
             AddNode(node, parent, container);
 
@@ -173,11 +136,6 @@ namespace CompositeC1Contrib.Web
             if (ci == null)
             {
                 ci = DataLocalizationFacade.DefaultLocalizationCulture;
-            }
-
-            if (query.Contains("dataScope=administrated"))
-            {
-                localPath += "?dataScope=administrated";
             }
 
             var node = provider.FindSiteMapNode(localPath, ci) as CompositeC1SiteMapNode;

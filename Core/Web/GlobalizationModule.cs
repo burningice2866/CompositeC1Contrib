@@ -16,7 +16,7 @@ namespace CompositeC1Contrib.Web
             get { return HttpContext.Current; }
         }
 
-        private void OnResolve(object sender, EventArgs e)
+        private void Resolve(object sender, EventArgs e)
         {
             var ci = CultureInfo.CurrentCulture;
 
@@ -66,7 +66,7 @@ namespace CompositeC1Contrib.Web
 
         void IHttpModule.Init(HttpApplication app)
         {
-            app.PostAuthorizeRequest += OnResolve;
+            app.PostAuthorizeRequest += new EventHandler(Resolve);
         }
 
         void IHttpModule.Dispose() { }
