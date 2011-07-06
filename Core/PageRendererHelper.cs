@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using System.Reflection;
+﻿using System;
+using System.Linq;
 using System.Xml.Linq;
 
 using Composite.Core.Instrumentation;
@@ -12,9 +12,6 @@ namespace CompositeC1Contrib
 {
     public class PageRendererHelper
     {
-        private static readonly MethodInfo _normalizeXhtmlDocument = typeof(PageRenderer).GetMethod("NormalizeXhtmlDocument", BindingFlags.Static | BindingFlags.NonPublic);
-        private static readonly MethodInfo _resolveRelativePaths = typeof(PageRenderer).GetMethod("ResolveRelativePaths", BindingFlags.Static | BindingFlags.NonPublic);
-
         public FunctionContextContainer FunctionContext { get; private set; } 
 
         public PageRendererHelper()
@@ -34,13 +31,20 @@ namespace CompositeC1Contrib
             {
                 PageRenderer.ExecuteEmbeddedFunctions(doc, FunctionContext);
 
-                var xDoc = new XhtmlDocument(doc);
+                try
+                {
+                    var xDoc = new XhtmlDocument(doc);
 
-                _normalizeXhtmlDocument.Invoke(null, new[] { xDoc });
-                _resolveRelativePaths.Invoke(null, new[] { xDoc });
+                    PageRenderer.NormalizeXhtmlDocument(xDoc);
+                    PageRenderer.ResolveRelativePaths(xDoc);
+
+                    return xDoc.Root;
+                }
+                catch (ArgumentException)
+                {
+                    return doc;
+                }
             }
-
-            return doc;
         }
 
         public static XElement GetDocumentPart(XElement doc, string part)

@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.UI;
 using System.Xml.Linq;
 
+using Composite.Core.Xml;
 using Composite.Data;
 using Composite.Data.Types;
 
@@ -21,7 +23,18 @@ namespace CompositeC1Contrib.Web.UI.Rendering
             var content = contents.SingleOrDefault(c => c.PlaceHolderId == ID);
             if (content != null)
             {
-                return XElement.Parse(content.Content);
+                if (content.Content.StartsWith("<html") == true)
+                {
+                    try
+                    {
+                        return XhtmlDocument.Parse(content.Content).Root;
+                    }
+                    catch (ArgumentException) { }
+                }
+                else
+                {
+                    return XhtmlDocument.Parse(string.Format("<html xmlns='{0}'><head/><body>{1}</body></html>", Namespaces.Xhtml, content.Content)).Root;
+                }
             }
 
             return null;

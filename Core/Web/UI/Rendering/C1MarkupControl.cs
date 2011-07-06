@@ -32,14 +32,17 @@ namespace CompositeC1Contrib.Web.UI.Rendering
                 var doc = helper.RenderDocument(elementToRender);
                 var body = PageRendererHelper.GetDocumentPart(doc, "body");
 
-                addNodesAsControls(body.Nodes(), this, mapper);
-
-                if (Page.Header != null)
+                if (body != null)
                 {
-                    var head = PageRendererHelper.GetDocumentPart(doc, "head");
-                    if (head != null)
+                    addNodesAsControls(body.Nodes(), this, mapper);
+
+                    if (Page.Header != null)
                     {
-                        addNodesAsControls(head.Nodes(), Page.Header, mapper);
+                        var head = PageRendererHelper.GetDocumentPart(doc, "head");
+                        if (head != null)
+                        {
+                            addNodesAsControls(head.Nodes(), Page.Header, mapper);
+                        }
                     }
                 }
             }

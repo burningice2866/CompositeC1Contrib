@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.Hosting;
+using System.Web.SessionState;
 using System.Web.UI;
 using System.Xml.Linq;
 
@@ -24,7 +25,7 @@ using C1UrlUtils = Composite.Core.WebClient.UrlUtils;
 
 namespace CompositeC1Contrib.Web.UI
 {
-    public class CompositeC1Page : Page
+    public partial class CompositeC1Page : Page, IRequiresSessionState
     {
         private static readonly string ProfilerXslPath = C1UrlUtils.PublicRootPath + "/Composite/Transformations/page_profiler.xslt";
 
@@ -37,7 +38,7 @@ namespace CompositeC1Contrib.Web.UI
         private bool _isPreview;
         private string _previewKey;
 
-        private UrlData<IPage> _url;
+        private PageUrlData _pageUrl;
         private string _cacheUrl = null;
         private bool _requestCompleted = false;
 
@@ -71,22 +72,21 @@ namespace CompositeC1Contrib.Web.UI
             if (_isPreview)
             {
                 page = (IPage)Cache.Get(_previewKey + "_SelectedPage");
-                _url = new UrlData<IPage>(page);
-                _dataScope = new DataScope(page.DataSourceId.PublicationScope, page.DataSourceId.LocaleScope);
+                _pageUrl = new PageUrlData(page);
             }
             else
             {
-                _url = RouteData.Values["C1Page"] as UrlData<IPage>;
-                if (_url == null)
+                _pageUrl = RouteData.Values["C1Page"] as PageUrlData;
+                if (_pageUrl == null)
                 {
-                    _url = PageUrls.UrlProvider.ParseInternalUrl(Context.Request.Url.OriginalString);
+                    _pageUrl = PageUrls.UrlProvider.ParseInternalUrl(Context.Request.Url.OriginalString);
                 }
 
-                page = _url.Data;
-
-                _dataScope = new DataScope(page.DataSourceId.PublicationScope, page.DataSourceId.LocaleScope);
+                page = _pageUrl.GetPage();
                 _cacheUrl = Request.Url.PathAndQuery;
             }
+
+            _dataScope = new DataScope(_pageUrl.PublicationScope, _pageUrl.LocalizationScope);
 
             ValidateViewUnpublishedRequest();
 
@@ -104,7 +104,7 @@ namespace CompositeC1Contrib.Web.UI
                 template = conn.Get<IPageTemplate>().Single(t => t.Id == Document.TemplateId);
             }
 
-            string masterFile = String.Format("~/App_Data/PageTemplates/{0}.master", template.Title);
+            string masterFile = String.Format("~/App_Data/PageTemplates/{0}.master", template.PageTemplateFilePath.Replace(".xml", String.Empty));
             if (HostingEnvironment.VirtualPathProvider.FileExists(masterFile))
             {
                 AppRelativeVirtualPath = "~/";
@@ -128,7 +128,7 @@ namespace CompositeC1Contrib.Web.UI
 
         protected override void OnInit(EventArgs e)
         {
-            if (_url == null || _url.Data.DataSourceId.PublicationScope != PublicationScope.Published || Request.IsSecureConnection)
+            if (_pageUrl == null || _pageUrl.PublicationScope != PublicationScope.Published || Request.IsSecureConnection)
             {
                 Response.Cache.SetCacheability(HttpCacheability.NoCache);
             }
@@ -304,8 +304,8 @@ namespace CompositeC1Contrib.Web.UI
 
         private void ValidateViewUnpublishedRequest()
         {
-            if (_url != null
-                && _url.Data.DataSourceId.PublicationScope != PublicationScope.Published
+            if (_pageUrl != null
+                && _pageUrl.PublicationScope != PublicationScope.Published
                 && !UserValidationFacade.IsLoggedIn())
             {
                 Response.Redirect(String.Format("{0}/Composite/Login.aspx?ReturnUrl={1}", C1UrlUtils.PublicRootPath, HttpUtility.UrlEncodeUnicode(Request.Url.OriginalString)), true);
@@ -341,8 +341,6 @@ namespace CompositeC1Contrib.Web.UI
 
             return xmlHeader + reportXml;
         }
-
-
 
         public static Control FindControlRecursive(Control current, string controlID)
         {
