@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{1E76E3BE-F575-4E2D-A791-8A0EDA53C1B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rendering.Mvc", "Mvc\Rendering.Mvc.csproj", "{87226084-B9C0-4BAD-951F-2EEA9302C36F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rendering.Mvc", "Rendering.Mvc\Rendering.Mvc.csproj", "{87226084-B9C0-4BAD-951F-2EEA9302C36F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rendering.MasterPage", "MasterPages\Rendering.MasterPage.csproj", "{1CC239DC-B6B5-478C-8E2F-4BB24E208648}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rendering.MasterPage", "Rendering.MasterPages\Rendering.MasterPage.csproj", "{1CC239DC-B6B5-478C-8E2F-4BB24E208648}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiteMapProvider", "SiteMapProvider\SiteMapProvider.csproj", "{C48E8B01-421A-4B94-9EE1-80C6F6B7641E}"
 EndProject
