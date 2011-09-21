@@ -22,8 +22,7 @@ namespace CompositeC1Contrib.Web.Mvc
         {
             var scope = ctx.Request.QueryString["dataScope"] == "administrated" ? PublicationScope.Unpublished : PublicationScope.Published;
 
-            if (scope != PublicationScope.Published
-                && !UserValidationFacade.IsLoggedIn())
+            if (scope != PublicationScope.Published && !UserValidationFacade.IsLoggedIn())
             {
                 string url = String.Format("{0}/Composite/Login.aspx?ReturnUrl={1}", Composite.Core.WebClient.UrlUtils.PublicRootPath, HttpUtility.UrlEncodeUnicode(ctx.Request.Url.OriginalString));
                 ctx.Response.Redirect(url, true);

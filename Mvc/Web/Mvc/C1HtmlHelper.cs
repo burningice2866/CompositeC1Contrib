@@ -4,6 +4,8 @@ using System.Web.Mvc;
 using Composite.Core.Xml;
 using Composite.Data;
 
+using CompositeC1Contrib.Web.UI;
+
 namespace CompositeC1Contrib.Web.Mvc
 {
     public static class C1HtmlHelper
@@ -21,7 +23,7 @@ namespace CompositeC1Contrib.Web.Mvc
                 var body = PageRendererHelper.GetDocumentPart(doc, "body");
                 var element = PageRendererHelper.CopyWithoutNamespace(body, Namespaces.Xhtml);
 
-                return new MvcHtmlString(element.ToString());
+                return MvcHtmlString.Create(element.ToString());
             }
 
             return MvcHtmlString.Empty;
