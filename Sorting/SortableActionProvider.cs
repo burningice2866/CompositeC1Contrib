@@ -47,7 +47,9 @@ namespace CompositeC1Contrib.Sorting
                             icon = "accept";
                         }
 
-                        yield return new ElementAction(new ActionHandle(new SortableActionToken()))
+                        var actionToken = new ToggleSuperInterfaceActionToken(typeof(IGenericSortable));
+
+                        yield return new ElementAction(new ActionHandle(actionToken))
                         {
                             VisualData = new ActionVisualizedData
                             {
@@ -74,7 +76,7 @@ namespace CompositeC1Contrib.Sorting
                     var instances = DataFacade.GetData(type).Cast<IPageFolderData>().Where(f => f.PageId == Guid.Parse(associatedToken.Id));
                     if (instances.Any())
                     {
-                        url = "/Composite/InstalledPackages/GenericSortable/Sort.aspx?type="+ type.FullName +"&pageId=" + pageId;
+                        url = "/Composite/InstalledPackages/CompositeC1Contrib.Sorting/Sort.aspx?type=" + type.FullName + "&pageId=" + pageId;
                     }
                 }
             }
@@ -88,14 +90,14 @@ namespace CompositeC1Contrib.Sorting
                 {
                     if (!typeof(IPageFolderData).IsAssignableFrom(type))
                     {
-                        url = "/Composite/InstalledPackages/GenericSortable/Sort.aspx?type=" + dataToken.InterfaceType.FullName;
+                        url = "/Composite/InstalledPackages/CompositeC1Contrib.Sorting/Sort.aspx?type=" + dataToken.InterfaceType.FullName;
                     }                    
                 }
                 else if (typeof(IPage).IsAssignableFrom(type))
                 {
                     var page = (IPage)dataToken.Data;
 
-                    url = "/Composite/InstalledPackages/GenericSortable/SortPages.aspx?pageId=" + page.Id;
+                    url = "/Composite/InstalledPackages/CompositeC1Contrib.Sorting/SortPages.aspx?pageId=" + page.Id;
                 }
             }
 

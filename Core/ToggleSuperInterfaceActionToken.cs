@@ -9,11 +9,17 @@ using Composite.Data;
 using Composite.Data.GeneratedTypes;
 using Composite.Plugins.Elements.ElementProviders.GeneratedDataTypesElementProvider;
 
-namespace CompositeC1Contrib.Sorting
+namespace CompositeC1Contrib
 {
     [ActionExecutor(typeof(SetDefaultActionExecutor))]
-    public sealed class SortableActionToken : ActionToken
+    public class ToggleSuperInterfaceActionToken : ActionToken
     {
+        private Type _type;
+        public Type InterfaceType
+        {
+            get { return _type; }
+        }
+
         public override IEnumerable<PermissionType> PermissionTypes
         {
             get
@@ -25,20 +31,24 @@ namespace CompositeC1Contrib.Sorting
 
         public override bool IgnoreEntityTokenLocking
         {
-            get
-            {
-                return false;
-            }
+            get { return false; }
+        }
+
+        public ToggleSuperInterfaceActionToken(Type interfaceType)
+        {
+            _type = interfaceType;
         }
 
         public override string Serialize()
         {
-            return String.Empty;
+            return _type.FullName;
         }
 
         public static ActionToken Deserialize(string serialiedWorkflowActionToken)
         {
-            return new SortableActionToken();
+            var interfaceType = TypeManager.GetType(serialiedWorkflowActionToken);
+
+            return new ToggleSuperInterfaceActionToken(interfaceType);
         }
     }
 
@@ -51,22 +61,17 @@ namespace CompositeC1Contrib.Sorting
             Guid guid = type.GetImmutableTypeId();
 
             var descriptor = DataMetaDataFacade.GetDataTypeDescriptor(guid);
-
-            
-
-            var interfaceType = TypeManager.GetType(descriptor.TypeManagerTypeName);
+            var superInfterface = ((ToggleSuperInterfaceActionToken)actionToken).InterfaceType;
 
             var newDataTypeDescriptor = descriptor.Clone();
 
-            
-
-            if (newDataTypeDescriptor.SuperInterfaces.Contains(typeof(IGenericSortable)))
+            if (newDataTypeDescriptor.SuperInterfaces.Contains(superInfterface))
             {
-                newDataTypeDescriptor.RemoveSuperInterface(typeof(IGenericSortable));
+                newDataTypeDescriptor.RemoveSuperInterface(superInfterface);
             }
             else
             {
-                newDataTypeDescriptor.AddSuperInterface(typeof(IGenericSortable));
+                newDataTypeDescriptor.AddSuperInterface(superInfterface);
             }
 
             if (newDataTypeDescriptor.DataScopes.Count == 0)
@@ -79,9 +84,7 @@ namespace CompositeC1Contrib.Sorting
                 descriptor.DataScopes.Add(DataScopeIdentifier.Public);
             }
 
-            GeneratedTypesFacade.UpdateType(descriptor, newDataTypeDescriptor, true);
-
-            interfaceType = TypeManager.GetType(descriptor.TypeManagerTypeName);
+            GeneratedTypesFacade.UpdateType(descriptor, newDataTypeDescriptor, true);            
 
             EntityTokenCacheFacade.ClearCache();
 

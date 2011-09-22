@@ -52,8 +52,7 @@
     <Compile Include="IGenericSortable.cs" />
     <Compile Include="PermissionTypeExtensionMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SortableActionToken.cs" />
-    <Compile Include="SortableAttachingProvider.cs" />
+    <Compile Include="SortableActionProvider.cs" />
     <Compile Include="UrlActionToken.cs" />
     <Compile Include="Web\UI\BaseSortPage.cs">
       <SubType>ASPXCodeBehind</SubType>
@@ -96,10 +95,16 @@
     </Content>
     <Content Include="Package\install.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{1E76E3BE-F575-4E2D-A791-8A0EDA53C1B2}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)CompositeC1Contrib.Sorting.dll" "$(ProjectDir)Package\Bin\CompositeC1Contrib.Sorting.dll"
+    <PostBuildEvent>copy "$(TargetDir)CompositeC1Contrib.Core.dll" "$(ProjectDir)Package\Bin\CompositeC1Contrib.Core.dll"
+copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
 del "$(ProjectDir)\Package\package.zip"
 "$(ProjectDir)..\References\7z.exe" a "$(ProjectDir)\Package\package.zip" -tzip -r "$(ProjectDir)\Package\*"</PostBuildEvent>
   </PropertyGroup>

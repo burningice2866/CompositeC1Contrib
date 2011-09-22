@@ -2,10 +2,6 @@
 
 namespace CompositeC1Contrib.Sorting
 {
-    [AutoUpdateble]
-    [ImmutableTypeId("b34dabec-7241-407b-b623-172ed45c409f")]
-    [KeyPropertyName("Id")]
-    [DataScope(DataScopeIdentifier.PublicName)]
     public interface IGenericSortable : IData
     {
         [StoreFieldType(PhysicalStoreFieldType.Integer)]

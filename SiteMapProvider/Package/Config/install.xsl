@@ -2,8 +2,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt" exclude-result-prefixes="msxsl add set"
 		xmlns:add="http://www.composite.net/add/1.0"
-		xmlns:set="http://www.composite.net/set/1.0"
-		>
+		xmlns:set="http://www.composite.net/set/1.0">
   <xsl:output method="xml" indent="yes"/>
   
   <xsl:variable name="structure">
