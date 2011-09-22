@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiteMapProvider", "SiteMapP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sorting", "Sorting\Sorting.csproj", "{BADD3914-847F-4868-8CC2-FA913BCD3779}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChangeHistory", "ChangeHistory\ChangeHistory.csproj", "{C9AAE6EE-0003-481E-96E9-8CB0484D704D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{BADD3914-847F-4868-8CC2-FA913BCD3779}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BADD3914-847F-4868-8CC2-FA913BCD3779}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BADD3914-847F-4868-8CC2-FA913BCD3779}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9AAE6EE-0003-481E-96E9-8CB0484D704D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9AAE6EE-0003-481E-96E9-8CB0484D704D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9AAE6EE-0003-481E-96E9-8CB0484D704D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9AAE6EE-0003-481E-96E9-8CB0484D704D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
