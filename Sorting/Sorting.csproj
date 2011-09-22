@@ -66,7 +66,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Package\Config\install.xsl" />
+    <Content Include="Package\Config\install.xsl">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Package\Config\uninstall.xsl" />
     <Content Include="Package\Forms\arrow.png" />
     <Content Include="Package\Forms\css\ui-lightness\images\ui-bg_diagonals-thick_18_b81900_40x40.png" />
