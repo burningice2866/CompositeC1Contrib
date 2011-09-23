@@ -47,10 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChangeHistoryProcessor.cs" />
     <Compile Include="ElementChangeHistoryActionProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StartupHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\Config\install.xsl">

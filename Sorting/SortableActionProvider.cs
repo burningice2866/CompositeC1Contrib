@@ -19,6 +19,7 @@ namespace CompositeC1Contrib.Sorting
     [ConfigurationElementType(typeof(NonConfigurableElementActionProvider))]
     public class SortableActionProvider : IElementActionProvider
     {
+        private static readonly Type sortableType = typeof(IGenericSortable);
         private static readonly ActionGroup _actionGroup = new ActionGroup("Default", ActionGroupPriority.PrimaryLow);
         private static readonly ActionLocation _actionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = true, ActionGroup = _actionGroup };
 
@@ -47,7 +48,7 @@ namespace CompositeC1Contrib.Sorting
                             icon = "accept";
                         }
 
-                        var actionToken = new ToggleSuperInterfaceActionToken(typeof(IGenericSortable));
+                        var actionToken = new ToggleSuperInterfaceActionToken(sortableType);
 
                         yield return new ElementAction(new ActionHandle(actionToken))
                         {
@@ -64,19 +65,24 @@ namespace CompositeC1Contrib.Sorting
             }
 
             string url = null;
+            string label = "Sort";
 
             var associatedToken = entityToken as AssociatedDataElementProviderHelperEntityToken;
             if (associatedToken != null)
             {
                 var type = TypeManager.GetType(associatedToken.Payload);
-                var pageId = associatedToken.Id;
-
-                using (new DataScope(DataScopeIdentifier.Administrated))
+                if (sortableType.IsAssignableFrom(type))
                 {
-                    var instances = DataFacade.GetData(type).Cast<IPageFolderData>().Where(f => f.PageId == Guid.Parse(associatedToken.Id));
-                    if (instances.Any())
+                    var pageId = associatedToken.Id;
+
+                    using (new DataScope(DataScopeIdentifier.Administrated))
                     {
-                        url = "/Composite/InstalledPackages/CompositeC1Contrib.Sorting/Sort.aspx?type=" + type.FullName + "&pageId=" + pageId;
+                        var instances = DataFacade.GetData(type).Cast<IPageFolderData>().Where(f => f.PageId == Guid.Parse(associatedToken.Id));
+                        if (instances.Any())
+                        {
+                            url = "Sort.aspx?type=" + type.FullName + "&pageId=" + pageId;
+                            label += " " + DataAttributeFacade.GetTypeTitle(type);
+                        }
                     }
                 }
             }
@@ -86,31 +92,34 @@ namespace CompositeC1Contrib.Sorting
             {
                 var type = dataToken.InterfaceType;
 
-                if (typeof(IGenericSortable).IsAssignableFrom(type))
+                if (sortableType.IsAssignableFrom(type))
                 {
                     if (!typeof(IPageFolderData).IsAssignableFrom(type))
                     {
-                        url = "/Composite/InstalledPackages/CompositeC1Contrib.Sorting/Sort.aspx?type=" + dataToken.InterfaceType.FullName;
+                        url = "Sort.aspx?type=" + dataToken.InterfaceType.FullName;
+                        label += " " + DataAttributeFacade.GetTypeTitle(type);
                     }                    
                 }
                 else if (typeof(IPage).IsAssignableFrom(type))
                 {
                     var page = (IPage)dataToken.Data;
 
-                    url = "/Composite/InstalledPackages/CompositeC1Contrib.Sorting/SortPages.aspx?pageId=" + page.Id;
+                    url = "SortPages.aspx?pageId=" + page.Id;
+                    label += " " + page.Title;
                 }
             }
 
             if (!String.IsNullOrEmpty(url))
             {
-                var urlAction = new UrlActionToken("Sort", url, new[] { PermissionType.Edit, PermissionType.Publish });
+                string baseUrl = "/Composite/InstalledPackages/CompositeC1Contrib.Sorting/";
+                var urlAction = new UrlActionToken(label, baseUrl + url, new[] { PermissionType.Edit, PermissionType.Publish });
 
                 yield return new ElementAction(new ActionHandle(urlAction))
                 {
                     VisualData = new ActionVisualizedData
                     {
-                        Label = "Sort",
-                        ToolTip = "Sort",
+                        Label = label,
+                        ToolTip = label,
                         Icon = new ResourceHandle("Composite.Icons", "cut"),
                         ActionLocation = _actionLocation
                     }

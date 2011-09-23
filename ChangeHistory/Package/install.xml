@@ -5,7 +5,7 @@
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.ChangeHistory" 
                          groupName="Contribution.CompositeC1Contrib" 
-                         version="1.0.1" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="1.1.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          id="b6bfea9b-df31-4063-848b-d9302a144fd5" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 
