@@ -5,7 +5,7 @@
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.Sorting" 
                          groupName="Contribution.CompositeC1Contrib" 
-                         version="1.1.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="1.1.1" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          id="65490285-878b-4284-b3ec-db9d2ef7f4fa" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 
@@ -21,7 +21,7 @@
       </Files>
 
       <Directories>
-        <Directory sourceDirectory="~\Forms\" targetDirectory="~\Composite\InstalledPackages\CompositeC1Contrib.Sorting" allowOverwrite="true" deleteTargetDirectory="true" />
+        <Directory sourceDirectory="~\Composite\InstalledPackages\CompositeC1Contrib.Sorting\" targetDirectory="~\Composite\InstalledPackages\CompositeC1Contrib.Sorting" allowOverwrite="true" deleteTargetDirectory="true" />
       </Directories>
     </mi:Add>
 
