@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sorting", "Sorting\Sorting.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChangeHistory", "ChangeHistory\ChangeHistory.csproj", "{C9AAE6EE-0003-481E-96E9-8CB0484D704D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Email", "Email\Email.csproj", "{BCABD981-DB99-433C-B8D1-9DCB31AE35FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{C9AAE6EE-0003-481E-96E9-8CB0484D704D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9AAE6EE-0003-481E-96E9-8CB0484D704D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9AAE6EE-0003-481E-96E9-8CB0484D704D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCABD981-DB99-433C-B8D1-9DCB31AE35FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCABD981-DB99-433C-B8D1-9DCB31AE35FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCABD981-DB99-433C-B8D1-9DCB31AE35FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCABD981-DB99-433C-B8D1-9DCB31AE35FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
