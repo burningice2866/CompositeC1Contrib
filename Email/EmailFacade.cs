@@ -34,7 +34,7 @@ namespace CompositeC1Contrib.Email
                 var message = data.CreateNew<IEmailMessage>();
 
                 message.Id = Guid.NewGuid();
-                message.EmailQueueId = queue.Id;
+                message.QueueId = queue.Id;
                 message.Subject = mailMessage.Subject;
 
                 using (var ms = new MemoryStream())

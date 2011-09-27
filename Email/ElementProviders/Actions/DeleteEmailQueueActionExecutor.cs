@@ -13,13 +13,12 @@ namespace CompositeC1Contrib.Email.ElementProviders.Actions
     {
         public FlowToken Execute(EntityToken entityToken, ActionToken actionToken, FlowControllerServicesContainer flowControllerServicesContainer)
         {
-            var queueName = entityToken.Id;
+            var dataToken = (DataEntityToken)entityToken;
+            var queue = (IEmailQueue)dataToken.Data;
 
             using (var data = new DataConnection())
             {
-                var queue = data.Get<IEmailQueue>().Single(q => q.Name == queueName);
-
-                var messages = data.Get<IEmailMessage>().Where(m => m.EmailQueueId == queue.Id).AsEnumerable();
+                var messages = data.Get<IEmailMessage>().Where(m => m.QueueId == queue.Id).AsEnumerable();
                 data.Delete(messages);
 
                 data.Delete(queue);

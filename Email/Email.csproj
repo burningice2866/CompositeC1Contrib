@@ -73,12 +73,11 @@
     <Compile Include="ElementProviders\Actions\DeleteEmailQueueActionToken.cs" />
     <Compile Include="ElementProviders\Actions\DeleteEmailQueueActionExecutor.cs" />
     <Compile Include="ElementProviders\EmailElementProvider.cs" />
-    <Compile Include="ElementProviders\EmailQueueEntityTokenSecurityAncestorProvider.cs" />
     <Compile Include="ElementProviders\Actions\ToggleEmailQueueStateActionExecutor.cs" />
     <Compile Include="ElementProviders\Actions\ToggleEmailQueueStateActionToken.cs" />
-    <Compile Include="ElementProviders\EntityTokens\EmailQueueEntityToken.cs" />
     <Compile Include="ElementProviders\EntityTokens\EmailElementProviderEntityToken.cs" />
     <Compile Include="EmailFacade.cs" />
+    <Compile Include="EmailWorker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\SerializeableAlternateView.cs" />
     <Compile Include="Serialization\SerializeableAttachment.cs" />

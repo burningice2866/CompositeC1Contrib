@@ -24,7 +24,7 @@ namespace CompositeC1Contrib.Email.Data.Types
         [StoreFieldType(PhysicalStoreFieldType.Guid)]
         [ImmutableFieldId("777e7874-fe49-4c31-a568-be1d1e204055")]
         [ForeignKey(typeof(IEmailQueue), "Id", AllowCascadeDeletes = true)]
-        Guid EmailQueueId { get; set; }
+        Guid QueueId { get; set; }
 
         [NotNullValidator]
         [ImmutableFieldId("8169a21f-9d9c-4570-83a1-27bf59d16edb")]

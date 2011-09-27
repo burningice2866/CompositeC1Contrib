@@ -16,6 +16,8 @@ namespace CompositeC1Contrib.Email
         {
             DynamicTypeManager.EnsureCreateStore(typeof(IEmailQueue));
             DynamicTypeManager.EnsureCreateStore(typeof(IEmailMessage));
+
+            EmailWorker.Initialize();
         }
     }
 }

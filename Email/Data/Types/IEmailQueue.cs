@@ -34,11 +34,11 @@ namespace CompositeC1Contrib.Email.Data.Types
 
         [ImmutableFieldId("c0645d03-aa61-46eb-9c41-3cb736aee1c8")]
         [StoreFieldType(PhysicalStoreFieldType.String, 255, IsNullable = true)]
-        string FromAddress { get; set; }
+        string From { get; set; }
 
         [ImmutableFieldId("c5c0f9da-6dd4-4efd-883d-d028be03fd47")]
         [StoreFieldType(PhysicalStoreFieldType.String, 512, IsNullable = true)]
-        string SpecifiedPickupDirectory { get; set; }
+        string PickupDirectoryLocation { get; set; }
 
         [ImmutableFieldId("7971d16d-5619-495b-aa64-2bd93ca3f68e")]
         [StoreFieldType(PhysicalStoreFieldType.String, 512, IsNullable = true)]
@@ -53,10 +53,6 @@ namespace CompositeC1Contrib.Email.Data.Types
         [StoreFieldType(PhysicalStoreFieldType.Boolean)]
         [DefaultFieldBoolValue(false)]
         bool DefaultCredentials { get; set; }
-
-        [ImmutableFieldId("2a528e97-e6db-4696-a80e-6660078089ef")]
-        [StoreFieldType(PhysicalStoreFieldType.String, 512, IsNullable = true)]
-        string ClientDomain { get; set; }
 
         [ImmutableFieldId("137e911b-a897-4866-becf-39d7a3d9f8e3")]
         [StoreFieldType(PhysicalStoreFieldType.Boolean)]

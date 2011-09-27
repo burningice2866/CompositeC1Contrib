@@ -20,7 +20,7 @@ namespace CompositeC1Contrib.Email.Data
 
             using (var conn = new DataConnection())
             {
-                return conn.Get<IEmailQueue>().Single(q => q.Id == mailMessage.EmailQueueId);
+                return conn.Get<IEmailQueue>().Single(q => q.Id == mailMessage.QueueId);
             }
         }
     }

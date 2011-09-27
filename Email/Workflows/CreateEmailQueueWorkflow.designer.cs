@@ -27,21 +27,20 @@ namespace CompositeC1Contrib.Email.Workflows
         {
             this.CanModifyActivities = true;
             System.Workflow.Activities.CodeCondition codecondition1 = new System.Workflow.Activities.CodeCondition();
-            this.faultHandlersActivity1 = new System.Workflow.ComponentModel.FaultHandlersActivity();
             this.setStateActivity6 = new System.Workflow.Activities.SetStateActivity();
             this.setStateActivity5 = new System.Workflow.Activities.SetStateActivity();
             this.saveCodeActivity = new System.Workflow.Activities.CodeActivity();
             this.ifElseBranchActivity2 = new System.Workflow.Activities.IfElseBranchActivity();
             this.ifElseBranchActivity1 = new System.Workflow.Activities.IfElseBranchActivity();
-            this.ifElseActivity1 = new System.Workflow.Activities.IfElseActivity();
-            this.nextHandleExternalEventActivity2 = new Composite.C1Console.Workflow.Activities.NextHandleExternalEventActivity();
+            this.ifElseActivity = new System.Workflow.Activities.IfElseActivity();
+            this.finishHandleExternalEventActivity = new Composite.C1Console.Workflow.Activities.FinishHandleExternalEventActivity();
             this.setStateActivity4 = new System.Workflow.Activities.SetStateActivity();
             this.cancelHandleExternalEventActivity1 = new Composite.C1Console.Workflow.Activities.CancelHandleExternalEventActivity();
-            this.wizardFormActivity1 = new Composite.C1Console.Workflow.Activities.WizardFormActivity();
+            this.dataDialogFormActivity = new Composite.C1Console.Workflow.Activities.DataDialogFormActivity();
             this.initCodeActivity = new System.Workflow.Activities.CodeActivity();
             this.setStateActivity2 = new System.Workflow.Activities.SetStateActivity();
-            this.NextDrivenActivity1 = new System.Workflow.Activities.EventDrivenActivity();
-            this.CancelDrivenActivity2 = new System.Workflow.Activities.EventDrivenActivity();
+            this.DrivenActivity_Ok = new System.Workflow.Activities.EventDrivenActivity();
+            this.DrivenActivity_Cancel = new System.Workflow.Activities.EventDrivenActivity();
             this.initializationActivity = new System.Workflow.Activities.StateInitializationActivity();
             this.setStateActivity1 = new System.Workflow.Activities.SetStateActivity();
             this.cancelHandleExternalEventActivity2 = new Composite.C1Console.Workflow.Activities.CancelHandleExternalEventActivity();
@@ -50,10 +49,6 @@ namespace CompositeC1Contrib.Email.Workflows
             this.globalCancelEventDrivenActivity = new System.Workflow.Activities.EventDrivenActivity();
             this.finalState = new System.Workflow.Activities.StateActivity();
             this.initializationState = new System.Workflow.Activities.StateActivity();
-            // 
-            // faultHandlersActivity1
-            // 
-            this.faultHandlersActivity1.Name = "faultHandlersActivity1";
             // 
             // setStateActivity6
             // 
@@ -73,7 +68,6 @@ namespace CompositeC1Contrib.Email.Workflows
             // ifElseBranchActivity2
             // 
             this.ifElseBranchActivity2.Activities.Add(this.setStateActivity6);
-            this.ifElseBranchActivity2.Activities.Add(this.faultHandlersActivity1);
             this.ifElseBranchActivity2.Name = "ifElseBranchActivity2";
             // 
             // ifElseBranchActivity1
@@ -84,17 +78,17 @@ namespace CompositeC1Contrib.Email.Workflows
             this.ifElseBranchActivity1.Condition = codecondition1;
             this.ifElseBranchActivity1.Name = "ifElseBranchActivity1";
             // 
-            // ifElseActivity1
+            // ifElseActivity
             // 
-            this.ifElseActivity1.Activities.Add(this.ifElseBranchActivity1);
-            this.ifElseActivity1.Activities.Add(this.ifElseBranchActivity2);
-            this.ifElseActivity1.Name = "ifElseActivity1";
+            this.ifElseActivity.Activities.Add(this.ifElseBranchActivity1);
+            this.ifElseActivity.Activities.Add(this.ifElseBranchActivity2);
+            this.ifElseActivity.Name = "ifElseActivity";
             // 
-            // nextHandleExternalEventActivity2
+            // finishHandleExternalEventActivity
             // 
-            this.nextHandleExternalEventActivity2.EventName = "Next";
-            this.nextHandleExternalEventActivity2.InterfaceType = typeof(Composite.C1Console.Workflow.IFormsWorkflowEventService);
-            this.nextHandleExternalEventActivity2.Name = "nextHandleExternalEventActivity2";
+            this.finishHandleExternalEventActivity.EventName = "Finish";
+            this.finishHandleExternalEventActivity.InterfaceType = typeof(Composite.C1Console.Workflow.IFormsWorkflowEventService);
+            this.finishHandleExternalEventActivity.Name = "finishHandleExternalEventActivity";
             // 
             // setStateActivity4
             // 
@@ -107,11 +101,11 @@ namespace CompositeC1Contrib.Email.Workflows
             this.cancelHandleExternalEventActivity1.InterfaceType = typeof(Composite.C1Console.Workflow.IFormsWorkflowEventService);
             this.cancelHandleExternalEventActivity1.Name = "cancelHandleExternalEventActivity1";
             // 
-            // wizardFormActivity1
+            // dataDialogFormActivity
             // 
-            this.wizardFormActivity1.ContainerLabel = null;
-            this.wizardFormActivity1.FormDefinitionFileName = "\\InstalledPackages\\CompositeC1Contrib.Email\\CreateEmailQueue.xml";
-            this.wizardFormActivity1.Name = "wizardFormActivity1";
+            this.dataDialogFormActivity.ContainerLabel = "";
+            this.dataDialogFormActivity.FormDefinitionFileName = "\\InstalledPackages\\CompositeC1Contrib.Email\\CreateEmailQueue.xml";
+            this.dataDialogFormActivity.Name = "dataDialogFormActivity";
             // 
             // initCodeActivity
             // 
@@ -123,22 +117,22 @@ namespace CompositeC1Contrib.Email.Workflows
             this.setStateActivity2.Name = "setStateActivity2";
             this.setStateActivity2.TargetStateName = "startState";
             // 
-            // NextDrivenActivity1
+            // DrivenActivity_Ok
             // 
-            this.NextDrivenActivity1.Activities.Add(this.nextHandleExternalEventActivity2);
-            this.NextDrivenActivity1.Activities.Add(this.ifElseActivity1);
-            this.NextDrivenActivity1.Name = "NextDrivenActivity1";
+            this.DrivenActivity_Ok.Activities.Add(this.finishHandleExternalEventActivity);
+            this.DrivenActivity_Ok.Activities.Add(this.ifElseActivity);
+            this.DrivenActivity_Ok.Name = "DrivenActivity_Ok";
             // 
-            // CancelDrivenActivity2
+            // DrivenActivity_Cancel
             // 
-            this.CancelDrivenActivity2.Activities.Add(this.cancelHandleExternalEventActivity1);
-            this.CancelDrivenActivity2.Activities.Add(this.setStateActivity4);
-            this.CancelDrivenActivity2.Name = "CancelDrivenActivity2";
+            this.DrivenActivity_Cancel.Activities.Add(this.cancelHandleExternalEventActivity1);
+            this.DrivenActivity_Cancel.Activities.Add(this.setStateActivity4);
+            this.DrivenActivity_Cancel.Name = "DrivenActivity_Cancel";
             // 
             // initializationActivity
             // 
             this.initializationActivity.Activities.Add(this.initCodeActivity);
-            this.initializationActivity.Activities.Add(this.wizardFormActivity1);
+            this.initializationActivity.Activities.Add(this.dataDialogFormActivity);
             this.initializationActivity.Name = "initializationActivity";
             // 
             // setStateActivity1
@@ -160,8 +154,8 @@ namespace CompositeC1Contrib.Email.Workflows
             // startState
             // 
             this.startState.Activities.Add(this.initializationActivity);
-            this.startState.Activities.Add(this.CancelDrivenActivity2);
-            this.startState.Activities.Add(this.NextDrivenActivity1);
+            this.startState.Activities.Add(this.DrivenActivity_Cancel);
+            this.startState.Activities.Add(this.DrivenActivity_Ok);
             this.startState.Name = "startState";
             // 
             // globalCancelEventDrivenActivity
@@ -195,37 +189,65 @@ namespace CompositeC1Contrib.Email.Workflows
 
         #endregion
 
-
-        private StateInitializationActivity packageInfoInitialization;
-
-        private StateActivity mailQueueState;
-
-        private CodeActivity saveMailQueueCodeActivity;
-
-        private CancellationHandlerActivity cancellationHandlerActivity1;
         private EventDrivenActivity globalCancelEventDrivenActivity;
+
         private StateActivity finalState;
-        private Composite.C1Console.Workflow.Activities.WizardFormActivity wizardFormActivity1;
+
+        private Composite.C1Console.Workflow.Activities.DataDialogFormActivity dataDialogFormActivity;
+
         private CodeActivity initCodeActivity;
+
         private SetStateActivity setStateActivity2;
+
         private SetStateActivity setStateActivity1;
+
         private StateInitializationActivity stateInitializationActivity;
+
         private SetStateActivity setStateActivity4;
+
         private Composite.C1Console.Workflow.Activities.CancelHandleExternalEventActivity cancelHandleExternalEventActivity1;
-        private Composite.C1Console.Workflow.Activities.NextHandleExternalEventActivity nextHandleExternalEventActivity2;
-        private EventDrivenActivity CancelDrivenActivity2;
-        private EventDrivenActivity NextDrivenActivity1;
+
+        private Composite.C1Console.Workflow.Activities.FinishHandleExternalEventActivity finishHandleExternalEventActivity;
+
+        private EventDrivenActivity DrivenActivity_Cancel;
+
+        private EventDrivenActivity DrivenActivity_Ok;
+
         private Composite.C1Console.Workflow.Activities.CancelHandleExternalEventActivity cancelHandleExternalEventActivity2;
-        private FaultHandlersActivity faultHandlersActivity1;
+
         private SetStateActivity setStateActivity6;
+
         private SetStateActivity setStateActivity5;
+
         private IfElseBranchActivity ifElseBranchActivity2;
+
         private IfElseBranchActivity ifElseBranchActivity1;
-        private IfElseActivity ifElseActivity1;
+
+        private IfElseActivity ifElseActivity;
+
         private CodeActivity saveCodeActivity;
+
         private StateInitializationActivity initializationActivity;
+
         private StateActivity startState;
+
         private StateActivity initializationState;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -22,13 +22,10 @@ namespace CompositeC1Contrib.Email.Workflows
         {
             if (!BindingExist("EmailQueue"))
             {
-                var queueName = EntityToken.Id;
-                using (var data = new DataConnection())
-                {
-                    var queue = data.Get<IEmailQueue>().Single(q => q.Name == queueName);
+                var dataToken = (DataEntityToken)EntityToken;
+                var queue = (IEmailQueue)dataToken.Data;
 
-                    Bindings.Add("EmailQueue", queue);
-                }
+                Bindings.Add("EmailQueue", queue);
             }
         }
 

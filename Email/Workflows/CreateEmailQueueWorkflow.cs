@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Workflow.Activities;
 
 using Composite.Data;
 
 using CompositeC1Contrib.Email.Data.Types;
-using CompositeC1Contrib.Email.ElementProviders.Tokens;
 
 namespace CompositeC1Contrib.Email.Workflows
 {
@@ -16,9 +17,14 @@ namespace CompositeC1Contrib.Email.Workflows
             InitializeComponent();
         }
 
+        public static IEnumerable<string> GetNetworkDeliveryOptions()
+        {
+            return Enum.GetNames(typeof(SmtpDeliveryMethod));
+        }
+
         private void validateSave(object sender, ConditionalEventArgs e)
         {
-            var mailQueue = this.GetBinding<IEmailQueue>("EmailQueue");
+            var mailQueue = GetBinding<IEmailQueue>("EmailQueue");
 
             using (var data = new DataConnection())
             {
@@ -39,27 +45,32 @@ namespace CompositeC1Contrib.Email.Workflows
 
         private void initCodeActivity_ExecuteCode(object sender, EventArgs e)
         {
-            using (var data = new DataConnection())
+            if (!BindingExist("EmailQueue"))
             {
-                var mailQueue = data.CreateNew<IEmailQueue>();
+                using (var data = new DataConnection())
+                {
+                    var mailQueue = data.CreateNew<IEmailQueue>();
 
-                mailQueue.Id = Guid.NewGuid();
-                mailQueue.Name = "Enter name...";
+                    mailQueue.Id = Guid.NewGuid();
+                    mailQueue.Port = 25;
+                    mailQueue.Host = "localhost";
+                    mailQueue.DeliveryMethod = SmtpDeliveryMethod.Network.ToString();
 
-                Bindings.Add("EmailQueue", mailQueue);
+                    Bindings.Add("EmailQueue", mailQueue);
+                }
             }
         }
 
         private void saveCodeActivity_ExecuteCode(object sender, EventArgs e)
         {
-            var mailQueue = this.GetBinding<IEmailQueue>("EmailQueue");
+            var mailQueue = GetBinding<IEmailQueue>("EmailQueue");
 
             using (var data = new DataConnection())
             {
-                data.Add(mailQueue);
+                mailQueue = data.Add(mailQueue);
             }
 
-            var newQueueEntityToken = new EmailQueueEntityToken(mailQueue.Name);
+            var newQueueEntityToken = mailQueue.GetDataEntityToken();
             var addNewTreeRefresher = CreateAddNewTreeRefresher(EntityToken);
 
             addNewTreeRefresher.PostRefreshMesseges(newQueueEntityToken);
