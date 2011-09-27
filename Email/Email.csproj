@@ -45,26 +45,17 @@
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation">
       <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
     </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Activities" />
     <Reference Include="System.Activities.Presentation" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.ServiceModel.Activities" />
-    <Reference Include="System.ServiceModel.Channels" />
     <Reference Include="System.Workflow.Activities" />
     <Reference Include="System.Workflow.ComponentModel" />
     <Reference Include="System.Workflow.Runtime" />
-    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\MailMessageDataAncestorProvider.cs" />
@@ -112,6 +103,10 @@
     <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\ConfirmMessage.xml" />
     <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\CreateEmailQueue.xml" />
     <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\EditEmailQueue.xml" />
+    <Content Include="Package\Config\install.xsl">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Package\Config\uninstall.xsl" />
     <Content Include="Package\install.xml" />
   </ItemGroup>
   <ItemGroup />

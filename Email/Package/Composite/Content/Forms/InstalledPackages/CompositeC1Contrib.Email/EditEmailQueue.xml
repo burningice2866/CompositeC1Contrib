@@ -50,10 +50,6 @@
             <cms:bind source="EmailQueue.Password" />
           </TextBox>
 
-          <TextBox Label="Client domain">
-            <cms:bind source="EmailQueue.ClientDomain" />
-          </TextBox>
-
           <TextBox Label="Target name">
             <cms:bind source="EmailQueue.TargetName" />
           </TextBox>
