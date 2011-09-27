@@ -24,7 +24,7 @@ namespace CompositeC1Contrib.Email.ElementProviders.Actions
                 data.Delete(queue);
             }
 
-            SpecificTreeRefresher treeRefresher = new SpecificTreeRefresher(flowControllerServicesContainer);
+            var treeRefresher = new SpecificTreeRefresher(flowControllerServicesContainer);
             treeRefresher.PostRefreshMesseges(new EmailElementProviderEntityToken());
 
             return null;

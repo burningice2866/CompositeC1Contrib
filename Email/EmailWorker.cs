@@ -17,8 +17,8 @@ namespace CompositeC1Contrib.Email
     {
         private static EmailWorker _instance = new EmailWorker();
 
-        private Thread _thread;
         private volatile bool _running = false;
+        private Thread _thread;        
 
         private EmailWorker()
         {
@@ -28,13 +28,13 @@ namespace CompositeC1Contrib.Email
 
         public static void Initialize()
         {
-            GlobalEventSystemFacade.SubscribeToPrepareForShutDownEvent(prepareFormShutDownEvent);
+            GlobalEventSystemFacade.SubscribeToPrepareForShutDownEvent(prepareForShutDown);
 
             _instance._running = true;
             _instance._thread.Start();
         }
 
-        private static void prepareFormShutDownEvent(PrepareForShutDownEventArgs e)
+        private static void prepareForShutDown(PrepareForShutDownEventArgs e)
         {
             _instance._running = false;
         }
@@ -47,58 +47,7 @@ namespace CompositeC1Contrib.Email
                 {
                     while (_running)
                     {
-                        using (var data = new DataConnection())
-                        {
-                            var queues = data.Get<IEmailQueue>().Where(q => !q.Paused);
-
-                            foreach (var queue in queues)
-                            {
-                                if (!_running)
-                                {
-                                    continue;
-                                }
-
-                                var messages = data.Get<IEmailMessage>().Where(m => m.QueueId == queue.Id);
-
-                                if (messages.Any())
-                                {
-                                    var smtpClient = getClient(queue);
-                                    if (smtpClient == null)
-                                    {
-                                        queue.Paused = true;
-                                        data.Update(queue);
-
-                                        continue;
-                                    }
-
-                                    using (smtpClient)
-                                    {
-                                        foreach (var message in messages)
-                                        {
-                                            if (!_running)
-                                            {
-                                                continue;
-                                            }
-
-                                            var mailMessage = EmailFacade.GetMessage(message);
-
-                                            try
-                                            {
-                                                smtpClient.Send(mailMessage);
-
-                                                Log.LogInformation("Mail message", "Sent mail message " + mailMessage.Subject + " from queue " + queue.Name);
-
-                                                data.Delete(message);
-                                            }
-                                            catch (Exception exc)
-                                            {
-                                                Log.LogCritical("Error in sending message", exc);
-                                            }                                            
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        sendPendingMessages();
 
                         Thread.Sleep(1000);
                     }
@@ -107,6 +56,56 @@ namespace CompositeC1Contrib.Email
             catch (Exception exc)
             {
                 Log.LogCritical("Unhandled error in Email Worker", exc);
+            }
+        }
+
+        private void sendPendingMessages()
+        {
+            using (var data = new DataConnection())
+            {
+                var queues = data.Get<IEmailQueue>().Where(q => !q.Paused);
+
+                foreach (var queue in queues)
+                {
+                    if (!_running) return;
+
+                    var messages = data.Get<IEmailMessage>().Where(m => m.QueueId == queue.Id);
+
+                    if (messages.Any())
+                    {
+                        var smtpClient = getClient(queue);
+                        if (smtpClient == null)
+                        {
+                            queue.Paused = true;
+                            data.Update(queue);
+
+                            return;
+                        }
+
+                        using (smtpClient)
+                        {
+                            foreach (var message in messages)
+                            {
+                                if (!_running) return;
+
+                                var mailMessage = EmailFacade.GetMessage(message);
+
+                                try
+                                {
+                                    smtpClient.Send(mailMessage);
+
+                                    Log.LogInformation("Mail message", "Sent mail message " + mailMessage.Subject + " from queue " + queue.Name);
+
+                                    data.Delete(message);
+                                }
+                                catch (Exception exc)
+                                {
+                                    Log.LogCritical("Error in sending message", exc);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 

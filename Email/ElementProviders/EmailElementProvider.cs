@@ -13,6 +13,7 @@ using CompositeC1Contrib.Email.ElementProviders.Actions;
 using CompositeC1Contrib.Email.ElementProviders.Tokens;
 using CompositeC1Contrib.Email.Workflows;
 using Composite.Plugins.Elements.ElementProviders.VirtualElementProvider;
+using Composite.Plugins.Elements.ElementProviders.GeneratedDataTypesElementProvider;
 
 namespace CompositeC1Contrib.Email.ElementProviders
 {
@@ -59,7 +60,7 @@ namespace CompositeC1Contrib.Email.ElementProviders
                             }
                         };
 
-                        var deleteActionToken = new WorkflowActionToken(WorkflowFacade.GetWorkflowType("Composite.Plugins.Elements.ElementProviders.GeneratedDataTypesElementProvider.DeleteDataWorkflow"));
+                        var deleteActionToken = new WorkflowActionToken(typeof(DeleteDataWorkflow));
                         messageElement.AddAction(new ElementAction(new ActionHandle(deleteActionToken))
                         {
                             VisualData = new ActionVisualizedData
