@@ -18,7 +18,7 @@ namespace CompositeC1Contrib.Email
         private static EmailWorker _instance = new EmailWorker();
 
         private Thread _thread;
-        private bool _running = false;
+        private volatile bool _running = false;
 
         private EmailWorker()
         {
@@ -41,64 +41,106 @@ namespace CompositeC1Contrib.Email
 
         private void run()
         {
-            using (ThreadDataManager.EnsureInitialize())
+            try
             {
-                while (_running)
+                using (ThreadDataManager.EnsureInitialize())
                 {
-                    using (var data = new DataConnection())
+                    while (_running)
                     {
-                        var queues = data.Get<IEmailQueue>().Where(q => !q.Paused);
-
-                        foreach (var queue in queues)
+                        using (var data = new DataConnection())
                         {
-                            var messages = data.Get<IEmailMessage>().Where(m => m.QueueId == queue.Id);
+                            var queues = data.Get<IEmailQueue>().Where(q => !q.Paused);
 
-                            if (messages.Any())
+                            foreach (var queue in queues)
                             {
-                                using (var smtpClient = getClient(queue))
+                                if (!_running)
                                 {
-                                    foreach (var message in messages)
+                                    continue;
+                                }
+
+                                var messages = data.Get<IEmailMessage>().Where(m => m.QueueId == queue.Id);
+
+                                if (messages.Any())
+                                {
+                                    var smtpClient = getClient(queue);
+                                    if (smtpClient == null)
                                     {
-                                        var mailMessage = EmailFacade.GetMessage(message);
+                                        queue.Paused = true;
+                                        data.Update(queue);
 
-                                        smtpClient.Send(mailMessage);
+                                        continue;
+                                    }
 
-                                        Log.LogInformation("Mail message", "Sent mail message " + mailMessage.Subject + " from queue " + queue.Name);
+                                    using (smtpClient)
+                                    {
+                                        foreach (var message in messages)
+                                        {
+                                            if (!_running)
+                                            {
+                                                continue;
+                                            }
 
-                                        data.Delete(message);
+                                            var mailMessage = EmailFacade.GetMessage(message);
+
+                                            try
+                                            {
+                                                smtpClient.Send(mailMessage);
+
+                                                Log.LogInformation("Mail message", "Sent mail message " + mailMessage.Subject + " from queue " + queue.Name);
+
+                                                data.Delete(message);
+                                            }
+                                            catch (Exception exc)
+                                            {
+                                                Log.LogCritical("Error in sending message", exc);
+                                            }                                            
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    Thread.Sleep(1000);
+                        Thread.Sleep(1000);
+                    }
                 }
+            }
+            catch (Exception exc)
+            {
+                Log.LogCritical("Unhandled error in Email Worker", exc);
             }
         }
 
         private SmtpClient getClient(IEmailQueue queue)
         {
-            var smtpClient = new SmtpClient()
+            try
             {
-                DeliveryMethod = (SmtpDeliveryMethod)Enum.Parse(typeof(SmtpDeliveryMethod), queue.DeliveryMethod),
-                Host = queue.Host,
-                Port = queue.Port,
-                EnableSsl = queue.EnableSsl,
-                TargetName = queue.TargetName,
-                PickupDirectoryLocation = queue.PickupDirectoryLocation
-            };
+                var smtpClient = new SmtpClient()
+                {
+                    DeliveryMethod = (SmtpDeliveryMethod)Enum.Parse(typeof(SmtpDeliveryMethod), queue.DeliveryMethod),
+                    Host = queue.Host,
+                    Port = queue.Port,
+                    EnableSsl = queue.EnableSsl,
+                    TargetName = queue.TargetName,
+                    PickupDirectoryLocation = queue.PickupDirectoryLocation
+                };
 
-            if (queue.DefaultCredentials)
-            {
-                smtpClient.Credentials = (NetworkCredential)CredentialCache.DefaultCredentials;
-            }
-            else if (!String.IsNullOrEmpty(queue.UserName) && !String.IsNullOrEmpty(queue.Password))
-            {
-                smtpClient.Credentials = new NetworkCredential(queue.UserName, queue.Password);
-            }
+                if (queue.DefaultCredentials)
+                {
+                    smtpClient.Credentials = (NetworkCredential)CredentialCache.DefaultCredentials;
+                }
+                else if (!String.IsNullOrEmpty(queue.UserName) && !String.IsNullOrEmpty(queue.Password))
+                {
+                    smtpClient.Credentials = new NetworkCredential(queue.UserName, queue.Password);
+                }
 
-            return smtpClient;
+                return smtpClient;
+            }
+            catch (Exception exc)
+            {
+                Log.LogCritical("Invalid smtp settings", exc);
+
+                return null;
+            }            
         }
     }
 }
