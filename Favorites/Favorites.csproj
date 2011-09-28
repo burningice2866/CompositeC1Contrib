@@ -49,6 +49,7 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Workflow.Activities" />
     <Reference Include="System.Workflow.ComponentModel" />
     <Reference Include="System.Xml.Linq" />
@@ -64,6 +65,7 @@
     <Compile Include="FavoriteFunctionsProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StartupHandler.cs" />
+    <Compile Include="Web\FavoritesRewriteModule.cs" />
     <Compile Include="Workflows\AddToFavoritesQueueWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
