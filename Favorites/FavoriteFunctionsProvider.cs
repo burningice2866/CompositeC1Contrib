@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
-using Composite.C1Console.Security;
 using Composite.Data;
 using Composite.Functions;
 
@@ -12,10 +10,11 @@ namespace CompositeC1Contrib.Favorites
 {
     public class FavoriteFunctionsProvider : IFunctionProvider
     {
-        private FunctionNotifier _functionNotifier;
+        private static FunctionNotifier _globalNotifier;
+
         public FunctionNotifier FunctionNotifier
         {
-            set { _functionNotifier = value; }
+            set { _globalNotifier = value; }
         }
 
         public IEnumerable<IFunction> Functions
@@ -27,10 +26,10 @@ namespace CompositeC1Contrib.Favorites
                     var favoriteFunctions = data.Get<IFavoriteFunction>();
                     foreach (var function in favoriteFunctions)
                     {
-                        var iFunction = FavoriteFunctionWrapper.Create(function);
-                        if (iFunction != null)
+                        IFunction iFunction;
+                        if (FunctionFacade.TryGetFunction(out iFunction, function.FunctionName))
                         {
-                            yield return iFunction;
+                            yield return new FavoriteFunctionWrapper(function.Name, iFunction);
                         }
                     }
                 }
@@ -45,7 +44,15 @@ namespace CompositeC1Contrib.Favorites
 
         private void onDataChanged(object sender, DataEventArgs e)
         {
-            this._functionNotifier.FunctionsUpdated();
+            _globalNotifier.FunctionsUpdated();
+        }
+
+        public static void Update()
+        {
+            if (_globalNotifier != null)
+            {
+                _globalNotifier.FunctionsUpdated();
+            }
         }
     }
 }

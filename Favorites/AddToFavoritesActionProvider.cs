@@ -10,7 +10,6 @@ using Composite.C1Console.Security;
 using Composite.C1Console.Workflow;
 using Composite.Core.ResourceSystem;
 using Composite.Data;
-using Composite.Data.Types;
 using Composite.Functions;
 
 using CompositeC1Contrib.Favorites.Data.Types;
@@ -26,51 +25,35 @@ namespace CompositeC1Contrib.Favorites
 
         public IEnumerable<ElementAction> GetActions(EntityToken entityToken)
         {
-            var dataToken = entityToken as DataEntityToken;
-            if (dataToken != null)
-            {
-                if (dataToken.InterfaceType == typeof(IXsltFunction))
-                {
-                    yield return createAction(entityToken);
-                }
-
-                if (dataToken.InterfaceType == typeof(IMethodBasedFunctionInfo))
-                {
-                    yield return createAction(entityToken);
-                }
-            }
-
-            string id = entityToken.Id;
-            if (!String.IsNullOrEmpty(id))
+            string fullName = FavoriteFunctionWrapper.GetFunctionNameFromEntityToken(entityToken);
+            if (!String.IsNullOrEmpty(fullName))
             {
                 IFunction function;
 
-                if (FunctionFacade.TryGetFunction(out function, id))
+                if (FunctionFacade.TryGetFunction(out function, fullName))
                 {
-                    yield return createAction(entityToken);
+                    yield return createAction(fullName);
                 }
             }
         }
 
-        private ElementAction createAction(EntityToken entityToken)
+        private ElementAction createAction(string fullName)
         {
-            string serializedEntityToken = entityToken.Serialize();
-            string userName = UserValidationFacade.GetUsername();
-
             using (var data = new DataConnection())
             {
-                var isFavorite = data.Get<IFavoriteFunction>().Any(f => f.SerializedEntityToken == serializedEntityToken);
+                var isFavorite = data.Get<IFavoriteFunction>().Any(f => f.FunctionName == fullName);
 
                 var label = isFavorite ? "Remove from favorites" : "Add to favorites";
-
-                var deleteActionToken = new WorkflowActionToken(typeof(AddToFavoritesQueueWorkflow));
-                return new ElementAction(new ActionHandle(deleteActionToken))
+                var actionToken = isFavorite ? new ConfirmWorkflowActionToken("Are you sure?", typeof(RemoveFromFavoritesActionToken)) : new WorkflowActionToken(typeof(AddToFavoritesQueueWorkflow));
+                var toggleIcon = isFavorite ? "generated-type-data-delete" : "accept";
+                
+                return new ElementAction(new ActionHandle(actionToken))
                 {
                     VisualData = new ActionVisualizedData
                     {
                         Label = label,
                         ToolTip = label,
-                        Icon = new ResourceHandle("Composite.Icons", "generated-type-data-delete"),
+                        Icon = new ResourceHandle("Composite.Icons", toggleIcon),
                         ActionLocation = _actionLocation
                     }
                 };

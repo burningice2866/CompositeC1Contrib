@@ -2,8 +2,8 @@ using System;
 using System.Linq;
 using System.Workflow.Activities;
 
-using Composite.C1Console.Security;
 using Composite.Data;
+using Composite.Functions;
 
 using CompositeC1Contrib.Favorites.Data.Types;
 
@@ -22,10 +22,10 @@ namespace CompositeC1Contrib.Favorites.Workflows
 
             using (var data = new DataConnection())
             {
-                var nameExists = data.Get<IFavoriteFunction>().Any(q => q.Name == favoriteFunction.Name);
+                var nameExists = data.Get<IFavoriteFunction>().Any(q => q.Name == favoriteFunction.Name || q.FunctionName == favoriteFunction.FunctionName);
                 if (nameExists)
                 {
-                    ShowFieldMessage("Favorite function", "Favorite function this name already exists");
+                    ShowFieldMessage("Favorite function", "Favorite with this name or function already exists");
 
                     e.Result = false;
 
@@ -44,8 +44,12 @@ namespace CompositeC1Contrib.Favorites.Workflows
                 {
                     var favoriteFunction = data.CreateNew<IFavoriteFunction>();
 
+                    var fullName = FavoriteFunctionWrapper.GetFunctionNameFromEntityToken(EntityToken);
+                    var iFunction = FunctionFacade.GetFunction(fullName);
+
                     favoriteFunction.Id = Guid.NewGuid();
-                    favoriteFunction.SerializedEntityToken = EntityTokenSerializer.Serialize(EntityToken);
+                    favoriteFunction.FunctionName = fullName;
+                    favoriteFunction.Name = iFunction.Name;
 
                     Bindings.Add("FavoriteFunction", favoriteFunction);
                 }

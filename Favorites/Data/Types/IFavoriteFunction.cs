@@ -28,8 +28,8 @@ namespace CompositeC1Contrib.Favorites.Data.Types
         string Name { get; set; }
 
         [NotNullValidator]
-        [StoreFieldType(PhysicalStoreFieldType.LargeString)]
-        [ImmutableFieldId("1572f4b8-e25c-4f12-83d8-30e1f1af2e95")]
-        string SerializedEntityToken { get; set; }
+        [StoreFieldType(PhysicalStoreFieldType.String, 255)]
+        [ImmutableFieldId("15b786bf-b56c-48f6-aaf0-155becb38c13")]
+        string FunctionName { get; set; }
     }
 }

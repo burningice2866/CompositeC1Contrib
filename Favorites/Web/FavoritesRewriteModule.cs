@@ -7,9 +7,7 @@ using System.Text;
 using System.Web;
 using System.Xml.Linq;
 
-using Composite.C1Console.Security;
 using Composite.Data;
-using Composite.Data.Types;
 
 using CompositeC1Contrib.Favorites.Data.Types;
 
@@ -42,7 +40,6 @@ namespace CompositeC1Contrib.Favorites.Web
                     }
 
                     var functionName = XElement.Parse(xmlData).Descendants().Single(el => el.Name.LocalName == "functionName").Value;
-                    string newFunctionName = null;
 
                     if (functionName.StartsWith("__Favorites"))
                     {
@@ -53,34 +50,9 @@ namespace CompositeC1Contrib.Favorites.Web
                             var favorite = data.Get<IFavoriteFunction>().SingleOrDefault(f => f.Name == name);
                             if (favorite != null)
                             {
-                                var entityToken = EntityTokenSerializer.Deserialize(favorite.SerializedEntityToken);
-
-                                var dataEntityToken = entityToken as DataEntityToken;
-                                if (dataEntityToken != null)
-                                {
-                                    if (dataEntityToken.InterfaceType == typeof(IXsltFunction))
-                                    {
-                                        var xsltFunction = (IXsltFunction)dataEntityToken.Data;
-                                        newFunctionName = String.Join(".", xsltFunction.Namespace, xsltFunction.Name);
-                                    }
-
-                                    if (dataEntityToken.InterfaceType == typeof(IMethodBasedFunctionInfo))
-                                    {
-                                        var methodBasedFunction = (IMethodBasedFunctionInfo)dataEntityToken.Data;
-                                        newFunctionName = String.Join(".", methodBasedFunction.Namespace, methodBasedFunction.UserMethodName);
-                                    }
-                                }
-                                else
-                                {
-                                    newFunctionName = entityToken.Id;
-                                }
+                                xmlData = xmlData.Replace(functionName, favorite.FunctionName);
                             }
                         }
-                    }
-
-                    if (!String.IsNullOrEmpty(newFunctionName))
-                    {
-                        xmlData = xmlData.Replace(functionName, newFunctionName);
                     }
 
                     var bytesToWrite = Encoding.UTF8.GetBytes(xmlData);

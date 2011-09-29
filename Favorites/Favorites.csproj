@@ -52,6 +52,7 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Workflow.Activities" />
     <Reference Include="System.Workflow.ComponentModel" />
+    <Reference Include="System.Workflow.Runtime" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -61,6 +62,8 @@
   <ItemGroup>
     <Compile Include="AddToFavoritesActionProvider.cs" />
     <Compile Include="Data\Types\IFavoriteFunction.cs" />
+    <Compile Include="RemoveFromFavoritesActionExecutor.cs" />
+    <Compile Include="RemoveFromFavoritesActionToken.cs" />
     <Compile Include="FavoriteFunctionWrapper.cs" />
     <Compile Include="FavoriteFunctionsProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -72,17 +75,41 @@
     <Compile Include="Workflows\AddToFavoritesQueueWorkflow.designer.cs">
       <DependentUpon>AddToFavoritesQueueWorkflow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Workflows\ConfirmWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Workflows\ConfirmWorkflow.Designer.cs">
+      <DependentUpon>ConfirmWorkflow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Workflows\ConfirmWorkflowActionToken.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Workflows\AddToFavoritesQueueWorkflow.layout">
       <DependentUpon>AddToFavoritesQueueWorkflow.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Workflows\ConfirmWorkflow.layout">
+      <DependentUpon>ConfirmWorkflow.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Favorites\AddToFavorites.xml" />
+    <Content Include="Package\Config\composite.config\install.xsl">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Package\Config\composite.config\uninstall.xsl" />
+    <Content Include="Package\Config\web.config\install.xsl" />
+    <Content Include="Package\Config\web.config\uninstall.xsl" />
+    <Content Include="Package\install.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
+del "$(ProjectDir)\Package\package.zip"
+"$(ProjectDir)..\References\7z.exe" a "$(ProjectDir)\Package\package.zip" -tzip -r "$(ProjectDir)\Package\*"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
