@@ -1,12 +1,17 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" Inherits="CompositeC1Contrib.Sorting.Web.UI.SortPages" %>
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<%@ Page Language="C#" AutoEventWireup="true" Inherits="CompositeC1Contrib.Sorting.Web.UI.SortPages" %>
 <%@ Import Namespace="Composite.Data" %>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://www.w3.org/1999/xhtml" xmlns:control="http://www.composite.net/ns/uicontrol">
+    <control:httpheaders runat="server" />
 
-<html xmlns="http://www.w3.org/1999/xhtml">
     <head runat="server">
         <title>Sort</title>
-        <link type="text/css" href="css/ui-lightness/jquery-ui-1.8.16.custom.css" rel="Stylesheet" />	
+        <link type="text/css" href="css/ui-lightness/jquery-ui-1.8.16.custom.css" rel="Stylesheet" />
+
+        <control:scriptloader type="sub" runat="server" />
+
         <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
         <script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
 
@@ -27,7 +32,11 @@
                             url: 'SortPages.aspx/UpdateOrder',
                             contentType: 'application/json; charset=utf-8',
                             dataType: 'json',
-                            data: "{ 'pageId':'<%= Request.QueryString["pageId"] %>', 'consoleId': '<%= Request.QueryString["consoleId"] %>', 'serializedOrder': '" + order + "' }"
+                            data: "{ 'pageId':'<%= Request.QueryString["pageId"] %>', 'consoleId': '<%= Request.QueryString["consoleId"] %>', 'entityToken': \"<%= HttpUtility.UrlEncode(Request.QueryString["EntityToken"]) %>\", 'serializedOrder': '" + order + "' }",
+                            success: function() 
+                            {
+                                MessageQueue.update();
+                            }
                         });
 			        } 
 		        });
@@ -59,22 +68,20 @@
         </style>
     </head>
     <body>
-        <h1>Reorder</h1>
-        Use mouse drag & drop to change the order 
-        <br />
-        <br />
+        <ui:page id="sort-pages">
+            <h1>Reorder</h1>
+            Use mouse drag &amp; drop to change the order 
+            <br />
+            <br />
 
-        <ul>        
-            <% foreach (var instance in getPages()) { %>
-                <li id="instance_<%= hashId(instance) %>" class="ui-state-default">
-                    <img src="arrow.png" alt="Drag" class="handle" />
-                    <%= instance.GetLabel() %>
-                </li>
-            <% } %>        
-        </ul>
-
-        <asp:ScriptManager EnablePageMethods="true" 
-            EnableCdn="false" EnableHistory="false" EnablePartialRendering="false" EnableScriptGlobalization="false" EnableScriptLocalization="false" EnableSecureHistoryState="false"
-            runat="server" />
+            <ul>        
+                <% foreach (var instance in getPages()) { %>
+                    <li id="instance_<%= hashId(instance) %>" class="ui-state-default">
+                        <img src="arrow.png" alt="Drag" class="handle" />
+                        <%= instance.GetLabel() %>
+                    </li>
+                <% } %>        
+            </ul>
+        </ui:page>
     </body>
 </html>

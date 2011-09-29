@@ -5,7 +5,7 @@
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.Sorting" 
                          groupName="Contribution.CompositeC1Contrib" 
-                         version="1.1.1" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="1.2.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          id="65490285-878b-4284-b3ec-db9d2ef7f4fa" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 

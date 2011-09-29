@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using System.Web.Services;
 
 using Composite.Data;
@@ -11,9 +12,12 @@ namespace CompositeC1Contrib.Sorting.Web.UI
     public class SortPages : BaseSortPage
     {
         [WebMethod]
-        public static void UpdateOrder(string pageId, string consoleId, string serializedOrder)
+        public static void UpdateOrder(string pageId, string consoleId, string entityToken, string serializedOrder)
         {
             UpdateOrder(Guid.Parse(pageId), serializedOrder);
+
+            var serializedEntityToken = HttpUtility.UrlDecode(entityToken);
+            updateParents(serializedEntityToken, consoleId);
         }
 
         protected IEnumerable<IPage> getPages()

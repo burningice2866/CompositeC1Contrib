@@ -12,11 +12,14 @@ namespace CompositeC1Contrib.Sorting.Web.UI
     public class SortData : BaseSortPage
     {
         [WebMethod]
-        public static void UpdateOrder(string type, string consoleId, string serializedOrder)
+        public static void UpdateOrder(string type, string consoleId, string entityToken, string serializedOrder)
         {
             var s = HttpUtility.UrlDecode(type);
 
             UpdateOrder(TypeManager.GetType(s), serializedOrder);
+
+            var serializedEntityToken = HttpUtility.UrlDecode(entityToken);
+            updateParents(serializedEntityToken, consoleId);
         }
 
         protected IEnumerable<IGenericSortable> getInstances()
@@ -37,7 +40,7 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 
                 return instances.OrderBy(g => g.LocalOrdering);
             }
-        }
+        }        
 
         private static void UpdateOrder(Type type, string serializedOrder)
         {

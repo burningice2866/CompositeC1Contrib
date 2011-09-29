@@ -18,7 +18,7 @@ namespace CompositeC1Contrib.Sorting
             var openViewMessageItem = new OpenViewMessageQueueItem
             {
                 Label = urlActionToken.Label,
-                Url = urlActionToken.Url + seperator + "consoleId=" + currentConsoleId,
+                Url = urlActionToken.Url + seperator + "consoleId=" + currentConsoleId +"&EntityToken="+ EntityTokenSerializer.Serialize(entityToken),
                 ViewId = Guid.NewGuid().ToString(),
                 ViewType = ViewType.Main
             };
