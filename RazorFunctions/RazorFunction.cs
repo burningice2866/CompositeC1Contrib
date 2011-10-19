@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.WebPages;
@@ -15,6 +15,9 @@ namespace CompositeC1Contrib.RazorFunctions
 {
     public class RazorFunction : IFunction
     {
+        string _relativeFilePath;
+        ParameterInfo[] _parameters;
+
         private string _ns;
         public string Namespace
         {
@@ -39,7 +42,18 @@ namespace CompositeC1Contrib.RazorFunctions
 
         public IEnumerable<ParameterProfile> ParameterProfiles
         {
-            get { return Enumerable.Empty<ParameterProfile>(); }
+            get
+            {
+                if (_parameters != null)
+                {
+                    foreach (var param in _parameters)
+                    {
+                        var functionNames = FunctionFacade.GetFunctionNamesByType(param.ParameterType);
+
+                        yield return new ParameterProfile(param.Name, param.ParameterType, true, new NoValueValueProvider(), null, param.Name, new HelpDefinition(""));
+                    }
+                }
+            }
         }
 
         public Type ReturnType
@@ -47,30 +61,31 @@ namespace CompositeC1Contrib.RazorFunctions
             get { return typeof(XhtmlDocument); }
         }
 
-        public RazorFunction(string ns, string name)
+        public RazorFunction(string ns, string name, ParameterInfo[] parameters, string relativeFilePath)
         {
             _ns = ns;
             _name = name;
+            _parameters = parameters;
+            _relativeFilePath = relativeFilePath;
         }
 
         public object Execute(ParameterList parameters, FunctionContextContainer context)
         {
-            var file = "~/App_Data/Razor";
-            foreach (var part in Namespace.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                file = Path.Combine(file, part);
-            }
-
-            file = Path.Combine(file, Name + ".cshtml");
-
-            var webPage = CompositeC1WebPage.CreateInstanceFromVirtualPath(file);
+            var webPage = WebPage.CreateInstanceFromVirtualPath(_relativeFilePath);
 
             var sb = new StringBuilder();
             using (var writer = new StringWriter(sb))
             {
                 var httpContext = new HttpContextWrapper(HttpContext.Current);
 
-                webPage.ExecutePageHierarchy(new WebPageContext(httpContext, webPage, null), writer);
+                var pageContext = new WebPageContext(httpContext, webPage, null);
+
+                foreach (var param in parameters.AllParameterNames)
+                {
+                    pageContext.PageData[param] = parameters.GetParameter(param);
+                }
+
+                webPage.ExecutePageHierarchy(pageContext, writer);
 
                 return new XhtmlDocument(XElement.Parse(sb.ToString()));
             }

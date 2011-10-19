@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Web.Hosting;
+using System.Web.WebPages;
 
 using Composite.Functions;
 using Composite.Functions.Plugins.FunctionProvider;
@@ -19,11 +22,10 @@ namespace CompositeC1Contrib.RazorFunctions
         {
             get
             {
-                var path = HostingEnvironment.MapPath("~/App_Data/Razor");
-                DirectoryInfo dirInfo = new DirectoryInfo(path);
+                var virtualPath = "~/App_Data/Razor";
+                var absolutePath = HostingEnvironment.MapPath(virtualPath);
 
-                var files = dirInfo.EnumerateFiles("*.cshtml", SearchOption.AllDirectories);
-
+                var files = new DirectoryInfo(absolutePath).EnumerateFiles("*.cshtml", SearchOption.AllDirectories);
                 foreach (var file in files)
                 {
                     var parts = file.FullName.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
@@ -43,7 +45,18 @@ namespace CompositeC1Contrib.RazorFunctions
 
                     ns = ns.Substring(0, ns.Length - 1);
 
-                    yield return new RazorFunction(ns, name);
+                    ParameterInfo[] parameters = null;
+                    var relativeFilePath = Path.Combine(virtualPath, ns.Replace(".", Path.DirectorySeparatorChar.ToString()), name + ".cshtml");
+
+                    var webPage = WebPage.CreateInstanceFromVirtualPath(relativeFilePath);
+
+                    var mainMethod = webPage.GetType().GetMembers().SingleOrDefault(m => m.Name == "main") as MethodInfo;
+                    if (mainMethod != null)
+                    {
+                        parameters = mainMethod.GetParameters();
+                    }
+
+                    yield return new RazorFunction(ns, name, parameters, relativeFilePath);
                 }
             }
         }

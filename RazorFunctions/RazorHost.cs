@@ -1,5 +1,7 @@
 ﻿using System;
+using System.CodeDom;
 using System.IO;
+using System.Linq;
 using System.Web.Razor;
 using System.Web.WebPages.Razor;
 
@@ -25,6 +27,11 @@ namespace CompositeC1Contrib.RazorFunctions
             }
 
             return base.GetCodeLanguage();
+        }
+
+        public override void PostProcessGeneratedCode(CodeCompileUnit codeCompileUnit, CodeNamespace generatedNamespace, CodeTypeDeclaration generatedClass, CodeMemberMethod executeMethod)
+        {
+            base.PostProcessGeneratedCode(codeCompileUnit, generatedNamespace, generatedClass, executeMethod);
         }
     }
 }
