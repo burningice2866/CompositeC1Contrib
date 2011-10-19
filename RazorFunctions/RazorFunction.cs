@@ -48,9 +48,26 @@ namespace CompositeC1Contrib.RazorFunctions
                 {
                     foreach (var param in _parameters)
                     {
-                        var functionNames = FunctionFacade.GetFunctionNamesByType(param.ParameterType);
+                        BaseValueProvider defaultValueProvider = new NoValueValueProvider();
 
-                        yield return new ParameterProfile(param.Name, param.ParameterType, true, new NoValueValueProvider(), null, param.Name, new HelpDefinition(""));
+                        var attributes = param.GetCustomAttributes(typeof(FunctionParameterAttribute), false);
+                        if (attributes != null && attributes.Length > 0)
+                        {
+                            var attr = (FunctionParameterAttribute)attributes[0];
+
+                            var isRequired = !attr.HasDefaultValue;
+
+                            if (!isRequired)
+                            {
+                                defaultValueProvider = new ConstantValueProvider(attr.DefaultValue);
+                            }
+
+                            yield return new ParameterProfile(param.Name, param.ParameterType, isRequired, defaultValueProvider, null, attr.Label, new HelpDefinition(attr.HelpText));
+                        }
+                        else
+                        {
+                            yield return new ParameterProfile(param.Name, param.ParameterType, true, defaultValueProvider, null, param.Name, new HelpDefinition(param.Name));
+                        }       
                     }
                 }
             }

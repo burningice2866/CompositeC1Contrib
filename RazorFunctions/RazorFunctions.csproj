@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FunctionParameterAttribute.cs" />
     <Compile Include="RazorFunction.cs" />
     <Compile Include="RazorHost.cs" />
     <Compile Include="RazorHostFactory.cs" />
