@@ -22,7 +22,7 @@
 
     <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FileXslTransformationPackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FileXslTransformationPackageFragmentUninstaller, Composite">
       <XslFiles>
-        <!-- <XslFile pathXml="~\Web.config" installXsl="~\Config\web.config\install.xsl" uninstallXsl="~\Config\web.config\uninstall.xsl" /> -->
+        <XslFile pathXml="~\Web.config" installXsl="~\Config\web.config\install.xsl" uninstallXsl="~\Config\web.config\uninstall.xsl" />
         <XslFile pathXml="~\App_Data\Composite\Composite.config" installXsl="~\Config\composite.config\install.xsl" uninstallXsl="~\Config\composite.config\uninstall.xsl" />
       </XslFiles>
     </mi:Add>

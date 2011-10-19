@@ -11,26 +11,22 @@
       <xsl:apply-templates select="@* | node()" />
 
       <xsl:if test="count(sectionGroup[@name='system.web.webPages.razor'])=0">
-        <sectionGroup name="system.web.webPages.razor" type="System.Web.WebPages.Razor.Configuration.RazorWebSectionGroup, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
-          <section name="host" type="System.Web.WebPages.Razor.Configuration.HostSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" />
-          <section name="pages" type="System.Web.WebPages.Razor.Configuration.RazorPagesSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" />
-        </sectionGroup>
+        <xsl:call-template name="RazorGroup" />
       </xsl:if>
     </xsl:copy>
   </xsl:template>
 
   <xsl:template match="/configuration">
     <xsl:copy>
-      <xsl:apply-templates select="@* | node()" />
+      <xsl:apply-templates select="@*" />
 
       <xsl:if test="count(configSections)=0">
         <configSections>
-          <sectionGroup name="system.web.webPages.razor" type="System.Web.WebPages.Razor.Configuration.RazorWebSectionGroup, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
-            <section name="host" type="System.Web.WebPages.Razor.Configuration.HostSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" />
-            <section name="pages" type="System.Web.WebPages.Razor.Configuration.RazorPagesSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" />
-          </sectionGroup>
+          <xsl:call-template name="RazorGroup" />
         </configSections>
       </xsl:if>
+
+      <xsl:apply-templates select="node()" />
 
       <xsl:if test="count(system.web.webPages.razor)=0">
         <system.web.webPages.razor>
@@ -48,5 +44,12 @@
         </system.web.webPages.razor>
       </xsl:if>
     </xsl:copy>
+  </xsl:template>
+
+  <xsl:template name="RazorGroup">
+    <sectionGroup name="system.web.webPages.razor" type="System.Web.WebPages.Razor.Configuration.RazorWebSectionGroup, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
+      <section name="host" type="System.Web.WebPages.Razor.Configuration.HostSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" />
+      <section name="pages" type="System.Web.WebPages.Razor.Configuration.RazorPagesSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" />
+    </sectionGroup>
   </xsl:template>
 </xsl:stylesheet>
