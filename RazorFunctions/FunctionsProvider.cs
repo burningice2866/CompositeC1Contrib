@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Web.Hosting;
 using System.Web.WebPages;
 
+using Composite.Core;
 using Composite.Functions;
 using Composite.Functions.Plugins.FunctionProvider;
 
@@ -40,7 +41,7 @@ namespace CompositeC1Contrib.RazorFunctions
                             break;
                         }
 
-                        ns = parts[i] + "." + ns;                        
+                        ns = parts[i] + "." + ns;
                     }
 
                     ns = ns.Substring(0, ns.Length - 1);
@@ -48,7 +49,19 @@ namespace CompositeC1Contrib.RazorFunctions
                     ParameterInfo[] parameters = null;
                     var relativeFilePath = Path.Combine(virtualPath, ns.Replace(".", Path.DirectorySeparatorChar.ToString()), name + ".cshtml");
 
-                    var webPage = WebPage.CreateInstanceFromVirtualPath(relativeFilePath);
+
+                    WebPageBase webPage = null;
+
+                    try
+                    {
+                        webPage = WebPage.CreateInstanceFromVirtualPath(relativeFilePath);
+                    }
+                    catch (Exception exc)
+                    {
+                        Log.LogError("Error in instantiating razpr function", exc);
+
+                        continue;
+                    }
 
                     var mainMethod = webPage.GetType().GetMembers().SingleOrDefault(m => m.Name == "main") as MethodInfo;
                     if (mainMethod != null)

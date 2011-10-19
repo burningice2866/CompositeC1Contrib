@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
@@ -67,7 +68,7 @@ namespace CompositeC1Contrib.RazorFunctions
                         else
                         {
                             yield return new ParameterProfile(param.Name, param.ParameterType, true, defaultValueProvider, null, param.Name, new HelpDefinition(param.Name));
-                        }       
+                        }
                     }
                 }
             }
@@ -90,22 +91,35 @@ namespace CompositeC1Contrib.RazorFunctions
         {
             var webPage = WebPage.CreateInstanceFromVirtualPath(_relativeFilePath);
 
-            var sb = new StringBuilder();
-            using (var writer = new StringWriter(sb))
+            var httpContext = new HttpContextWrapper(HttpContext.Current);
+            var pageContext = new WebPageContext(httpContext, webPage, null);
+
+            foreach (var param in parameters.AllParameterNames)
             {
-                var httpContext = new HttpContextWrapper(HttpContext.Current);
-
-                var pageContext = new WebPageContext(httpContext, webPage, null);
-
-                foreach (var param in parameters.AllParameterNames)
-                {
-                    pageContext.PageData[param] = parameters.GetParameter(param);
-                }
-
-                webPage.ExecutePageHierarchy(pageContext, writer);
-
-                return new XhtmlDocument(XElement.Parse(sb.ToString()));
+                pageContext.PageData[param] = parameters.GetParameter(param);
             }
+
+            string output = String.Empty;
+
+            var mainMethod = webPage.GetType().GetMembers().SingleOrDefault(m => m.Name == "main") as MethodInfo;
+            if (mainMethod != null)
+            {
+                var helper = (HelperResult)mainMethod.Invoke(webPage, parameters.AllParameterNames.Select(n => parameters.GetParameter(n)).ToArray());
+
+                output = helper.ToHtmlString();
+            }
+            else
+            {
+                var sb = new StringBuilder();
+                using (var writer = new StringWriter(sb))
+                {
+                    webPage.ExecutePageHierarchy(pageContext, writer);
+
+                    output = sb.ToString();
+                }
+            }
+
+            return new XhtmlDocument(XElement.Parse(output));
         }
     }
 }
