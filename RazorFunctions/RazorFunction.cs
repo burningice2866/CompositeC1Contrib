@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.WebPages;
-using System.Xml.Linq;
+using System.Xml;
 
 using Composite.C1Console.Security;
 using Composite.Core.Xml;
@@ -119,7 +119,32 @@ namespace CompositeC1Contrib.RazorFunctions
                 }
             }
 
-            return new XhtmlDocument(XElement.Parse(output));
+            try
+            {
+                return XhtmlDocument.Parse(output);
+            }
+            catch (ArgumentException)
+            {
+                return gracefulDocument(output);
+            }
+            catch (InvalidOperationException)
+            {
+                return gracefulDocument(output);
+            }
+            catch (XmlException)
+            {
+                return gracefulDocument(output);
+            }
+        }
+
+        private static XhtmlDocument gracefulDocument(string content)
+        {
+            var s = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:f=\"http://www.composite.net/ns/function/1.0\" xmlns:lang=\"http://www.composite.net/ns/localization/1.0\">" +
+                    "<head />" +
+                    "<body>" + content + "</body>" +
+                    "</html>";
+
+            return XhtmlDocument.Parse(s);
         }
     }
 }
