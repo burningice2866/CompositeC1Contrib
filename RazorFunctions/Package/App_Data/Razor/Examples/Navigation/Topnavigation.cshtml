@@ -1,0 +1,20 @@
+﻿@inherits CompositeC1Contrib.RazorFunctions.CompositeC1WebPage
+              
+@using Composite.Data;
+
+<ul id="Topnavigation">
+    @foreach  (var page in @HomePageNode.ChildPages.Where(tp => !String .IsNullOrWhiteSpace(tp.MenuTitle)))
+    {
+        <li class ="@SelectedClass(page)">
+            <a href="@(page.Url)" >@(String.IsNullOrWhiteSpace(page.MenuTitle) ? page.Title : page.MenuTitle)</a>
+        </li>
+    }
+</ul>
+
+@helper SelectedClass(PageNode page)
+{
+    if (page.Id == @CurrentPageNode.Id)
+    {
+        <text>selected</text>
+    }
+}

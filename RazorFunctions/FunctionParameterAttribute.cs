@@ -2,7 +2,7 @@
 
 namespace CompositeC1Contrib.RazorFunctions
 {
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     public class FunctionParameterAttribute : Attribute
     {
         public string Label { get; set; }

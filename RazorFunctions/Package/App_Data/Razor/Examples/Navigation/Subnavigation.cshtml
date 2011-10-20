@@ -1,0 +1,57 @@
+﻿@inherits CompositeC1Contrib.RazorFunctions.CompositeC1WebPage
+              
+@using Composite.Data;
+
+@functions {
+    private IEnumerable<PageNode> OpenPages(PageNode selectedPageNode)
+    {
+        var openPages = new List<PageNode>();
+        var openPage = selectedPageNode;
+
+        while (openPage != null)
+        {
+            openPages.Add(openPage);
+            openPage = openPage.ParentPage; // crawl up
+        }
+
+        return openPages;
+    }
+}
+
+<div id="Subnavigation">
+    @if (OpenPages(@CurrentPageNode).Where(p => p.Level == 2).Any())
+    {
+        var openLevel2Page = OpenPages(@CurrentPageNode).Where(p => p.Level == 2).First();
+        <h1>
+            <a href="@(openLevel2Page.Url)">@(openLevel2Page.MenuTitle)</a>
+        </h1>
+        @NavigationTree(openLevel2Page.ChildPages, 5)
+    }
+</div>
+
+@helper NavigationTree(IEnumerable<PageNode> pages, int endRenderLevel)
+{
+    if (pages.Any() && pages.First().Level <= endRenderLevel)
+    {
+        <ul class ="subnavigationLevel@(pages.First().Level)">
+            @foreach  (var subPage in pages)
+            {
+                if  (!String.IsNullOrWhiteSpace(subPage.MenuTitle))
+                {
+                    var isOpen = OpenPages(@CurrentPageNode).Any(op => op.Id == subPage.Id);
+                    var isSelected = @CurrentPageNode.Id == subPage.Id;
+                        
+                    <li>
+                        <a href="@(subPage.Url)" class ="@(isOpen ? " open" : " closed") @(isSelected ? " selected" : " ")">
+                            @subPage.MenuTitle
+                        </a>
+                        @if (isOpen)
+                        {
+                            @NavigationTree(subPage.ChildPages, endRenderLevel);
+                        }
+                    </li>
+                }
+            }
+        </ul>
+    }
+}

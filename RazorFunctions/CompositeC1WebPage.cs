@@ -11,6 +11,17 @@ namespace CompositeC1Contrib.RazorFunctions
             get { return new DataConnection(); }
         }
 
+        public PageNode HomePageNode
+        {
+            get
+            {
+                using (var data = Data)
+                {
+                    return data.SitemapNavigator.CurrentHomePageNode;
+                }
+            }
+        }
+
         public PageNode CurrentPageNode
         {
             get

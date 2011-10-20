@@ -46,7 +46,7 @@ namespace CompositeC1Contrib.RazorFunctions
 
                     ns = ns.Substring(0, ns.Length - 1);
 
-                    ParameterInfo[] parameters = null;
+                    IList<FunctionParameterHolder> parameters = new List<FunctionParameterHolder>();
                     var relativeFilePath = Path.Combine(virtualPath, ns.Replace(".", Path.DirectorySeparatorChar.ToString()), name + ".cshtml");
 
 
@@ -58,15 +58,35 @@ namespace CompositeC1Contrib.RazorFunctions
                     }
                     catch (Exception exc)
                     {
-                        Log.LogError("Error in instantiating razpr function", exc);
+                        Log.LogError("Error in instantiating razor function", exc);
 
                         continue;
                     }
 
-                    var mainMethod = webPage.GetType().GetMembers().SingleOrDefault(m => m.Name == "main") as MethodInfo;
-                    if (mainMethod != null)
+                    var fields = webPage.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    foreach (var field in fields)
                     {
-                        parameters = mainMethod.GetParameters();
+                        var att = field.GetCustomAttributes(typeof(FunctionParameterAttribute), false).Cast<FunctionParameterAttribute>().FirstOrDefault();
+                        if (att != null)
+                        {
+                            var myField = field;
+                            var holder = new FunctionParameterHolder(field.Name, field.FieldType, att, (p, o) => myField.SetValue(p, o));
+
+                            parameters.Add(holder);
+                        }
+                    }
+
+                    var properties = webPage.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    foreach (var prop in properties)
+                    {
+                        var att = prop.GetCustomAttributes(typeof(FunctionParameterAttribute), false).Cast<FunctionParameterAttribute>().FirstOrDefault();
+                        if (att != null)
+                        {
+                            var myProp = prop;
+                            var holder = new FunctionParameterHolder(prop.Name, prop.PropertyType, att, (p, o) => myProp.SetValue(p, o, null));
+
+                            parameters.Add(holder);
+                        }
                     }
 
                     yield return new RazorFunction(ns, name, parameters, relativeFilePath);

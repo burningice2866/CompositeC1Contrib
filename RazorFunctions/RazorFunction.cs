@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.WebPages;
@@ -17,7 +16,7 @@ namespace CompositeC1Contrib.RazorFunctions
     public class RazorFunction : IFunction
     {
         string _relativeFilePath;
-        ParameterInfo[] _parameters;
+        IList<FunctionParameterHolder> _parameters;
 
         private string _ns;
         public string Namespace
@@ -51,24 +50,13 @@ namespace CompositeC1Contrib.RazorFunctions
                     {
                         BaseValueProvider defaultValueProvider = new NoValueValueProvider();
 
-                        var attributes = param.GetCustomAttributes(typeof(FunctionParameterAttribute), false);
-                        if (attributes != null && attributes.Length > 0)
+                        var isRequired = !param.HasDefaultValue;
+                        if (!isRequired)
                         {
-                            var attr = (FunctionParameterAttribute)attributes[0];
-
-                            var isRequired = !attr.HasDefaultValue;
-
-                            if (!isRequired)
-                            {
-                                defaultValueProvider = new ConstantValueProvider(attr.DefaultValue);
-                            }
-
-                            yield return new ParameterProfile(param.Name, param.ParameterType, isRequired, defaultValueProvider, null, attr.Label, new HelpDefinition(attr.HelpText));
+                            defaultValueProvider = new ConstantValueProvider(param.DefaultValue);
                         }
-                        else
-                        {
-                            yield return new ParameterProfile(param.Name, param.ParameterType, true, defaultValueProvider, null, param.Name, new HelpDefinition(param.Name));
-                        }
+
+                        yield return new ParameterProfile(param.Name, param.Type, isRequired, defaultValueProvider, null, param.Label, new HelpDefinition(param.HelpText));
                     }
                 }
             }
@@ -79,7 +67,7 @@ namespace CompositeC1Contrib.RazorFunctions
             get { return typeof(XhtmlDocument); }
         }
 
-        public RazorFunction(string ns, string name, ParameterInfo[] parameters, string relativeFilePath)
+        public RazorFunction(string ns, string name, IList<FunctionParameterHolder> parameters, string relativeFilePath)
         {
             _ns = ns;
             _name = name;
@@ -96,44 +84,32 @@ namespace CompositeC1Contrib.RazorFunctions
 
             foreach (var param in parameters.AllParameterNames)
             {
-                pageContext.PageData[param] = parameters.GetParameter(param);
+                var value = parameters.GetParameter(param);
+
+                _parameters.Single(p => p.Name == param).SetValue(webPage, value);
             }
 
-            string output = String.Empty;
-
-            var mainMethod = webPage.GetType().GetMembers().SingleOrDefault(m => m.Name == "main") as MethodInfo;
-            if (mainMethod != null)
+            var sb = new StringBuilder();
+            using (var writer = new StringWriter(sb))
             {
-                var helper = (HelperResult)mainMethod.Invoke(webPage, parameters.AllParameterNames.Select(n => parameters.GetParameter(n)).ToArray());
-
-                output = helper.ToHtmlString();
-            }
-            else
-            {
-                var sb = new StringBuilder();
-                using (var writer = new StringWriter(sb))
-                {
-                    webPage.ExecutePageHierarchy(pageContext, writer);
-
-                    output = sb.ToString();
-                }
+                webPage.ExecutePageHierarchy(pageContext, writer);
             }
 
             try
             {
-                return XhtmlDocument.Parse(output);
+                return XhtmlDocument.Parse(sb.ToString());
             }
             catch (ArgumentException)
             {
-                return gracefulDocument(output);
+                return gracefulDocument(sb.ToString());
             }
             catch (InvalidOperationException)
             {
-                return gracefulDocument(output);
+                return gracefulDocument(sb.ToString());
             }
             catch (XmlException)
             {
-                return gracefulDocument(output);
+                return gracefulDocument(sb.ToString());
             }
         }
 

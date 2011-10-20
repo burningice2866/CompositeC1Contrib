@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="Composite">
       <HintPath>..\References\Composite.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,6 +46,7 @@
     </Reference>
     <Reference Include="System.Web.WebPages.Razor">
       <HintPath>..\References\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,13 +55,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FunctionParameterAttribute.cs" />
+    <Compile Include="FunctionParameterHolder.cs" />
     <Compile Include="RazorFunction.cs" />
-    <Compile Include="RazorHost.cs" />
-    <Compile Include="RazorHostFactory.cs" />
     <Compile Include="FunctionsProvider.cs" />
     <Compile Include="FunctionsProviderEntityToken.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CompositeC1WebPage.cs" />
+    <Compile Include="RazorHost.cs" />
+    <Compile Include="RazorHostFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\Config\composite.config\install.xsl">
@@ -71,6 +74,12 @@
     </Content>
     <Content Include="Package\Config\web.config\install.xsl" />
     <Content Include="Package\Config\web.config\uninstall.xsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Package\App_Data\Razor\Examples\Navigation\Breadcrumb.cshtml" />
+    <None Include="Package\App_Data\Razor\Examples\Navigation\Sitemap.cshtml" />
+    <None Include="Package\App_Data\Razor\Examples\Navigation\Subnavigation.cshtml" />
+    <None Include="Package\App_Data\Razor\Examples\Navigation\Topnavigation.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

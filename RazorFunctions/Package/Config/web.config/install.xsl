@@ -30,15 +30,18 @@
 
       <xsl:if test="count(system.web.webPages.razor)=0">
         <system.web.webPages.razor>
-          <host factoryType="CompositeC1Contrib.RazorFunctions.RazorHostFactory"/>
+          <host factoryType="CompositeC1Contrib.RazorFunctions.RazorHostFactory, CompositeC1Contrib.RazorFunctions" />
           <pages pageBaseType="CompositeC1Contrib.RazorFunctions.CompositeC1WebPage">
             <namespaces>
               <add namespace="System" />
               <add namespace="System.Linq" />
+              <add namespace="System.Linq.Expressions" />
               <add namespace="System.Web.WebPages.Html" />
 
               <add namespace="Composite.Data" />
               <add namespace="Composite.Data.Types" />
+
+              <add namespace="CompositeC1Contrib.RazorFunctions" />
             </namespaces>
           </pages>
         </system.web.webPages.razor>

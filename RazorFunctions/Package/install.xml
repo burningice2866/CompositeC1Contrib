@@ -5,7 +5,7 @@
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.RazorFunctions" 
                          groupName="Contribution.CompositeC1Contrib" 
-                         version="0.3.2" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="0.5" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          id="fe766396-6349-4219-a21f-5cc302630d1f" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 
@@ -18,6 +18,10 @@
       <Files>
         <File sourceFilename="~\Bin\CompositeC1Contrib.RazorFunctions.dll" targetFilename="~\Bin\CompositeC1Contrib.RazorFunctions.dll" allowOverwrite="true" />
       </Files>
+
+      <Directories>
+        <Directory sourceDirectory="~\App_Data\Razor\" targetDirectory="~\App_Data\Razor" allowOverwrite="true" deleteTargetDirectory="false" />
+      </Directories>
     </mi:Add>
 
     <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FileXslTransformationPackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FileXslTransformationPackageFragmentUninstaller, Composite">

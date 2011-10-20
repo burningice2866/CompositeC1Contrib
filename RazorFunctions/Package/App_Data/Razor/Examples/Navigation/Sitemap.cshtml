@@ -1,0 +1,26 @@
+﻿@inherits CompositeC1Contrib.RazorFunctions.CompositeC1WebPage
+              
+@using Composite.Data;
+
+<div id="Sitemap">
+        @NavigationTree(@HomePageNode.ChildPages, 5)
+    </div>
+
+    @helper NavigationTree(IEnumerable<PageNode> pages, int endRenderLevel)
+    {
+        if (pages.Any() && pages.First().Level <= endRenderLevel)
+        {
+            <ul class ="sitemapLevel@(pages.First().Level)">
+                @foreach  (var subPage in pages)
+                {
+                    if  (!String.IsNullOrWhiteSpace(subPage.MenuTitle))
+                    {
+                        <li>
+                            <a href="@(subPage.Url)">@subPage.MenuTitle</a>
+                            @NavigationTree(subPage.ChildPages, endRenderLevel)
+                        </li>
+                    }
+                }
+            </ul>
+        }
+    }

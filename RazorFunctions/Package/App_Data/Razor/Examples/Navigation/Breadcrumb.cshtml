@@ -1,0 +1,28 @@
+﻿@inherits CompositeC1Contrib.RazorFunctions.CompositeC1WebPage
+              
+@using Composite.Data;
+
+@functions {
+    private IEnumerable<PageNode> OpenPages(PageNode selectedPageNode)
+    {
+        var openPages = new List<PageNode>();
+        var openPage = selectedPageNode;
+
+        while (openPage != null)
+        {
+            openPages.Add(openPage);
+            openPage = openPage.ParentPage; // crawl up
+        }
+
+        return openPages;
+    }
+}
+
+<ul id="Breadcrumb">
+    @foreach (var page in OpenPages(@CurrentPageNode).OrderBy(op => op.Level))
+    {
+        <li>
+            <a href="@(page.Url)" >@(String.IsNullOrWhiteSpace(page.MenuTitle) ? page.Title : page.MenuTitle)</a>
+        </li>
+    }
+</ul>
