@@ -14,18 +14,19 @@ namespace CompositeC1Contrib.RazorFunctions
 {
     public class RazorFunctionProvider : IFunctionProvider
     {
+        private static string virtualPath = "~/App_Data/Razor";
+        private static string absolutePath = HostingEnvironment.MapPath(virtualPath);
+
+        private FunctionNotifier _globalNotifier;
         public FunctionNotifier FunctionNotifier
         {
-            set { }
+            set { _globalNotifier = value; }
         }
 
         public IEnumerable<IFunction> Functions
         {
             get
             {
-                var virtualPath = "~/App_Data/Razor";
-                var absolutePath = HostingEnvironment.MapPath(virtualPath);
-
                 var files = new DirectoryInfo(absolutePath).EnumerateFiles("*.cshtml", SearchOption.AllDirectories);
                 foreach (var file in files)
                 {
@@ -46,7 +47,6 @@ namespace CompositeC1Contrib.RazorFunctions
 
                     ns = ns.Substring(0, ns.Length - 1);
 
-                    IList<FunctionParameterHolder> parameters = new List<FunctionParameterHolder>();
                     var relativeFilePath = Path.Combine(virtualPath, ns.Replace(".", Path.DirectorySeparatorChar.ToString()), name + ".cshtml");
 
 
@@ -63,34 +63,45 @@ namespace CompositeC1Contrib.RazorFunctions
                         continue;
                     }
 
-                    var fields = webPage.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    foreach (var field in fields)
-                    {
-                        var att = field.GetCustomAttributes(typeof(FunctionParameterAttribute), false).Cast<FunctionParameterAttribute>().FirstOrDefault();
-                        if (att != null)
-                        {
-                            var myField = field;
-                            var holder = new FunctionParameterHolder(field.Name, field.FieldType, att, (p, o) => myField.SetValue(p, o));
-
-                            parameters.Add(holder);
-                        }
-                    }
-
-                    var properties = webPage.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    foreach (var prop in properties)
-                    {
-                        var att = prop.GetCustomAttributes(typeof(FunctionParameterAttribute), false).Cast<FunctionParameterAttribute>().FirstOrDefault();
-                        if (att != null)
-                        {
-                            var myProp = prop;
-                            var holder = new FunctionParameterHolder(prop.Name, prop.PropertyType, att, (p, o) => myProp.SetValue(p, o, null));
-
-                            parameters.Add(holder);
-                        }
-                    }
+                    var parameters = getParameters(webPage);
 
                     yield return new RazorFunction(ns, name, parameters, relativeFilePath);
                 }
+            }
+        }
+
+        public RazorFunctionProvider()
+        {
+            var watcher = new FileSystemWatcher(absolutePath, "*.cshtml")
+            {
+                IncludeSubdirectories = true
+            };
+
+            watcher.Created += watcher_Changed;
+            watcher.Deleted += watcher_Changed;
+            watcher.Changed += watcher_Changed;
+            watcher.Renamed += watcher_Changed;
+
+            watcher.EnableRaisingEvents = true;
+        }
+
+        private void watcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            _globalNotifier.FunctionsUpdated();
+        }
+
+        private IEnumerable<FunctionParameterHolder> getParameters(WebPageBase webPage)
+        {
+            var properties = webPage.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.DeclaredOnly);
+            foreach (var prop in properties)
+            {
+                var myProp = prop;
+                var type = myProp.PropertyType;
+                Action<WebPageBase, object> setValue = (p, o) => myProp.SetValue(p, o, null);
+
+                var att = prop.GetCustomAttributes(typeof(FunctionParameterAttribute), false).Cast<FunctionParameterAttribute>().FirstOrDefault();
+
+                yield return new FunctionParameterHolder(prop.Name, type, setValue, att);
             }
         }
     }

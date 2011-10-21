@@ -16,7 +16,7 @@ namespace CompositeC1Contrib.RazorFunctions
     public class RazorFunction : IFunction
     {
         string _relativeFilePath;
-        IList<FunctionParameterHolder> _parameters;
+        IEnumerable<FunctionParameterHolder> _parameters;
 
         private string _ns;
         public string Namespace
@@ -56,7 +56,9 @@ namespace CompositeC1Contrib.RazorFunctions
                             defaultValueProvider = new ConstantValueProvider(param.DefaultValue);
                         }
 
-                        yield return new ParameterProfile(param.Name, param.Type, isRequired, defaultValueProvider, null, param.Label, new HelpDefinition(param.HelpText));
+                        var widgetFunctionProvider = StandardWidgetFunctions.GetDefaultWidgetFunctionProviderByType(param.Type);
+
+                        yield return new ParameterProfile(param.Name, param.Type, isRequired, defaultValueProvider, widgetFunctionProvider, param.Label, new HelpDefinition(param.HelpText));
                     }
                 }
             }
@@ -67,7 +69,7 @@ namespace CompositeC1Contrib.RazorFunctions
             get { return typeof(XhtmlDocument); }
         }
 
-        public RazorFunction(string ns, string name, IList<FunctionParameterHolder> parameters, string relativeFilePath)
+        public RazorFunction(string ns, string name, IEnumerable<FunctionParameterHolder> parameters, string relativeFilePath)
         {
             _ns = ns;
             _name = name;

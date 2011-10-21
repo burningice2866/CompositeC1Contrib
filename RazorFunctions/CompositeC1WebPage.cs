@@ -1,36 +1,66 @@
-﻿using System.Web.WebPages;
+﻿using System;
+using System.Web.WebPages;
 
 using Composite.Data;
 
 namespace CompositeC1Contrib.RazorFunctions
 {
-    public abstract class CompositeC1WebPage : WebPage
+    public abstract class CompositeC1WebPage : WebPage, IDisposable
     {
+        private bool _disposed = false;
+        private DataConnection _data;
+
         public DataConnection Data
         {
-            get { return new DataConnection(); }
+            get
+            {
+                if (_data == null)
+                {
+                    _data = new DataConnection();
+                }
+
+                return _data;
+            }
+        }
+
+        public SitemapNavigator Sitemap
+        {
+            get { return Data.SitemapNavigator; }
         }
 
         public PageNode HomePageNode
         {
-            get
-            {
-                using (var data = Data)
-                {
-                    return data.SitemapNavigator.CurrentHomePageNode;
-                }
-            }
+            get { return Sitemap.CurrentHomePageNode; }
         }
 
         public PageNode CurrentPageNode
         {
-            get
+            get { return Sitemap.CurrentPageNode; }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
             {
-                using (var data = Data)
+                if (disposing)
                 {
-                    return data.SitemapNavigator.CurrentPageNode;
+                    _data.Dispose();
                 }
+
+                _disposed = true;
             }
+        }
+
+        ~CompositeC1WebPage()
+        {
+            Dispose(false);
         }
     }
 }
