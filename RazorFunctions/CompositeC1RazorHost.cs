@@ -7,14 +7,14 @@ using System.Web.WebPages.Razor;
 
 namespace CompositeC1Contrib.RazorFunctions
 {
-    public class RazorHost : WebPageRazorHost
+    public class CompositeC1RazorHost : WebPageRazorHost
     {
-        public RazorHost(string virtualPath)
+        public CompositeC1RazorHost(string virtualPath)
             : base(virtualPath)
         {
         }
 
-        public RazorHost(string virtualPath, string physicalPath)
+        public CompositeC1RazorHost(string virtualPath, string physicalPath)
             : base(virtualPath, physicalPath)
         {
         }

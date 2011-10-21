@@ -12,7 +12,7 @@ using Composite.Functions.Plugins.FunctionProvider;
 
 namespace CompositeC1Contrib.RazorFunctions
 {
-    public class FunctionsProvider : IFunctionProvider
+    public class RazorFunctionProvider : IFunctionProvider
     {
         public FunctionNotifier FunctionNotifier
         {

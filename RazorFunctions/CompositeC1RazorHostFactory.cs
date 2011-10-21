@@ -2,11 +2,11 @@
 
 namespace CompositeC1Contrib.RazorFunctions
 {
-    public class RazorHostFactory : WebRazorHostFactory
+    public class CompositeC1RazorHostFactory : WebRazorHostFactory
     {
         public override WebPageRazorHost CreateHost(string virtualPath, string physicalPath)
         {
-            return new RazorHost(virtualPath, physicalPath);
+            return new CompositeC1RazorHost(virtualPath, physicalPath);
         }
     }
 }

@@ -6,7 +6,7 @@ using Composite.Functions;
 namespace CompositeC1Contrib.RazorFunctions
 {
     [SecurityAncestorProvider(typeof(StandardFunctionSecurityAncestorProvider))]
-    public class FunctionsProviderEntityToken : EntityToken
+    public class RazorFunctionEntityToken : EntityToken
     {
         private string _id;
         public override string Id
@@ -25,7 +25,7 @@ namespace CompositeC1Contrib.RazorFunctions
             get { return String.Empty; ; }
         }
 
-        public FunctionsProviderEntityToken(string source, string id)
+        public RazorFunctionEntityToken(string source, string id)
         {
             _source = source;
             _id = id;
@@ -44,7 +44,7 @@ namespace CompositeC1Contrib.RazorFunctions
 
             EntityToken.DoDeserialize(serializedEntityToken, out type, out source, out id);
 
-            return new FunctionsProviderEntityToken(source, id);
+            return new RazorFunctionEntityToken(source, id);
         }
     }
 }

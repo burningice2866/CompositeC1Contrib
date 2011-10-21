@@ -6,6 +6,5 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="/configuration/configSections/sectionGroup[@name='system.web.webPages.razor']" />
-  <xsl:template match="/configuration/system.web.webPages.razor" />
+  <xsl:template match="/configuration/system.web/compilation/buildProviders/add[@extension='.cshtml']" />
 </xsl:stylesheet>

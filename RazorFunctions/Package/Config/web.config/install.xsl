@@ -6,53 +6,29 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="/configuration/configSections">
+  <xsl:template match="/configuration/system.web/compilation">
     <xsl:copy>
       <xsl:apply-templates select="@* | node()" />
 
-      <xsl:if test="count(sectionGroup[@name='system.web.webPages.razor'])=0">
-        <xsl:call-template name="RazorGroup" />
+      <xsl:if test="count(buildProviders)=0">
+        <buildProviders>
+          <xsl:call-template name="RazorExtension" />
+        </buildProviders>
       </xsl:if>
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="/configuration">
+  <xsl:template match="/configuration/system.web/buildProviders">
     <xsl:copy>
-      <xsl:apply-templates select="@*" />
+      <xsl:apply-templates select="@* | node()" />
 
-      <xsl:if test="count(configSections)=0">
-        <configSections>
-          <xsl:call-template name="RazorGroup" />
-        </configSections>
-      </xsl:if>
-
-      <xsl:apply-templates select="node()" />
-
-      <xsl:if test="count(system.web.webPages.razor)=0">
-        <system.web.webPages.razor>
-          <host factoryType="CompositeC1Contrib.RazorFunctions.RazorHostFactory, CompositeC1Contrib.RazorFunctions" />
-          <pages pageBaseType="CompositeC1Contrib.RazorFunctions.CompositeC1WebPage">
-            <namespaces>
-              <add namespace="System" />
-              <add namespace="System.Linq" />
-              <add namespace="System.Linq.Expressions" />
-              <add namespace="System.Web.WebPages.Html" />
-
-              <add namespace="Composite.Data" />
-              <add namespace="Composite.Data.Types" />
-
-              <add namespace="CompositeC1Contrib.RazorFunctions" />
-            </namespaces>
-          </pages>
-        </system.web.webPages.razor>
+      <xsl:if test="count(add[@extension='.cshtml'])=0">
+        <xsl:call-template name="RazorExtension" />
       </xsl:if>
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template name="RazorGroup">
-    <sectionGroup name="system.web.webPages.razor" type="System.Web.WebPages.Razor.Configuration.RazorWebSectionGroup, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35">
-      <section name="host" type="System.Web.WebPages.Razor.Configuration.HostSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" />
-      <section name="pages" type="System.Web.WebPages.Razor.Configuration.RazorPagesSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" requirePermission="false" />
-    </sectionGroup>
+  <xsl:template name="RazorExtension">
+    <add extension=".cshtml" type="CompositeC1Contrib.RazorFunctions.CompositeC1RazorBuildProvider, CompositeC1Contrib.RazorFunctions" />
   </xsl:template>
 </xsl:stylesheet>

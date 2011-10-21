@@ -37,7 +37,7 @@ namespace CompositeC1Contrib.RazorFunctions
 
         public EntityToken EntityToken
         {
-            get { return new FunctionsProviderEntityToken(Name, String.Join(".", Namespace, Name)); }
+            get { return new RazorFunctionEntityToken(Name, String.Join(".", Namespace, Name)); }
         }
 
         public IEnumerable<ParameterProfile> ParameterProfiles
