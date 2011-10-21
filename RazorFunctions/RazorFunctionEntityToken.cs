@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Composite.C1Console.Security;
-using Composite.Functions;
 
 namespace CompositeC1Contrib.RazorFunctions
 {

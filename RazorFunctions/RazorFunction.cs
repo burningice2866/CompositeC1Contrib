@@ -6,6 +6,7 @@ using System.Text;
 using System.Web;
 using System.Web.WebPages;
 using System.Xml;
+using System.Xml.Linq;
 
 using Composite.C1Console.Security;
 using Composite.Core.Xml;
@@ -49,16 +50,36 @@ namespace CompositeC1Contrib.RazorFunctions
                     foreach (var param in _parameters)
                     {
                         BaseValueProvider defaultValueProvider = new NoValueValueProvider();
+                        WidgetFunctionProvider widgetProvider = null;
+                        var label = param.Name;
+                        var isRequired = true;
+                        var helpText = String.Empty;
 
-                        var isRequired = !param.HasDefaultValue;
-                        if (!isRequired)
+                        if (param.Attribute != null)
                         {
-                            defaultValueProvider = new ConstantValueProvider(param.DefaultValue);
+                            label = param.Attribute.Label;
+                            helpText = param.Attribute.HelpText;
+
+                            isRequired = !param.Attribute.HasDefaultValue;
+                            if (!isRequired)
+                            {
+                                defaultValueProvider = new ConstantValueProvider(param.Attribute.DefaultValue);
+                            }
+
+                            if (!String.IsNullOrEmpty(param.Attribute.WidgetMarkup))
+                            {
+                                var xElement = XElement.Parse(param.Attribute.WidgetMarkup);
+
+                                widgetProvider = new WidgetFunctionProvider(xElement);
+                            }
                         }
 
-                        var widgetFunctionProvider = StandardWidgetFunctions.GetDefaultWidgetFunctionProviderByType(param.Type);
+                        if (widgetProvider == null)
+                        {
+                            widgetProvider = StandardWidgetFunctions.GetDefaultWidgetFunctionProviderByType(param.Type);
+                        }
 
-                        yield return new ParameterProfile(param.Name, param.Type, isRequired, defaultValueProvider, widgetFunctionProvider, param.Label, new HelpDefinition(param.HelpText));
+                        yield return new ParameterProfile(param.Name, param.Type, isRequired, defaultValueProvider, widgetProvider, label, new HelpDefinition(helpText));
                     }
                 }
             }

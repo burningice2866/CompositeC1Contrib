@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" standalone="yes"?>
 <mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
-  <mi:PackageRequirements minimumCompositeVersion="2.1.4113.99" 
+  <mi:PackageRequirements minimumCompositeVersion="2.0.3947.24461" 
                           maximumCompositeVersion="9.9999.9999.9999" />
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.RazorFunctions" 
                          groupName="Contribution.CompositeC1Contrib" 
-                         version="0.6" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="0.6.5" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          id="fe766396-6349-4219-a21f-5cc302630d1f" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 

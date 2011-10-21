@@ -68,6 +68,7 @@
     <Compile Include="CompositeC1WebPage.cs" />
     <Compile Include="CompositeC1RazorHost.cs" />
     <Compile Include="CompositeC1RazorHostFactory.cs" />
+    <Compile Include="StandardFunctionSecurityAncestorProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\Config\composite.config\install.xsl">

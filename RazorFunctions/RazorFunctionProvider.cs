@@ -48,8 +48,6 @@ namespace CompositeC1Contrib.RazorFunctions
                     ns = ns.Substring(0, ns.Length - 1);
 
                     var relativeFilePath = Path.Combine(virtualPath, ns.Replace(".", Path.DirectorySeparatorChar.ToString()), name + ".cshtml");
-
-
                     WebPageBase webPage = null;
 
                     try
