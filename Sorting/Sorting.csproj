@@ -84,7 +84,9 @@
     <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\jquery-ui-1.8.16.custom.css" />
     <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\js\jquery-1.6.2.min.js" />
     <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\js\jquery-ui-1.8.16.custom.min.js" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\Sort.aspx" />
+    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\Sort.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\SortPages.aspx" />
     <Content Include="Package\Config\install.xsl">
       <SubType>Designer</SubType>

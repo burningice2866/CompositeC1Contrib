@@ -104,8 +104,14 @@ namespace CompositeC1Contrib.Sorting
                 {
                     var page = (IPage)dataToken.Data;
 
-                    url = "SortPages.aspx?pageId=" + page.Id;
-                    label += " " + page.Title;
+                    using (var data = new DataConnection(PublicationScope.Unpublished))
+                    {
+                        if (data.Get<IPageStructure>().Count(ps => ps.ParentId == page.Id) > 1)
+                        {
+                            url = "SortPages.aspx?pageId=" + page.Id;
+                            label += " " + page.Title;
+                        }
+                    }
                 }
             }
 
