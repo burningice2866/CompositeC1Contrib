@@ -1,4 +1,5 @@
-﻿using System.CodeDom.Compiler;
+﻿using System.CodeDom;
+using System.CodeDom.Compiler;
 using System.Collections;
 using System.Web.Compilation;
 using System.Web.WebPages.Razor;
@@ -16,7 +17,7 @@ namespace CompositeC1Contrib.RazorFunctions
             base.GenerateCode(assemblyBuilder);
         }
 
-        protected override System.CodeDom.CodeCompileUnit GetCodeCompileUnit(out IDictionary linePragmasTable)
+        protected override CodeCompileUnit GetCodeCompileUnit(out IDictionary linePragmasTable)
         {
             return base.GetCodeCompileUnit(out linePragmasTable);
         }

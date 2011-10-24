@@ -7,6 +7,7 @@ using System.Web.Hosting;
 using System.Web.WebPages;
 
 using Composite.Core;
+using Composite.Core.Xml;
 using Composite.Functions;
 using Composite.Functions.Plugins.FunctionProvider;
 
@@ -62,8 +63,9 @@ namespace CompositeC1Contrib.RazorFunctions
                     }
 
                     var parameters = getParameters(webPage);
+                    var returnType = getReturnType(webPage);
 
-                    yield return new RazorFunction(ns, name, parameters, relativeFilePath);
+                    yield return new RazorFunction(ns, name, parameters, returnType, relativeFilePath);
                 }
             }
         }
@@ -86,6 +88,17 @@ namespace CompositeC1Contrib.RazorFunctions
         private void watcher_Changed(object sender, FileSystemEventArgs e)
         {
             _globalNotifier.FunctionsUpdated();
+        }
+
+        private Type getReturnType(WebPageBase webPage)
+        {
+            var attr = webPage.GetType().GetCustomAttributes(typeof(FunctionReturnTypeAttribute), false).Cast<FunctionReturnTypeAttribute>().FirstOrDefault();
+            if (attr != null)
+            {
+                return attr.ReturnType;
+            }
+
+            return typeof(XhtmlDocument);
         }
 
         private IEnumerable<FunctionParameterHolder> getParameters(WebPageBase webPage)

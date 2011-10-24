@@ -1,9 +1,8 @@
-﻿using System;
-using System.CodeDom;
-using System.IO;
-using System.Linq;
-using System.Web.Razor;
+﻿using System.Web.Razor.Generator;
+using System.Web.Razor.Parser;
 using System.Web.WebPages.Razor;
+
+using CompositeC1Contrib.RazorFunctions.Parser;
 
 namespace CompositeC1Contrib.RazorFunctions
 {
@@ -19,19 +18,27 @@ namespace CompositeC1Contrib.RazorFunctions
         {
         }
 
-        protected override RazorCodeLanguage GetCodeLanguage()
+        public override RazorCodeGenerator DecorateCodeGenerator(RazorCodeGenerator incomingCodeGenerator)
         {
-            if (String.Equals(Path.GetExtension(base.VirtualPath), ".razor", StringComparison.OrdinalIgnoreCase))
+            if (incomingCodeGenerator is CSharpRazorCodeGenerator)
             {
-                return new CSharpRazorCodeLanguage();
+                return new CompositeC1CSharpRazorCodeGenerator(incomingCodeGenerator.ClassName,
+                                                       incomingCodeGenerator.RootNamespaceName,
+                                                       incomingCodeGenerator.SourceFileName,
+                                                       incomingCodeGenerator.Host, false);
             }
 
-            return base.GetCodeLanguage();
+            return base.DecorateCodeGenerator(incomingCodeGenerator);
         }
 
-        public override void PostProcessGeneratedCode(CodeCompileUnit codeCompileUnit, CodeNamespace generatedNamespace, CodeTypeDeclaration generatedClass, CodeMemberMethod executeMethod)
+        public override ParserBase DecorateCodeParser(ParserBase incomingCodeParser)
         {
-            base.PostProcessGeneratedCode(codeCompileUnit, generatedNamespace, generatedClass, executeMethod);
+            if (incomingCodeParser is CSharpCodeParser)
+            {
+                return new CompositeC1CSharpCodeParser();
+            }
+
+            return base.DecorateCodeParser(incomingCodeParser);
         }
     }
 }

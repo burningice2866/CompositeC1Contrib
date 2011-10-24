@@ -59,8 +59,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompositeC1RazorBuildProvider.cs" />
+    <Compile Include="Parser\CompositeC1CSharpRazorCodeGenerator.cs" />
+    <Compile Include="Parser\CompositeC1CSharpCodeParser.cs" />
     <Compile Include="FunctionParameterAttribute.cs" />
     <Compile Include="FunctionParameterHolder.cs" />
+    <Compile Include="FunctionReturnTypeAttribute.cs" />
+    <Compile Include="Parser\ReturnTypeSpan.cs" />
     <Compile Include="RazorFunction.cs" />
     <Compile Include="RazorFunctionProvider.cs" />
     <Compile Include="RazorFunctionEntityToken.cs" />
@@ -69,6 +73,7 @@
     <Compile Include="CompositeC1RazorHost.cs" />
     <Compile Include="CompositeC1RazorHostFactory.cs" />
     <Compile Include="StandardFunctionSecurityAncestorProvider.cs" />
+    <Compile Include="Parser\TemplateParsingException.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\Config\composite.config\install.xsl">

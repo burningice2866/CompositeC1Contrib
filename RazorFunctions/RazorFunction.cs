@@ -31,6 +31,12 @@ namespace CompositeC1Contrib.RazorFunctions
             get { return _name; }
         }
 
+        private Type _returnType;
+        public Type ReturnType
+        {
+            get { return _returnType; }
+        }
+
         public string Description
         {
             get { return "Razor function"; }
@@ -85,16 +91,12 @@ namespace CompositeC1Contrib.RazorFunctions
             }
         }
 
-        public Type ReturnType
-        {
-            get { return typeof(XhtmlDocument); }
-        }
-
-        public RazorFunction(string ns, string name, IEnumerable<FunctionParameterHolder> parameters, string relativeFilePath)
+        public RazorFunction(string ns, string name, IEnumerable<FunctionParameterHolder> parameters, Type returnType, string relativeFilePath)
         {
             _ns = ns;
             _name = name;
             _parameters = parameters;
+            _returnType = returnType;
             _relativeFilePath = relativeFilePath;
         }
 
@@ -118,22 +120,33 @@ namespace CompositeC1Contrib.RazorFunctions
                 webPage.ExecutePageHierarchy(pageContext, writer);
             }
 
-            try
+            string output = sb.ToString();
+
+            if (_returnType == typeof(XhtmlDocument))
             {
-                return XhtmlDocument.Parse(sb.ToString());
+                try
+                {
+                    return XhtmlDocument.Parse(output);
+                }
+                catch (ArgumentException)
+                {
+                    return gracefulDocument(output);
+                }
+                catch (InvalidOperationException)
+                {
+                    return gracefulDocument(output);
+                }
+                catch (XmlException)
+                {
+                    return gracefulDocument(output);
+                }
             }
-            catch (ArgumentException)
+            else if (_returnType == typeof(XElement))
             {
-                return gracefulDocument(sb.ToString());
+                return XElement.Parse(output);
             }
-            catch (InvalidOperationException)
-            {
-                return gracefulDocument(sb.ToString());
-            }
-            catch (XmlException)
-            {
-                return gracefulDocument(sb.ToString());
-            }
+            
+            return output;            
         }
 
         private static XhtmlDocument gracefulDocument(string content)
