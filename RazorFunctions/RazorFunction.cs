@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using Composite.C1Console.Security;
 using Composite.Core.Xml;
 using Composite.Functions;
+using Composite.Core.Types;
 
 namespace CompositeC1Contrib.RazorFunctions
 {
@@ -141,12 +142,8 @@ namespace CompositeC1Contrib.RazorFunctions
                     return gracefulDocument(output);
                 }
             }
-            else if (_returnType == typeof(XElement))
-            {
-                return XElement.Parse(output);
-            }
-            
-            return output;            
+
+            return ValueTypeConverter.Convert(output, _returnType);
         }
 
         private static XhtmlDocument gracefulDocument(string content)
