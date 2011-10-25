@@ -62,7 +62,7 @@ namespace CompositeC1Contrib.RazorFunctions
                         continue;
                     }
 
-                    var parameters = getParameters(webPage);
+                    var parameters = getParameters(webPage).ToDictionary(p => p.Name);
                     var returnType = getReturnType(webPage);
 
                     yield return new RazorFunction(ns, name, parameters, returnType, relativeFilePath);
@@ -106,13 +106,10 @@ namespace CompositeC1Contrib.RazorFunctions
             var properties = webPage.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.DeclaredOnly);
             foreach (var prop in properties)
             {
-                var myProp = prop;
-                var type = myProp.PropertyType;
-                Action<WebPageBase, object> setValue = (p, o) => myProp.SetValue(p, o, null);
-
+                var type = prop.PropertyType;
                 var att = prop.GetCustomAttributes(typeof(FunctionParameterAttribute), false).Cast<FunctionParameterAttribute>().FirstOrDefault();
 
-                yield return new FunctionParameterHolder(prop.Name, type, setValue, att);
+                yield return new FunctionParameterHolder(prop.Name, type, att);
             }
         }
     }

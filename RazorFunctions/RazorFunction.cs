@@ -9,16 +9,16 @@ using System.Xml;
 using System.Xml.Linq;
 
 using Composite.C1Console.Security;
+using Composite.Core.Types;
 using Composite.Core.Xml;
 using Composite.Functions;
-using Composite.Core.Types;
 
 namespace CompositeC1Contrib.RazorFunctions
 {
     public class RazorFunction : IFunction
     {
         string _relativeFilePath;
-        IEnumerable<FunctionParameterHolder> _parameters;
+        IDictionary<string, FunctionParameterHolder> _parameters;
 
         private string _ns;
         public string Namespace
@@ -54,7 +54,7 @@ namespace CompositeC1Contrib.RazorFunctions
             {
                 if (_parameters != null)
                 {
-                    foreach (var param in _parameters)
+                    foreach (var param in _parameters.Values)
                     {
                         BaseValueProvider defaultValueProvider = new NoValueValueProvider();
                         WidgetFunctionProvider widgetProvider = null;
@@ -92,7 +92,7 @@ namespace CompositeC1Contrib.RazorFunctions
             }
         }
 
-        public RazorFunction(string ns, string name, IEnumerable<FunctionParameterHolder> parameters, Type returnType, string relativeFilePath)
+        public RazorFunction(string ns, string name, IDictionary<string, FunctionParameterHolder> parameters, Type returnType, string relativeFilePath)
         {
             _ns = ns;
             _name = name;
@@ -112,7 +112,7 @@ namespace CompositeC1Contrib.RazorFunctions
             {
                 var value = parameters.GetParameter(param);
 
-                _parameters.Single(p => p.Name == param).SetValue(webPage, value);
+                _parameters[param].SetValue(webPage, value);
             }
 
             var sb = new StringBuilder();
