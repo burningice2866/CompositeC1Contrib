@@ -268,7 +268,9 @@ namespace CompositeC1Contrib.Web
 
         private IDictionary<CultureInfo, SiteMapContainer> loadSiteMap()
         {
-            string host = HttpContext.Current.Request.Url.Host;
+            var uri = ProcessUrl(HttpContext.Current.Request.Url);
+            var host = uri.Host;
+
             bool forceRefresh = AutoRefreshInterval.HasValue
                 && _lastRefreshedTime.HasValue
                 && DateTime.Now - _lastRefreshedTime > AutoRefreshInterval;
@@ -328,7 +330,8 @@ namespace CompositeC1Contrib.Web
         }
 
         protected abstract string GetCurrentKey();
+        protected abstract Uri ProcessUrl(Uri uri);
         protected abstract void LoadSiteMapInternal(IDictionary<CultureInfo, SiteMapContainer> list, string host);
-        protected abstract void AddRolesInternal(IDictionary<CultureInfo, SiteMapContainer> list);
+        protected abstract void AddRolesInternal(IDictionary<CultureInfo, SiteMapContainer> list);        
     }
 }

@@ -5,7 +5,7 @@
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.SiteMapProvider" 
                          groupName="Contribution.CompositeC1Contrib" 
-                         version="1.0.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="1.0.1" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          id="242a1470-98fa-40ec-a4ce-3baaefdeceb2" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 

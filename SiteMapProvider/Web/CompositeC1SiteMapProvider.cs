@@ -38,6 +38,26 @@ namespace CompositeC1Contrib.Web
             return SitemapNavigator.CurrentPageId.ToString();
         }
 
+        public override SiteMapNode FindSiteMapNode(string rawUrl)
+        {
+            var ci = DataLocalizationFacade.ActiveLocalizationCultures.SingleOrDefault(c => rawUrl.StartsWith("/" + c.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase));
+            if (ci == null)
+            {
+                ci = DataLocalizationFacade.DefaultLocalizationCulture;
+            }
+
+            var node = base.FindSiteMapNode(rawUrl, ci) as CompositeC1SiteMapNode;
+            if (node == null)
+            {
+                if (UrlUtils.IsDefaultDocumentUrl(rawUrl))
+                {
+                    node = RootNode as CompositeC1SiteMapNode;
+                }
+            }
+
+            return node ?? base.FindSiteMapNode(rawUrl);
+        }
+
         public override bool IsAccessibleToUser(HttpContext ctx, SiteMapNode node)
         {
             if (PublicationScope == PublicationScope.Unpublished)
@@ -58,44 +78,23 @@ namespace CompositeC1Contrib.Web
             DataEventHandler handler = (sender, e) => Flush();
 
             DataEventSystemFacade.SubscribeToDataAfterAdd<IPage>(handler, false);
-            DataEventSystemFacade.SubscribeToDataAfterUpdate<IPage>(handler);
-            DataEventSystemFacade.SubscribeToDataDeleted<IPage>(handler);
+            DataEventSystemFacade.SubscribeToDataAfterUpdate<IPage>(handler, false);
+            DataEventSystemFacade.SubscribeToDataDeleted<IPage>(handler, false);
 
             DataEventSystemFacade.SubscribeToDataAfterAdd<IPageStructure>(handler, false);
-            DataEventSystemFacade.SubscribeToDataAfterUpdate<IPageStructure>(handler);
-            DataEventSystemFacade.SubscribeToDataDeleted<IPageStructure>(handler);
+            DataEventSystemFacade.SubscribeToDataAfterUpdate<IPageStructure>(handler, false);
+            DataEventSystemFacade.SubscribeToDataDeleted<IPageStructure>(handler, false);
 
             DataEventSystemFacade.SubscribeToDataAfterAdd<ISystemActiveLocale>(handler, false);
-            DataEventSystemFacade.SubscribeToDataAfterUpdate<ISystemActiveLocale>(handler);
-            DataEventSystemFacade.SubscribeToDataDeleted<ISystemActiveLocale>(handler);
+            DataEventSystemFacade.SubscribeToDataAfterUpdate<ISystemActiveLocale>(handler, false);
+            DataEventSystemFacade.SubscribeToDataDeleted<ISystemActiveLocale>(handler, false);
 
             base.Initialize(name, attributes);
         }
 
         protected override void LoadSiteMapInternal(IDictionary<CultureInfo, SiteMapContainer> list, string host)
         {
-            PageUrlData urlData;
             var scope = PublicationScope;
-
-            string _previewKey = HttpContext.Current.Request.QueryString["previewKey"];
-            if (!String.IsNullOrEmpty(_previewKey))
-            {
-                var page = (IPage)HttpContext.Current.Cache.Get(_previewKey + "_SelectedPage");
-                urlData = new PageUrlData(page);
-            }
-            else
-            {
-                urlData = PageUrls.ParseUrl(HttpContext.Current.Request.Url.ToString());
-            }
-
-            if (urlData != null)
-            {
-                var publicUrl = PageUrls.BuildUrl(urlData, UrlKind.Public, new UrlSpace() { Hostname = host, ForceRelativeUrls = false });
-                if (Uri.IsWellFormedUriString(publicUrl, UriKind.Absolute))
-                {
-                    host = new Uri(publicUrl).Host;
-                }
-            }
 
             foreach (var ci in DataLocalizationFacade.ActiveLocalizationCultures)
             {
@@ -118,6 +117,37 @@ namespace CompositeC1Contrib.Web
             }
         }
 
+        protected override Uri ProcessUrl(Uri uri)
+        {
+            PageUrlData urlData;
+            
+            var ctx = HttpContext.Current;
+
+            string _previewKey = ctx.Request.QueryString["previewKey"];
+            if (!String.IsNullOrEmpty(_previewKey))
+            {
+                var page = (IPage)ctx.Cache.Get(_previewKey + "_SelectedPage");
+                urlData = new PageUrlData(page);
+            }
+            else
+            {
+                urlData = PageUrls.ParseUrl(ctx.Request.Url.ToString());
+            }
+
+            if (urlData != null)
+            {
+                var publicUrl = PageUrls.BuildUrl(urlData, UrlKind.Public, new UrlSpace() { Hostname = uri.Host, ForceRelativeUrls = false });
+                if (Uri.IsWellFormedUriString(publicUrl, UriKind.Absolute))
+                {
+                    var newHost = new Uri(publicUrl).Host;
+
+                    return new Uri(uri.ToString().Replace(uri.Host, newHost));
+                }
+            }
+
+            return uri;            
+        }
+
         protected override void AddRolesInternal(IDictionary<CultureInfo, SiteMapContainer> list) { }
 
         private void loadNodes(PageNode pageNode, SiteMapNode parent, SiteMapContainer container, DataConnection data)
@@ -135,28 +165,6 @@ namespace CompositeC1Contrib.Web
             {
                 loadNodes(child, node, container, data);
             }
-        }
-
-        public static CompositeC1SiteMapNode ResolveNodeFromUrl(string localPath, string query)
-        {
-            var provider = (CompositeC1SiteMapProvider)SiteMap.Provider;
-
-            var ci = DataLocalizationFacade.ActiveLocalizationCultures.SingleOrDefault(c => localPath.StartsWith("/" + c.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase));
-            if (ci == null)
-            {
-                ci = DataLocalizationFacade.DefaultLocalizationCulture;
-            }
-
-            var node = provider.FindSiteMapNode(localPath, ci) as CompositeC1SiteMapNode;
-            if (node == null)
-            {
-                if (UrlUtils.IsDefaultDocumentUrl(localPath))
-                {
-                    node = provider.RootNode as CompositeC1SiteMapNode;
-                }
-            }
-
-            return node;
         }
     }
 }
