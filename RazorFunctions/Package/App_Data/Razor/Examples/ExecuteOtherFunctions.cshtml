@@ -1,0 +1,22 @@
+﻿@inherits CompositeC1Contrib.RazorFunctions.CompositeC1WebPage
+              
+@using CompositeC1Contrib.RazorFunctions;
+
+@{
+    Function.ExecuteFunction("Examples.ColorCube");
+}
+
+@Html.C1().Function("Examples.ColorCube", new { MinimumRed = 255 }) 
+
+<br /> <br />
+
+@Html.C1().Function("Examples.ColorCube", new { MinimumGreen = 255, BorderWidth = 10 }) 
+
+<br /> <br />
+
+@Html.C1().Function("Examples.ColorCube",
+    new Dictionary<string, object>() 
+    {
+        { "MinimumRed", 40 },
+        { "BorderWidth", 30 }
+    })

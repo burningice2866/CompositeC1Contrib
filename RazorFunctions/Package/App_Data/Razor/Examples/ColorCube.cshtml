@@ -1,0 +1,102 @@
+﻿@inherits CompositeC1Contrib.RazorFunctions.CompositeC1WebPage
+              
+@using CompositeC1Contrib.RazorFunctions;
+
+@functions {
+    // C1 Function parameters defined below...
+    [FunctionParameter("Total width", "How wide the cube should by, in pixels", 500)]
+    public int TotalWidth { get; set; }
+
+    [FunctionParameter("Number of columns", "Specify how many columns the cube should have across the X axis", 10)]
+    public int NumOfColumns { get; set; }
+
+    [FunctionParameter("Number of rows", "Specify how many rows the cube should have along the Y axis", 10)]
+    public int NumOfRows { get; set; }
+
+    [FunctionParameter("Minimum Red 0 - 255", "A higher number will make this color more dominant", 10)]
+    public int MinimumRed { get; set; }
+
+    [FunctionParameter("Minimum Green 0 - 255", "A higher number will make this color more dominant", 10)]
+    public int MinimumGreen { get; set; }
+
+    [FunctionParameter("Minimum Blue 0 - 255", "A higher number will make this color more dominant", 10)]
+    public int MinimumBlue { get; set; }
+
+    [FunctionParameter("Border width", "Increase to make outset border more dominant", 3)]
+    public int BorderWidth { get; set; }
+
+    [FunctionParameter("Spacing between boxes", "If spacing is desired, specify how many pixels", 4)]
+    public int SiblingPadding { get; set; }
+}
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <style media="screen" type="text/css">
+            #@(InstId) {
+                background-color: #bba;
+                padding: @SiblingMarginString 0 0 @SiblingMarginString;
+                width: @(OuterBoxDimension * NumOfColumns)px;
+            
+            }
+            #@(InstId) .CubeBox {
+                width: @(BoxDimension)px;
+                height: @(BoxDimension)px;
+                margin: 0 @SiblingMarginString @SiblingMarginString 0;
+                border: @(BorderWidth)px outset;
+                float: left;
+            
+            }
+            .clear { clear: both; }
+
+            @for (int i = 0; i < NumOfColumns * NumOfRows; i++)
+            {
+                @String.Format("            #{0} #{0}BoxNumber{1} {{ background-color: {2}; border-color: {2};  }}\n",
+                    InstId,
+                    i,
+                    RandomColor());
+            }
+        </style>
+    </head>
+    <body>
+        <div id="@(InstId)">
+            @for (int row = 0; row < NumOfRows; row++)
+            {
+                for (int col = 0; col < NumOfColumns; col++)
+                {
+                    <div id="@(InstId)BoxNumber@(row * NumOfColumns + col)" class="CubeBox"></div>
+                }
+                
+                <div class="clear"></div>
+                
+                @Html.C1().
+            }
+        </div>
+    </body>
+</html>
+
+@functions {
+    // plumbing that turns the input numbers into things like css width strings etc...
+
+    private string RandomColor()
+    {
+        return String.Format("rgb({0},{1},{2})",
+            Math.Max(MinimumRed, random.Next(0, 255)),
+            Math.Max(MinimumGreen, random.Next(0, 255)),
+            Math.Max(MinimumBlue, random.Next(0, 255)));
+    }
+
+    private string SiblingMarginString { get { return (SiblingPadding == 0 ? "0" : SiblingPadding + "px"); } }
+    private int OuterBoxDimension { get { return TotalWidth / NumOfColumns; } }
+    private int BoxDimension { get { return OuterBoxDimension - (2 * BorderWidth + SiblingPadding); } }
+    private int SurplusSpace { get { return TotalWidth - (BoxDimension * NumOfColumns); } }
+    private Random random = new Random();
+    private string InstId
+    {
+        get
+        {
+            if (_myId == null) _myId = Guid.NewGuid().GetHashCode().ToString();
+            
+            return "cube" + _myId;
+        }
+    }
+    private string _myId;
+}

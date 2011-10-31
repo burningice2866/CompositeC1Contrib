@@ -58,7 +58,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="C1HtmlHelper.cs" />
     <Compile Include="CompositeC1RazorBuildProvider.cs" />
+    <Compile Include="Functions.cs" />
+    <Compile Include="HtmlHelperExtensions.cs" />
     <Compile Include="Parser\CompositeC1CSharpRazorCodeGenerator.cs" />
     <Compile Include="Parser\CompositeC1CSharpCodeParser.cs" />
     <Compile Include="FunctionParameterAttribute.cs" />
@@ -87,7 +90,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Package\App_Data\Razor\Examples\ColorCube.cshtml" />
     <None Include="Package\App_Data\Razor\Examples\Navigation\Breadcrumb.cshtml" />
+    <None Include="Package\App_Data\Razor\Examples\ExecuteOtherFunctions.cshtml" />
     <None Include="Package\App_Data\Razor\Examples\Navigation\Sitemap.cshtml" />
     <None Include="Package\App_Data\Razor\Examples\Navigation\Subnavigation.cshtml" />
     <None Include="Package\App_Data\Razor\Examples\Navigation\Topnavigation.cshtml" />

@@ -1,6 +1,7 @@
 ﻿@inherits CompositeC1Contrib.RazorFunctions.CompositeC1WebPage
               
 @using Composite.Data;
+@using CompositeC1Contrib.RazorFunctions;
 
 <ul id="Topnavigation">
     @foreach  (var page in @HomePageNode.ChildPages.Where(tp => !String .IsNullOrWhiteSpace(tp.MenuTitle)))
