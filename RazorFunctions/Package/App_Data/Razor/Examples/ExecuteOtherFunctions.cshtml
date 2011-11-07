@@ -3,7 +3,7 @@
 @using CompositeC1Contrib.RazorFunctions;
 
 @{
-    Function.ExecuteFunction("Examples.ColorCube");
+    Functions.ExecuteFunction("Examples.ColorCube");
 }
 
 @Html.C1().Function("Examples.ColorCube", new { MinimumRed = 255 }) 
