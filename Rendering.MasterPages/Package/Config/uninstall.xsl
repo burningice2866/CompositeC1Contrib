@@ -6,8 +6,9 @@
     </xsl:copy>
   </xsl:template>
   
-  <!--Uninstall Master Pages-->
   <xsl:template match="/configuration/system.web/pages/controls/add[@assembly='CompositeC1Contrib.Rendering.MasterPage']" />
-  <xsl:template match="/configuration/system.web/httpHandlers/add[@type='CompositeC1Contrib.Web.UI.CompositeC1Page, CompositeC1Contrib.Rendering.MasterPage']" />
-  <xsl:template match="/configuration/system.webServer/handlers/add[@type='CompositeC1Contrib.Web.UI.CompositeC1Page, CompositeC1Contrib.Rendering.MasterPage']" />
+  
+  <xsl:template match="/configuration/system.web/httpModules/add[@type='CompositeC1Contrib.Web.MasterPageModule, CompositeC1Contrib.Rendering.MasterPage']" />
+  
+  <xsl:template match="/configuration/system.webServer/modules/add[@type='CompositeC1Contrib.Web.MasterPageModule, CompositeC1Contrib.Rendering.MasterPage']" />
 </xsl:stylesheet>

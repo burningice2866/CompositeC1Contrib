@@ -7,7 +7,7 @@ using Composite.Core.WebClient.Renderings.Page;
 
 namespace CompositeC1Contrib.Web.UI.Rendering
 {
-    public abstract class C1MarkupControl : BaseCompositeC1Control
+    public abstract class C1MarkupControl : Control
     {
         protected abstract XElement CreateElementToRender();
 

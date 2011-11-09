@@ -4,8 +4,8 @@
                           maximumCompositeVersion="9.9999.9999.9999" />
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.Renderings.MasterPage" 
-                         groupName="Contribution.CompositeC1Contrib" 
-                         version="1.1.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         groupName="Contribution" 
+                         version="1.2.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          id="f7df8729-9f22-43b5-ba35-c67abb5449cf" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 
