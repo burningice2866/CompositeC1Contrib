@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" standalone="yes"?>
 <mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
-  <mi:PackageRequirements minimumCompositeVersion="2.1.4232.23639" 
+  <mi:PackageRequirements minimumCompositeVersion="3.0.4331.234" 
                           maximumCompositeVersion="9.9999.9999.9999" />
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.Renderings.MasterPage" 
