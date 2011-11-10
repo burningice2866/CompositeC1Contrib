@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<cms:formdefinition xmlns="http://www.composite.net/ns/management/bindingforms/std.ui.controls.lib/1.0" xmlns:f="http://www.composite.net/ns/management/bindingforms/std.function.lib/1.0" xmlns:cms="http://www.composite.net/ns/management/bindingforms/1.0">
+  <cms:bindings>
+    <cms:binding name="Type" type="System.String" />
+    <cms:binding name="FieldType" type="System.String" />
+    <cms:binding name="Label" type="System.String" />
+    <cms:binding name="DefaultValue" type="System.String" />
+    <cms:binding name="HelpText" type="System.String" />
+    <cms:binding name="ValidationRule" type="System.String" />
+  </cms:bindings>
+  
+  <cms:layout iconhandle="package-element-closed-availableitem" label="Create form field">
+    <FieldGroup>
+      <KeySelector Label="Data type" Help="">
+        <KeySelector.Selected>
+          <cms:bind source="Type" />
+        </KeySelector.Selected>
+        
+        <KeySelector.Options>
+          <f:StaticMethodCall Type="CompositeC1Contrib.FormBuilder.Workflows.CreateFormFieldWorkflow" Method="GetKnownTypes" />
+        </KeySelector.Options>
+      </KeySelector>
+
+      <KeySelector Label="Type of field" Help="">
+        <KeySelector.Selected>
+          <cms:bind source="FieldType" />
+        </KeySelector.Selected>
+
+        <KeySelector.Options>
+          <f:StaticMethodCall Type="CompositeC1Contrib.FormBuilder.Workflows.CreateFormFieldWorkflow" Method="GetFormFieldTypes" />
+        </KeySelector.Options>
+      </KeySelector>
+
+      <TextBox Label="Label">
+        <cms:bind source="Label" />
+      </TextBox>
+
+      <TextBox Label="Default Value">
+        <cms:bind source="DefaultValue" />
+      </TextBox>
+
+      <TextBox Label="Help Text">
+        <cms:bind source="HelpText" />
+      </TextBox>
+
+      <TextBox Label="Validation Rule">
+        <cms:bind source="ValidationRule" />
+      </TextBox>
+    </FieldGroup>
+  </cms:layout>
+</cms:formdefinition>

@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{09196DDC-350F-4E16-BA0F-312C67224559}</ProjectGuid>
+    <ProjectTypeGuids>{14822709-B5A1-4724-98CA-57A101D1B079};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CompositeC1Contrib.FormBuilder</RootNamespace>
+    <AssemblyName>CompositeC1Contrib.FormBuilder</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Composite">
+      <HintPath>..\References\Composite.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Composite.Workflows">
+      <HintPath>..\References\Composite.Workflows.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common">
+      <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation">
+      <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Workflow.Activities" />
+    <Reference Include="System.Workflow.ComponentModel" />
+    <Reference Include="System.Workflow.Runtime" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\FormDataAncestorProvider.cs" />
+    <Compile Include="Data\Types\IDefaultFormField.cs" />
+    <Compile Include="ElementProviders\Actions\DeleteFormFieldActionExecutor.cs" />
+    <Compile Include="ElementProviders\Actions\DeleteFormFieldActionToken.cs" />
+    <Compile Include="ElementProviders\EntityTokens\FormFolderAncestorProvider.cs" />
+    <Compile Include="ElementProviders\EntityTokens\FormFolderEntityToken.cs" />
+    <Compile Include="ElementProviders\EntityTokens\PermissionTypeExtensionMethods.cs" />
+    <Compile Include="ElementProviders\EntityTokens\UrlActionToken.cs" />
+    <Compile Include="ElementProviders\EntityTokens\UrlActionTokenActionExecutor.cs" />
+    <Compile Include="ElementProviders\FormBuilderElementProvider.cs" />
+    <Compile Include="ElementProviders\EntityTokens\FormElementProviderEntityToken.cs" />
+    <Compile Include="Data\FormFieldType.cs" />
+    <Compile Include="Data\Types\IForm.cs" />
+    <Compile Include="Data\Types\IFormField.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="FormBuilderActionProvider.cs" />
+    <Compile Include="StartupHandler.cs" />
+    <Compile Include="Workflows\ConfirmWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Workflows\ConfirmWorkflow.Designer.cs">
+      <DependentUpon>ConfirmWorkflow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Workflows\ConfirmWorkflowActionToken.cs" />
+    <Compile Include="Workflows\CreateFormFieldWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Workflows\CreateFormFieldWorkflow.designer.cs">
+      <DependentUpon>CreateFormFieldWorkflow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Workflows\CreateFormWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Workflows\CreateFormWorkflow.designer.cs">
+      <DependentUpon>CreateFormWorkflow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Workflows\EditFormWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Workflows\EditFormWorkflow.Designer.cs">
+      <DependentUpon>EditFormWorkflow.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{1E76E3BE-F575-4E2D-A791-8A0EDA53C1B2}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sorting\Sorting.csproj">
+      <Project>{BADD3914-847F-4868-8CC2-FA913BCD3779}</Project>
+      <Name>Sorting</Name>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Package\App_Data\Composite\DynamicTypeForms\CompositeC1Contrib\FormBuilder\Data\Types\IDefaultFormField.xml" />
+    <Content Include="Package\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\ConfirmMessage.xml" />
+    <Content Include="Package\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\CreateForm.xml" />
+    <Content Include="Package\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\CreateFormField.xml" />
+    <Content Include="Package\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\EditForm.xml" />
+    <Content Include="Package\Config\install.xsl">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Package\Config\uninstall.xsl" />
+    <Content Include="Package\install.xml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Workflows\ConfirmWorkflow.layout">
+      <DependentUpon>ConfirmWorkflow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Workflows\CreateFormFieldWorkflow.layout">
+      <DependentUpon>CreateFormFieldWorkflow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Workflows\CreateFormWorkflow.layout">
+      <DependentUpon>CreateFormWorkflow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Workflows\EditFormWorkflow.layout">
+      <DependentUpon>EditFormWorkflow.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(TargetDir)CompositeC1Contrib.Core.dll" "$(ProjectDir)Package\Bin\CompositeC1Contrib.Core.dll"
+copy "$(TargetDir)CompositeC1Contrib.Sorting.dll" "$(ProjectDir)Package\Bin\CompositeC1Contrib.Sorting.dll"
+copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
+del "$(ProjectDir)\Package\package.zip"
+"$(ProjectDir)..\References\7z.exe" a "$(ProjectDir)\Package\package.zip" -tzip -r "$(ProjectDir)\Package\*"</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

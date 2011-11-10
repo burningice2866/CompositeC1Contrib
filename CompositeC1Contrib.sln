@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Favorites", "Favorites\Favo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RazorFunctions", "RazorFunctions\RazorFunctions.csproj", "{D95A32C9-4806-48FC-90BB-7590FD13EE21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormBuilder", "FormBuilder\FormBuilder.csproj", "{09196DDC-350F-4E16-BA0F-312C67224559}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{D95A32C9-4806-48FC-90BB-7590FD13EE21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D95A32C9-4806-48FC-90BB-7590FD13EE21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D95A32C9-4806-48FC-90BB-7590FD13EE21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09196DDC-350F-4E16-BA0F-312C67224559}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09196DDC-350F-4E16-BA0F-312C67224559}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09196DDC-350F-4E16-BA0F-312C67224559}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09196DDC-350F-4E16-BA0F-312C67224559}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

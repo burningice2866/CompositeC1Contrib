@@ -1,0 +1,37 @@
+﻿<cms:formdefinition xmlns:cms="http://www.composite.net/ns/management/bindingforms/1.0" xmlns="http://www.composite.net/ns/management/bindingforms/std.ui.controls.lib/1.0" xmlns:ff="http://www.composite.net/ns/management/bindingforms/std.function.lib/1.0" xmlns:f="http://www.composite.net/ns/function/1.0">
+  <cms:bindings>
+    <cms:binding name="Id" type="System.Guid" optional="true" />
+    <cms:binding name="MyStringField" type="System.String" optional="true" />
+    <cms:binding name="MyIntField" type="System.Int32" optional="true" />
+    <cms:binding name="MyDateTimeField" type="System.DateTime" optional="true" />
+    <cms:binding name="FormId" type="System.Guid" optional="true" />
+    <cms:binding name="Type" type="System.String" optional="true" />
+    <cms:binding name="Label" type="System.String" optional="true" />
+    <cms:binding name="DefaultValue" type="System.String" optional="true" />
+    <cms:binding name="HelpText" type="System.String" optional="true" />
+    <cms:binding name="ValidationRule" type="System.String" optional="true" />
+    <cms:binding name="LocalOrdering" type="System.Int32" optional="true" />
+  </cms:bindings>
+  <cms:layout>
+    <cms:layout.label>
+      <cms:read source="MyStringField" />
+    </cms:layout.label>
+    <FieldGroup>
+      <TextBox Label="MyStringField" Help="This is an auto-generated field.">
+        <TextBox.Text>
+          <cms:bind source="MyStringField" />
+        </TextBox.Text>
+      </TextBox>
+      <TextBox Label="MyIntField" Help="This is an auto-generated field.">
+        <TextBox.Text>
+          <cms:bind source="MyIntField" />
+        </TextBox.Text>
+      </TextBox>
+      <DateSelector Label="MyDateTimeField" Help="This is an auto-generated field.">
+        <DateSelector.Date>
+          <cms:bind source="MyDateTimeField" />
+        </DateSelector.Date>
+      </DateSelector>
+    </FieldGroup>
+  </cms:layout>
+</cms:formdefinition>
