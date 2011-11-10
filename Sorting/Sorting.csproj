@@ -92,7 +92,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Package\Config\uninstall.xsl" />
-    <Content Include="Package\install.xml" />
+    <Content Include="Package\install.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">

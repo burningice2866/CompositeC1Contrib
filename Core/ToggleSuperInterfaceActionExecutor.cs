@@ -5,6 +5,7 @@ using Composite.C1Console.Actions;
 using Composite.C1Console.Security;
 using Composite.Core.Types;
 using Composite.Data;
+using Composite.Data.DynamicTypes;
 using Composite.Data.GeneratedTypes;
 using Composite.Plugins.Elements.ElementProviders.GeneratedDataTypesElementProvider;
 
@@ -18,10 +19,10 @@ namespace CompositeC1Contrib
             var type = TypeManager.GetType(token.SerializedTypeName);
             Guid guid = type.GetImmutableTypeId();
 
-            var descriptor = DataMetaDataFacade.GetDataTypeDescriptor(guid);
+            var oldDataTypeDescriptor = DataMetaDataFacade.GetDataTypeDescriptor(guid);
             var superInfterface = ((ToggleSuperInterfaceActionToken)actionToken).InterfaceType;
 
-            var newDataTypeDescriptor = descriptor.Clone();
+            var newDataTypeDescriptor = oldDataTypeDescriptor.Clone();
 
             if (newDataTypeDescriptor.SuperInterfaces.Contains(superInfterface))
             {
@@ -37,12 +38,14 @@ namespace CompositeC1Contrib
                 newDataTypeDescriptor.DataScopes.Add(DataScopeIdentifier.Public);
             }
 
-            if (descriptor.DataScopes.Count == 0)
+            if (oldDataTypeDescriptor.DataScopes.Count == 0)
             {
-                descriptor.DataScopes.Add(DataScopeIdentifier.Public);
+                oldDataTypeDescriptor.DataScopes.Add(DataScopeIdentifier.Public);
             }
 
-            GeneratedTypesFacade.UpdateType(descriptor, newDataTypeDescriptor, true);
+            var updateDescriptor = new UpdateDataTypeDescriptor(oldDataTypeDescriptor, newDataTypeDescriptor, true);
+
+            GeneratedTypesFacade.UpdateType(updateDescriptor);
 
             EntityTokenCacheFacade.ClearCache();
 

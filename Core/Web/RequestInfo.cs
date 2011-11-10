@@ -1,8 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿using System;
 using System.Web;
-
-using Composite.Data;
-using System;
 
 namespace CompositeC1Contrib.Web
 {
