@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Web.Hosting;
 using System.Web.WebPages;
 
 using Composite.Core;
+using Composite.Core.IO;
+using Composite.Core.Threading;
 using Composite.Core.Xml;
 using Composite.Functions;
 using Composite.Functions.Plugins.FunctionProvider;
@@ -15,6 +18,9 @@ namespace CompositeC1Contrib.RazorFunctions
 {
     public class RazorFunctionProvider : IFunctionProvider
     {
+        private static object _lock = new object();
+        private DateTime _lastUpdateTime;
+
         private static string virtualPath = "~/App_Data/Razor";
         private static string absolutePath = HostingEnvironment.MapPath(virtualPath);
 
@@ -72,7 +78,7 @@ namespace CompositeC1Contrib.RazorFunctions
 
         public RazorFunctionProvider()
         {
-            var watcher = new FileSystemWatcher(absolutePath, "*.cshtml")
+            var watcher = new C1FileSystemWatcher(absolutePath, "*.cshtml")
             {
                 IncludeSubdirectories = true
             };
@@ -87,7 +93,24 @@ namespace CompositeC1Contrib.RazorFunctions
 
         private void watcher_Changed(object sender, FileSystemEventArgs e)
         {
-            _globalNotifier.FunctionsUpdated();
+            if (_globalNotifier != null)
+            {
+                lock (_lock)
+                {
+                    var timeSpan = DateTime.Now - _lastUpdateTime;
+                    if (timeSpan.TotalMilliseconds > 100)
+                    {
+                        Thread.Sleep(50);
+
+                        using (ThreadDataManager.EnsureInitialize())
+                        {
+                            _globalNotifier.FunctionsUpdated();
+                        }
+
+                        _lastUpdateTime = DateTime.Now;
+                    }
+                }
+            }
         }
 
         private Type getReturnType(WebPageBase webPage)
