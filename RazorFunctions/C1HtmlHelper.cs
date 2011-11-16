@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Web;
 using System.Web.WebPages.Html;
@@ -21,17 +22,40 @@ namespace CompositeC1Contrib.RazorFunctions
 
         public IHtmlString PageUrl(IPage page)
         {
-            return PageUrl(page.Id);
+            return PageUrl(page.Id.ToString());
         }
 
-        public IHtmlString PageUrl(Guid id)
+        public IHtmlString PageUrl(IPage page, object querystring)
         {
-            return PageUrl(id.ToString());
+            return PageUrl(page.Id.ToString(), querystring);
+        }
+
+        public IHtmlString PageUrl(IPage page, IDictionary<string, string> querystring)
+        {
+            return PageUrl(page.Id.ToString(), querystring);
         }
 
         public IHtmlString PageUrl(string id)
         {
-            return new HtmlString("~/page(" + id + ")");
+            return PageUrl(id, null);
+        }
+
+        public IHtmlString PageUrl(string id, object querystring)
+        {
+            return PageUrl(id, ObjectToDictionary(querystring));
+        }
+
+        public IHtmlString PageUrl(string id, IDictionary<string, string> querystring)
+        {
+            string relativeUrl = "~/page(" + id + ")";
+            string absoulteUrl = VirtualPathUtility.ToAbsolute(relativeUrl);
+
+            if (querystring != null && querystring.Keys.Count > 0)
+            {
+                absoulteUrl += "?" + String.Join("&", querystring.Select(kvp => kvp.Key + "=" + kvp.Value));
+            }
+
+            return _helper.Raw(absoulteUrl);
         }
 
         public IHtmlString MediaUrl(IMediaFile mediaFile)
@@ -39,14 +63,52 @@ namespace CompositeC1Contrib.RazorFunctions
             return MediaUrl(mediaFile.KeyPath);
         }
 
+        public IHtmlString MediaUrl(IMediaFile mediaFile, object querystring)
+        {
+            return MediaUrl(mediaFile.KeyPath, querystring);
+        }
+
+        public IHtmlString MediaUrl(IMediaFile mediaFile, IDictionary<string, string> querystring)
+        {
+            return MediaUrl(mediaFile.KeyPath, querystring);
+        }
+
         public IHtmlString MediaUrl(Guid id)
         {
-            return MediaUrl(id.ToString());
+            return MediaUrl(id.ToString(), null);
+        }
+
+        public IHtmlString MediaUrl(Guid id, object querystring)
+        {
+            return MediaUrl(id.ToString(), querystring);
+        }
+
+        public IHtmlString MediaUrl(Guid id, IDictionary<string, string> querystring)
+        {
+            return MediaUrl(id.ToString(), querystring);
         }
 
         public IHtmlString MediaUrl(string keyPath)
         {
-            return new HtmlString("~/media(" + keyPath + ")");
+            return MediaUrl(keyPath, null);
+        }
+
+        public IHtmlString MediaUrl(string keyPath, object querystring)
+        {
+            return MediaUrl(keyPath, ObjectToDictionary(querystring));
+        }       
+
+        public IHtmlString MediaUrl(string keyPath, IDictionary<string, string> querystring)
+        {
+            string relativeUrl = "~/media(" + keyPath + ")";
+            string absoulteUrl = VirtualPathUtility.ToAbsolute(relativeUrl);
+
+            if (querystring != null && querystring.Keys.Count > 0)
+            {
+                absoulteUrl += "?" + String.Join("&", querystring.Select(kvp => kvp.Key + "=" + kvp.Value));
+            }
+
+            return _helper.Raw(absoulteUrl);
         }
 
         public IHtmlString BodySection(string xhtmlDocument)
@@ -56,7 +118,12 @@ namespace CompositeC1Contrib.RazorFunctions
             var body = doc.Descendants().SingleOrDefault(el => el.Name.LocalName == "body");
             if (body != null)
             {
-                return new HtmlString(body.ToString());
+                using (var reader = body.CreateReader())
+                {
+                    reader.MoveToContent();
+
+                    return new HtmlString(reader.ReadInnerXml());
+                }
             }
 
             return new HtmlString(xhtmlDocument);
@@ -67,18 +134,16 @@ namespace CompositeC1Contrib.RazorFunctions
             return Function(name, null);
         }
 
-        public IHtmlString Function(string name, IDictionary<string, object> @params)
+        public IHtmlString Function(string name, object parameters)
         {
-            object result = Functions.ExecuteFunction(name, @params);
-
-            return convertFunctionResult(result);
+            return Function(name, ObjectToDictionary(parameters));
         }
 
-        public IHtmlString Function(string name, object @params)
+        public IHtmlString Function(string name, IDictionary<string, object> parameters)
         {
-            object result = Functions.ExecuteFunction(name, @params);
+            object result = Functions.ExecuteFunction(name, parameters);
 
-            return convertFunctionResult(result);            
+            return convertFunctionResult(result);
         }
 
         private static IHtmlString convertFunctionResult(object result)
@@ -90,6 +155,25 @@ namespace CompositeC1Contrib.RazorFunctions
             }
 
             throw new InvalidOperationException("Function doesn't return string value");
+        }
+
+        public static IDictionary<string, object> ObjectToDictionary(object instance)
+        {
+            if (instance == null)
+            {
+                return null;
+            }
+
+            var dictionary = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(instance))
+            {
+                object obj = descriptor.GetValue(instance);
+
+                dictionary.Add(descriptor.Name, obj);
+            }
+
+            return dictionary;
         }
     }
 }

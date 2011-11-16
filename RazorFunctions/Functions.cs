@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 
 using Composite.Functions;
 
@@ -13,7 +12,12 @@ namespace CompositeC1Contrib.RazorFunctions
             ExecuteFunction(name, null);
         }
 
-        public static object ExecuteFunction(string name, IDictionary<string, object> @params)
+        public static object ExecuteFunction(string name, object parameters)
+        {
+            return ExecuteFunction(name, C1HtmlHelper.ObjectToDictionary(parameters));
+        }
+
+        public static object ExecuteFunction(string name, IDictionary<string, object> parameters)
         {
             IFunction function;
             if (!FunctionFacade.TryGetFunction(out function, name))
@@ -21,29 +25,7 @@ namespace CompositeC1Contrib.RazorFunctions
                 throw new ArgumentException("Invalid function name", "name");
             }
 
-            return FunctionFacade.Execute<object>(function, @params, new FunctionContextContainer());
-        }
-
-        public static object ExecuteFunction(string name, object @params)
-        {
-            return ExecuteFunction(name, objectToDictionary(@params));
-        }
-
-        private static IDictionary<string, object> objectToDictionary(object instance)
-        {
-            var dictionary = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
-            if (instance != null)
-            {
-                foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(instance))
-                {
-                    object obj = descriptor.GetValue(instance);
-
-                    dictionary.Add(descriptor.Name, obj);
-                }
-            }
-
-            return dictionary;
+            return FunctionFacade.Execute<object>(function, parameters, new FunctionContextContainer());
         }
     }
 }

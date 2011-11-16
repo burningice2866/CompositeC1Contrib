@@ -35,6 +35,14 @@
       <HintPath>..\References\Composite.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Microsoft.Web.Helpers">
+      <HintPath>..\References\Microsoft.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -42,10 +50,13 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.WebPages">
       <HintPath>..\References\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.WebPages.Razor">
@@ -53,8 +64,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -101,10 +110,18 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
+
+copy "$(TargetDir)Microsoft.Web.Helpers.dll" "$(ProjectDir)Package\Bin\Microsoft.Web.Helpers.dll"
+copy "$(TargetDir)Microsoft.Web.Infrastructure.dll" "$(ProjectDir)Package\Bin\Microsoft.Web.Infrastructure.dll"
+
 copy "$(TargetDir)System.Web.Helpers.dll" "$(ProjectDir)Package\Bin\System.Web.Helpers.dll"
+copy "$(TargetDir)System.Web.Razor.dll" "$(ProjectDir)Package\Bin\System.Web.Razor.dll"
 copy "$(TargetDir)System.Web.WebPages.dll" "$(ProjectDir)Package\Bin\System.Web.WebPages.dll"
+copy "$(TargetDir)System.Web.WebPages.Deployment.dll" "$(ProjectDir)Package\Bin\System.Web.WebPages.Deployment.dll"
 copy "$(TargetDir)System.Web.WebPages.Razor.dll" "$(ProjectDir)Package\Bin\System.Web.WebPages.Razor.dll"
+
 del "$(ProjectDir)\Package\package.zip"
+
 "$(ProjectDir)..\References\7z.exe" a "$(ProjectDir)\Package\package.zip" -tzip -r "$(ProjectDir)\Package\*"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
