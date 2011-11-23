@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CompositeC1Contrib.RazorFunctions
+namespace CompositeC1Contrib.RazorFunctions.Parser
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class FunctionReturnTypeAttribute : Attribute

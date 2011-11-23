@@ -3,6 +3,8 @@ using System.Web.Razor;
 using System.Web.Razor.Generator;
 using System.Web.Razor.Parser.SyntaxTree;
 
+using CompositeC1Contrib.RazorFunctions.Parser.SyntaxTree;
+
 namespace CompositeC1Contrib.RazorFunctions.Parser
 {
     public class CompositeC1CSharpRazorCodeGenerator : CSharpRazorCodeGenerator
@@ -17,7 +19,17 @@ namespace CompositeC1Contrib.RazorFunctions.Parser
 
         protected override bool TryVisitSpecialSpan(Span span)
         {
-            return TryVisit<ReturnTypeSpan>(span, VisitReturnTypeSpan);
+            if (TryVisit<ReturnTypeSpan>(span, VisitReturnTypeSpan))
+            {
+                return true;
+            }
+
+            if (TryVisit<DescriptionSpan>(span, VisitDescriptionSpan))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public override void VisitError(RazorError err)
@@ -28,6 +40,21 @@ namespace CompositeC1Contrib.RazorFunctions.Parser
             }
 
             base.VisitError(err);
+        }
+
+        private void VisitDescriptionSpan(DescriptionSpan span)
+        {
+            if (DesignTimeMode)
+            {
+                WriteHelperVariable(span.Description, "__descriptionHelper");
+            }
+
+            var attributeType = new CodeTypeReference(typeof(FunctionDescriptionAttribute));
+            var attributeArgument = new CodeAttributeArgument("Description", new CodePrimitiveExpression(span.Description));
+
+            var attr = new CodeAttributeDeclaration(attributeType, new[] { attributeArgument });
+
+            GeneratedClass.CustomAttributes.Add(attr);
         }
 
         private void VisitReturnTypeSpan(ReturnTypeSpan span)

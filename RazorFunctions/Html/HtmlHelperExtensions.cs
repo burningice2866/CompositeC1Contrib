@@ -1,6 +1,6 @@
 ﻿using System.Web.WebPages.Html;
 
-namespace CompositeC1Contrib.RazorFunctions
+namespace CompositeC1Contrib.RazorFunctions.Html
 {
     public static class HtmlHelperExtensions
     {

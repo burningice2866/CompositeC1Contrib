@@ -2,7 +2,7 @@
 
 using Composite.C1Console.Security;
 
-namespace CompositeC1Contrib.RazorFunctions
+namespace CompositeC1Contrib.RazorFunctions.Security
 {
     [SecurityAncestorProvider(typeof(StandardFunctionSecurityAncestorProvider))]
     public class RazorFunctionEntityToken : EntityToken

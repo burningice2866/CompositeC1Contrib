@@ -11,7 +11,7 @@
       <xsl:apply-templates select="@* | node()" />
 
       <xsl:if test="count(add[@name='CompositeC1Contrib.RazorFunctions'])=0">
-        <add type="CompositeC1Contrib.RazorFunctions.RazorFunctionProvider, CompositeC1Contrib.RazorFunctions" name="CompositeC1Contrib.RazorFunctions" />
+        <add type="CompositeC1Contrib.RazorFunctions.FunctionProvider.RazorFunctionProvider, CompositeC1Contrib.RazorFunctions" name="CompositeC1Contrib.RazorFunctions" />
       </xsl:if>
     </xsl:copy>
   </xsl:template>

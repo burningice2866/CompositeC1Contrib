@@ -67,25 +67,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="C1HtmlHelper.cs" />
+    <Compile Include="Html\C1HtmlHelper.cs" />
     <Compile Include="CompositeC1RazorBuildProvider.cs" />
     <Compile Include="Functions.cs" />
-    <Compile Include="HtmlHelperExtensions.cs" />
+    <Compile Include="Html\HtmlHelperExtensions.cs" />
     <Compile Include="Parser\CompositeC1CSharpRazorCodeGenerator.cs" />
     <Compile Include="Parser\CompositeC1CSharpCodeParser.cs" />
-    <Compile Include="FunctionParameterAttribute.cs" />
-    <Compile Include="FunctionParameterHolder.cs" />
-    <Compile Include="FunctionReturnTypeAttribute.cs" />
-    <Compile Include="Parser\ReturnTypeSpan.cs" />
-    <Compile Include="RazorFunction.cs" />
-    <Compile Include="RazorFunctionProvider.cs" />
-    <Compile Include="RazorFunctionEntityToken.cs" />
+    <Compile Include="FunctionProvider\FunctionParameterAttribute.cs" />
+    <Compile Include="FunctionProvider\FunctionParameterHolder.cs" />
+    <Compile Include="Parser\FunctionDescriptionAttribute.cs" />
+    <Compile Include="Parser\FunctionReturnTypeAttribute.cs" />
+    <Compile Include="Parser\SyntaxTree\DescriptionSpan.cs" />
+    <Compile Include="Parser\SyntaxTree\ReturnTypeSpan.cs" />
+    <Compile Include="FunctionProvider\RazorFunction.cs" />
+    <Compile Include="FunctionProvider\RazorFunctionProvider.cs" />
+    <Compile Include="Security\RazorFunctionEntityToken.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CompositeC1WebPage.cs" />
     <Compile Include="CompositeC1RazorHost.cs" />
     <Compile Include="CompositeC1RazorHostFactory.cs" />
-    <Compile Include="StandardFunctionSecurityAncestorProvider.cs" />
-    <Compile Include="Parser\TemplateParsingException.cs" />
+    <Compile Include="Security\StandardFunctionSecurityAncestorProvider.cs" />
+    <Compile Include="Parser\SyntaxTree\TemplateParsingException.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\Config\composite.config\install.xsl">

@@ -14,15 +14,20 @@ using Composite.Core.Xml;
 using Composite.Functions;
 using Composite.Functions.Plugins.FunctionProvider;
 
-namespace CompositeC1Contrib.RazorFunctions
+using CompositeC1Contrib.RazorFunctions.Parser;
+
+namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
 {
     public class RazorFunctionProvider : IFunctionProvider
     {
-        private static object _lock = new object();
-        private DateTime _lastUpdateTime;
+        private static readonly object _lock = new object();
 
-        private static string virtualPath = "~/App_Data/Razor";
-        private static string absolutePath = HostingEnvironment.MapPath(virtualPath);
+        private static readonly string virtualPath = "~/App_Data/Razor";
+        private static readonly string physicalPath = HostingEnvironment.MapPath(virtualPath);
+
+        private readonly IDictionary<string, RazorFunction> _functionCache = new Dictionary<string, RazorFunction>();
+
+        private DateTime _lastUpdateTime;
 
         private FunctionNotifier _globalNotifier;
         public FunctionNotifier FunctionNotifier
@@ -34,7 +39,9 @@ namespace CompositeC1Contrib.RazorFunctions
         {
             get
             {
-                var files = new DirectoryInfo(absolutePath).EnumerateFiles("*.cshtml", SearchOption.AllDirectories);
+                var returnList = new List<RazorFunction>();
+
+                var files = new DirectoryInfo(physicalPath).EnumerateFiles("*.cshtml", SearchOption.AllDirectories);
                 foreach (var file in files)
                 {
                     var parts = file.FullName.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
@@ -65,20 +72,32 @@ namespace CompositeC1Contrib.RazorFunctions
                     {
                         Log.LogError("Error in instantiating razor function", exc);
 
+                        if (_functionCache.ContainsKey(relativeFilePath))
+                        {
+                            returnList.Add(_functionCache[relativeFilePath]);
+                        }
+
                         continue;
                     }
 
                     var parameters = getParameters(webPage).ToDictionary(p => p.Name);
                     var returnType = getReturnType(webPage);
+                    var description = getDescription(webPage);
 
-                    yield return new RazorFunction(ns, name, parameters, returnType, relativeFilePath);
+                    var razorFunction = new RazorFunction(ns, name, description, parameters, returnType, relativeFilePath);
+
+                    _functionCache[relativeFilePath] = razorFunction;
+
+                    returnList.Add(razorFunction);
                 }
+
+                return returnList;
             }
         }
 
         public RazorFunctionProvider()
         {
-            var watcher = new C1FileSystemWatcher(absolutePath, "*.cshtml")
+            var watcher = new C1FileSystemWatcher(physicalPath, "*.cshtml")
             {
                 IncludeSubdirectories = true
             };
@@ -122,6 +141,17 @@ namespace CompositeC1Contrib.RazorFunctions
             }
 
             return typeof(XhtmlDocument);
+        }
+
+        private string getDescription(WebPageBase webPage)
+        {
+            var attr = webPage.GetType().GetCustomAttributes(typeof(FunctionDescriptionAttribute), false).Cast<FunctionDescriptionAttribute>().FirstOrDefault();
+            if (attr != null)
+            {
+                return attr.Description;
+            }
+
+            return "A Razor function";
         }
 
         private IEnumerable<FunctionParameterHolder> getParameters(WebPageBase webPage)

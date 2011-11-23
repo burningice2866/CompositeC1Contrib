@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Web;
 using System.Web.WebPages.Html;
@@ -9,7 +8,7 @@ using System.Xml.Linq;
 using Composite.Core.Types;
 using Composite.Data.Types;
 
-namespace CompositeC1Contrib.RazorFunctions
+namespace CompositeC1Contrib.RazorFunctions.Html
 {
     public class C1HtmlHelper
     {
@@ -42,7 +41,7 @@ namespace CompositeC1Contrib.RazorFunctions
 
         public IHtmlString PageUrl(string id, object querystring)
         {
-            return PageUrl(id, ObjectToDictionary(querystring));
+            return PageUrl(id, Functions.ObjectToDictionary(querystring));
         }
 
         public IHtmlString PageUrl(string id, IDictionary<string, string> querystring)
@@ -95,7 +94,7 @@ namespace CompositeC1Contrib.RazorFunctions
 
         public IHtmlString MediaUrl(string keyPath, object querystring)
         {
-            return MediaUrl(keyPath, ObjectToDictionary(querystring));
+            return MediaUrl(keyPath, Functions.ObjectToDictionary(querystring));
         }       
 
         public IHtmlString MediaUrl(string keyPath, IDictionary<string, string> querystring)
@@ -136,7 +135,7 @@ namespace CompositeC1Contrib.RazorFunctions
 
         public IHtmlString Function(string name, object parameters)
         {
-            return Function(name, ObjectToDictionary(parameters));
+            return Function(name, Functions.ObjectToDictionary(parameters));
         }
 
         public IHtmlString Function(string name, IDictionary<string, object> parameters)
@@ -155,25 +154,6 @@ namespace CompositeC1Contrib.RazorFunctions
             }
 
             throw new InvalidOperationException("Function doesn't return string value");
-        }
-
-        public static IDictionary<string, object> ObjectToDictionary(object instance)
-        {
-            if (instance == null)
-            {
-                return null;
-            }
-
-            var dictionary = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(instance))
-            {
-                object obj = descriptor.GetValue(instance);
-
-                dictionary.Add(descriptor.Name, obj);
-            }
-
-            return dictionary;
         }
     }
 }

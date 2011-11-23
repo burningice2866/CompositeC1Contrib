@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web.WebPages;
 
-namespace CompositeC1Contrib.RazorFunctions
+namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
 {
     public class FunctionParameterHolder
     {

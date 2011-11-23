@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web.Razor.Parser.SyntaxTree;
 
-namespace CompositeC1Contrib.RazorFunctions.Parser
+namespace CompositeC1Contrib.RazorFunctions.Parser.SyntaxTree
 {
     public class TemplateParsingException : Exception
     {

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Xml.Linq;
 
-using Composite.Functions;
-
-namespace CompositeC1Contrib.RazorFunctions
+namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class FunctionParameterAttribute : Attribute

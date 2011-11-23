@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.WebPages;
@@ -13,7 +12,9 @@ using Composite.Core.Types;
 using Composite.Core.Xml;
 using Composite.Functions;
 
-namespace CompositeC1Contrib.RazorFunctions
+using CompositeC1Contrib.RazorFunctions.Security;
+
+namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
 {
     public class RazorFunction : IFunction
     {
@@ -38,14 +39,15 @@ namespace CompositeC1Contrib.RazorFunctions
             get { return _returnType; }
         }
 
+        private string _description;
         public string Description
         {
-            get { return "Razor function"; }
+            get { return _description; }
         }
 
         public EntityToken EntityToken
         {
-            get { return new RazorFunctionEntityToken(Name, String.Join(".", Namespace, Name)); }
+            get { return new RazorFunctionEntityToken(typeof(RazorFunctionProvider).Name, String.Join(".", Namespace, Name)); }
         }
 
         public IEnumerable<ParameterProfile> ParameterProfiles
@@ -92,10 +94,11 @@ namespace CompositeC1Contrib.RazorFunctions
             }
         }
 
-        public RazorFunction(string ns, string name, IDictionary<string, FunctionParameterHolder> parameters, Type returnType, string relativeFilePath)
+        public RazorFunction(string ns, string name, string description, IDictionary<string, FunctionParameterHolder> parameters, Type returnType, string relativeFilePath)
         {
             _ns = ns;
             _name = name;
+            _description = description;
             _parameters = parameters;
             _returnType = returnType;
             _relativeFilePath = relativeFilePath;
@@ -121,7 +124,7 @@ namespace CompositeC1Contrib.RazorFunctions
                 webPage.ExecutePageHierarchy(pageContext, writer);
             }
 
-            string output = sb.ToString();
+            string output = sb.ToString().Trim();
 
             if (_returnType == typeof(XhtmlDocument))
             {

@@ -3,7 +3,7 @@ using System.Web.Razor.Parser;
 using System.Web.Razor.Parser.SyntaxTree;
 using System.Web.Razor.Text;
 
-namespace CompositeC1Contrib.RazorFunctions.Parser
+namespace CompositeC1Contrib.RazorFunctions.Parser.SyntaxTree
 {
     public class ReturnTypeSpan : CodeSpan
     {
