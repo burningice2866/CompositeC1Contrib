@@ -48,8 +48,14 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\MasterPageModule.cs" />
-    <Compile Include="Web\UI\Rendering\C1MarkupControl.cs" />
+    <Compile Include="Web\UI\F\Markup.cs" />
+    <Compile Include="Web\UI\F\FunctionParameterValue.cs" />
+    <Compile Include="Web\UI\F\ParamCollection.cs" />
+    <Compile Include="Web\UI\F\ParamTagControlBuilder.cs" />
+    <Compile Include="Web\UI\F\FunctionParameterValueConverter.cs" />
     <Compile Include="Web\UI\Rendering\Description.cs" />
+    <Compile Include="Web\UI\F\Function.cs" />
+    <Compile Include="Web\UI\F\Param.cs" />
     <Compile Include="Web\UI\Rendering\Function.cs" />
     <Compile Include="Web\UI\Rendering\Placeholder.cs" />
     <Compile Include="Web\UI\Rendering\Title.cs" />

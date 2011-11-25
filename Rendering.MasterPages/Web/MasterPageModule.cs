@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Hosting;
@@ -40,40 +43,79 @@ namespace CompositeC1Contrib.Web
             if (iPage != null)
             {
                 var page = (Page)sender;
+                string masterPageFile = resolveMasterPagePath(iPage, page.Request);
 
-                var masterFileDirectory = "~/App_Data/PageTemplates/";
-                IPageTemplate template = null;
-                using (var data = new DataConnection())
+                if (masterPageFile != null)
                 {
-                    template = data.Get<IPageTemplate>().Single(t => t.Id == iPage.TemplateId);
-
-                    var rootId = data.SitemapNavigator.GetPageNodeById(iPage.Id).GetPageIds(SitemapScope.Level1).First();
-                    var dir = masterFileDirectory + rootId + "/";
-
-                    if (HostingEnvironment.VirtualPathProvider.DirectoryExists(dir))
-                    {
-                        masterFileDirectory = dir;
-                    }
-                }
-
-                var masterFile = masterFileDirectory + template.PageTemplateFilePath.Replace(".xml", String.Empty) + ".master";
-                if (HostingEnvironment.VirtualPathProvider.FileExists(masterFile))
-                {
-                    var qs = page.Request.QueryString;
-                    if (qs.AllKeys.Length > 0 && qs.Keys[0] == null && qs[0] == "print")
-                    {
-                        var printMasterFile = String.Format("{0}/{1}_print.master", masterFileDirectory, template.PageTemplateFilePath.Replace(".xml", String.Empty));
-
-                        if (HostingEnvironment.VirtualPathProvider.FileExists(printMasterFile))
-                        {
-                            masterFile = printMasterFile;
-                        }
-                    }
-
                     page.AppRelativeVirtualPath = "~/";
-                    page.MasterPageFile = masterFile;
+                    page.MasterPageFile = masterPageFile;
                 }
             }
+        }
+
+        private static string resolveInDirectory(string directory, string template, NameValueCollection qs)
+        {
+            var specielPageModes = new[] { "print", "rss", "atom", "mobile" };
+            var pathProvider = HostingEnvironment.VirtualPathProvider;
+
+            if (qs.AllKeys.Length > 0 && qs.Keys[0] == null)
+            {
+                foreach (var mode in specielPageModes)
+                {
+                    if (qs[0] == mode)
+                    {
+                        var specialModeMaster = Path.Combine(directory, String.Format("{1}_{2}.master", template, mode));
+                        if (pathProvider.FileExists(specialModeMaster))
+                        {
+                            return specialModeMaster;
+                        }
+
+                        specialModeMaster = Path.Combine(directory, mode + ".master");
+                        if (pathProvider.FileExists(specialModeMaster))
+                        {
+                            return specialModeMaster;
+                        }
+                    }
+                }
+            }
+
+            var masterFile = Path.Combine(directory, template + ".master");
+            if (pathProvider.FileExists(masterFile))
+            {
+                return masterFile;
+            }
+
+            return null;
+        }
+
+        private static string resolveMasterPagePath(IPage page, HttpRequest request)
+        {
+            var rootTemplateDir = "~/App_Data/PageTemplates/";
+
+            var dirsToTry = new List<string>
+            {
+                rootTemplateDir
+            };
+
+            using (var data = new DataConnection())
+            {
+                var template = data.Get<IPageTemplate>().Single(t => t.Id == page.TemplateId);
+                var templateName = template.PageTemplateFilePath.Replace(".xml", String.Empty).Remove(0, 1);
+
+                var siteId = data.SitemapNavigator.GetPageNodeById(page.Id).GetPageIds(SitemapScope.Level1).First().ToString();
+                dirsToTry.Insert(0, Path.Combine(rootTemplateDir, siteId));
+
+                foreach (var dir in dirsToTry)
+                {
+                    var masterFile = resolveInDirectory(dir, templateName, request.QueryString);
+                    if (masterFile != null)
+                    {
+                        return masterFile;
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

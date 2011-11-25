@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.UI;
-using System.Xml.Linq;
 
 using Composite.Core.WebClient.Renderings.Page;
 using Composite.Core.Xml;
 using Composite.Data;
 using Composite.Data.Types;
 
+using CompositeC1Contrib.Web.UI.F;
+
 namespace CompositeC1Contrib.Web.UI.Rendering
 {
-    public class Placeholder : C1MarkupControl
+    public class Placeholder : Markup
     {
         public string Title { get; set; }
         public bool Default { get; set; }
@@ -20,10 +21,11 @@ namespace CompositeC1Contrib.Web.UI.Rendering
         {
             get
             {
-                var el = CreateElementToRender();
-                if (el != null)
+                EnsureChildControls();
+
+                if (Content != null)
                 {
-                    var body = PageRendererHelper.GetDocumentPart(el, "body");
+                    var body = PageRendererHelper.GetDocumentPart(Content, "body");
 
                     if (body != null)
                     {
@@ -35,7 +37,7 @@ namespace CompositeC1Contrib.Web.UI.Rendering
             }
         }
 
-        protected override XElement CreateElementToRender()
+        protected override void CreateChildControls()
         {
             var rq = RequestInfo.Current;
             var contents = rq.IsPreview ? (IEnumerable<IPagePlaceholderContent>)Page.Cache.Get(rq.PreviewKey + "_SelectedContents") : PageManager.GetPlaceholderContent(PageRenderer.CurrentPage.Id);
@@ -47,17 +49,17 @@ namespace CompositeC1Contrib.Web.UI.Rendering
                 {
                     try
                     {
-                        return XhtmlDocument.Parse(content.Content).Root;
+                        Content = XhtmlDocument.Parse(content.Content).Root;
                     }
                     catch (ArgumentException) { }
                 }
                 else
                 {
-                    return XhtmlDocument.Parse(String.Format("<html xmlns='{0}'><head/><body>{1}</body></html>", Namespaces.Xhtml, content.Content)).Root;
+                    Content = XhtmlDocument.Parse(String.Format("<html xmlns='{0}'><head/><body>{1}</body></html>", Namespaces.Xhtml, content.Content)).Root;
                 }
             }
 
-            return null;
+            base.CreateChildControls();
         }
     }
 }

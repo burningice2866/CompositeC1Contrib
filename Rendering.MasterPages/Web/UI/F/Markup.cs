@@ -5,11 +5,19 @@ using System.Xml.Linq;
 
 using Composite.Core.WebClient.Renderings.Page;
 
-namespace CompositeC1Contrib.Web.UI.Rendering
+namespace CompositeC1Contrib.Web.UI.F
 {
-    public abstract class C1MarkupControl : Control
+    [ParseChildren(false)]
+    public class Markup : Control
     {
-        protected abstract XElement CreateElementToRender();
+        protected XElement Content { get; set; }
+
+        public Markup() { }
+
+        public Markup(XElement content)
+        {
+            Content = content;
+        }
 
         protected override void OnInit(EventArgs e)
         {
@@ -20,13 +28,38 @@ namespace CompositeC1Contrib.Web.UI.Rendering
 
         protected override void CreateChildControls()
         {
-            var elementToRender = CreateElementToRender();
-            if (elementToRender != null)
+            if (Content == null)
+            {
+                string str = null;
+
+                if (Controls.Count > 0)
+                {
+                    var content = Controls[0] as LiteralControl;
+                    if (content != null)
+                    {
+                        str = content.Text;
+                    }
+                }
+
+                if (!String.IsNullOrEmpty(str))
+                {
+                    Controls.Clear();
+
+                    var s = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:f=\"http://www.composite.net/ns/function/1.0\" xmlns:lang=\"http://www.composite.net/ns/localization/1.0\">" +
+                        "<head />" +
+                        "<body>" + str + "</body>" +
+                        "</html>";
+
+                    Content = XElement.Parse(s);
+                }
+            }
+
+            if (Content != null)
             {
                 var helper = new PageRendererHelper();
                 var mapper = (IXElementToControlMapper)helper.FunctionContext.XEmbedableMapper;
 
-                var doc = helper.RenderDocument(elementToRender);
+                var doc = helper.RenderDocument(Content);
                 var body = PageRendererHelper.GetDocumentPart(doc, "body");
 
                 if (body != null)

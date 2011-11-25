@@ -50,7 +50,8 @@
   </xsl:template>
 
   <xsl:template name="Controls">
-    <add tagPrefix="rendering" namespace="CompositeC1Contrib.Web.UI.Rendering" assembly="CompositeC1Contrib.Rendering.MasterPage"/>
+    <add tagPrefix="f" namespace="CompositeC1Contrib.Web.UI.F" assembly="CompositeC1Contrib.Rendering.MasterPage"/>
+    <add tagPrefix="rendering" namespace="CompositeC1Contrib.Web.UI.Rendering" assembly="CompositeC1Contrib.Rendering.MasterPage"/>    
   </xsl:template>
 
   <xsl:template name="Module">
