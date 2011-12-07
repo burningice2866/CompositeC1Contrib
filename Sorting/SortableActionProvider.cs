@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Hosting;
 
 using Microsoft.Practices.EnterpriseLibrary.Common.Configuration;
 
@@ -21,7 +22,7 @@ namespace CompositeC1Contrib.Sorting
     {
         private static readonly Type sortableType = typeof(IGenericSortable);
         private static readonly ActionGroup _actionGroup = new ActionGroup("Default", ActionGroupPriority.PrimaryLow);
-        private static readonly ActionLocation _actionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = true, ActionGroup = _actionGroup };
+        private static readonly ActionLocation _actionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = false, ActionGroup = _actionGroup };
 
         public IEnumerable<ElementAction> GetActions(EntityToken entityToken)
         {
@@ -117,7 +118,7 @@ namespace CompositeC1Contrib.Sorting
 
             if (!String.IsNullOrEmpty(url))
             {
-                string baseUrl = "/Composite/InstalledPackages/CompositeC1Contrib.Sorting/";
+                string baseUrl = HostingEnvironment.MapPath("~/Composite/InstalledPackages/CompositeC1Contrib.Sorting/");
                 var urlAction = new UrlActionToken(label, baseUrl + url, new[] { PermissionType.Edit, PermissionType.Publish });
 
                 yield return new ElementAction(new ActionHandle(urlAction))
