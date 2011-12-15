@@ -73,6 +73,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
+    <Compile Include="FunctionProvider\FunctionDescriptionAttribute.cs" />
+    <Compile Include="FunctionProvider\FunctionParameterAttribute.cs" />
+    <Compile Include="FunctionProvider\FunctionParameterHolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ToggleSuperInterfaceActionExecutor.cs" />
     <Compile Include="ToggleSuperInterfaceActionToken.cs" />

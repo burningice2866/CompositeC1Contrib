@@ -1,7 +1,9 @@
 .*/*.suo
 .*/*.user
+.*/*.layout
 
-.*/*.dll
+.*/Package/Bin/./*
+References/*
 
 .*/bin/./*
 .*/obj/./*
