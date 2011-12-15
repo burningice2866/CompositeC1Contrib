@@ -14,6 +14,7 @@ using Composite.Core.Xml;
 using Composite.Functions;
 using Composite.Functions.Plugins.FunctionProvider;
 
+using CompositeC1Contrib.FunctionProvider;
 using CompositeC1Contrib.RazorFunctions.Parser;
 
 namespace CompositeC1Contrib.RazorFunctions.FunctionProvider

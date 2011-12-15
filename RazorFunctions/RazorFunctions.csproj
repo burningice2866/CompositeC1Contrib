@@ -73,9 +73,6 @@
     <Compile Include="Html\HtmlHelperExtensions.cs" />
     <Compile Include="Parser\CompositeC1CSharpRazorCodeGenerator.cs" />
     <Compile Include="Parser\CompositeC1CSharpCodeParser.cs" />
-    <Compile Include="FunctionProvider\FunctionParameterAttribute.cs" />
-    <Compile Include="FunctionProvider\FunctionParameterHolder.cs" />
-    <Compile Include="Parser\FunctionDescriptionAttribute.cs" />
     <Compile Include="Parser\FunctionReturnTypeAttribute.cs" />
     <Compile Include="Parser\SyntaxTree\DescriptionSpan.cs" />
     <Compile Include="Parser\SyntaxTree\ReturnTypeSpan.cs" />
@@ -109,9 +106,17 @@
     <None Include="Package\App_Data\Razor\Examples\Navigation\Topnavigation.cshtml" />
     <None Include="Package\App_Data\Razor\web.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{1E76E3BE-F575-4E2D-A791-8A0EDA53C1B2}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
+    <PostBuildEvent>copy "$(TargetDir)CompositeC1Contrib.Core.dll" "$(ProjectDir)Package\Bin\CompositeC1Contrib.Core.dll"
+
+copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
 
 copy "$(TargetDir)Microsoft.Web.Helpers.dll" "$(ProjectDir)Package\Bin\Microsoft.Web.Helpers.dll"
 copy "$(TargetDir)Microsoft.Web.Infrastructure.dll" "$(ProjectDir)Package\Bin\Microsoft.Web.Infrastructure.dll"

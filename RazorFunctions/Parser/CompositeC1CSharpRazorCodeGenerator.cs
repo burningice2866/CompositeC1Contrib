@@ -3,6 +3,7 @@ using System.Web.Razor;
 using System.Web.Razor.Generator;
 using System.Web.Razor.Parser.SyntaxTree;
 
+using CompositeC1Contrib.FunctionProvider;
 using CompositeC1Contrib.RazorFunctions.Parser.SyntaxTree;
 
 namespace CompositeC1Contrib.RazorFunctions.Parser

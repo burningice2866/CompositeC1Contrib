@@ -12,6 +12,7 @@ using Composite.Core.Types;
 using Composite.Core.Xml;
 using Composite.Functions;
 
+using CompositeC1Contrib.FunctionProvider;
 using CompositeC1Contrib.RazorFunctions.Security;
 
 namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
