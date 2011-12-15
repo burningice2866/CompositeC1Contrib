@@ -66,8 +66,11 @@ namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
 
                     try
                     {
-                        var p = new Page();
-                        control = (UserControl)p.LoadControl(relativeFilePath);
+                        using (new PopulateUserControlParametersContext())
+                        {
+                            var p = new Page();
+                            control = (UserControl)p.LoadControl(relativeFilePath);
+                        }
                     }
                     catch (Exception exc)
                     {

@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FunctionProvider\PopulateUserControlParametersContext.cs" />
     <Compile Include="FunctionProvider\UserControlFunction.cs" />
     <Compile Include="FunctionProvider\UserControlFunctionProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
