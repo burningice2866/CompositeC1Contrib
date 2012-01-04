@@ -50,7 +50,6 @@ namespace CompositeC1Contrib.Sorting.Web.UI
                 using (var data = new DataConnection(PublicationScope.Unpublished))
                 {
                     var instances = data.Get<IPageStructure>().Where(s => s.ParentId == pageId).OrderBy(s => s.LocalOrdering);
-
                     foreach (var instance in instances)
                     {
                         string number = hashId(instance);

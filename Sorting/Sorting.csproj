@@ -43,7 +43,6 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -87,7 +86,9 @@
     <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\Sort.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\SortPages.aspx" />
+    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\SortPages.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="Package\Config\install.xsl">
       <SubType>Designer</SubType>
     </Content>

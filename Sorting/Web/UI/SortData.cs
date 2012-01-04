@@ -58,7 +58,7 @@ namespace CompositeC1Contrib.Sorting.Web.UI
             {
                 using (new DataScope(dataScope))
                 {
-                    var instances = DataFacade.GetData(type).Cast<IGenericSortable>();
+                    var instances = DataFacade.GetData(type).Cast<IGenericSortable>().ToList();
 
                     foreach (var instance in instances)
                     {

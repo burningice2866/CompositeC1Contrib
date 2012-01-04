@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Hosting;
 
 using Microsoft.Practices.EnterpriseLibrary.Common.Configuration;
 
@@ -11,6 +10,7 @@ using Composite.C1Console.Elements.Plugins.ElementActionProvider;
 using Composite.C1Console.Security;
 using Composite.Core.ResourceSystem;
 using Composite.Core.Types;
+using Composite.Core.WebClient;
 using Composite.Data;
 using Composite.Data.Types;
 using Composite.Plugins.Elements.ElementProviders.GeneratedDataTypesElementProvider;
@@ -118,7 +118,7 @@ namespace CompositeC1Contrib.Sorting
 
             if (!String.IsNullOrEmpty(url))
             {
-                string baseUrl = HostingEnvironment.MapPath("~/Composite/InstalledPackages/CompositeC1Contrib.Sorting/");
+                string baseUrl = UrlUtils.ResolveAdminUrl("InstalledPackages/CompositeC1Contrib.Sorting/");
                 var urlAction = new UrlActionToken(label, baseUrl + url, new[] { PermissionType.Edit, PermissionType.Publish });
 
                 yield return new ElementAction(new ActionHandle(urlAction))
