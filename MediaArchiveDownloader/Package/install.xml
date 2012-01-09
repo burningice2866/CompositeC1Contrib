@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" standalone="yes"?>
+<mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
+  <mi:PackageRequirements minimumCompositeVersion="2.1.4113.99" 
+                          maximumCompositeVersion="9.9999.9999.9999" />
+  
+  <mi:PackageInformation name="Contribution.CompositeC1Contrib.MediaArchiveDownloader" 
+                         groupName="Contribution.CompositeC1Contrib" 
+                         version="1.0.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         id="69ce666f-c769-44df-be35-61ddcc4ab610" 
+                         canBeUninstalled="true" 
+                         systemLocking="hard" 
+                         flushOnCompletion="false">
+    <Description>Enables downloading of folders and whole mediarchives via context menu in the Console.</Description>
+  </mi:PackageInformation>
+  
+  <mi:PackageFragmentInstallers>
+    <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentUninstaller, Composite">
+      <Files>
+        <File sourceFilename="~\Bin\CompositeC1Contrib.MediaArchiveDownloader.dll" targetFilename="~\Bin\CompositeC1Contrib.MediaArchiveDownloader.dll" allowOverwrite="true" />
+      </Files>
+    </mi:Add>
+
+    <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FileXslTransformationPackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FileXslTransformationPackageFragmentUninstaller, Composite">
+      <XslFiles>
+        <XslFile pathXml="~\Web.config" installXsl="~\Config\web.config\install.xsl" uninstallXsl="~\Config\web.config\uninstall.xsl" />
+        <XslFile pathXml="~\App_Data\Composite\Composite.config" installXsl="~\Config\composite.config\install.xsl" uninstallXsl="~\Config\composite.config\uninstall.xsl" />
+      </XslFiles>
+    </mi:Add>
+  </mi:PackageFragmentInstallers>
+</mi:PackageInstaller>
