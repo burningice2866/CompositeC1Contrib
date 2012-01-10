@@ -5,7 +5,7 @@
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.DownloadFoldersAsZip" 
                          groupName="Contribution.CompositeC1Contrib" 
-                         version="1.0.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="1.0.1" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          id="b7bb2faa-8833-4e6e-9b15-c7e74406eff8" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 
@@ -20,7 +20,7 @@
       </Files>
 
       <Directories>
-        <Directory sourceDirectory="~\Composite\InstalledPackages\CmpositeC1Contrib.DownloadFoldersAsZip\" targetDirectory="~\Composite\InstalledPackages\CmpositeC1Contrib.DownloadFoldersAsZip" allowOverwrite="true" deleteTargetDirectory="true" />
+        <Directory sourceDirectory="~\Composite\InstalledPackages\CompositeC1Contrib.DownloadFoldersAsZip\" targetDirectory="~\Composite\InstalledPackages\CompositeC1Contrib.DownloadFoldersAsZip" allowOverwrite="true" deleteTargetDirectory="true" />
       </Directories>
     </mi:Add>
 

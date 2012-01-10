@@ -11,7 +11,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
     {
         public FlowToken Execute(EntityToken entityToken, ActionToken actionToken, FlowControllerServicesContainer flowControllerServicesContainer)
         {
-            string url = "InstalledPackages/CmpositeC1Contrib.DownloadFoldersAsZip/generateZip.ashx?";
+            string url = "InstalledPackages/CompositeC1Contrib.DownloadFoldersAsZip/generateZip.ashx?";
 
             var downloadMediaFolderActionToken = actionToken as DownloadMediaFolderActionToken;
             if (downloadMediaFolderActionToken != null)

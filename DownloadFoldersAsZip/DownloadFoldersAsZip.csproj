@@ -69,7 +69,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Package\Composite\InstalledPackages\CmpositeC1Contrib.DownloadFoldersAsZip\generateZip.ashx" />
+    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.DownloadFoldersAsZip\generateZip.ashx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

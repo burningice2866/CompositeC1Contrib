@@ -23,6 +23,8 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
 
         public void ProcessRequest(HttpContext ctx)
         {
+            Action<ZipOutputStream> compress = null;
+
             if (!Directory.Exists(tmpFolder))
             {
                 Directory.CreateDirectory(tmpFolder);
@@ -59,17 +61,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
                     }
                 }
 
-                using (var zipFile = File.Create(fileName))
-                {
-                    using (var zipStream = new ZipOutputStream(zipFile))
-                    {
-                        zipStream.SetLevel(3);
-
-                        compressMediaFiles(files, zipStream, 0);
-
-                        zipStream.IsStreamOwner = true;
-                    }
-                }
+                compress = (s) => compressMediaFiles(files, s);
             }
             else if (mode == "file")
             {
@@ -83,39 +75,42 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
 
                 fileName = Path.Combine(tmpFolder, "files_" + folderName + ".zip");
 
+                int folderOffset = ctx.Server.MapPath("~").Length;
+                compress = (s) => compressFolder(path, s, folderOffset);
+            }
+
+            if (compress != null)
+            {
                 using (var zipFile = File.Create(fileName))
                 {
                     using (var zipStream = new ZipOutputStream(zipFile))
                     {
                         zipStream.SetLevel(3);
 
-                        int folderOffset = ctx.Server.MapPath("~").Length;
-
-                        compressFolder(path, zipStream, folderOffset);
+                        compress(zipStream);
 
                         zipStream.IsStreamOwner = true;
                     }
                 }
+
+                using (var zipFile = File.OpenRead(fileName))
+                {
+                    ctx.Response.Clear();
+
+                    ctx.Response.AddHeader("Content-Disposition", "filename=" + folderName + ".zip");
+                    ctx.Response.AddHeader("Content-Length", zipFile.Length.ToString());
+                    ctx.Response.AddHeader("Content-Type", "application/zip");
+
+                    zipFile.CopyTo(ctx.Response.OutputStream);
+                }
+
+                File.Delete(fileName);
             }
-
-            using (var zipFile = File.OpenRead(fileName))
-            {
-                ctx.Response.Clear();
-
-                ctx.Response.AddHeader("Content-Disposition", "filename=" + folderName + ".zip");
-                ctx.Response.AddHeader("Content-Length", zipFile.Length.ToString());
-                ctx.Response.AddHeader("Content-Type", "application/zip");
-
-                zipFile.CopyTo(ctx.Response.OutputStream);
-            }
-
-            File.Delete(fileName);
         }
 
-        private void compressFolder(string path, ZipOutputStream zipStream, int folderOffset)
+        private static void compressFolder(string path, ZipOutputStream zipStream, int folderOffset)
         {
             string[] files = Directory.GetFiles(path);
-
             foreach (string filename in files)
             {
                 if (filename.StartsWith(tmpFolder))
@@ -155,7 +150,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
             }
         }
 
-        private void compressMediaFiles(IEnumerable<IMediaFile> files, ZipOutputStream zipStream, int folderOffset)
+        private static void compressMediaFiles(IEnumerable<IMediaFile> files, ZipOutputStream zipStream)
         {
             foreach (var file in files)
             {
