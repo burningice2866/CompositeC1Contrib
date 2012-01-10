@@ -6,5 +6,5 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="/configuration/Composite.C1Console.Elements.Plugins.ElementActionProviderConfiguration/ElementActionProviderPlugins/add[@name='CompositeC1Contrib.MediaArchiveDownloader']" />
+  <xsl:template match="/configuration/Composite.C1Console.Elements.Plugins.ElementActionProviderConfiguration/ElementActionProviderPlugins/add[@name='CompositeC1Contrib.DownloadFoldersAsZip']" />
 </xsl:stylesheet>

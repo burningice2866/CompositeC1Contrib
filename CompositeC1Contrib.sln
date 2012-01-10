@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormBuilder", "FormBuilder\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserControlFunctions", "UserControlFunctions\UserControlFunctions.csproj", "{C994D3CE-26C6-43C2-BEE0-F266B2E0C276}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaArchiveDownloader", "MediaArchiveDownloader\MediaArchiveDownloader.csproj", "{4BA9FA0F-4E1A-43D9-A383-CB54FF035A55}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadFoldersAsZip", "DownloadFoldersAsZip\DownloadFoldersAsZip.csproj", "{4BA9FA0F-4E1A-43D9-A383-CB54FF035A55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -10,8 +10,8 @@
     <xsl:copy>
       <xsl:apply-templates select="@* | node()" />
       
-      <xsl:if test="count(add[@name='CompositeC1Contrib.Sorting'])=0">
-        <add name="CompositeC1Contrib.MediaArchiveDownloader" type="CompositeC1Contrib.MediaArchiveDownloader.ActionProvider, CompositeC1Contrib.MediaArchiveDownloader" />
+      <xsl:if test="count(add[@name='CompositeC1Contrib.DownloadFilesAsZip'])=0">
+        <add name="CompositeC1Contrib.DownloadFoldersAsZip" type="CompositeC1Contrib.DownloadFoldersAsZip.ActionProvider, CompositeC1Contrib.DownloadFoldersAsZip" />
       </xsl:if>
     </xsl:copy>
   </xsl:template>

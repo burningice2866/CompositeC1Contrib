@@ -3,7 +3,7 @@
 using Composite.C1Console.Actions;
 using Composite.C1Console.Security;
 
-namespace CompositeC1Contrib.MediaArchiveDownloader
+namespace CompositeC1Contrib.DownloadFoldersAsZip
 {
     [ActionExecutor(typeof(DownloadActionExecutor))]
     public class DownloadArchiveActionToken : ActionToken

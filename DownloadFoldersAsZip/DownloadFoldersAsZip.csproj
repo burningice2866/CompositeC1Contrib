@@ -8,8 +8,8 @@
     <ProjectGuid>{4BA9FA0F-4E1A-43D9-A383-CB54FF035A55}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CompositeC1Contrib.MediaArchiveDownloader</RootNamespace>
-    <AssemblyName>CompositeC1Contrib.MediaArchiveDownloader</AssemblyName>
+    <RootNamespace>CompositeC1Contrib.DownloadFoldersAsZip</RootNamespace>
+    <AssemblyName>CompositeC1Contrib.DownloadFoldersAsZip</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -53,10 +53,11 @@
   <ItemGroup>
     <Compile Include="DownloadArchiveActionToken.cs" />
     <Compile Include="DownloadActionExecutor.cs" />
-    <Compile Include="DownloadFolderActionToken.cs" />
+    <Compile Include="DownloadFileFolderActionToken.cs" />
+    <Compile Include="DownloadMediaFolderActionToken.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ActionProvider.cs" />
-    <Compile Include="Web\DownloadFolderHandler.cs" />
+    <Compile Include="Web\GenerateZipHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\Config\composite.config\install.xsl">
@@ -66,10 +67,9 @@
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Package\Config\web.config\install.xsl">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Package\Config\web.config\uninstall.xsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Package\Composite\InstalledPackages\CmpositeC1Contrib.DownloadFoldersAsZip\generateZip.ashx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

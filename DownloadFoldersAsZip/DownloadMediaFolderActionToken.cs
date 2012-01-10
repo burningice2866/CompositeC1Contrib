@@ -6,10 +6,10 @@ using Composite.C1Console.Security;
 using Composite.Data;
 using Composite.Data.Types;
 
-namespace CompositeC1Contrib.MediaArchiveDownloader
+namespace CompositeC1Contrib.DownloadFoldersAsZip
 {
     [ActionExecutor(typeof(DownloadActionExecutor))]
-    public class DownloadFolderActionToken : ActionToken
+    public class DownloadMediaFolderActionToken : ActionToken
     {
         private IMediaFileFolder _folder;
         public IMediaFileFolder MediaFileFolder
@@ -27,7 +27,7 @@ namespace CompositeC1Contrib.MediaArchiveDownloader
             get { return false; }
         }
 
-        public DownloadFolderActionToken(IMediaFileFolder folder)
+        public DownloadMediaFolderActionToken(IMediaFileFolder folder)
         {
             _folder = folder;
         }
@@ -42,8 +42,8 @@ namespace CompositeC1Contrib.MediaArchiveDownloader
             using (var data = new DataConnection())
             {
                 var folder = data.Get<IMediaFileFolder>().Single(f => f.KeyPath == serialiedWorkflowActionToken);
-            
-                return new DownloadFolderActionToken(folder);
+
+                return new DownloadMediaFolderActionToken(folder);
             }
         }
     }
