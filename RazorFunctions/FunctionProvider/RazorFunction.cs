@@ -109,7 +109,17 @@ namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
         {
             var webPage = WebPage.CreateInstanceFromVirtualPath(_relativeFilePath);
 
-            var httpContext = new HttpContextWrapper(HttpContext.Current);
+            HttpContextBase httpContext;
+
+            if (HttpContext.Current == null)
+            {
+                httpContext = new NoHttpRazorContext();
+            }
+            else
+            {
+                httpContext = new HttpContextWrapper(HttpContext.Current);
+            }
+            
             var pageContext = new WebPageContext(httpContext, webPage, null);
 
             foreach (var param in parameters.AllParameterNames)

@@ -8,14 +8,10 @@ namespace CompositeC1Contrib.RazorFunctions
 {
     public class CompositeC1RazorHost : WebPageRazorHost
     {
-        public CompositeC1RazorHost(string virtualPath)
-            : base(virtualPath)
-        {
-        }
-
         public CompositeC1RazorHost(string virtualPath, string physicalPath)
             : base(virtualPath, physicalPath)
         {
+            this.DefaultPageBaseClass = typeof(CompositeC1WebPage).FullName;
         }
 
         public override RazorCodeGenerator DecorateCodeGenerator(RazorCodeGenerator incomingCodeGenerator)

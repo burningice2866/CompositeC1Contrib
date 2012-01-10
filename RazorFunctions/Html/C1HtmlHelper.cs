@@ -34,12 +34,7 @@ namespace CompositeC1Contrib.RazorFunctions.Html
             return PageUrl(page.Id.ToString(), querystring);
         }
 
-        public IHtmlString PageUrl(string id)
-        {
-            return PageUrl(id, null);
-        }
-
-        public IHtmlString PageUrl(string id, object querystring)
+        public IHtmlString PageUrl(string id, object querystring = null)
         {
             return PageUrl(id, Functions.ObjectToDictionary(querystring));
         }
@@ -72,12 +67,7 @@ namespace CompositeC1Contrib.RazorFunctions.Html
             return MediaUrl(mediaFile.KeyPath, querystring);
         }
 
-        public IHtmlString MediaUrl(Guid id)
-        {
-            return MediaUrl(id.ToString(), null);
-        }
-
-        public IHtmlString MediaUrl(Guid id, object querystring)
+        public IHtmlString MediaUrl(Guid id, object querystring = null)
         {
             return MediaUrl(id.ToString(), querystring);
         }
@@ -87,12 +77,7 @@ namespace CompositeC1Contrib.RazorFunctions.Html
             return MediaUrl(id.ToString(), querystring);
         }
 
-        public IHtmlString MediaUrl(string keyPath)
-        {
-            return MediaUrl(keyPath, null);
-        }
-
-        public IHtmlString MediaUrl(string keyPath, object querystring)
+        public IHtmlString MediaUrl(string keyPath, object querystring = null)
         {
             return MediaUrl(keyPath, Functions.ObjectToDictionary(querystring));
         }       

@@ -71,6 +71,8 @@
     <Compile Include="CompositeC1RazorBuildProvider.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="Html\HtmlHelperExtensions.cs" />
+    <Compile Include="NoHttpRazorContext.cs" />
+    <Compile Include="NoHttpRazorRequest.cs" />
     <Compile Include="Parser\CompositeC1CSharpRazorCodeGenerator.cs" />
     <Compile Include="Parser\CompositeC1CSharpCodeParser.cs" />
     <Compile Include="Parser\FunctionReturnTypeAttribute.cs" />
