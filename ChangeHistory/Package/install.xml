@@ -6,11 +6,13 @@
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.ChangeHistory" 
                          groupName="Contribution.CompositeC1Contrib" 
                          version="1.2.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="b6bfea9b-df31-4063-848b-d9302a144fd5" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 
                          flushOnCompletion="false">
     <Description>Adds the same changehistory fields to datatypes as pages has</Description>
+		<TechicalDetails>Adds the same changehistory fields to datatypes as pages has</TechicalDetails>
   </mi:PackageInformation>
   
   <mi:PackageFragmentInstallers>

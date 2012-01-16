@@ -6,11 +6,13 @@
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.DownloadFoldersAsZip" 
                          groupName="Contribution.CompositeC1Contrib" 
                          version="1.0.1" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="b7bb2faa-8833-4e6e-9b15-c7e74406eff8" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 
                          flushOnCompletion="false">
     <Description>Enables downloading of folders from Media Archives or Filesystem via context menu in the Console.</Description>
+		<TechicalDetails>Enables downloading of folders from Media Archives or Filesystem via context menu in the Console.</TechicalDetails>
   </mi:PackageInformation>
   
   <mi:PackageFragmentInstallers>

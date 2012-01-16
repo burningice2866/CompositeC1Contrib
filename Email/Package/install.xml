@@ -6,11 +6,13 @@
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.Email" 
                          groupName="Contribution.CompositeC1Contrib" 
                          version="0.3.2" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="b1be3dc0-74d1-47b7-998a-07d100020e34" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 
                          flushOnCompletion="false">
     <Description>Centralized email management, queues etc.</Description>
+		<TechicalDetails>Centralized email management, queues etc.</TechicalDetails>
   </mi:PackageInformation>
   
   <mi:PackageFragmentInstallers>

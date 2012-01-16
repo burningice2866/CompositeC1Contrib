@@ -6,11 +6,13 @@
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.Renderings.MasterPage" 
                          groupName="Contribution" 
                          version="1.3.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         readMoreUrl="http://docs.composite.net/Contribution.CompositeC1Contrib.Core"
                          id="f7df8729-9f22-43b5-ba35-c67abb5449cf" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 
                          flushOnCompletion="false">
     <Description>Enables masterpages to be used for rendering side-by-side with the default Xml based templates.</Description>
+		<TechicalDetails>Enables masterpages to be used for rendering side-by-side with the default Xml based templates.</TechicalDetails>
   </mi:PackageInformation>
    
   <mi:PackageFragmentInstallers>

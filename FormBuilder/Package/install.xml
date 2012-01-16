@@ -6,11 +6,13 @@
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.FormBuilder" 
                          groupName="Contribution" 
                          version="0.2" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="ddae5f9b-32c8-45ef-9144-5155c1e6d0b4" 
                          canBeUninstalled="true" 
                          systemLocking="hard" 
                          flushOnCompletion="true">
     <Description>Generic formbuilder functionality where both dynamic and static types can be used as Form Fields</Description>
+		<TechicalDetails>Generic formbuilder functionality where both dynamic and static types can be used as Form Fields</TechicalDetails>
   </mi:PackageInformation>
   
   <mi:PackageFragmentInstallers>
