@@ -6,5 +6,5 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="/configuration/Composite.Functions.Plugins.FunctionProviderConfiguration/FunctionProviderPlugins/add[@name='CompositeC1Contrib.RazorFunctions']" />
+  <xsl:template match="/configuration/Composite.Functions.Plugins.FunctionProviderConfiguration/FunctionProviderPlugins/add[@name='CompositeC1Contrib.UserControlFunctions']" />
 </xsl:stylesheet>

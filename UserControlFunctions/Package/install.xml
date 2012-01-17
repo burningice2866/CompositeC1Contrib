@@ -5,7 +5,7 @@
 
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.UserControlFunctions"
                          groupName="Contribution"
-                         version="1.0.1" author="@burningice" website="http://compositec1contrib.codeplex.com"
+                         version="1.0.2" author="@burningice" website="http://compositec1contrib.codeplex.com"
                          readMoreUrl="http://docs.composite.net/Contribution.CompositeC1Contrib.UserControlFunctions"
                          id="8df7f37e-baae-4781-940c-0aa74f23c264"
                          canBeUninstalled="true"
