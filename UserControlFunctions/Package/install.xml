@@ -5,7 +5,7 @@
 
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.UserControlFunctions"
                          groupName="Contribution"
-                         version="1.0.2" author="@burningice" website="http://compositec1contrib.codeplex.com"
+                         version="1.1" author="@burningice" website="http://compositec1contrib.codeplex.com"
                          readMoreUrl="http://docs.composite.net/Contribution.CompositeC1Contrib.UserControlFunctions"
                          id="8df7f37e-baae-4781-940c-0aa74f23c264"
                          canBeUninstalled="true"
@@ -21,6 +21,10 @@
         <File sourceFilename="~\Bin\CompositeC1Contrib.Core.dll" targetFilename="~\Bin\CompositeC1Contrib.Core.dll" allowOverwrite="true" />
         <File sourceFilename="~\Bin\CompositeC1Contrib.UserControlFunctions.dll" targetFilename="~\Bin\CompositeC1Contrib.UserControlFunctions.dll" allowOverwrite="true" />
       </Files>
+
+      <Directories>
+        <Directory sourceDirectory="~\App_Data\UserControl\" targetDirectory="~\App_Data\UserControl" allowOverwrite="true" deleteTargetDirectory="false" />
+      </Directories>
     </mi:Add>
 
     <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FileXslTransformationPackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FileXslTransformationPackageFragmentUninstaller, Composite">
