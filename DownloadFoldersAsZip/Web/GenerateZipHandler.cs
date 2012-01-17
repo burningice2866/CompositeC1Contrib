@@ -14,8 +14,6 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
 {
     public class GenerateZipHandler : IHttpHandler
     {
-        static string tmpFolder = HostingEnvironment.MapPath("~/App_Data/Composite/Temp/DownloadFilesAsZip");
-
         public bool IsReusable
         {
             get { return true; }
@@ -24,11 +22,6 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
         public void ProcessRequest(HttpContext ctx)
         {
             Action<ZipOutputStream> compress = null;
-
-            if (!Directory.Exists(tmpFolder))
-            {
-                Directory.CreateDirectory(tmpFolder);
-            }
 
             var mode = ctx.Request.QueryString["mode"];
 
@@ -50,14 +43,14 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
                         files = data.Get<IMediaFile>().Where(f => f.StoreId == folder.StoreId && f.FolderPath.StartsWith(folder.Path));
 
                         folderName = folder.Path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Last();
-                        fileName = Path.Combine(tmpFolder, folder.StoreId + "_" + folder.Id + ".zip");
+                        fileName = folder.StoreId + "_" + folder.Id + ".zip";
                     }
                     else if (!String.IsNullOrEmpty(archive))
                     {
                         files = data.Get<IMediaFile>().Where(f => f.StoreId == archive);
 
                         folderName = archive;
-                        fileName = Path.Combine(tmpFolder, "archive_" + archive + ".zip");
+                        fileName = "archive_" + archive + ".zip";
                     }
                 }
 
@@ -73,7 +66,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
                     folderName = "root";
                 }
 
-                fileName = Path.Combine(tmpFolder, "files_" + folderName + ".zip");
+                fileName = "files_" + folderName + ".zip";
 
                 int folderOffset = ctx.Server.MapPath("~").Length;
                 compress = (s) => compressFolder(path, s, folderOffset);
@@ -81,30 +74,19 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
 
             if (compress != null)
             {
-                using (var zipFile = File.Create(fileName))
-                {
-                    using (var zipStream = new ZipOutputStream(zipFile))
-                    {
-                        zipStream.SetLevel(3);
-
-                        compress(zipStream);
-
-                        zipStream.IsStreamOwner = true;
-                    }
-                }
-
-                using (var zipFile = File.OpenRead(fileName))
+                using (var zipStream = new ZipOutputStream(ctx.Response.OutputStream))
                 {
                     ctx.Response.Clear();
-
-                    ctx.Response.AddHeader("Content-Disposition", "filename=" + folderName + ".zip");
-                    ctx.Response.AddHeader("Content-Length", zipFile.Length.ToString());
+                    ctx.Response.BufferOutput = false;
+                    ctx.Response.AddHeader("Content-Disposition", "attachment; filename=" + folderName + ".zip");
                     ctx.Response.AddHeader("Content-Type", "application/zip");
 
-                    zipFile.CopyTo(ctx.Response.OutputStream);
-                }
+                    zipStream.SetLevel(3);
 
-                File.Delete(fileName);
+                    compress(zipStream);
+
+                    ctx.Response.Flush();
+                 }
             }
         }
 
@@ -113,11 +95,6 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
             string[] files = Directory.GetFiles(path);
             foreach (string filename in files)
             {
-                if (filename.StartsWith(tmpFolder))
-                {
-                    continue;
-                }
-
                 try
                 {
                     using (var streamReader = File.OpenRead(filename))
@@ -140,7 +117,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
                         zipStream.CloseEntry();
                     }
                 }
-                catch (IOException) { }                
+                catch (IOException) { }
             }
 
             var folders = Directory.GetDirectories(path);
