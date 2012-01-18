@@ -5,7 +5,7 @@
 
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.RazorFunctions"
                          groupName="Contribution"
-                         version="1.1.0" author="@burningice" website="http://compositec1contrib.codeplex.com"
+                         version="1.1.1" author="@burningice" website="http://compositec1contrib.codeplex.com"
                          readMoreUrl="http://docs.composite.net/Contribution.CompositeC1Contrib.RazorFunctions"
                          id="fe766396-6349-4219-a21f-5cc302630d1f"
                          canBeUninstalled="true"

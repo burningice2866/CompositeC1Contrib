@@ -36,10 +36,12 @@ namespace CompositeC1Contrib.RazorFunctions.Html
 
         public IHtmlString PageUrl(string id, object querystring = null)
         {
-            return PageUrl(id, Functions.ObjectToDictionary(querystring));
+            var dict = Functions.ObjectToDictionary(querystring);
+
+            return PageUrl(id, dict);
         }
 
-        public IHtmlString PageUrl(string id, IDictionary<string, string> querystring)
+        public IHtmlString PageUrl(string id, IDictionary<string, object> querystring)
         {
             string relativeUrl = "~/page(" + id + ")";
             string absoulteUrl = VirtualPathUtility.ToAbsolute(relativeUrl);
@@ -79,10 +81,12 @@ namespace CompositeC1Contrib.RazorFunctions.Html
 
         public IHtmlString MediaUrl(string keyPath, object querystring = null)
         {
-            return MediaUrl(keyPath, Functions.ObjectToDictionary(querystring));
-        }       
+            var dict = Functions.ObjectToDictionary(querystring);
 
-        public IHtmlString MediaUrl(string keyPath, IDictionary<string, string> querystring)
+            return MediaUrl(keyPath, dict);
+        }
+
+        public IHtmlString MediaUrl(string keyPath, IDictionary<string, object> querystring)
         {
             string relativeUrl = "~/media(" + keyPath + ")";
             string absoulteUrl = VirtualPathUtility.ToAbsolute(relativeUrl);
