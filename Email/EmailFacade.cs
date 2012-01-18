@@ -21,7 +21,7 @@ namespace CompositeC1Contrib.Email
             }
         }
 
-        public static IEmailMessage SendMessage(string queueName, MailMessage mailMessage)
+        public static IEmailMessage EnqueueMessage(string queueName, MailMessage mailMessage)
         {
             using (var data = new DataConnection(PublicationScope.Unpublished))
             {
@@ -29,6 +29,11 @@ namespace CompositeC1Contrib.Email
                 if (queue == null)
                 {
                     throw new ArgumentException("Unknown queue name", "queueName");
+                }
+
+                if (mailMessage.From == null)
+                {
+                    mailMessage.From = new MailAddress(queue.From);
                 }
 
                 var message = data.CreateNew<IEmailMessage>();
