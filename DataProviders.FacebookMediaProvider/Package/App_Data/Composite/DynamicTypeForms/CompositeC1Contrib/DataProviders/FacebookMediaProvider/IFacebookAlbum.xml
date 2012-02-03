@@ -1,0 +1,33 @@
+﻿<cms:formdefinition xmlns:cms="http://www.composite.net/ns/management/bindingforms/1.0" xmlns="http://www.composite.net/ns/management/bindingforms/std.ui.controls.lib/1.0" xmlns:f="http://www.composite.net/ns/management/bindingforms/std.function.lib/1.0">
+  <cms:bindings>
+    <cms:binding name="AlbumId" type="System.String" optional="true" />
+    <cms:binding name="Title" type="System.String" optional="true" />
+    <cms:binding name="AccessToken" type="System.String" optional="true" />    
+  </cms:bindings>
+  
+  <cms:layout>
+    <cms:layout.label>
+      <cms:read source="Title" />
+    </cms:layout.label>
+
+    <FieldGroup Label="Settings">
+      <TextBox Label="AlbumId" Help="">
+        <TextBox.Text>
+          <cms:bind source="AlbumId" />
+        </TextBox.Text>
+      </TextBox>
+
+      <TextBox Label="Title" Help="">
+        <TextBox.Text>
+          <cms:bind source="Title" />
+        </TextBox.Text>
+      </TextBox>
+
+      <TextBox Label="AccessToken" Help="">
+        <TextBox.Text>
+          <cms:bind source="AccessToken" />
+        </TextBox.Text>
+      </TextBox>
+    </FieldGroup>
+  </cms:layout>
+</cms:formdefinition>
