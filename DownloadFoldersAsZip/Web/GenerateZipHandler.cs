@@ -86,7 +86,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
                     compress(zipStream);
 
                     ctx.Response.Flush();
-                 }
+                }
             }
         }
 
@@ -137,14 +137,60 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
                 var newEntry = new ZipEntry(entryName)
                 {
                     DateTime = file.LastWriteTime.Value,
-                    Size = file.Length.Value
                 };
 
-                zipStream.PutNextEntry(newEntry);
-
-                using (var readStream = file.GetReadStream())
+                Stream readStream = null;
+                try
                 {
+                    readStream = file.GetReadStream();
+
+                    if (file.Length == null)
+                    {
+                        try
+                        {
+                            newEntry.Size = readStream.Length;
+                        }
+                        catch
+                        {
+                            Stream ms = null;
+                            try
+                            {
+                                ms = new MemoryStream(); ;
+
+                                using (readStream)
+                                {
+                                    readStream.CopyTo(ms, 4096);
+                                    newEntry.Size = ms.Length;
+                                }
+
+                                ms.Seek(0, SeekOrigin.Begin);
+                                readStream = ms;
+                            }
+                            catch
+                            {
+                                if (ms != null)
+                                {
+                                    ms.Dispose();
+                                }
+
+                                throw;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        newEntry.Size = file.Length.Value;
+                    }
+
+                    zipStream.PutNextEntry(newEntry);
                     readStream.CopyTo(zipStream, 4096);
+                }
+                finally
+                {
+                    if (readStream != null)
+                    {
+                        readStream.Dispose();
+                    }
                 }
 
                 zipStream.CloseEntry();

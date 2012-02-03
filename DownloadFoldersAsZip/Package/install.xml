@@ -5,7 +5,7 @@
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.DownloadFoldersAsZip" 
                          groupName="Contribution.CompositeC1Contrib" 
-                         version="1.1.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="1.1.2" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="b7bb2faa-8833-4e6e-9b15-c7e74406eff8" 
                          canBeUninstalled="true" 
