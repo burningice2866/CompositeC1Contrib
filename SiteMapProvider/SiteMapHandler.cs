@@ -59,7 +59,7 @@ namespace CompositeC1Contrib.Web
             _writer.WriteStartElement("url");
 
             _writer.WriteStartElement("loc");
-            _writer.WriteString(String.Format("{0}://{1}{2}", _ctx.Request.Url.Scheme, _ctx.Request.Url.Host, HttpUtility.HtmlEncode(node.Url)));
+            _writer.WriteString(String.Format("{0}://{1}{2}", _ctx.Request.Url.Scheme, _ctx.Request.Url.Host, node.Url));
             _writer.WriteEndElement();
 
             var baseNode = node as BaseSiteMapNode;

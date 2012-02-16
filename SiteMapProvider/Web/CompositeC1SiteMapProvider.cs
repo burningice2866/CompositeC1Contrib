@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Web;
 
-using Composite.C1Console.Security;
 using Composite.Core.Routing;
 using Composite.Data;
 using Composite.Data.Types;
@@ -18,22 +17,36 @@ namespace CompositeC1Contrib.Web
         {
             get
             {
-                if ((HttpContext.Current.Request.Url.LocalPath.IndexOf("/c1mode(unpublished)") > -1 && UserValidationFacade.IsLoggedIn())
-                    || RequestInfo.Current.IsPreview)
+                var overridenContext = SiteMapContext.OverrideContext;
+                if (overridenContext != null)
                 {
-                    return PublicationScope.Unpublished;
+                    return overridenContext.PublicationScope;
                 }
 
-                return PublicationScope.Published;
+                return DataScopeManager.CurrentDataScope.ToPublicationScope();
             }
         }
 
         protected override bool CanCache
         {
-            get { return PublicationScope == PublicationScope.Published; }
+            get
+            {
+                var scope = DataScopeManager.CurrentDataScope.ToPublicationScope();
+                if (scope == PublicationScope.Unpublished)
+                {
+                    return false;
         }
 
-        protected override string GetCurrentKey()
+                return true;
+            }
+        }
+
+        protected override string GetRequestKey()
+        {
+            return PublicationScope.ToString();
+        }
+
+        protected override string GetCurrentNodeKey()
         {
             return SitemapNavigator.CurrentPageId.ToString();
         }
@@ -44,6 +57,16 @@ namespace CompositeC1Contrib.Web
             if (ci == null)
             {
                 ci = DataLocalizationFacade.DefaultLocalizationCulture;
+            }
+
+            var overridenContext = SiteMapContext.OverrideContext;
+            if (overridenContext != null)
+            {
+                var url = HttpContext.Current.Request.Url;
+                if (overridenContext.Host != url.Host)
+                {
+                    rawUrl = url.Scheme + "://" + overridenContext.Host + rawUrl;
+                }
             }
 
             var node = base.FindSiteMapNode(rawUrl, ci) as CompositeC1SiteMapNode;
@@ -141,8 +164,14 @@ namespace CompositeC1Contrib.Web
                 {
                     var newHost = new Uri(publicUrl).Host;
 
-                    return new Uri(uri.ToString().Replace(uri.Host, newHost));
+                    uri = new Uri(uri.ToString().Replace(uri.Host, newHost));
                 }
+            }
+
+            var overridenContext = SiteMapContext.OverrideContext;
+            if (overridenContext != null)
+            {
+                uri = new Uri(uri.ToString().Replace(uri.Host, overridenContext.Host));
             }
 
             return uri;            

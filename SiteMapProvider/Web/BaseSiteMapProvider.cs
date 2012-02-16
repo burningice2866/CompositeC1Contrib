@@ -65,7 +65,7 @@ namespace CompositeC1Contrib.Web
 
         public override SiteMapNode FindSiteMapNode(HttpContext ctx)
         {
-            string key = GetCurrentKey();
+            string key = GetCurrentNodeKey();
 
             return FindSiteMapNodeFromKey(key);
         }
@@ -298,7 +298,7 @@ namespace CompositeC1Contrib.Web
         private IDictionary<CultureInfo, SiteMapContainer> loadFromCache(string host)
         {
             var ctx = HttpContext.Current;
-            var key = _key + host;
+            var key = _key + host + GetRequestKey();
 
             var container = ctx.Items[key] as IDictionary<CultureInfo, SiteMapContainer>;
             if (container == null)
@@ -318,7 +318,7 @@ namespace CompositeC1Contrib.Web
         private void addToCache(IDictionary<CultureInfo, SiteMapContainer> container, string host)
         {
             var ctx = HttpContext.Current;
-            var key = _key + host;
+            var key = _key + host + GetRequestKey();
 
             ctx.Items[key] = container;
 
@@ -329,7 +329,8 @@ namespace CompositeC1Contrib.Web
             }
         }
 
-        protected abstract string GetCurrentKey();
+        protected abstract string GetRequestKey();
+        protected abstract string GetCurrentNodeKey();
         protected abstract Uri ProcessUrl(Uri uri);
         protected abstract void LoadSiteMapInternal(IDictionary<CultureInfo, SiteMapContainer> list, string host);
         protected abstract void AddRolesInternal(IDictionary<CultureInfo, SiteMapContainer> list);        
