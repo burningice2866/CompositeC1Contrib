@@ -73,9 +73,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
+    <Compile Include="PackageFragmentInstallers\TransformXmlPackageFragmentUninstaller.cs" />
     <Compile Include="FunctionProvider\FunctionDescriptionAttribute.cs" />
     <Compile Include="FunctionProvider\FunctionParameterAttribute.cs" />
     <Compile Include="FunctionProvider\FunctionParameterHolder.cs" />
+    <Compile Include="PackageFragmentInstallers\TransformXmlPackageFragmentInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ToggleSuperInterfaceActionExecutor.cs" />
     <Compile Include="ToggleSuperInterfaceActionToken.cs" />
@@ -90,6 +92,7 @@
     <Compile Include="Web\Security\IMembershipUser.cs" />
     <Compile Include="Web\Security\LoginProviderHelper.cs" />
     <Compile Include="Web\UrlUtils.cs" />
+    <Compile Include="XElementExtensions.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

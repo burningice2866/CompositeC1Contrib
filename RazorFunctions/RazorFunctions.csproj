@@ -89,24 +89,22 @@
     <Compile Include="Parser\SyntaxTree\TemplateParsingException.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Package\Config\composite.config\install.xsl">
+    <None Include="Package\config\App_Data\Composite\composite.config">
       <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Package\Config\composite.config\uninstall.xsl" />
-    <Content Include="Package\Config\web.config\install.xsl" />
-    <Content Include="Package\Config\web.config\uninstall.xsl" />
+    </None>
+    <None Include="Package\config\web.config" />
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Package\App_Data\Razor\Examples\ColorCube.cshtml" />
-    <None Include="Package\App_Data\Razor\Examples\Navigation\Breadcrumb.cshtml" />
-    <None Include="Package\App_Data\Razor\Examples\ExecuteOtherFunctions.cshtml" />
-    <None Include="Package\App_Data\Razor\Examples\Navigation\Sitemap.cshtml" />
-    <None Include="Package\App_Data\Razor\Examples\Navigation\Subnavigation.cshtml" />
-    <None Include="Package\App_Data\Razor\Examples\Navigation\Topnavigation.cshtml" />
-    <None Include="Package\App_Data\Razor\web.config" />
+    <None Include="Package\content\App_Data\Razor\Examples\ColorCube.cshtml" />
+    <None Include="Package\content\App_Data\Razor\Examples\Navigation\Breadcrumb.cshtml" />
+    <None Include="Package\content\App_Data\Razor\Examples\ExecuteOtherFunctions.cshtml" />
+    <None Include="Package\content\App_Data\Razor\Examples\Navigation\Sitemap.cshtml" />
+    <None Include="Package\content\App_Data\Razor\Examples\Navigation\Subnavigation.cshtml" />
+    <None Include="Package\content\App_Data\Razor\Examples\Navigation\Topnavigation.cshtml" />
+    <None Include="Package\content\App_Data\Razor\web.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
