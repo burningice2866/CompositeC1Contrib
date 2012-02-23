@@ -49,6 +49,8 @@ namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
         {
             get
             {
+                yield return new ParameterProfile("ID", typeof(string), false, new ConstantValueProvider(null), StandardWidgetFunctions.TextBoxWidget, "ID", new HelpDefinition("Enter ID you want to assign to the UserControl"));
+
                 if (_parameters != null)
                 {
                     foreach (var param in _parameters.Values)
@@ -109,7 +111,14 @@ namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
                 {
                     var value = parameters.GetParameter(param);
 
-                    _parameters[param].SetValue(control, value);
+                    if (param == "ID")
+                    {
+                        control.ID = (string)value;
+                    }
+                    else
+                    {
+                        _parameters[param].SetValue(control, value);
+                    }
                 }
 
                 return control;

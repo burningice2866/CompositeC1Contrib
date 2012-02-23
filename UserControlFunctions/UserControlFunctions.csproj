@@ -47,7 +47,7 @@
     <Compile Include="FunctionProvider\PopulateUserControlParametersContext.cs" />
     <Compile Include="FunctionProvider\UserControlFunction.cs" />
     <Compile Include="FunctionProvider\UserControlFunctionProvider.cs" />
-    <Compile Include="Package\App_Data\UserControl\Examples\HelloWorld.ascx.cs">
+    <Compile Include="Package\content\App_Data\UserControl\Examples\HelloWorld.ascx.cs">
       <DependentUpon>HelloWorld.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -56,20 +56,15 @@
     <Compile Include="Security\StandardFunctionSecurityAncestorProvider.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Package\App_Data\UserControl\Examples\HelloWorld.ascx">
-      <SubType>ASPXCodeBehind</SubType>
-    </Content>
-    <Content Include="Package\Config\composite.config\install.xsl">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Package\Config\composite.config\uninstall.xsl" />
-    <Content Include="Package\Config\web.config\install.xsl" />
-    <Content Include="Package\Config\web.config\uninstall.xsl" />
+    <Content Include="Package\content\App_Data\UserControl\Examples\HelloWorld.ascx" />
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Package\config\App_Data\composite.config" />
+    <None Include="Package\config\web.config" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{1E76E3BE-F575-4E2D-A791-8A0EDA53C1B2}</Project>

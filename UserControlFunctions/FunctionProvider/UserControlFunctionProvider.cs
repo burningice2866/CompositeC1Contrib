@@ -84,7 +84,7 @@ namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
                         continue;
                     }
 
-                    var parameters = getParameters(control).ToDictionary(p => p.Name);
+                    var parameters = getParameters(control);
                     var description = getDescription(control);
 
                     var razorFunction = new UserControlFunction(ns, name, description, parameters, relativeFilePath);
@@ -92,7 +92,7 @@ namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
                     _functionCache[relativeFilePath] = razorFunction;
 
                     returnList.Add(razorFunction);
-                    
+
                 }
 
                 return returnList;
@@ -147,8 +147,10 @@ namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
             return "A UserControl function";
         }
 
-        private IEnumerable<FunctionParameterHolder> getParameters(UserControl control)
+        private IDictionary<string, FunctionParameterHolder> getParameters(UserControl control)
         {
+            var dict = new Dictionary<string, FunctionParameterHolder>();
+
             var type = control.GetType();
             while (type != typeof(UserControl))
             {
@@ -157,12 +159,18 @@ namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
                 {
                     var propType = prop.PropertyType;
                     var att = prop.GetCustomAttributes(typeof(FunctionParameterAttribute), false).Cast<FunctionParameterAttribute>().FirstOrDefault();
+                    var name = prop.Name;
 
-                    yield return new FunctionParameterHolder(prop.Name, propType, att);
+                    if (!dict.ContainsKey(name))
+                    {
+                        dict.Add(name, new FunctionParameterHolder(name, propType, att));
+                    }
                 }
 
                 type = type.BaseType;
-            }            
+            }
+
+            return dict;
         }
     }
 }
