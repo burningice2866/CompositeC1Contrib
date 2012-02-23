@@ -6,8 +6,15 @@ namespace CompositeC1Contrib.Web.UI.F
     public class Param : Control, IParserAccessor
     {
         public string Name { get; set; }
-
         public FunctionParameterValue Value { get; private set; }
+
+        public Param() { }
+
+        public Param(string name, object value)
+        {
+            Name = name;
+            Value = new FunctionParameterValue(value);
+        }
 
         protected override void AddParsedSubObject(object obj)
         {

@@ -34,10 +34,8 @@ namespace CompositeC1Contrib.Web.UI.F
             }
         }
 
-        protected override void OnPreRender(EventArgs e)
+        protected override void OnInit(EventArgs e)
         {
-            this.DataBind();
-
             IFunction function;
             if (!FunctionFacade.TryGetFunction(out function, Name))
             {
@@ -53,7 +51,7 @@ namespace CompositeC1Contrib.Web.UI.F
 
                 Controls.Add(markup);
             }
-            else if (function.ReturnType == typeof(Control))
+            else if (typeof(Control).IsAssignableFrom(function.ReturnType))
             {
                 var control = (Control)result;
 
@@ -66,7 +64,7 @@ namespace CompositeC1Contrib.Web.UI.F
                 Controls.Add(new LiteralControl(str));
             }
 
-            base.OnPreRender(e);
+            base.OnInit(e);
         }
 
         private IDictionary<string, object> parseParameters()

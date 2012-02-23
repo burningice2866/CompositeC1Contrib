@@ -37,9 +37,9 @@ namespace CompositeC1Contrib.Web.UI.F
         {
             if (destinationType == typeof(InstanceDescriptor))
             {
-                var ci = typeof(FunctionParameterValue).GetConstructor(new[] { typeof(object) });
+                var ctor = typeof(FunctionParameterValue).GetConstructor(new[] { typeof(object) });
 
-                return new InstanceDescriptor(ci, new[] { ((FunctionParameterValue)value).Value });
+                return new InstanceDescriptor(ctor, new[] { ((FunctionParameterValue)value).Value });
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
