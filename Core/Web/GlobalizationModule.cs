@@ -20,7 +20,7 @@ namespace CompositeC1Contrib.Web
         {
             var ci = CultureInfo.CurrentCulture;
 
-            ResolveCultureByPage();
+            ci = ResolveCultureByPage();
 
             if (ci != null)
             {
@@ -43,13 +43,6 @@ namespace CompositeC1Contrib.Web
                 else
                 {
                     culture = path;
-                }
-
-                switch (culture)
-                {
-                    case "en": culture = "en-US"; break;
-                    case "kl": culture = "kl-GL"; break;
-                    case "da": culture = "da-DK"; break;
                 }
             }
             catch (ArgumentOutOfRangeException) { }

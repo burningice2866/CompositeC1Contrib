@@ -40,10 +40,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -65,13 +61,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Package\Config\install.xsl" />
-    <Content Include="Package\Config\uninstall.xsl" />
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Package\config\web.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)CompositeC1Contrib.Core.dll" "$(ProjectDir)Package\Bin\CompositeC1Contrib.Core.dll"

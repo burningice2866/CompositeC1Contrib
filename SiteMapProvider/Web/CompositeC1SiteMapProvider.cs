@@ -59,16 +59,6 @@ namespace CompositeC1Contrib.Web
                 ci = DataLocalizationFacade.DefaultLocalizationCulture;
             }
 
-            var overridenContext = SiteMapContext.OverrideContext;
-            if (overridenContext != null)
-            {
-                var url = HttpContext.Current.Request.Url;
-                if (overridenContext.Host != url.Host)
-                {
-                    rawUrl = url.Scheme + "://" + overridenContext.Host + rawUrl;
-                }
-            }
-
             var node = base.FindSiteMapNode(rawUrl, ci) as CompositeC1SiteMapNode;
             if (node == null)
             {
