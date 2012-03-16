@@ -5,109 +5,25 @@ using System.Text;
 using System.Web;
 using System.Web.WebPages;
 using System.Xml;
-using System.Xml.Linq;
 
-using Composite.C1Console.Security;
 using Composite.Core.Types;
 using Composite.Core.Xml;
 using Composite.Functions;
 
 using CompositeC1Contrib.FunctionProvider;
-using CompositeC1Contrib.RazorFunctions.Security;
 
 namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
 {
-    public class RazorFunction : IFunction
+    public class RazorFunction : FileBasedFunction<RazorFunction>
     {
-        string _relativeFilePath;
-        IDictionary<string, FunctionParameterHolder> _parameters;
-
-        private string _ns;
-        public string Namespace
+        public RazorFunction(string ns, string name, string description, IDictionary<string, FunctionParameterHolder> parameters, Type returnType, string virtualPath, FileBasedFunctionProvider<RazorFunction> provider)
+            : base(ns, name, description, parameters, returnType, virtualPath, provider)
         {
-            get { return _ns; }
         }
 
-        private string _name;
-        public string Name
+        public override object Execute(ParameterList parameters, FunctionContextContainer context)
         {
-            get { return _name; }
-        }
-
-        private Type _returnType;
-        public Type ReturnType
-        {
-            get { return _returnType; }
-        }
-
-        private string _description;
-        public string Description
-        {
-            get { return _description; }
-        }
-
-        public EntityToken EntityToken
-        {
-            get { return new RazorFunctionEntityToken(typeof(RazorFunctionProvider).Name, String.Join(".", Namespace, Name)); }
-        }
-
-        public IEnumerable<ParameterProfile> ParameterProfiles
-        {
-            get
-            {
-                if (_parameters != null)
-                {
-                    foreach (var param in _parameters.Values)
-                    {
-                        BaseValueProvider defaultValueProvider = new NoValueValueProvider();
-                        WidgetFunctionProvider widgetProvider = null;
-                        var label = param.Name;
-                        var isRequired = true;
-                        var helpText = String.Empty;
-
-                        if (param.Attribute != null)
-                        {
-                            label = param.Attribute.Label;
-                            helpText = param.Attribute.HelpText;
-
-                            isRequired = !param.Attribute.HasDefaultValue;
-                            if (!isRequired)
-                            {
-                                defaultValueProvider = new ConstantValueProvider(param.Attribute.DefaultValue);
-                            }
-
-                            if (!String.IsNullOrEmpty(param.Attribute.WidgetMarkup))
-                            {
-                                var xElement = XElement.Parse(param.Attribute.WidgetMarkup);
-
-                                widgetProvider = new WidgetFunctionProvider(xElement);
-                            }
-                        }
-
-                        if (widgetProvider == null)
-                        {
-                            widgetProvider = StandardWidgetFunctions.GetDefaultWidgetFunctionProviderByType(param.Type);
-                        }
-
-                        yield return new ParameterProfile(param.Name, param.Type, isRequired, defaultValueProvider, widgetProvider, label, new HelpDefinition(helpText));
-                    }
-                }
-            }
-        }
-
-        public RazorFunction(string ns, string name, string description, IDictionary<string, FunctionParameterHolder> parameters, Type returnType, string relativeFilePath)
-        {
-            _ns = ns;
-            _name = name;
-            _description = description;
-            _parameters = parameters;
-            _returnType = returnType;
-            _relativeFilePath = relativeFilePath;
-        }
-
-        public object Execute(ParameterList parameters, FunctionContextContainer context)
-        {
-            var webPage = WebPage.CreateInstanceFromVirtualPath(_relativeFilePath);
+            var webPage = WebPage.CreateInstanceFromVirtualPath(VirtualPath);
 
             HttpContextBase httpContext;
 
@@ -119,14 +35,15 @@ namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
             {
                 httpContext = new HttpContextWrapper(HttpContext.Current);
             }
-            
-            var pageContext = new WebPageContext(httpContext, webPage, null);
+
+            var startPage = StartPage.GetStartPage(webPage, "_PageStart", new[] { "cshtml" });
+            var pageContext = new WebPageContext(httpContext, webPage, startPage);
 
             foreach (var param in parameters.AllParameterNames)
             {
                 var value = parameters.GetParameter(param);
 
-                _parameters[param].SetValue(webPage, value);
+                Parameters[param].SetValue(webPage, value);
             }
 
             var sb = new StringBuilder();
@@ -137,7 +54,7 @@ namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
 
             string output = sb.ToString().Trim();
 
-            if (_returnType == typeof(XhtmlDocument))
+            if (ReturnType == typeof(XhtmlDocument))
             {
                 try
                 {
@@ -157,7 +74,7 @@ namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
                 }
             }
 
-            return ValueTypeConverter.Convert(output, _returnType);
+            return ValueTypeConverter.Convert(output, ReturnType);
         }
 
         private static XhtmlDocument gracefulDocument(string content)

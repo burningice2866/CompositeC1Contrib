@@ -52,8 +52,6 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Security\UserControlFunctionEntityToken.cs" />
-    <Compile Include="Security\StandardFunctionSecurityAncestorProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\content\App_Data\UserControl\Examples\HelloWorld.ascx" />

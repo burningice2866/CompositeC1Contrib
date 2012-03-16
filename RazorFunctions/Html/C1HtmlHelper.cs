@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.WebPages.Html;
-using System.Xml.Linq;
 
 using Composite.Core.Types;
+using Composite.Core.Xml;
 using Composite.Data.Types;
 
 namespace CompositeC1Contrib.RazorFunctions.Html
@@ -99,22 +99,32 @@ namespace CompositeC1Contrib.RazorFunctions.Html
             return _helper.Raw(absoulteUrl);
         }
 
-        public IHtmlString BodySection(string xhtmlDocument)
+        public IHtmlString Document(XhtmlDocument xhtmlDocument)
         {
-            var doc = XElement.Parse(xhtmlDocument);
+            return _helper.Raw(xhtmlDocument.ToString());
+        }
 
-            var body = doc.Descendants().SingleOrDefault(el => el.Name.LocalName == "body");
+        public IHtmlString Body(string xhtmlDocument)
+        {
+            var doc = XhtmlDocument.Parse(xhtmlDocument);
+
+            return Body(doc);
+        }
+
+        public IHtmlString Body(XhtmlDocument xhtmlDocument)
+        {
+            var body = xhtmlDocument.Descendants().SingleOrDefault(el => el.Name.LocalName == "body");
             if (body != null)
             {
                 using (var reader = body.CreateReader())
                 {
                     reader.MoveToContent();
 
-                    return new HtmlString(reader.ReadInnerXml());
+                    return _helper.Raw(reader.ReadInnerXml());
                 }
             }
 
-            return new HtmlString(xhtmlDocument);
+            return Document(xhtmlDocument);
         }
 
         public IHtmlString Function(string name)

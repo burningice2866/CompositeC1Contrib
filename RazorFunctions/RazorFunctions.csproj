@@ -80,19 +80,19 @@
     <Compile Include="Parser\SyntaxTree\ReturnTypeSpan.cs" />
     <Compile Include="FunctionProvider\RazorFunction.cs" />
     <Compile Include="FunctionProvider\RazorFunctionProvider.cs" />
-    <Compile Include="Security\RazorFunctionEntityToken.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CompositeC1WebPage.cs" />
     <Compile Include="CompositeC1RazorHost.cs" />
     <Compile Include="CompositeC1RazorHostFactory.cs" />
-    <Compile Include="Security\StandardFunctionSecurityAncestorProvider.cs" />
     <Compile Include="Parser\SyntaxTree\TemplateParsingException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Package\config\App_Data\Composite\composite.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Package\config\web.config" />
+    <None Include="Package\config\web.config">
+      <SubType>Designer</SubType>
+    </None>
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -112,6 +112,7 @@
       <Name>Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)CompositeC1Contrib.Core.dll" "$(ProjectDir)Package\Bin\CompositeC1Contrib.Core.dll"

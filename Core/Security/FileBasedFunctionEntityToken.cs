@@ -2,10 +2,10 @@
 
 using Composite.C1Console.Security;
 
-namespace CompositeC1Contrib.RazorFunctions.Security
+namespace CompositeC1Contrib.Security
 {
     [SecurityAncestorProvider(typeof(StandardFunctionSecurityAncestorProvider))]
-    public class RazorFunctionEntityToken : EntityToken
+    public class FileBasedFunctionEntityToken : EntityToken
     {
         private string _id;
         public override string Id
@@ -24,7 +24,7 @@ namespace CompositeC1Contrib.RazorFunctions.Security
             get { return String.Empty; ; }
         }
 
-        public RazorFunctionEntityToken(string source, string id)
+        public FileBasedFunctionEntityToken(string source, string id)
         {
             _source = source;
             _id = id;
@@ -43,7 +43,7 @@ namespace CompositeC1Contrib.RazorFunctions.Security
 
             EntityToken.DoDeserialize(serializedEntityToken, out type, out source, out id);
 
-            return new RazorFunctionEntityToken(source, id);
+            return new FileBasedFunctionEntityToken(source, id);
         }
     }
 }

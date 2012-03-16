@@ -4,7 +4,7 @@ using System.Linq;
 using Composite.C1Console.Security;
 using Composite.Plugins.Elements.ElementProviders.BaseFunctionProviderElementProvider;
 
-namespace CompositeC1Contrib.RazorFunctions.Security
+namespace CompositeC1Contrib.Security
 {
     public class StandardFunctionSecurityAncestorProvider : ISecurityAncestorProvider
     {
