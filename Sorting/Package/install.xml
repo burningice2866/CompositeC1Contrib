@@ -12,7 +12,7 @@
                          systemLocking="hard" 
                          flushOnCompletion="false">
     <Description>Adds drag'n drop sorting to pages and datatypes</Description>
-    <TechicalDetails>Adds drag'n drop sorting to pages and datatypes</TechicalDetails>
+    <TechnicalDetails>Adds drag'n drop sorting to pages and datatypes</TechnicalDetails>
   </mi:PackageInformation>
   
   <mi:PackageFragmentInstallers>

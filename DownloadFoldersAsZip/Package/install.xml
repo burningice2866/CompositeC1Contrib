@@ -12,7 +12,7 @@
                          systemLocking="hard" 
                          flushOnCompletion="false">
     <Description>Enables downloading of folders from Media Archives or Filesystem via context menu in the Console.</Description>
-		<TechicalDetails>Enables downloading of folders from Media Archives or Filesystem via context menu in the Console.</TechicalDetails>
+    <TechnicalDetails>Enables downloading of folders from Media Archives or Filesystem via context menu in the Console.</TechnicalDetails>
   </mi:PackageInformation>
   
   <mi:PackageFragmentInstallers>

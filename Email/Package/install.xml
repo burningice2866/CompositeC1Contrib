@@ -12,7 +12,7 @@
                          systemLocking="hard" 
                          flushOnCompletion="false">
     <Description>Centralized email management, queues etc.</Description>
-		<TechicalDetails>Centralized email management, queues etc.</TechicalDetails>
+    <TechnicalDetails>Centralized email management, queues etc.</TechnicalDetails>
   </mi:PackageInformation>
   
   <mi:PackageFragmentInstallers>

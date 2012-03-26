@@ -12,7 +12,7 @@
                          systemLocking="hard" 
                          flushOnCompletion="false">
     <Description>Adds the same changehistory fields to datatypes as pages has</Description>
-		<TechicalDetails>Adds the same changehistory fields to datatypes as pages has</TechicalDetails>
+    <TechnicalDetails>Adds the same changehistory fields to datatypes as pages has</TechnicalDetails>
   </mi:PackageInformation>
   
   <mi:PackageFragmentInstallers>

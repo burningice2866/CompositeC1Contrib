@@ -12,7 +12,7 @@
                          systemLocking="hard" 
                          flushOnCompletion="false">
     <Description>Asp.Net SiteMap Provider for Composite C1 based on the page structure. On installation with multiple sites, the provider only contains pages for the current context.</Description>
-		<TechicalDetails>Asp.Net SiteMap Provider for Composite C1 based on the page structure. On installation with multiple sites, the provider only contains pages for the current context.</TechicalDetails>
+    <TechnicalDetails>Asp.Net SiteMap Provider for Composite C1 based on the page structure. On installation with multiple sites, the provider only contains pages for the current context.</TechnicalDetails>
   </mi:PackageInformation>
     
   <mi:PackageFragmentInstallers>

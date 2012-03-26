@@ -12,7 +12,7 @@
                          systemLocking="hard" 
                          flushOnCompletion="false">
     <Description>Enables masterpages to be used for rendering side-by-side with the default Xml based templates.</Description>
-		<TechicalDetails>Enables masterpages to be used for rendering side-by-side with the default Xml based templates.</TechicalDetails>
+    <TechnicalDetails>Enables masterpages to be used for rendering side-by-side with the default Xml based templates.</TechnicalDetails>
   </mi:PackageInformation>
 
   <mi:PackageFragmentInstallerBinaries>

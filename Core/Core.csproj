@@ -46,6 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
+    <Compile Include="FunctionProvider\FileBasedFunction.cs" />
+    <Compile Include="FunctionProvider\FileBasedFunctionProvider.cs" />
+    <Compile Include="Security\FileBasedFunctionEntityToken.cs" />
+    <Compile Include="Security\StandardFunctionSecurityAncestorProvider.cs" />
     <Compile Include="PackageFragmentInstallers\TransformXmlPackageFragmentUninstaller.cs" />
     <Compile Include="FunctionProvider\FunctionDescriptionAttribute.cs" />
     <Compile Include="FunctionProvider\FunctionParameterAttribute.cs" />

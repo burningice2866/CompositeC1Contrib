@@ -12,7 +12,7 @@
                          systemLocking="hard"
                          flushOnCompletion="false">
     <Description>Create and use ASP.NET User Controls as regular C1 functions </Description>
-		<TechicalDetails>Create and use ASP.NET User Controls as regular C1 functions </TechicalDetails>
+    <TechnicalDetails>Create and use ASP.NET User Controls as regular C1 functions </TechnicalDetails>
   </mi:PackageInformation>
 
   <mi:PackageFragmentInstallerBinaries>

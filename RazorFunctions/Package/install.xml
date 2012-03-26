@@ -12,7 +12,7 @@
                          systemLocking="hard"
                          flushOnCompletion="false">
     <Description>Execute cshtml files as normal C1 functions</Description>
-		<TechicalDetails>Execute cshtml files as normal C1 functions</TechicalDetails>
+    <TechnicalDetails>Execute cshtml files as normal C1 functions</TechnicalDetails>
   </mi:PackageInformation>
 
   <mi:PackageFragmentInstallerBinaries>
