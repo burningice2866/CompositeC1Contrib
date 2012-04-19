@@ -35,6 +35,12 @@
       <HintPath>..\References\Composite.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common">
+      <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ObjectBuilder">
+      <HintPath>..\References\Microsoft.Practices.ObjectBuilder.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Web.Helpers">
       <HintPath>..\References\Microsoft.Web.Helpers.dll</HintPath>
     </Reference>
@@ -44,6 +50,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Helpers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -67,6 +74,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FunctionProvider\RazorFunctionProviderAssembler.cs" />
+    <Compile Include="FunctionProvider\RazorFunctionProviderData.cs" />
     <Compile Include="Html\C1HtmlHelper.cs" />
     <Compile Include="CompositeC1RazorBuildProvider.cs" />
     <Compile Include="Functions.cs" />

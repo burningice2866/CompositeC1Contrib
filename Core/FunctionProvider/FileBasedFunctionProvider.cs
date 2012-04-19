@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Web.Hosting;
+using System.Xml.Linq;
 
 using Composite.Core;
 using Composite.Core.IO;
@@ -21,9 +22,10 @@ namespace CompositeC1Contrib.FunctionProvider
         private readonly IDictionary<string, FileBasedFunction<T>> _functionCache = new Dictionary<string, FileBasedFunction<T>>();
 
         private DateTime _lastUpdateTime;
+        private string _rootFolder;
+        private string _name;
 
         protected abstract string FileExtension { get; }
-        protected abstract string Folder { get; }
         protected abstract Type BaseType { get; }
 
         public FunctionNotifier FunctionNotifier { private get; set; }
@@ -36,7 +38,7 @@ namespace CompositeC1Contrib.FunctionProvider
             {
                 var returnList = new List<FileBasedFunction<T>>();
 
-                var files = new DirectoryInfo(PhysicalPath).EnumerateFiles("*." + FileExtension, SearchOption.AllDirectories);
+                var files = new DirectoryInfo(PhysicalPath).EnumerateFiles("*." + FileExtension, SearchOption.AllDirectories).Where(f => !f.Name.StartsWith("_", StringComparison.Ordinal));
                 foreach (var file in files)
                 {
                     var parts = file.FullName.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
@@ -46,7 +48,7 @@ namespace CompositeC1Contrib.FunctionProvider
 
                     for (int i = parts.Length - 2; i > 0; i--)
                     {
-                        if (parts[i].Equals(Folder, StringComparison.OrdinalIgnoreCase))
+                        if (parts[i].Equals(_rootFolder, StringComparison.OrdinalIgnoreCase))
                         {
                             break;
                         }
@@ -65,7 +67,7 @@ namespace CompositeC1Contrib.FunctionProvider
                     }
                     catch (Exception exc)
                     {
-                        Log.LogError(String.Format("Error instantiating {0} function", Folder), exc);
+                        Log.LogError(String.Format("Error instantiating {0} function", _name), exc);
 
                         if (_functionCache.ContainsKey(virtualPath))
                         {
@@ -90,10 +92,14 @@ namespace CompositeC1Contrib.FunctionProvider
             }
         }
 
-        public FileBasedFunctionProvider()
+        public FileBasedFunctionProvider(string name, string folder)
         {
-            VirtualPath = "~/App_Data/" + Folder;
+            _name = name;
+
+            VirtualPath = folder;
             PhysicalPath = HostingEnvironment.MapPath(VirtualPath);
+
+            _rootFolder = PhysicalPath.Split(new[] { Path.DirectorySeparatorChar }).Last();
 
             var watcher = new C1FileSystemWatcher(PhysicalPath, "*")
             {
@@ -115,6 +121,7 @@ namespace CompositeC1Contrib.FunctionProvider
         private IDictionary<string, FunctionParameterHolder> getParameters(object obj)
         {
             var dict = new Dictionary<string, FunctionParameterHolder>();
+            ParameterWidgets widgetProviders = null;
 
             var type = obj.GetType();
             while (type != BaseType)
@@ -123,12 +130,40 @@ namespace CompositeC1Contrib.FunctionProvider
                 foreach (var prop in properties)
                 {
                     var propType = prop.PropertyType;
-                    var att = prop.GetCustomAttributes(typeof(FunctionParameterAttribute), false).Cast<FunctionParameterAttribute>().FirstOrDefault();
                     var name = prop.Name;
+                    var att = prop.GetCustomAttributes(typeof(FunctionParameterAttribute), false).Cast<FunctionParameterAttribute>().FirstOrDefault();
+                    WidgetFunctionProvider widgetProvider = null;
+
+                    if (att != null && !String.IsNullOrEmpty(att.WidgetMarkup))
+                    {
+                        var el = XElement.Parse(att.WidgetMarkup);
+
+                        widgetProvider = new WidgetFunctionProvider(el);
+                    }
+                    else
+                    {
+                        if (widgetProviders == null)
+                        {
+                            var widgetProviderMethod = type.GetMethod("GetParameterWidgets");
+                            if (widgetProviderMethod != null && widgetProviderMethod.ReturnType == typeof(ParameterWidgets))
+                            {
+                                widgetProviders = (ParameterWidgets)widgetProviderMethod.Invoke(obj, null);
+                            }
+                            else
+                            {
+                                widgetProviders = new ParameterWidgets();
+                            }
+                        }
+
+                        if (widgetProviders.ContainsKey(prop))
+                        {
+                            widgetProvider = widgetProviders[prop];
+                        }
+                    }
 
                     if (!dict.ContainsKey(name))
                     {
-                        dict.Add(name, new FunctionParameterHolder(name, propType, att));
+                        dict.Add(name, new FunctionParameterHolder(name, propType, att, widgetProvider));
                     }
                 }
 
@@ -146,7 +181,7 @@ namespace CompositeC1Contrib.FunctionProvider
                 return attr.Description;
             }
 
-            return String.Format("A {0} function", Folder);
+            return String.Format("A {0} function", _name);
         }
 
         private void watcher_Changed(object sender, FileSystemEventArgs e)

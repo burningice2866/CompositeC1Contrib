@@ -35,6 +35,7 @@
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -48,6 +49,7 @@
     <Compile Include="AppSettings.cs" />
     <Compile Include="FunctionProvider\FileBasedFunction.cs" />
     <Compile Include="FunctionProvider\FileBasedFunctionProvider.cs" />
+    <Compile Include="FunctionProvider\ParameterWidgets.cs" />
     <Compile Include="Security\FileBasedFunctionEntityToken.cs" />
     <Compile Include="Security\StandardFunctionSecurityAncestorProvider.cs" />
     <Compile Include="PackageFragmentInstallers\TransformXmlPackageFragmentUninstaller.cs" />

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Web;
 
-namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
+namespace CompositeC1Contrib.UserControlFunctions
 {
-    public class PopulateUserControlParametersContext : IDisposable
+    public class NoHttpContext : IDisposable
     {
         HttpContext _oldHttpContext;
         bool _restoreOldHttpContext = false;
 
-        public PopulateUserControlParametersContext(bool forceSettingContextToNull = false)
+        public NoHttpContext(bool forceSettingContextToNull = false)
         {
             if (forceSettingContextToNull)
             {
@@ -51,7 +51,7 @@ namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
             Dispose(true);
         }
 
-        ~PopulateUserControlParametersContext()
+        ~NoHttpContext()
         {
             Dispose(false);
         }

@@ -34,7 +34,16 @@
     <Reference Include="Composite">
       <HintPath>..\References\Composite.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ObjectBuilder, Version=1.0.51206.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Microsoft.Practices.ObjectBuilder.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
@@ -44,7 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FunctionProvider\PopulateUserControlParametersContext.cs" />
+    <Compile Include="NoHttpContext.cs" />
+    <Compile Include="FunctionProvider\UserControlFunctionProviderAssembler.cs" />
+    <Compile Include="FunctionProvider\UserControlFunctionProviderData.cs" />
     <Compile Include="FunctionProvider\UserControlFunction.cs" />
     <Compile Include="FunctionProvider\UserControlFunctionProvider.cs" />
     <Compile Include="Package\content\App_Data\UserControl\Examples\HelloWorld.ascx.cs">

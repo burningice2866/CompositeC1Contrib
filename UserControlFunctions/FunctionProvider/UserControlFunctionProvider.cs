@@ -7,11 +7,6 @@ namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
 {
     public class UserControlFunctionProvider : FileBasedFunctionProvider<UserControlFunction>
     {
-        protected override string Folder
-        {
-            get { return "UserControl"; }
-        }
-
         protected override string FileExtension
         {
             get { return "ascx"; }
@@ -22,6 +17,8 @@ namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
             get { return typeof(UserControl); }
         }
 
+        public UserControlFunctionProvider(string name, string folder) : base(name, folder) { }
+
         protected override Type GetReturnType(object obj)
         {
             return typeof(UserControl);
@@ -29,7 +26,7 @@ namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
 
         protected override object InstantiateFile(string virtualPath)
         {
-            using (new PopulateUserControlParametersContext())
+            using (new NoHttpContext())
             {
                 var p = new Page();
 

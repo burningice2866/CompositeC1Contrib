@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
 
 using Composite.C1Console.Security;
 using Composite.Functions;
@@ -51,12 +50,7 @@ namespace CompositeC1Contrib.FunctionProvider
                                 defaultValueProvider = new ConstantValueProvider(param.Attribute.DefaultValue);
                             }
 
-                            if (!String.IsNullOrEmpty(param.Attribute.WidgetMarkup))
-                            {
-                                var el = XElement.Parse(param.Attribute.WidgetMarkup);
-
-                                widgetProvider = new WidgetFunctionProvider(el);
-                            }
+                            widgetProvider = param.WidgetProvider;
                         }
 
                         if (widgetProvider == null)

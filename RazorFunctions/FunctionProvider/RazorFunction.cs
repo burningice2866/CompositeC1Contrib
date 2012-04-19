@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Web;
 using System.Web.WebPages;
 using System.Xml;
@@ -16,6 +17,8 @@ namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
 {
     public class RazorFunction : FileBasedFunction<RazorFunction>
     {
+        private static object _lock = new object();
+
         public RazorFunction(string ns, string name, string description, IDictionary<string, FunctionParameterHolder> parameters, Type returnType, string virtualPath, FileBasedFunctionProvider<RazorFunction> provider)
             : base(ns, name, description, parameters, returnType, virtualPath, provider)
         {
@@ -23,9 +26,11 @@ namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
 
         public override object Execute(ParameterList parameters, FunctionContextContainer context)
         {
-            var webPage = WebPage.CreateInstanceFromVirtualPath(VirtualPath);
-
             HttpContextBase httpContext;
+            object requestLock = null;
+
+            var webPage = WebPage.CreateInstanceFromVirtualPath(VirtualPath);
+            var startPage = StartPage.GetStartPage(webPage, "_PageStart", new[] { "cshtml" });
 
             if (HttpContext.Current == null)
             {
@@ -33,10 +38,22 @@ namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
             }
             else
             {
-                httpContext = new HttpContextWrapper(HttpContext.Current);
+                var currentContext = HttpContext.Current;
+
+                httpContext = new HttpContextWrapper(currentContext);
+
+                lock (_lock)
+                {
+                    requestLock = currentContext.Items["__razor_execute_lock__"];
+
+                    if (requestLock == null)
+                    {
+                        requestLock = new object();
+                        currentContext.Items["__razor_execute_lock__"] = requestLock;
+                    }
+                }
             }
 
-            var startPage = StartPage.GetStartPage(webPage, "_PageStart", new[] { "cshtml" });
             var pageContext = new WebPageContext(httpContext, webPage, startPage);
 
             foreach (var param in parameters.AllParameterNames)
@@ -49,7 +66,23 @@ namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
             var sb = new StringBuilder();
             using (var writer = new StringWriter(sb))
             {
-                webPage.ExecutePageHierarchy(pageContext, writer);
+                bool lockTaken = false;
+                try
+                {
+                    if (requestLock != null)
+                    {
+                        Monitor.TryEnter(requestLock, ref lockTaken);
+                    }
+
+                    webPage.ExecutePageHierarchy(pageContext, writer);
+                }
+                finally
+                {
+                    if (lockTaken)
+                    {
+                        Monitor.Exit(requestLock);
+                    }
+                }
             }
 
             string output = sb.ToString().Trim();

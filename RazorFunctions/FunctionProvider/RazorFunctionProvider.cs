@@ -6,9 +6,11 @@ using Composite.Core.Xml;
 
 using CompositeC1Contrib.FunctionProvider;
 using CompositeC1Contrib.RazorFunctions.Parser;
+using Microsoft.Practices.EnterpriseLibrary.Common.Configuration;
 
 namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
 {
+    [ConfigurationElementType(typeof(RazorFunctionProviderData))]
     public class RazorFunctionProvider : FileBasedFunctionProvider<RazorFunction>
     {
         protected override string FileExtension
@@ -16,15 +18,12 @@ namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
             get { return "cshtml"; }
         }
 
-        protected override string Folder
-        {
-            get { return "Razor"; }
-        }
-
         protected override Type BaseType
         {
             get { return typeof(CompositeC1WebPage); }
         }
+
+        public RazorFunctionProvider(string name, string folder) : base(name, folder) { }
 
         protected override Type GetReturnType(object obj)
         {
