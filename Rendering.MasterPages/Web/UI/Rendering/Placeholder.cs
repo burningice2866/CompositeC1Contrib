@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.UI;
+using System.Xml.Linq;
 
+using Composite.Core.Localization;
 using Composite.Core.WebClient.Renderings.Page;
 using Composite.Core.Xml;
 using Composite.Data;
@@ -43,7 +45,15 @@ namespace CompositeC1Contrib.Web.UI.Rendering
             var contents = rq.IsPreview ? (IEnumerable<IPagePlaceholderContent>)Page.Cache.Get(rq.PreviewKey + "_SelectedContents") : PageManager.GetPlaceholderContent(PageRenderer.CurrentPage.Id);
 
             var content = contents.SingleOrDefault(c => c.PlaceHolderId == ID);
-            if (content != null)
+            if (content == null)
+            {
+                Content = new XElement(Namespaces.Xhtml + "html",
+                        new XAttribute(XNamespace.Xmlns + "f", Namespaces.Function10),
+                        new XAttribute(XNamespace.Xmlns + "lang", LocalizationXmlConstants.XmlNamespace),
+                            new XElement(Namespaces.Xhtml + "head"),
+                            new XElement(Namespaces.Xhtml + "body"));
+            }
+            else
             {
                 if (content.Content.StartsWith("<html"))
                 {
@@ -55,7 +65,10 @@ namespace CompositeC1Contrib.Web.UI.Rendering
                 }
                 else
                 {
-                    Content = XhtmlDocument.Parse(String.Format("<html xmlns='{0}'><head/><body>{1}</body></html>", Namespaces.Xhtml, content.Content)).Root;
+                    Content = new XElement(Namespaces.Xhtml + "html",
+                       new XAttribute(XNamespace.Xmlns + "f", Namespaces.Function10),
+                           new XElement(Namespaces.Xhtml + "head"),
+                           new XElement(Namespaces.Xhtml + "body", XElement.Parse(content.Content)));
                 }
             }
 

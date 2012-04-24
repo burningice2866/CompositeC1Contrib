@@ -5,16 +5,11 @@ namespace CompositeC1Contrib.Web.UI.F
 {
     public class ParamControlBuilder : ControlBuilder
     {
-        public ParamControlBuilder()
-        {
-        }
+        public ParamControlBuilder() { }
 
         public override bool HasAspCode
         {
-            get
-            {
-                return base.HasAspCode;
-            }
+            get { return base.HasAspCode; }
         }
 
         public override void AppendSubBuilder(ControlBuilder subBuilder)

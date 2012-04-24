@@ -20,10 +20,7 @@ namespace CompositeC1Contrib.Web
             app.PostMapRequestHandler += new EventHandler(app_PostMapRequestHandler);
         }
 
-        public void Dispose()
-        {
-
-        }
+        public void Dispose() { }
 
         private void app_PostMapRequestHandler(object sender, EventArgs e)
         {

@@ -1,16 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.UI;
 using System.Xml.Linq;
 
+using Composite.Core.Localization;
 using Composite.Core.WebClient.Renderings.Page;
+using Composite.Core.Xml;
 
 namespace CompositeC1Contrib.Web.UI.F
 {
     [ParseChildren(false)]
     public class Markup : Control
     {
+        private static IList<IContentFilter> _contentFilters;
+
         protected XElement Content { get; set; }
+
+        static Markup()
+        {
+            _contentFilters = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .Where(t => typeof(IContentFilter).IsAssignableFrom(t) && !t.IsInterface)
+                .Select(t => (IContentFilter)Activator.CreateInstance(t))
+                .ToList();
+        }
 
         public Markup() { }
 
@@ -45,12 +59,11 @@ namespace CompositeC1Contrib.Web.UI.F
                 {
                     Controls.Clear();
 
-                    var s = "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:f=\"http://www.composite.net/ns/function/1.0\" xmlns:lang=\"http://www.composite.net/ns/localization/1.0\">" +
-                        "<head />" +
-                        "<body>" + str + "</body>" +
-                        "</html>";
-
-                    Content = XElement.Parse(s);
+                    Content = new XElement(Namespaces.Xhtml + "html",
+                        new XAttribute(XNamespace.Xmlns + "f", Namespaces.Function10),
+                        new XAttribute(XNamespace.Xmlns + "lang", LocalizationXmlConstants.XmlNamespace),
+                            new XElement(Namespaces.Xhtml + "head"),
+                            new XElement(Namespaces.Xhtml + "body", XElement.Parse(str)));
                 }
             }
 
@@ -58,26 +71,42 @@ namespace CompositeC1Contrib.Web.UI.F
             {
                 var helper = new PageRendererHelper();
                 var mapper = (IXElementToControlMapper)helper.FunctionContext.XEmbedableMapper;
-
                 var doc = helper.RenderDocument(Content);
+
                 var body = PageRendererHelper.GetDocumentPart(doc, "body");
-
-                if (body != null)
+                if (body == null)
                 {
-                    addNodesAsControls(body.Nodes(), this, mapper);
-
-                    if (Page.Header != null)
-                    {
-                        var head = PageRendererHelper.GetDocumentPart(doc, "head");
-                        if (head != null)
-                        {
-                            addNodesAsControls(head.Nodes(), Page.Header, mapper);
-                        }
-                    }
+                    body = new XElement(Namespaces.Xhtml + "body");
                 }
+
+                filterContent(body);
+
+                addNodesAsControls(body.Nodes(), this, mapper);
+
+                if (Page.Header != null)
+                {
+                    var head = PageRendererHelper.GetDocumentPart(doc, "head");
+                    if (head == null)
+                    {
+                        head = new XElement(Namespaces.Xhtml + "head");
+                    }
+
+                    filterContent(head);
+
+                    addNodesAsControls(head.Nodes(), Page.Header, mapper);
+                }
+
             }
 
             base.CreateChildControls();
+        }
+
+        private void filterContent(XElement doc)
+        {
+            foreach (var filter in _contentFilters)
+            {
+                filter.Filter(doc, this.ID);
+            }
         }
 
         private static void addNodesAsControls(IEnumerable<XNode> nodes, Control parent, IXElementToControlMapper mapper)

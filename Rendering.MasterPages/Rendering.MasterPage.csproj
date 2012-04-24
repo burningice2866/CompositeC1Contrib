@@ -8,7 +8,7 @@
     <ProjectGuid>{1CC239DC-B6B5-478C-8E2F-4BB24E208648}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CompositeC1Contrib.Rendering.MasterPage</RootNamespace>
+    <RootNamespace>CompositeC1Contrib</RootNamespace>
     <AssemblyName>CompositeC1Contrib.Rendering.MasterPage</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -47,16 +47,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Web\IContentFilter.cs" />
     <Compile Include="Web\MasterPageModule.cs" />
     <Compile Include="Web\UI\F\Markup.cs" />
-    <Compile Include="Web\UI\F\FunctionParameterValue.cs" />
     <Compile Include="Web\UI\F\ParamCollection.cs" />
+    <Compile Include="Web\UI\F\ParamObjectConverter.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Web\UI\F\ParamTagControlBuilder.cs" />
-    <Compile Include="Web\UI\F\FunctionParameterValueConverter.cs" />
+    <Compile Include="Web\UI\F\StringToObjectConverter.cs" />
     <Compile Include="Web\UI\Rendering\Description.cs" />
     <Compile Include="Web\UI\F\Function.cs" />
     <Compile Include="Web\UI\F\Param.cs" />
-    <Compile Include="Web\UI\Rendering\Function.cs" />
     <Compile Include="Web\UI\Rendering\Placeholder.cs" />
     <Compile Include="Web\UI\Rendering\Title.cs" />
   </ItemGroup>

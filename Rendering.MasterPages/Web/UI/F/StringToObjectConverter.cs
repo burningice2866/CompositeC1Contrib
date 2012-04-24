@@ -1,45 +1,57 @@
 ﻿using System;
-using System.Collections;
 using System.ComponentModel;
 using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 
 namespace CompositeC1Contrib.Web.UI.F
 {
-    public class FunctionParameterValueConverter : TypeConverter 
+    public class StringToObjectConverter : TypeConverter
     {
         public override bool IsValid(ITypeDescriptorContext context, object value)
         {
             return true;
         }
 
-        public override object CreateInstance(ITypeDescriptorContext context, IDictionary propertyValues)
-        {
-            return new FunctionParameterValueConverter();
-        }
-
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
-            return true;
+            if (sourceType == typeof(string))
+            {
+                return true;
+            }
+
+            return base.CanConvertFrom(context, sourceType);
         }
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
-            return true;
+            if (destinationType == typeof(object))
+            {
+                return true;
+            }
+
+            if (destinationType == typeof(InstanceDescriptor))
+            {
+                return true;
+            }
+
+            return base.CanConvertTo(context, destinationType);
         }
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            return new FunctionParameterValue(value);
+            return value.ToString();
         }
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
+            if (destinationType == typeof(object))
+            {
+                return (object)value;
+            }
+
             if (destinationType == typeof(InstanceDescriptor))
             {
-                var ctor = typeof(FunctionParameterValue).GetConstructor(new[] { typeof(object) });
-
-                return new InstanceDescriptor(ctor, new[] { ((FunctionParameterValue)value).Value });
+                return new InstanceDescriptor(typeof(ParamObjectConverter).GetConstructor(new Type[] { value.GetType() }), new object[] { value });
             }
 
             return base.ConvertTo(context, culture, value, destinationType);

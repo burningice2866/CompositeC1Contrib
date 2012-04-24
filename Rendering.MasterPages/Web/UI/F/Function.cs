@@ -75,7 +75,7 @@ namespace CompositeC1Contrib.Web.UI.F
             {
                 param.DataBind();
 
-                result.Add(param.Name, param.Value.Value);
+                result.Add(param.Name, param.Value);
             }
 
             return result;
