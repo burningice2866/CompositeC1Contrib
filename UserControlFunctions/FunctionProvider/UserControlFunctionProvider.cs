@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Web.UI;
 
+using Microsoft.Practices.EnterpriseLibrary.Common.Configuration;
+
 using CompositeC1Contrib.FunctionProvider;
 
 namespace CompositeC1Contrib.UserControlFunctions.FunctionProvider
 {
+    [ConfigurationElementType(typeof(UserControlFunctionProviderData))]
     public class UserControlFunctionProvider : FileBasedFunctionProvider<UserControlFunction>
     {
         protected override string FileExtension
