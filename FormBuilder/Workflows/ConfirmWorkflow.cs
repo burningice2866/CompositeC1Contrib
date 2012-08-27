@@ -4,7 +4,7 @@ using Composite.C1Console.Security;
 using Composite.C1Console.Workflow.Activities;
 using Composite.Core.Serialization;
 
-namespace CompositeC1Contrib.Email.Workflows
+namespace CompositeC1Contrib.FormBuilder.Workflows
 {
     public sealed partial class ConfirmWorkflow : Composite.C1Console.Workflow.Activities.FormsWorkflow
     {

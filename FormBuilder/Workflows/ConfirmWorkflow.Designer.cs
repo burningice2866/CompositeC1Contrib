@@ -12,7 +12,7 @@ using System.Workflow.Runtime;
 using System.Workflow.Activities;
 using System.Workflow.Activities.Rules;
 
-namespace CompositeC1Contrib.Email.Workflows
+namespace CompositeC1Contrib.FormBuilder.Workflows
 {
     partial class ConfirmWorkflow
     {

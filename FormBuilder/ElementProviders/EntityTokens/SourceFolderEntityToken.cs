@@ -4,8 +4,8 @@ using Composite.C1Console.Security;
 
 namespace CompositeC1Contrib.FormBuilder.ElementProviders.Tokens
 {
-    [SecurityAncestorProvider(typeof(FormFolderAncestorProvider))]
-    public class FormFolderEntityToken : EntityToken
+    [SecurityAncestorProvider(typeof(SourceFolderAncestorProvider))]
+    public class SourceFolderEntityToken : EntityToken
     {
         public override string Type
         {
@@ -18,15 +18,13 @@ namespace CompositeC1Contrib.FormBuilder.ElementProviders.Tokens
             get { return _source; }
         }
 
-        private string _id;
         public override string Id
         {
-            get { return _id; }
+            get { return String.Empty; }
         }
 
-        public FormFolderEntityToken(Guid id, string source)
+        public SourceFolderEntityToken(string source)
         {
-            _id = id.ToString();
             _source = source;
         }
 
@@ -43,7 +41,7 @@ namespace CompositeC1Contrib.FormBuilder.ElementProviders.Tokens
 
             EntityToken.DoDeserialize(serializedEntityToken, out type, out source, out id);
 
-            return new FormFolderEntityToken(Guid.Parse(id), source);
+            return new SourceFolderEntityToken(source);
         }
     }
 }

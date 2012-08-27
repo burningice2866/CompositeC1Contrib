@@ -1,0 +1,48 @@
+﻿@using CompositeC1Contrib.FormBuilder;
+@using CompositeC1Contrib.FormBuilder.Web.UI;
+
+@inherits StandardFormPage
+              
+<html>
+    <head>
+        <link rel="stylesheet" href="/Frontend/Styles/jquery.selectBox.css" />
+    </head>
+
+    <body>
+        @if (IsSuccess)
+        {
+            @Html.C1().Body(Success)
+        }
+        else
+        {
+            @Html.C1().Body(Before)
+            
+			<p>Felter med <span class="required">*</span> skal udfyldes.</p>
+
+            using (BeginForm())
+            {
+                @Form.Errors()
+
+                @WriteAllFields()
+
+                <div class="Buttons">
+                    <input type="submit" value="@SubmitButtonLabel" name="SubmitForm" />
+                </div>
+            }
+
+            <script type="text/javascript" src="/frontend/scripts/plugins/jquery.selectBox.js"></script>
+            <script type="text/javascript" src="/frontend/scripts/plugins/formbuilder.validation.js"></script>
+        
+            <script type="text/javascript">
+                $(document).ready(function ()
+                {
+                    var form = $('#@ResolveFormType().Name');
+
+                    form.find('select').selectBox({ autoWidth: 'false' });
+
+                    form.formValidation();
+                });
+            </script>
+        }
+    </body>
+</html>

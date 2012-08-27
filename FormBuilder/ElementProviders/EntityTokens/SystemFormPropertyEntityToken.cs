@@ -1,21 +1,22 @@
 ﻿using System;
 
 using Composite.C1Console.Security;
+using System.Reflection;
 
 namespace CompositeC1Contrib.FormBuilder.ElementProviders.Tokens
 {
-    [SecurityAncestorProvider(typeof(FormFolderAncestorProvider))]
-    public class FormFolderEntityToken : EntityToken
+    [SecurityAncestorProvider(typeof(SystemFormPropertyAncestorProvider))]
+    public class SystemFormPropertyEntityToken : EntityToken
     {
+        private string _type;
         public override string Type
         {
-            get { return String.Empty; }
+            get { return _type; }
         }
 
-        private string _source;
         public override string Source
         {
-            get { return _source; }
+            get { return String.Empty; }
         }
 
         private string _id;
@@ -24,10 +25,16 @@ namespace CompositeC1Contrib.FormBuilder.ElementProviders.Tokens
             get { return _id; }
         }
 
-        public FormFolderEntityToken(Guid id, string source)
+        public SystemFormPropertyEntityToken(PropertyInfo prop)
         {
-            _id = id.ToString();
-            _source = source;
+            _type = prop.DeclaringType.AssemblyQualifiedName;
+            _id = prop.Name;
+        }
+
+        public SystemFormPropertyEntityToken(string type, string name)
+        {
+            _type = type;
+            _id = name;
         }
 
         public override string Serialize()
@@ -43,7 +50,7 @@ namespace CompositeC1Contrib.FormBuilder.ElementProviders.Tokens
 
             EntityToken.DoDeserialize(serializedEntityToken, out type, out source, out id);
 
-            return new FormFolderEntityToken(Guid.Parse(id), source);
+            return new SystemFormPropertyEntityToken(type, id);
         }
     }
 }

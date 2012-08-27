@@ -1,0 +1,54 @@
+﻿@using CompositeC1Contrib.FormBuilder;
+@using CompositeC1Contrib.FormBuilder.Web.UI;
+
+@inherits BaseFormPage<BaseForm>
+              
+@functions {
+    protected override Type ResolveFormType()
+    {
+        return Page.Form.GetType();
+    }
+}
+
+<html>
+    <head>
+        @RenderSection("head", false)
+    </head>
+
+    <body>
+        @if (IsSuccess)
+        {
+            @RenderSection("success", true);
+        }
+        else
+        {
+            using (BeginForm())
+            {
+                @Errors()
+
+                @RenderBody()
+
+                <div class="Buttons">
+                    <input type="submit" value="@SubmitButtonLabel" name="SubmitForm" />
+                </div>
+            }
+
+            <script type="text/javascript" src="/frontend/scripts/plugins/jquery.selectBox.js"></script>
+            <script type="text/javascript" src="/frontend/scripts/plugins/formbuilder.validation.js"></script>
+            <script type="text/javascript">
+                $(document).ready(function ()
+                {
+                    var form = $('#@ResolveFormType().Name');
+
+                    form.find('select').selectBox({ autoWidth: 'false' });
+
+                    form.formValidation();
+                });
+            </script>
+            
+            @RenderSection("foot", false)
+        }
+    </body>
+</html>
+              
+    

@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" standalone="yes"?>
 <mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
-  <mi:PackageRequirements minimumCompositeVersion="3.0.4331.234" 
+  <mi:PackageRequirements minimumCompositeVersion="3.0.4358.29126" 
                           maximumCompositeVersion="9.9999.9999.9999" />
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.FormBuilder" 
                          groupName="Contribution" 
-                         version="0.2" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="0.5" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="ddae5f9b-32c8-45ef-9144-5155c1e6d0b4" 
                          canBeUninstalled="true" 
@@ -21,18 +21,24 @@
         <File sourceFilename="~\Bin\CompositeC1Contrib.Core.dll" targetFilename="~\Bin\CompositeC1Contrib.Core.dll" allowOverwrite="true" />
         <File sourceFilename="~\Bin\CompositeC1Contrib.Sorting.dll" targetFilename="~\Bin\CompositeC1Contrib.Sorting.dll" allowOverwrite="true" />
         <File sourceFilename="~\Bin\CompositeC1Contrib.FormBuilder.dll" targetFilename="~\Bin\CompositeC1Contrib.FormBuilder.dll" allowOverwrite="true" />
+
+        <File sourceFilename="~\content\Frontend\Scripts\plugins\jquery.selectBox.js" targetFilename="~\Frontend\Scripts\plugins\jquery.selectBox.js" allowOverwrite="true" />
+        <File sourceFilename="~\content\Frontend\Scripts\plugins\formbuilder.validation.js" targetFilename="~\Frontend\Scripts\plugins\formbuilder.validation.js" allowOverwrite="true" />
       </Files>
 
       <Directories>
-        <Directory sourceDirectory="~\App_Data\Composite\DynamicTypeForms\CompositeC1Contrib\FormBuilder\Data\Types\" targetDirectory="~\App_Data\Composite\DynamicTypeForms\CompositeC1Contrib\FormBuilder\Data\Types" allowOverwrite="true" deleteTargetDirectory="true" />
-        <Directory sourceDirectory="~\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\" targetDirectory="~\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder" allowOverwrite="true" deleteTargetDirectory="true" />
+        <Directory sourceDirectory="~\content\App_Data\Composite\DynamicTypeForms\CompositeC1Contrib\FormBuilder\Data\Types\" targetDirectory="~\App_Data\Composite\DynamicTypeForms\CompositeC1Contrib\FormBuilder\Data\Types" allowOverwrite="true" deleteTargetDirectory="true" />
+        <Directory sourceDirectory="~\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\" targetDirectory="~\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder" allowOverwrite="true" deleteTargetDirectory="true" />
       </Directories>
     </mi:Add>
 
-    <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FileXslTransformationPackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FileXslTransformationPackageFragmentUninstaller, Composite">
-      <XslFiles>
-        <XslFile pathXml="~\App_Data\Composite\Composite.config" installXsl="~\Config\install.xsl" uninstallXsl="~\Config\uninstall.xsl" />
-      </XslFiles>
+    <mi:Add
+      installerType="CompositeC1Contrib.PackageFragmentInstallers.TransformXmlPackageFragmentInstaller, CompositeC1Contrib.Core"
+      uninstallerType="CompositeC1Contrib.PackageFragmentInstallers.TransformXmlPackageFragmentUninstaller, CompositeC1Contrib.Core">
+      <XmlFiles>
+        <XmlFile source="~\config\App_Data\Composite\composite.config" target="~\App_Data\Composite\composite.config" />
+        <XmlFile source="~\config\web.config" target="~\web.config" />
+      </XmlFiles>
     </mi:Add>
   </mi:PackageFragmentInstallers>
 </mi:PackageInstaller>

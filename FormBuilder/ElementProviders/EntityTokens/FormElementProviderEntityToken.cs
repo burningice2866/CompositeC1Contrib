@@ -13,11 +13,6 @@ namespace CompositeC1Contrib.FormBuilder.ElementProviders.Tokens
             get { return "FormElementProviderEntityToken"; }
         }
 
-        public override string Serialize()
-        {
-            return String.Empty;
-        }
-
         public override string Source
         {
             get { return String.Empty; }
@@ -26,6 +21,11 @@ namespace CompositeC1Contrib.FormBuilder.ElementProviders.Tokens
         public override string Type
         {
             get { return String.Empty; }
+        }
+
+        public override string Serialize()
+        {
+            return String.Empty;
         }
 
         public static EntityToken Deserialize(string serializedData)

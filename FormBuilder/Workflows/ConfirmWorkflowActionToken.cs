@@ -5,7 +5,7 @@ using Composite.C1Console.Security;
 using Composite.C1Console.Workflow;
 using Composite.Core.Serialization;
 
-namespace CompositeC1Contrib.Email.Workflows
+namespace CompositeC1Contrib.FormBuilder.Workflows
 {
     public class ConfirmWorkflowActionToken : WorkflowActionToken
     {

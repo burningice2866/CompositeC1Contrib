@@ -52,19 +52,41 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.WebPages, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\System.Web.WebPages.dll</HintPath>
+    </Reference>
     <Reference Include="System.Workflow.Activities" />
     <Reference Include="System.Workflow.ComponentModel" />
     <Reference Include="System.Workflow.Runtime" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\DataSourceAttribute.cs" />
+    <Compile Include="Attributes\FieldLabelAttribute.cs" />
+    <Compile Include="Attributes\FormTagAttributesAttribute.cs" />
+    <Compile Include="Attributes\FunctionBasedDataSourceAttribute.cs" />
+    <Compile Include="Attributes\InputTypeAttribute.cs" />
+    <Compile Include="Attributes\MethodBasedDataSourceAttribute.cs" />
+    <Compile Include="Attributes\MethodBasedSubmitHandlerAttribute.cs" />
+    <Compile Include="Attributes\StringBasedDataSourceAttribute.cs" />
+    <Compile Include="Attributes\SubmitButtonLabelAttribute.cs" />
+    <Compile Include="Attributes\SubmitHandlerAttribute.cs" />
+    <Compile Include="Attributes\TextBeforeAttribute.cs" />
+    <Compile Include="BaseForm.cs" />
     <Compile Include="Data\FormDataAncestorProvider.cs" />
     <Compile Include="Data\Types\IDefaultFormField.cs" />
     <Compile Include="ElementProviders\Actions\DeleteFormFieldActionExecutor.cs" />
     <Compile Include="ElementProviders\Actions\DeleteFormFieldActionToken.cs" />
+    <Compile Include="ElementProviders\EntityTokens\SystemFormPropertyAncestorProvider.cs" />
+    <Compile Include="ElementProviders\EntityTokens\SystemFormPropertyEntityToken.cs" />
+    <Compile Include="ElementProviders\EntityTokens\SystemFormAncestorProvider.cs" />
+    <Compile Include="ElementProviders\EntityTokens\SourceFolderAncestorProvider.cs" />
+    <Compile Include="ElementProviders\EntityTokens\SystemFormEntityToken.cs" />
+    <Compile Include="ElementProviders\EntityTokens\SourceFolderEntityToken.cs" />
     <Compile Include="ElementProviders\EntityTokens\FormFolderAncestorProvider.cs" />
     <Compile Include="ElementProviders\EntityTokens\FormFolderEntityToken.cs" />
     <Compile Include="ElementProviders\EntityTokens\PermissionTypeExtensionMethods.cs" />
@@ -75,9 +97,25 @@
     <Compile Include="Data\FormFieldType.cs" />
     <Compile Include="Data\Types\IForm.cs" />
     <Compile Include="Data\Types\IFormField.cs" />
+    <Compile Include="InputType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FormBuilderActionProvider.cs" />
     <Compile Include="StartupHandler.cs" />
+    <Compile Include="Validation\BaseFormValidationAttribute.cs" />
+    <Compile Include="Validation\CompareFieldsValidatorAttribute.cs" />
+    <Compile Include="Validation\CompareOperator.cs" />
+    <Compile Include="Validation\EmailFieldValidatorAttribute.cs" />
+    <Compile Include="Validation\FormValidationRule.cs" />
+    <Compile Include="Validation\IntegerFieldValidatorAttribute.cs" />
+    <Compile Include="Validation\MaxFieldLengthAttribute.cs" />
+    <Compile Include="Validation\MinFieldLengthAttribute.cs" />
+    <Compile Include="Validation\RequiredFieldAttribute.cs" />
+    <Compile Include="Web\UI\BaseFormPage.cs" />
+    <Compile Include="Web\UI\FormRenderer.cs" />
+    <Compile Include="Web\UI\FormsPage.cs" />
+    <Compile Include="Web\UI\HtmlForm.cs" />
+    <Compile Include="Web\UI\StandardFormPage.cs" />
+    <Compile Include="Web\ValidateFormHandler.cs" />
     <Compile Include="Workflows\ConfirmWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -109,6 +147,10 @@
       <Project>{1E76E3BE-F575-4E2D-A791-8A0EDA53C1B2}</Project>
       <Name>Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RazorFunctions\RazorFunctions.csproj">
+      <Project>{D95A32C9-4806-48FC-90BB-7590FD13EE21}</Project>
+      <Name>RazorFunctions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sorting\Sorting.csproj">
       <Project>{BADD3914-847F-4868-8CC2-FA913BCD3779}</Project>
       <Name>Sorting</Name>
@@ -116,15 +158,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Package\App_Data\Composite\DynamicTypeForms\CompositeC1Contrib\FormBuilder\Data\Types\IDefaultFormField.xml" />
-    <Content Include="Package\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\ConfirmMessage.xml" />
-    <Content Include="Package\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\CreateForm.xml" />
-    <Content Include="Package\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\CreateFormField.xml" />
-    <Content Include="Package\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\EditForm.xml" />
-    <Content Include="Package\Config\install.xsl">
+    <Content Include="Package\content\App_Data\Composite\DynamicTypeForms\CompositeC1Contrib\FormBuilder\Data\Types\IDefaultFormField.xml" />
+    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\ConfirmMessage.xml" />
+    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\CreateForm.xml" />
+    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\CreateFormField.xml" />
+    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\EditForm.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Package\Config\uninstall.xsl" />
+    <Content Include="Package\content\Frontend\Scripts\plugins\formbuilder.validation.js" />
+    <Content Include="Package\content\Frontend\Scripts\plugins\jquery.selectBox.js" />
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -143,7 +185,14 @@
       <DependentUpon>EditFormWorkflow.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Package\config\App_Data\Composite\composite.config" />
+    <None Include="Package\config\web.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Package\content\App_Data\Razor\FormBuilder\StandardForm.cshtml" />
+    <None Include="Package\content\App_Data\Razor\FormBuilder\_Template.cshtml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)CompositeC1Contrib.Core.dll" "$(ProjectDir)Package\Bin\CompositeC1Contrib.Core.dll"
