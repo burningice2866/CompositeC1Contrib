@@ -34,7 +34,7 @@ namespace CompositeC1Contrib.FunctionProvider
                     foreach (var param in Parameters.Values)
                     {
                         BaseValueProvider defaultValueProvider = new NoValueValueProvider();
-                        WidgetFunctionProvider widgetProvider = null;
+                        WidgetFunctionProvider widgetProvider = param.WidgetProvider;
                         var label = param.Name;
                         var isRequired = true;
                         var helpText = String.Empty;
@@ -49,8 +49,6 @@ namespace CompositeC1Contrib.FunctionProvider
                             {
                                 defaultValueProvider = new ConstantValueProvider(param.Attribute.DefaultValue);
                             }
-
-                            widgetProvider = param.WidgetProvider;
                         }
 
                         if (widgetProvider == null)

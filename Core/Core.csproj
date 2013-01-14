@@ -61,6 +61,8 @@
     <Compile Include="ToggleSuperInterfaceActionExecutor.cs" />
     <Compile Include="ToggleSuperInterfaceActionToken.cs" />
     <Compile Include="Web\BaseResponseFilter.cs" />
+    <Compile Include="Web\ContentFilterFacade.cs" />
+    <Compile Include="Web\IContentFilter.cs" />
     <Compile Include="Web\MediaUrlFilter.cs" />
     <Compile Include="Web\MediaUrlFilterModule.cs" />
     <Compile Include="Web\GlobalizationModule.cs" />

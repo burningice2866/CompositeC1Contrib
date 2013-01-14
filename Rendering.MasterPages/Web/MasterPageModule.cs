@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -40,39 +39,30 @@ namespace CompositeC1Contrib.Web
             if (iPage != null)
             {
                 var page = (Page)sender;
-                string masterPageFile = resolveMasterPagePath(iPage, page.Request);
-
-                if (masterPageFile != null)
+                if (page.AppRelativeVirtualPath == "~/Renderers/Page.aspx")
                 {
-                    page.AppRelativeVirtualPath = "~/";
-                    page.MasterPageFile = masterPageFile;
+                    string masterPageFile = resolveMasterPagePath(iPage, page.Request);
+
+                    if (masterPageFile != null)
+                    {
+                        page.AppRelativeVirtualPath = "~/";
+                        page.MasterPageFile = masterPageFile;
+                    }
                 }
             }
         }
 
-        private static string resolveInDirectory(string directory, string template, NameValueCollection qs)
+        private static string resolveInDirectory(string directory, string template, HttpRequest request)
         {
-            var specielPageModes = new[] { "print", "rss", "atom", "mobile" };
             var pathProvider = HostingEnvironment.VirtualPathProvider;
+            var specialMode = getSpecialMode(request);
 
-            if (qs.AllKeys.Length > 0 && qs.Keys[0] == null)
+            if (specialMode != null)
             {
-                foreach (var mode in specielPageModes)
+                var specialModeMaster = Path.Combine(directory, String.Format("{0}_{1}.master", template, specialMode));
+                if (pathProvider.FileExists(specialModeMaster))
                 {
-                    if (qs[0] == mode)
-                    {
-                        var specialModeMaster = Path.Combine(directory, String.Format("{1}_{2}.master", template, mode));
-                        if (pathProvider.FileExists(specialModeMaster))
-                        {
-                            return specialModeMaster;
-                        }
-
-                        specialModeMaster = Path.Combine(directory, mode + ".master");
-                        if (pathProvider.FileExists(specialModeMaster))
-                        {
-                            return specialModeMaster;
-                        }
-                    }
+                    return specialModeMaster;
                 }
             }
 
@@ -80,6 +70,27 @@ namespace CompositeC1Contrib.Web
             if (pathProvider.FileExists(masterFile))
             {
                 return masterFile;
+            }
+
+            return null;
+        }
+
+        private static string getSpecialMode(HttpRequest request)
+        {
+            var specielPageModes = new[] { "print", "rss", "atom", "mobile" };
+            var qs = request.QueryString;
+
+            if (qs.AllKeys.Length > 0 && qs.Keys[0] == null)
+            {
+                if (specielPageModes.Contains(qs[0]))
+                {
+                    return qs[0];
+                }
+            }
+
+            if (request.Browser.IsMobileDevice)
+            {
+                return "mobile";
             }
 
             return null;
@@ -96,15 +107,16 @@ namespace CompositeC1Contrib.Web
 
             using (var data = new DataConnection())
             {
-                var template = data.Get<IPageTemplate>().Single(t => t.Id == page.TemplateId);
-                var templateName = template.PageTemplateFilePath.Replace(".xml", String.Empty).Remove(0, 1);
+                var template = data.Get<IXmlPageTemplate>().Single(t => t.Id == page.TemplateId);
+                var path = template.PageTemplateFilePath;
+                var templateName = path.Replace(".xml", String.Empty).Remove(0, 1);
 
                 var siteId = data.SitemapNavigator.GetPageNodeById(page.Id).GetPageIds(SitemapScope.Level1).First().ToString();
                 dirsToTry.Insert(0, Path.Combine(rootTemplateDir, siteId));
 
                 foreach (var dir in dirsToTry)
                 {
-                    var masterFile = resolveInDirectory(dir, templateName, request.QueryString);
+                    var masterFile = resolveInDirectory(dir, templateName, request);
                     if (masterFile != null)
                     {
                         return masterFile;

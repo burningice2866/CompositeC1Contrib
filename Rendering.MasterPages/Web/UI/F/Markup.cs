@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web.UI;
 using System.Xml.Linq;
 
@@ -13,18 +12,7 @@ namespace CompositeC1Contrib.Web.UI.F
     [ParseChildren(false)]
     public class Markup : Control
     {
-        private static IList<IContentFilter> _contentFilters;
-
         protected XElement Content { get; set; }
-
-        static Markup()
-        {
-            _contentFilters = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .Where(t => typeof(IContentFilter).IsAssignableFrom(t) && !t.IsInterface)
-                .Select(t => (IContentFilter)Activator.CreateInstance(t))
-                .ToList();
-        }
 
         public Markup() { }
 
@@ -79,7 +67,7 @@ namespace CompositeC1Contrib.Web.UI.F
                     body = new XElement(Namespaces.Xhtml + "body");
                 }
 
-                filterContent(body);
+                ContentFilterFacade.FilterContent(body, this.ID);
 
                 addNodesAsControls(body.Nodes(), this, mapper);
 
@@ -91,7 +79,7 @@ namespace CompositeC1Contrib.Web.UI.F
                         head = new XElement(Namespaces.Xhtml + "head");
                     }
 
-                    filterContent(head);
+                    ContentFilterFacade.FilterContent(head, this.ID);
 
                     addNodesAsControls(head.Nodes(), Page.Header, mapper);
                 }
@@ -99,14 +87,6 @@ namespace CompositeC1Contrib.Web.UI.F
             }
 
             base.CreateChildControls();
-        }
-
-        private void filterContent(XElement doc)
-        {
-            foreach (var filter in _contentFilters)
-            {
-                filter.Filter(doc, this.ID);
-            }
         }
 
         private static void addNodesAsControls(IEnumerable<XNode> nodes, Control parent, IXElementToControlMapper mapper)

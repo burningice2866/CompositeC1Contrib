@@ -21,6 +21,7 @@ namespace CompositeC1Contrib.FunctionProvider
 
         private readonly IDictionary<string, FileBasedFunction<T>> _functionCache = new Dictionary<string, FileBasedFunction<T>>();
 
+        private C1FileSystemWatcher _watcher;
         private DateTime _lastUpdateTime;
         private string _rootFolder;
         private string _name;
@@ -101,17 +102,17 @@ namespace CompositeC1Contrib.FunctionProvider
 
             _rootFolder = PhysicalPath.Split(new[] { Path.DirectorySeparatorChar }).Last();
 
-            var watcher = new C1FileSystemWatcher(PhysicalPath, "*")
+            _watcher = new C1FileSystemWatcher(PhysicalPath, "*")
             {
                 IncludeSubdirectories = true
             };
 
-            watcher.Created += watcher_Changed;
-            watcher.Deleted += watcher_Changed;
-            watcher.Changed += watcher_Changed;
-            watcher.Renamed += watcher_Changed;
+            _watcher.Created += watcher_Changed;
+            _watcher.Deleted += watcher_Changed;
+            _watcher.Changed += watcher_Changed;
+            _watcher.Renamed += watcher_Changed;
 
-            watcher.EnableRaisingEvents = true;
+            _watcher.EnableRaisingEvents = true;
         }
 
         protected abstract Type GetReturnType(object obj);
