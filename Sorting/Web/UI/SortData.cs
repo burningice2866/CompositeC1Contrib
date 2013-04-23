@@ -14,22 +14,26 @@ namespace CompositeC1Contrib.Sorting.Web.UI
         [WebMethod]
         public static void UpdateOrder(string type, string consoleId, string entityToken, string serializedOrder)
         {
-            var s = HttpUtility.UrlDecode(type);
+            var sType = HttpUtility.UrlDecode(type);
 
-            UpdateOrder(TypeManager.GetType(s), serializedOrder);
+            UpdateOrder(TypeManager.GetType(sType), serializedOrder);
 
             var serializedEntityToken = HttpUtility.UrlDecode(entityToken);
-            updateParents(serializedEntityToken, consoleId);
+            if (!String.IsNullOrEmpty(serializedEntityToken))
+            {
+                updateParents(serializedEntityToken, consoleId);
+            }
         }
 
         protected IEnumerable<IGenericSortable> getInstances()
         {
-            var s = HttpUtility.UrlDecode(Request.QueryString["type"]);
-            var type = TypeManager.GetType(s);
+            var sType = HttpUtility.UrlDecode(Request.QueryString["type"]);
+            var sFilter = Request.QueryString["filter"] != null ? HttpUtility.UrlDecode(Request.QueryString["filter"]) : String.Empty;
+            var type = TypeManager.GetType(sType);
 
             using (new DataScope(DataScopeIdentifier.Administrated))
             {
-                var instances = DataFacade.GetData(type).Cast<IGenericSortable>();
+                IEnumerable<IGenericSortable> instances = DataFacade.GetData(type).Cast<IGenericSortable>();
 
                 if (typeof(IPageFolderData).IsAssignableFrom(type))
                 {
@@ -38,9 +42,26 @@ namespace CompositeC1Contrib.Sorting.Web.UI
                     instances = instances.Cast<IPageFolderData>().Where(f => f.PageId == pageId).Cast<IGenericSortable>();
                 }
 
-                return instances.OrderBy(g => g.LocalOrdering);
+                instances = instances.OrderBy(g => g.LocalOrdering);
+
+                if (!String.IsNullOrEmpty(sFilter))
+                {
+                    var filterParts = sFilter.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (filterParts.Length == 2)
+                    {
+                        instances = instances.AsEnumerable().Where(d =>
+                        {
+                            var prop = type.GetProperty(filterParts[0]);
+                            var value = filterParts[1];
+
+                            return prop.GetValue(d, null).ToString() == value;
+                        });
+                    }
+                }
+
+                return instances;
             }
-        }        
+        }
 
         private static void UpdateOrder(Type type, string serializedOrder)
         {
