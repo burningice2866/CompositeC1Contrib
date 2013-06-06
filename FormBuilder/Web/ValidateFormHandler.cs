@@ -18,8 +18,7 @@ namespace CompositeC1Contrib.FormBuilder.Web
 
             var sb = new StringBuilder();
 
-            string formName = ctx.Request.QueryString["formName"];
-            var formType = Type.GetType("CompositeC1Contrib.FormBuilder." + formName + ", DanskReturSystem.Pantstation");
+            var formType = Type.GetType(ctx.Request.QueryString["formType"]);
             var form = (BaseForm)Activator.CreateInstance(formType, ctx.Request.Form);
 
             var validationResult = form.Validate().ToList();

@@ -1,47 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
+﻿using Composite.AspNet.Razor;
 using Composite.Core.Xml;
-
-using CompositeC1Contrib.FunctionProvider;
-
-using StandardWidgetFunctions = Composite.Functions.StandardWidgetFunctions;
 
 namespace CompositeC1Contrib.FormBuilder.Web.UI
 {
-    public abstract class StandardFormPage : BaseFormPage<BaseForm>
+    public sealed class StandardFormPage<T> : FormsPage<T> where T : BaseForm
     {
-        [FunctionParameter("Form type", "Vælg hvilken formular der skal vises")]
-        public string FormType { get; set; }
+        private XhtmlDocument before;
+        private XhtmlDocument success;
 
-        [FunctionParameter("Before", "Text that is shown above the form but disappears after submission", "")]
-        public XhtmlDocument Before { get; set; }
-
-        [FunctionParameter("Success", "Text that is shown on successful submission", "")]
-        public XhtmlDocument Success { get; set; }
-
-        protected override Type ResolveFormType()
+        public StandardFormPage(XhtmlDocument before, XhtmlDocument success)
         {
-            return Type.GetType(FormType);
+            this.before = before;
+            this.success = success;
         }
 
-        public virtual ParameterWidgets GetParameterWidgets()
+        public override void Execute()
         {
-            return new ParameterWidgets()
+            ExecutePageHierarchy();
+        }
+
+        public override void ExecutePageHierarchy()
+        {
+            if (IsSuccess)
             {
-                { () => this.FormType, StandardWidgetFunctions.DropDownList(typeof(StandardFormPage), "GetFormTypes", "Key", "Value", false, false) }
-            };
-        }
+                Write(Html.C1().Markup(success));
+            }
+            else
+            {
+                Write(Html.C1().Markup(before));
 
-        public static IDictionary<string, string> GetFormTypes()
-        {
-            var formTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .Where(t => typeof(BaseForm).IsAssignableFrom(t))
-                .ToList();
+                Write("<p>Felter med <span class=\"required\">*</span> skal udfyldes.</p>");
 
-            return formTypes.ToDictionary(t => t.AssemblyQualifiedName, t => t.Name);
+                using (BeginForm())
+                {
+                    Write(Form.WriteErrors());
+                    Write(WriteAllFields());
+
+                    Write("<div class=\"Buttons\"><input type=\"submit\" value=\"" + SubmitButtonLabel + "\" name=\"SubmitForm\" /></div>");
+                }
+            }
+
+            base.ExecutePageHierarchy();
         }
     }
 }

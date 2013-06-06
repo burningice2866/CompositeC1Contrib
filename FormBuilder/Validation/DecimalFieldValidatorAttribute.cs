@@ -2,9 +2,9 @@
 
 namespace CompositeC1Contrib.FormBuilder.Validation
 {
-    public class IntegerFieldValidatorAttribute : FormValidationAttribute
+    public class DecimalFieldValidatorAttribute : FormValidationAttribute
     {
-        public IntegerFieldValidatorAttribute(string message) : base(message) { }
+        public DecimalFieldValidatorAttribute(string message) : base(message) { }
 
         public override FormValidationRule CreateRule(PropertyInfo prop, BaseForm form)
         {
@@ -14,9 +14,9 @@ namespace CompositeC1Contrib.FormBuilder.Validation
                 Rule = () =>
                 {
                     var s = form.SubmittedValues[prop.Name];
-                    var i = 0;
+                    var i = 0m;
 
-                    if (!int.TryParse(s, out i))
+                    if (!decimal.TryParse(s, out i))
                     {
                         return !form.IsRequired(prop);
                     }

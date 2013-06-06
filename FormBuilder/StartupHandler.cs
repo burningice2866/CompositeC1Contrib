@@ -12,8 +12,8 @@ namespace CompositeC1Contrib.FormBuilder
 
         public static void OnInitialized()
         {
-            DynamicTypeManager.EnsureCreateStore(typeof(IForm));
-            DynamicTypeManager.EnsureCreateStore(typeof(IDefaultFormField));
+            //DynamicTypeManager.EnsureCreateStore(typeof(IForm));
+            //DynamicTypeManager.EnsureCreateStore(typeof(IDefaultFormField));
         }
     }
 }

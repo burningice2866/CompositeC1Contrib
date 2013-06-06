@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 using CompositeC1Contrib.FormBuilder.Attributes;
+using CompositeC1Contrib.FormBuilder.Dependencies;
 using CompositeC1Contrib.FormBuilder.Validation;
 
 namespace CompositeC1Contrib.FormBuilder
@@ -14,80 +15,147 @@ namespace CompositeC1Contrib.FormBuilder
     {
         private readonly object _lock = new object();
 
-        private NameValueCollection _form = null;
+        public NameValueCollection SubmittedValues { get; private set; }
+        public IEnumerable<FormFile> SubmittedFiles { get; private set; }
+
         private IDictionary<PropertyInfo, IList<FormValidationRule>> _ruleList = null;
         private List<FormValidationRule> _validationResult = null;
 
-        public BaseForm(NameValueCollection form)
+        public BaseForm(NameValueCollection values, IEnumerable<FormFile> files)
         {
-            _form = form;
+            SubmittedValues = values;
+            SubmittedFiles = files;
 
-            var props = GetType().GetProperties();
-            foreach (var prop in props)
+            if (SubmittedValues != null)
             {
-                var val = (_form[prop.Name] ?? String.Empty).Trim();
-                var t = prop.PropertyType;
+                var props = GetType().GetProperties().Where(p => p.DeclaringType != typeof(BaseForm));
+                foreach (var prop in props)
+                {
+                    var val = (SubmittedValues[prop.Name] ?? String.Empty).Trim();
+                    var t = prop.PropertyType;
 
-                if (t == typeof(int))
-                {
-                    var i = 0;
-                    int.TryParse(val, out i);
-
-                    prop.SetValue(this, i, null);
-                }
-                else if (t == typeof(int?))
-                {
-                    var i = 0;
-                    if (int.TryParse(val, out i))
-                    {
-                        prop.SetValue(this, i, null);
-                    }
-                    else
-                    {
-                        prop.SetValue(this, null, null);
-                    }
-                }
-                else if (t == typeof(bool))
-                {
-                    prop.SetValue(this, val == "on", null);
-                }
-                else if (t == typeof(string))
-                {
-                    prop.SetValue(this, val, null);
+                    MapValueToProperty(prop, val, t);
                 }
             }
         }
 
-        public IEnumerable<FormValidationRule> Validate()
+        private void MapValueToProperty(PropertyInfo prop, string val, Type t)
         {
-            if (_form.AllKeys.Length > 0)
+            if (t == typeof(int))
             {
-                ensureRulesList();
+                var i = 0;
+                int.TryParse(val, out i);
 
-                if (_validationResult == null)
+                prop.SetValue(this, i, null);
+            }
+            else if (t == typeof(decimal))
+            {
+                var d = 0m;
+                decimal.TryParse(val, out d);
+
+                prop.SetValue(this, d, null);
+            }
+            else if (t == typeof(int?))
+            {
+                var i = 0;
+                if (int.TryParse(val, out i))
                 {
-                    lock (_lock)
-                    {
-                        if (_validationResult == null)
-                        {
-                            _validationResult = new List<FormValidationRule>();
+                    prop.SetValue(this, i, null);
+                }
+                else
+                {
+                    prop.SetValue(this, null, null);
+                }
+            }
+            else if (t == typeof(decimal?))
+            {
+                var d = 0m;
+                if (decimal.TryParse(val, out d))
+                {
+                    prop.SetValue(this, d, null);
+                }
+                else
+                {
+                    prop.SetValue(this, null, null);
+                }
+            }
+            else if (t == typeof(bool))
+            {
+                var b = false;
 
-                            foreach (var list in _ruleList.Values)
-                            {
-                                var validationResult = getFormValidationResult(list, false);
-
-                                _validationResult.AddRange(validationResult);
-                            }
-                        }
-                    }
+                if (val == "on")
+                {
+                    b = true;
+                }
+                else
+                {
+                    bool.TryParse(val, out b);
                 }
 
-                return _validationResult;
+                prop.SetValue(this, b, null);
+
             }
-            else
+            else if (t == typeof(string))
+            {
+                prop.SetValue(this, val, null);
+            }
+            else if (t == typeof(IEnumerable<string>))
+            {
+                prop.SetValue(this, val.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries), null);
+            }
+
+            if (SubmittedFiles != null && SubmittedFiles.Any())
+            {
+                if (t == typeof(FormFile))
+                {
+                    prop.SetValue(this, SubmittedFiles.First(), null);
+                }
+                else if (t == typeof(IEnumerable<FormFile>))
+                {
+                    prop.SetValue(this, SubmittedFiles, null);
+                }
+            }
+        }
+
+        protected virtual void OnValidation(FormValidationEventArgs e) { }
+
+        public IEnumerable<FormValidationRule> Validate()
+        {
+            if (SubmittedValues == null || SubmittedValues.AllKeys.Length == 0)
             {
                 return Enumerable.Empty<FormValidationRule>();
             }
+
+            var e = new FormValidationEventArgs();
+
+            OnValidation(e);
+
+            if (e.Cancel)
+            {
+                return Enumerable.Empty<FormValidationRule>();
+            }
+
+            ensureRulesList();
+
+            if (_validationResult == null)
+            {
+                lock (_lock)
+                {
+                    if (_validationResult == null)
+                    {
+                        _validationResult = new List<FormValidationRule>();
+
+                        foreach (var list in _ruleList.Values)
+                        {
+                            var validationResult = getFormValidationResult(list, false);
+
+                            _validationResult.AddRange(validationResult);
+                        }
+                    }
+                }
+            }
+
+            return _validationResult;
         }
 
         public bool IsValid(string[] fields)
@@ -114,6 +182,30 @@ namespace CompositeC1Contrib.FormBuilder
 
             return attrs.Any(attr => attr is RequiredFieldAttribute);
         }
+        
+        private bool IsDependencyMetRecursive(PropertyInfo prop)
+        {
+            var attributes = prop.GetCustomAttributes(true).OfType<FormDependencyAttribute>().ToList();
+
+            if (!attributes.Any())
+            {
+                return true;
+            }
+
+            foreach (var dependencyAttribute in attributes)
+            {
+                if (dependencyAttribute.DependencyMet(this))
+                {
+                    var dependencyProperty = this.GetType().GetProperty(dependencyAttribute.ReadFromFieldName);
+                    if (IsDependencyMetRecursive(dependencyProperty))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
 
         private void ensureRulesList()
         {
@@ -136,14 +228,20 @@ namespace CompositeC1Contrib.FormBuilder
                             var list = _ruleList[prop];
 
                             var attributes = prop.GetCustomAttributes(true);
-                            foreach (var attr in attributes)
-                            {
-                                var validationAttribute = attr as FormValidationAttribute;
-                                if (validationAttribute != null)
-                                {
-                                    var rule = validationAttribute.CreateRule(prop, this);
 
-                                    list.Add(rule);
+                            bool validateField = IsDependencyMetRecursive(prop);
+
+                            if (validateField)
+                            {
+                                foreach (var attr in attributes)
+                                {
+                                    var validationAttribute = attr as FormValidationAttribute;
+                                    if (validationAttribute != null)
+                                    {
+                                        var rule = validationAttribute.CreateRule(prop, this);
+
+                                        list.Add(rule);
+                                    }
                                 }
                             }
                         }
@@ -165,11 +263,6 @@ namespace CompositeC1Contrib.FormBuilder
                 })
             .Where(r => !r.Rule())
             .ToList();
-        }
-
-        public string GetFormValue(string name)
-        {
-            return _form[name];
         }
 
         public void Submit()

@@ -6,5 +6,6 @@ namespace CompositeC1Contrib.FormBuilder.Attributes
     public abstract class DataSourceAttribute : Attribute
     {
         public abstract object GetData(BaseForm form);
+
     }
 }

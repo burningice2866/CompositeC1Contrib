@@ -22,7 +22,7 @@ namespace CompositeC1Contrib.FormBuilder.Attributes
         public override object GetData(BaseForm form)
         {
             var type = _declaringType ?? form.GetType();
-            var method = type.GetMethod(_methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var method = type.GetMethod(_methodName, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
             return method.Invoke(form, null);
         }

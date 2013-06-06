@@ -1,6 +1,6 @@
 ﻿using System;
 
-using CompositeC1Contrib.RazorFunctions;
+using Composite.AspNet.Razor;
 
 namespace CompositeC1Contrib.FormBuilder.Web.UI
 {
