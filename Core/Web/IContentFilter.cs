@@ -1,9 +1,9 @@
-﻿using System.Xml.Linq;
+﻿using Composite.Core.Xml;
 
 namespace CompositeC1Contrib.Web
 {
     public interface IContentFilter
     {
-        void Filter(XElement document, string id);
+        void Filter(XhtmlDocument document, string id);
     }
 }

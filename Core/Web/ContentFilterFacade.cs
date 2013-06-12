@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
+using Composite.Core.Xml;
+
 namespace CompositeC1Contrib.Web
 {
     public static class ContentFilterFacade
@@ -28,12 +30,24 @@ namespace CompositeC1Contrib.Web
             }
         }
 
-        public static void FilterContent(XElement doc, string id)
+        public static XhtmlDocument FilterContent(XhtmlDocument doc)
         {
+            return FilterContent(doc, String.Empty);
+        }
+
+        public static XhtmlDocument FilterContent(XhtmlDocument doc, string id)
+        {
+            if (doc == null)
+            {
+                return null;
+            }
+
             foreach (var filter in _contentFilters)
             {
                 filter.Filter(doc, id);
             }
+
+            return doc;
         }
     }
 }
