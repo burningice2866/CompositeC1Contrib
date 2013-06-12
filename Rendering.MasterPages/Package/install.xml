@@ -5,7 +5,7 @@
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.Renderings.MasterPage" 
                          groupName="Contribution" 
-                         version="1.6" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="1.7" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          readMoreUrl="http://docs.composite.net/Contribution.CompositeC1Contrib.Core"
                          id="f7df8729-9f22-43b5-ba35-c67abb5449cf" 
                          canBeUninstalled="true" 

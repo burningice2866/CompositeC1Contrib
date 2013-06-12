@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -39,61 +40,35 @@ namespace CompositeC1Contrib.Web
             if (iPage != null)
             {
                 var page = (Page)sender;
-                if (page.AppRelativeVirtualPath == "~/Renderers/Page.aspx")
-                {
-                    string masterPageFile = resolveMasterPagePath(iPage, page.Request);
+                var ctx = HttpContext.Current;
 
-                    if (masterPageFile != null)
+                var qs = page.Request.QueryString;
+                if (qs.AllKeys.Length > 0 && qs.Keys[0] == null)
+                {
+                    if (qs[0] == "mobile")
                     {
-                        page.AppRelativeVirtualPath = "~/";
-                        page.MasterPageFile = masterPageFile;
+                        ctx.SetOverriddenBrowser(BrowserOverride.Mobile);
+                    }
+
+                    if (qs[0] == "desktop")
+                    {
+                        ctx.SetOverriddenBrowser(BrowserOverride.Desktop);
                     }
                 }
-            }
-        }
 
-        private static string resolveInDirectory(string directory, string template, HttpRequest request)
-        {
-            var pathProvider = HostingEnvironment.VirtualPathProvider;
-            var specialMode = getSpecialMode(request);
-
-            if (specialMode != null)
-            {
-                var specialModeMaster = Path.Combine(directory, String.Format("{0}_{1}.master", template, specialMode));
-                if (pathProvider.FileExists(specialModeMaster))
+                var overWrittenBrowser = ctx.GetOverriddenBrowser();
+                if (overWrittenBrowser != null)
                 {
-                    return specialModeMaster;
+                    page.Request.Browser = ctx.GetOverriddenBrowser();
+                }
+
+                string masterPageFile = resolveMasterPagePath(iPage, page.Request);
+                if (masterPageFile != null)
+                {
+                    page.AppRelativeVirtualPath = "~/";
+                    page.MasterPageFile = masterPageFile;
                 }
             }
-
-            var masterFile = Path.Combine(directory, template + ".master");
-            if (pathProvider.FileExists(masterFile))
-            {
-                return masterFile;
-            }
-
-            return null;
-        }
-
-        private static string getSpecialMode(HttpRequest request)
-        {
-            var specielPageModes = new[] { "print", "rss", "atom", "mobile" };
-            var qs = request.QueryString;
-
-            if (qs.AllKeys.Length > 0 && qs.Keys[0] == null)
-            {
-                if (specielPageModes.Contains(qs[0]))
-                {
-                    return qs[0];
-                }
-            }
-
-            if (request.Browser.IsMobileDevice)
-            {
-                return "mobile";
-            }
-
-            return null;
         }
 
         private static string resolveMasterPagePath(IPage page, HttpRequest request)
@@ -108,20 +83,58 @@ namespace CompositeC1Contrib.Web
             using (var data = new DataConnection())
             {
                 var template = data.Get<IXmlPageTemplate>().Single(t => t.Id == page.TemplateId);
-                var path = template.PageTemplateFilePath;
-                var templateName = path.Replace(".xml", String.Empty).Remove(0, 1);
+                var templateName = template.PageTemplateFilePath.Replace(".xml", String.Empty).Remove(0, 1);
 
                 var siteId = data.SitemapNavigator.GetPageNodeById(page.Id).GetPageIds(SitemapScope.Level1).First().ToString();
                 dirsToTry.Insert(0, Path.Combine(rootTemplateDir, siteId));
 
                 foreach (var dir in dirsToTry)
                 {
-                    var masterFile = resolveInDirectory(dir, templateName, request);
+                    var masterFile = resolveInDirectory(dir, templateName, request.QueryString);
                     if (masterFile != null)
                     {
                         return masterFile;
                     }
                 }
+            }
+
+            return null;
+        }
+
+        private static string resolveInDirectory(string directory, string template, NameValueCollection qs)
+        {
+            var pathProvider = HostingEnvironment.VirtualPathProvider;
+            var specielPageModes = new List<string>();
+
+            if (HttpContext.Current.Request.Browser.IsMobileDevice)
+            {
+                specielPageModes.Add("mobile");
+            }
+
+            if (qs.AllKeys.Length > 0 && qs.Keys[0] == null && qs[0] == "print")
+            {
+                specielPageModes.Add("print");
+            }
+
+            foreach (var mode in specielPageModes)
+            {
+                var specialModeMaster = Path.Combine(directory, String.Format("{0}_{1}.master", template, mode));
+                if (pathProvider.FileExists(specialModeMaster))
+                {
+                    return specialModeMaster;
+                }
+
+                specialModeMaster = Path.Combine(directory, mode + ".master");
+                if (pathProvider.FileExists(specialModeMaster))
+                {
+                    return specialModeMaster;
+                }
+            }
+
+            var masterFile = Path.Combine(directory, template + ".master");
+            if (pathProvider.FileExists(masterFile))
+            {
+                return masterFile;
             }
 
             return null;

@@ -59,31 +59,16 @@ namespace CompositeC1Contrib.Web.UI.F
             {
                 var helper = new PageRendererHelper();
                 var mapper = (IXElementToControlMapper)helper.FunctionContext.XEmbedableMapper;
-                var doc = helper.RenderDocument(Content);
+                var doc = new XhtmlDocument(helper.RenderDocument(Content));
 
-                var body = PageRendererHelper.GetDocumentPart(doc, "body");
-                if (body == null)
-                {
-                    body = new XElement(Namespaces.Xhtml + "body");
-                }
+                ContentFilterFacade.FilterContent(doc, ID);
 
-                ContentFilterFacade.FilterContent(body, this.ID);
-
-                addNodesAsControls(body.Nodes(), this, mapper);
+                addNodesAsControls(doc.Body.Nodes(), this, mapper);
 
                 if (Page.Header != null)
                 {
-                    var head = PageRendererHelper.GetDocumentPart(doc, "head");
-                    if (head == null)
-                    {
-                        head = new XElement(Namespaces.Xhtml + "head");
-                    }
-
-                    ContentFilterFacade.FilterContent(head, this.ID);
-
-                    addNodesAsControls(head.Nodes(), Page.Header, mapper);
+                    addNodesAsControls(doc.Head.Nodes(), Page.Header, mapper);
                 }
-
             }
 
             base.CreateChildControls();
@@ -94,6 +79,7 @@ namespace CompositeC1Contrib.Web.UI.F
             foreach (var node in nodes)
             {
                 var c = node.AsAspNetControl(mapper);
+
                 parent.Controls.Add(c);
             }
         }
