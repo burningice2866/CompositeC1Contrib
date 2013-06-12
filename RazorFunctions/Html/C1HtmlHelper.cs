@@ -48,7 +48,7 @@ namespace CompositeC1Contrib.RazorFunctions.Html
 
             if (querystring != null && querystring.Keys.Count > 0)
             {
-                absoulteUrl += "?" + String.Join("&", querystring.Select(kvp => kvp.Key + "=" + kvp.Value));
+                absoulteUrl += "?" + String.Join("&amp;", querystring.Select(kvp => kvp.Key + "=" + kvp.Value));
             }
 
             return _helper.Raw(absoulteUrl);
@@ -93,7 +93,7 @@ namespace CompositeC1Contrib.RazorFunctions.Html
 
             if (querystring != null && querystring.Keys.Count > 0)
             {
-                absoulteUrl += "?" + String.Join("&amp;", querystring.Select(kvp => kvp.Key + "=" + kvp.Value));
+                absoulteUrl += "?" + String.Join("&amp;", querystring.Select(kvp => kvp.Key + "=" + HttpUtility.UrlEncode(kvp.Value.ToString())));
             }
 
             return _helper.Raw(absoulteUrl);

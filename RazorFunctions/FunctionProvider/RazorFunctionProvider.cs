@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Web.WebPages;
+
+using Microsoft.Practices.EnterpriseLibrary.Common.Configuration;
 
 using Composite.Core.Xml;
 
 using CompositeC1Contrib.FunctionProvider;
-using CompositeC1Contrib.RazorFunctions.Parser;
-using Microsoft.Practices.EnterpriseLibrary.Common.Configuration;
 
 namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
 {
@@ -27,12 +26,6 @@ namespace CompositeC1Contrib.RazorFunctions.FunctionProvider
 
         protected override Type GetReturnType(object obj)
         {
-            var attr = obj.GetType().GetCustomAttributes(typeof(FunctionReturnTypeAttribute), false).Cast<FunctionReturnTypeAttribute>().FirstOrDefault();
-            if (attr != null)
-            {
-                return attr.ReturnType;
-            }
-
             return typeof(XhtmlDocument);
         }
 
