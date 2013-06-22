@@ -225,7 +225,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             {
                 case InputType.Checkbox:
 
-                    if (value is bool)
+                    if (prop.PropertyType == typeof(bool))
                     {
                         var check = (bool)value ? "checked=\"checked\"" : "";
 
@@ -236,13 +236,13 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                             check,
                             writeClass(htmlAttributes));
                     }
-                    else if (value is IEnumerable<string>)
+                    else if (prop.PropertyType == typeof(IEnumerable<string>))
                     {
                         var checkboxListOptions = getOptions(form, prop);
                         if (checkboxListOptions != null)
                         {
                             var ix = 0;
-                            var list = (IEnumerable<string>)value;
+                            var list = value == null ? Enumerable.Empty<string>() : (IEnumerable<string>)value;
 
                             foreach (var item in checkboxListOptions)
                             {

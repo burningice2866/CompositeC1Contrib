@@ -8,7 +8,9 @@ using System.Text;
 using System.Web;
 
 using Composite.AspNet.Razor;
+using Composite.Core.Xml;
 using Composite.Data;
+using Composite.Functions;
 
 using CompositeC1Contrib.FormBuilder.Attributes;
 using CompositeC1Contrib.FormBuilder.Dependencies;
@@ -32,13 +34,20 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                     if (IsOwnSubmit)
                     {
                         var requestFiles = Request.Files;
-                        var files = requestFiles.AllKeys.Select(k => requestFiles[k]).Select(f => new FormFile()
+                        var files = new List<FormFile>();
+
+                        for (int i = 0; i < requestFiles.Count; i++)
                         {
-                            ContentLength = f.ContentLength,
-                            ContentType = f.ContentType,
-                            FileName = f.FileName,
-                            InputStream = f.InputStream
-                        });
+                            var f = requestFiles[i];
+
+                            files.Add(new FormFile()
+                            {
+                                ContentLength = f.ContentLength,
+                                ContentType = f.ContentType,
+                                FileName = f.FileName,
+                                InputStream = f.InputStream
+                            });
+                        }
 
                         _form = (T)ctor.Invoke(new object[] { Request.Form, files });
                     }
@@ -77,6 +86,12 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         {
             get { return IsOwnSubmit && !Form.Validate().Any(); }
         }
+
+        [FunctionParameter(Label = "Intro text", DefaultValue = null)]
+        public XhtmlDocument IntroText { get; set; }
+        
+        [FunctionParameter(Label = "Success response", DefaultValue = null)]
+        public XhtmlDocument SuccessResponse { get; set; }	
 
         public FormsPage()
         {
