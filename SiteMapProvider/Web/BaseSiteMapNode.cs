@@ -38,7 +38,7 @@ namespace CompositeC1Contrib.Web
 
         public bool Equals(BaseSiteMapNode obj)
         {
-            return Key == obj.Key && Culture == obj.Culture;
+            return Key == obj.Key && Culture.Equals(obj.Culture);
         }
 
         public override bool Equals(object obj)

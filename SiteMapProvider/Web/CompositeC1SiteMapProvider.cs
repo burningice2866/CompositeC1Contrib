@@ -35,9 +35,11 @@ namespace CompositeC1Contrib.Web
                 if (scope == PublicationScope.Unpublished)
                 {
                     return false;
-        }
+                }
 
-                return true;
+                var urlSpace = new UrlSpace(HttpContext.Current);
+
+                return !urlSpace.ForceRelativeUrls;
             }
         }
 
@@ -133,7 +135,7 @@ namespace CompositeC1Contrib.Web
         protected override Uri ProcessUrl(Uri uri)
         {
             PageUrlData urlData;
-            
+
             var ctx = HttpContext.Current;
 
             string _previewKey = ctx.Request.QueryString["previewKey"];
@@ -164,7 +166,7 @@ namespace CompositeC1Contrib.Web
                 uri = new Uri(uri.ToString().Replace(uri.Host, overridenContext.Host));
             }
 
-            return uri;            
+            return uri;
         }
 
         protected override void AddRolesInternal(IDictionary<CultureInfo, SiteMapContainer> list) { }
@@ -173,7 +175,7 @@ namespace CompositeC1Contrib.Web
         {
             if (pageNode.Url == null)
             {
-                return; 
+                return;
             }
 
             var node = new CompositeC1SiteMapNode(this, pageNode, data);

@@ -280,7 +280,12 @@ namespace CompositeC1Contrib.Web
             {
                 lock (_lock)
                 {
-                    if (list == null)
+                    if (!forceRefresh)
+                    {
+                        list = loadFromCache(host);
+                    }
+
+                    if (forceRefresh || list == null)
                     {
                         list = new Dictionary<CultureInfo, SiteMapContainer>();
 

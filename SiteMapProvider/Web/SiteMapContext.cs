@@ -8,7 +8,8 @@ namespace CompositeC1Contrib.Web
 {
     public class SiteMapContext : IDisposable
     {
-        private static SiteMapContext _overridenContext = null;
+        [ThreadStatic]
+        private static SiteMapContext _overridenContext;
         public static SiteMapContext OverrideContext
         {
             get { return _overridenContext; }
