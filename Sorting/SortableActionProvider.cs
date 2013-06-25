@@ -93,15 +93,7 @@ namespace CompositeC1Contrib.Sorting
             {
                 var type = dataToken.InterfaceType;
 
-                if (sortableType.IsAssignableFrom(type))
-                {
-                    if (!typeof(IPageFolderData).IsAssignableFrom(type))
-                    {
-                        url = "Sort.aspx?type=" + dataToken.InterfaceType.FullName;
-                        label += " " + DataAttributeFacade.GetTypeTitle(type);
-                    }                    
-                }
-                else if (typeof(IPage).IsAssignableFrom(type))
+                if (typeof(IPage).IsAssignableFrom(type))
                 {
                     var page = (IPage)dataToken.Data;
 

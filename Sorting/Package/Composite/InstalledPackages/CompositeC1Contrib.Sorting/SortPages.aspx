@@ -78,7 +78,7 @@
                 <% foreach (var instance in getPages()) { %>
                     <li id="instance_<%= hashId(instance) %>" class="ui-state-default">
                         <img src="arrow.png" alt="Drag" class="handle" />
-                        <%= instance.GetLabel() %>
+                        <%= Server.HtmlEncode(instance.GetLabel()) %>
                     </li>
                 <% } %>        
             </ul>
