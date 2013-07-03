@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
-
+using Composite.Core.ResourceSystem;
 using CompositeC1Contrib.FormBuilder.Attributes;
 using CompositeC1Contrib.FormBuilder.Validation;
 using CompositeC1Contrib.FormBuilder.Dependencies;
@@ -38,7 +38,13 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             if (validationResult.Any())
             {
                 sb.Append("<div class=\"error_notification\">");
-                sb.Append("<p>Du mangler at udfylde nogle felter:</p>");
+
+
+                if (!string.IsNullOrEmpty(Localization.Validation_ErrorNotificationTop))
+                {
+                    sb.Append("<p>" + HttpUtility.HtmlEncode(Localization.Validation_ErrorNotificationTop) + "</p>");
+                }
+                
                 sb.Append("<ul>");
 
                 foreach (var el in validationResult)
@@ -47,7 +53,12 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                 }
 
                 sb.Append("</ul>");
-                sb.Append("<p>Udfyld venligst felterne og send igen.</p>");
+
+                if (!string.IsNullOrEmpty(Localization.Validation_ErrorNotificationBottom))
+                {
+                    sb.Append("<p>" + HttpUtility.HtmlEncode(Localization.Validation_ErrorNotificationBottom) + "</p>");
+                }
+
                 sb.Append("</div>");
             }
 
@@ -305,13 +316,16 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                     var dropdownOptions = getOptions(form, prop);
                     if (dropdownOptions != null)
                     {
-                        var selectLabel = options.HideLabels ? strLabel : "Vælg";
+                        var selectLabel = options.HideLabels ? strLabel : Localization.Widgets_Dropdown_SelectLabel;
 
-                        sb.AppendFormat("<option value=\"\" selected=\"selected\" disabled=\"disabled\">{0}</option>", selectLabel);
+                        sb.AppendFormat("<option value=\"\" selected=\"selected\" disabled=\"disabled\">{0}</option>", HttpUtility.HtmlEncode(selectLabel));
 
                         foreach (var item in dropdownOptions)
                         {
-                            sb.AppendFormat("<option value=\"{0}\" {1}>{2}</option>", item.Key, writeChecked(item.Key == (value ?? String.Empty).ToString(), "selected"), item.StringLabel);
+                            sb.AppendFormat("<option value=\"{0}\" {1}>{2}</option>", 
+                                HttpUtility.HtmlAttributeEncode(item.Key), 
+                                writeChecked(item.Key == (value ?? String.Empty).ToString(), "selected"), 
+                                HttpUtility.HtmlEncode(item.StringLabel));
                         }
                     }
 

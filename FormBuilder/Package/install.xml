@@ -5,7 +5,7 @@
 
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.FormBuilder"
                          groupName="Contribution"
-                         version="0.6.1" author="@burningice" website="http://compositec1contrib.codeplex.com"
+                         version="0.6.2" author="@burningice" website="http://compositec1contrib.codeplex.com"
                          readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="ddae5f9b-32c8-45ef-9144-5155c1e6d0b4"
                          canBeUninstalled="true"
@@ -21,13 +21,13 @@
         <File sourceFilename="~\Bin\CompositeC1Contrib.Core.dll" targetFilename="~\Bin\CompositeC1Contrib.Core.dll" allowOverwrite="true" />
         <File sourceFilename="~\Bin\CompositeC1Contrib.Sorting.dll" targetFilename="~\Bin\CompositeC1Contrib.Sorting.dll" allowOverwrite="true" />
         <File sourceFilename="~\Bin\CompositeC1Contrib.FormBuilder.dll" targetFilename="~\Bin\CompositeC1Contrib.FormBuilder.dll" allowOverwrite="true" />
-
-        <File sourceFilename="~\content\Frontend\Scripts\plugins\formbuilder.validation.js" targetFilename="~\Frontend\js\plugins\formbuilder.validation.js" allowOverwrite="true" />
+        <File sourceFilename="~\content\Frontend\js\plugins\formbuilder.validation.js" targetFilename="~\Frontend\js\plugins\formbuilder.validation.js" allowOverwrite="true" />
       </Files>
 
       <Directories>
         <Directory sourceDirectory="~\content\App_Data\Composite\DynamicTypeForms\CompositeC1Contrib\FormBuilder\Data\Types\" targetDirectory="~\App_Data\Composite\DynamicTypeForms\CompositeC1Contrib\FormBuilder\Data\Types" allowOverwrite="true" deleteTargetDirectory="true" />
         <Directory sourceDirectory="~\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder\" targetDirectory="~\Composite\content\forms\InstalledPackages\CompositeC1Contrib.FormBuilder" allowOverwrite="true" deleteTargetDirectory="true" />
+        <Directory sourceDirectory="~\content\Composite\InstalledPackages\localization\" targetDirectory="~\Composite\InstalledPackages\localization\" allowOverwrite="true" />
       </Directories>
     </mi:Add>
 
@@ -35,8 +35,8 @@
       installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentInstaller, Composite"
       uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentUninstaller, Composite">
       <XmlFileMerges>
-        <XmlFileMerge source="~\config\App_Data\Composite\composite.config" target="~\App_Data\Composite\composite.config" />
-        <XmlFileMerge source="~\config\web.config" target="~\web.config" />
+        <XmlFileMerge changeDefinitionPath="~\config\App_Data\Composite\composite.config" targetFilePath="~\App_Data\Composite\composite.config" />
+        <XmlFileMerge changeDefinitionPath="~\config\web.config" targetFilePath="~\web.config" />
       </XmlFileMerges>
     </mi:Add>
   </mi:PackageFragmentInstallers>
