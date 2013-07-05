@@ -201,24 +201,35 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         private static IEnumerable<RichTextListItem> getOptions(BaseForm form, PropertyInfo prop)
         {
             var datasourceAttribute = prop.GetCustomAttributes(typeof(DataSourceAttribute), true).FirstOrDefault() as DataSourceAttribute;
-            if (datasourceAttribute != null)
+            if (datasourceAttribute == null)
             {
-                var ds = datasourceAttribute.GetData(form);
-
-                var dict = ds as IDictionary<string, string>;
-                if (dict != null)
-                {
-                    return dict.Select(f => new RichTextListItem(f.Key, f.Value));
-                }
-
-                var list = ds as IEnumerable<RichTextListItem>;
-                if (list != null)
-                {
-                    return list;
-                }
+                return null;
             }
 
-            return null;
+            var ds = datasourceAttribute.GetData(form);
+            if (ds == null)
+            {
+                return null;
+            }
+
+            var dict = ds as IDictionary<string, string>;
+            if (dict != null)
+            {
+                return dict.Select(f => new RichTextListItem(f.Key, f.Value));
+            }
+
+            if (ds is IEnumerable<string>)
+            {
+                return (ds as IEnumerable<string>).Select(str => new RichTextListItem(str, str));
+            }
+ 
+            var list = ds as IEnumerable<RichTextListItem>;
+            if (list != null)
+            {
+                return list;
+            }
+
+            throw new InvalidOperationException("Unsupported data source type: " + ds.GetType().FullName);
         }
 
         private static void writeField(InputType type, string name, string help, FieldLabelAttribute attrLabel, bool required, BaseForm form, FormOptions options, PropertyInfo prop, StringBuilder sb, IDictionary<string, object> htmlAttributes)
