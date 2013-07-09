@@ -78,6 +78,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\FormNameAttribute.cs" />
     <Compile Include="Attributes\DataSourceAttribute.cs" />
     <Compile Include="Attributes\EqualsConstantValidatorAttribute.cs" />
     <Compile Include="Attributes\FieldHelpAttribute.cs" />

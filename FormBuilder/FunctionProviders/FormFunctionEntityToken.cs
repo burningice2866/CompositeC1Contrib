@@ -22,7 +22,7 @@ namespace CompositeC1Contrib.FormBuilder.FunctionProviders
 
         public override string Type
         {
-            get { return String.Empty; ; }
+            get { return String.Empty; }
         }
 
         public FormFunctionEntityToken(string source, string id)
