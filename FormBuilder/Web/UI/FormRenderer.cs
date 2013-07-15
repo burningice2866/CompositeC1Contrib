@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
-using Composite.Core.ResourceSystem;
 using CompositeC1Contrib.FormBuilder.Attributes;
 using CompositeC1Contrib.FormBuilder.Validation;
 using CompositeC1Contrib.FormBuilder.Dependencies;
@@ -252,9 +251,9 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                         var check = (bool)value ? "checked=\"checked\"" : "";
 
                         sb.AppendFormat("<input type=\"checkbox\" name=\"{0}\" id=\"{1}\" value=\"on\" title=\"{2}\" {3} {4} />",
-                            name,
-                            fieldId,
-                            strLabel,
+                            HttpUtility.HtmlAttributeEncode(name),
+                            HttpUtility.HtmlAttributeEncode(fieldId),
+                            HttpUtility.HtmlAttributeEncode(strLabel),
                             check,
                             writeClass(htmlAttributes));
                     }
@@ -270,13 +269,14 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                             {
                                 sb.Append("<label class=\"checkbox\">");
 
-                                sb.AppendFormat("<input type=\"checkbox\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{0}\" {4} {5}/> {0} ",
-                                    item.StringLabel,
-                                    name,
-                                    fieldId + "_" + ix++,
-                                    item.Key,
+                                sb.AppendFormat("<input type=\"checkbox\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{0}\" {4} {5}/> {6} ",
+                                    HttpUtility.HtmlAttributeEncode(item.StringLabel),
+                                    HttpUtility.HtmlAttributeEncode(name),
+                                    HttpUtility.HtmlAttributeEncode(fieldId + "_" + ix++),
+                                    HttpUtility.HtmlAttributeEncode(item.Key),
                                     writeChecked(list.Contains(item.Key), "checked"),
-                                    writeClass(htmlAttributes));
+                                    writeClass(htmlAttributes),
+                                    HttpUtility.HtmlEncode(item.StringLabel));
 
                                 sb.Append("</label>");
 
@@ -301,13 +301,14 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                         {
                             sb.Append("<label class=\"radio\">");
 
-                            sb.AppendFormat("<input type=\"radio\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{0}\" {4} {5}/> {0}",
-                                item.StringLabel,
-                                name,
-                                fieldId + "_" + ix++,
-                                item.Key,
+                            sb.AppendFormat("<input type=\"radio\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{0}\" {4} {5}/> {6}",
+                                HttpUtility.HtmlAttributeEncode(item.StringLabel),
+                                HttpUtility.HtmlAttributeEncode(name),
+                                HttpUtility.HtmlAttributeEncode(fieldId + "_" + ix++),
+                                HttpUtility.HtmlAttributeEncode(item.Key),
                                 (value == null ? "" : writeChecked(isEqual(value, item.Key), "checked")),
-                                writeClass(htmlAttributes));
+                                writeClass(htmlAttributes),
+                                HttpUtility.HtmlEncode(item.StringLabel));
 
                             sb.Append("</label>");
 
@@ -322,7 +323,10 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
                 case InputType.Dropdown:
 
-                    sb.AppendFormat("<select name=\"{0}\" id=\"{1}\" {2}>", name, fieldId, writeClass(htmlAttributes));
+                    sb.AppendFormat("<select name=\"{0}\" id=\"{1}\" {2}>", 
+                        HttpUtility.HtmlAttributeEncode(name), 
+                        HttpUtility.HtmlAttributeEncode(fieldId), 
+                        writeClass(htmlAttributes));
 
                     var dropdownOptions = getOptions(form, prop);
                     if (dropdownOptions != null)
@@ -348,9 +352,9 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                     var textarea = "<textarea name=\"{0}\" id=\"{1}\" rows=\"5\" cols=\"40\" title=\"{2}\" placeholder=\"{2}\" {3}>{4}</textarea>";
 
                     sb.AppendFormat(textarea,
-                        name,
-                        fieldId,
-                        strLabel,
+                        HttpUtility.HtmlAttributeEncode(name),
+                        HttpUtility.HtmlAttributeEncode(fieldId),
+                        HttpUtility.HtmlAttributeEncode(strLabel),
                         writeClass(htmlAttributes),
                         HttpUtility.HtmlEncode(value));
 
@@ -363,17 +367,19 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
                     sb.AppendFormat(s,
                         type == InputType.Textbox ? "text" : "password",
-                        name,
-                        fieldId,
-                        HttpUtility.HtmlEncode(value),
-                        strLabel,
+                        HttpUtility.HtmlAttributeEncode(name),
+                        HttpUtility.HtmlAttributeEncode(fieldId),
+                        value == null ? "" : HttpUtility.HtmlAttributeEncode(value.ToString()),
+                        HttpUtility.HtmlAttributeEncode(strLabel),
                         writeClass(htmlAttributes));
 
                     break;
 
                 case InputType.Fileupload:
 
-                    sb.AppendFormat("<input type=\"file\" name=\"{0}\" id=\"{1}\" />", name, fieldId);
+                    sb.AppendFormat("<input type=\"file\" name=\"{0}\" id=\"{1}\" />", 
+                        HttpUtility.HtmlAttributeEncode(name), 
+                        HttpUtility.HtmlAttributeEncode(fieldId));
 
                     break;
             }
@@ -468,11 +474,15 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
             if (label != null && !String.IsNullOrEmpty(label.Link))
             {
-                sb.AppendFormat("<a href=\"{0}\" title=\"{1}\" {2}>{1}</a>", label.Link, title, label.OpenLinkInNewWindow ? "target=\"_blank\"" : String.Empty);
+                sb.AppendFormat("<a href=\"{0}\" title=\"{1}\" {2}>{3}</a>", 
+                    HttpUtility.HtmlAttributeEncode(label.Link), 
+                    HttpUtility.HtmlAttributeEncode(title), 
+                    label.OpenLinkInNewWindow ? "target=\"_blank\"" : String.Empty,
+                    HttpUtility.HtmlEncode(title));
             }
             else
             {
-                sb.Append(title);
+                sb.Append(HttpUtility.HtmlEncode(title));
             }
         }
 
