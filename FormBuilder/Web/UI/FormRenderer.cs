@@ -4,9 +4,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+
 using CompositeC1Contrib.FormBuilder.Attributes;
-using CompositeC1Contrib.FormBuilder.Validation;
 using CompositeC1Contrib.FormBuilder.Dependencies;
+using CompositeC1Contrib.FormBuilder.Validation;
 
 namespace CompositeC1Contrib.FormBuilder.Web.UI
 {
@@ -38,8 +39,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             {
                 sb.Append("<div class=\"error_notification\">");
 
-
-                if (!string.IsNullOrEmpty(Localization.Validation_ErrorNotificationTop))
+                if (!String.IsNullOrEmpty(Localization.Validation_ErrorNotificationTop))
                 {
                     sb.Append("<p>" + HttpUtility.HtmlEncode(Localization.Validation_ErrorNotificationTop) + "</p>");
                 }
@@ -53,7 +53,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
                 sb.Append("</ul>");
 
-                if (!string.IsNullOrEmpty(Localization.Validation_ErrorNotificationBottom))
+                if (!String.IsNullOrEmpty(Localization.Validation_ErrorNotificationBottom))
                 {
                     sb.Append("<p>" + HttpUtility.HtmlEncode(Localization.Validation_ErrorNotificationBottom) + "</p>");
                 }
@@ -366,7 +366,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                     var s = "<input type=\"{0}\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{4}\" placeholder=\"{4}\" {5} />";
 
                     sb.AppendFormat(s,
-                        type == InputType.Textbox ? "text" : "password",
+                        type == InputType.Textbox ? evaluateTextboxType(prop) : "password",
                         HttpUtility.HtmlAttributeEncode(name),
                         HttpUtility.HtmlAttributeEncode(fieldId),
                         value == null ? "" : HttpUtility.HtmlAttributeEncode(value.ToString()),
@@ -392,6 +392,32 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                 sb.Append("</div>");
                 sb.Append("</div>");
             }
+        }
+
+        private static string evaluateTextboxType(PropertyInfo prop)
+        {
+            var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+
+            if (type == typeof(DateTime))
+            {
+                return "date";
+            }
+
+            if (type == typeof(int))
+            {
+                return "number";
+            }
+
+            if (type == typeof(string))
+            {
+                var attributes = prop.GetCustomAttributes(true);
+                if (attributes.Any(f => f is EmailExistsValidatorAttribute))
+                {
+                    return "email";
+                }
+            }
+
+            return "text";
         }
 
         private static string getFieldName(InputType type)
@@ -495,18 +521,5 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
             return String.Empty;
         }
-
-        private static T getAttribute<T>(object[] attributes) where T : Attribute
-        {
-            foreach (var attr in attributes)
-            {
-                if (attr is T)
-                {
-                    return (T)attr;
                 }
             }
-
-            return null;
-        }
-    }
-}
