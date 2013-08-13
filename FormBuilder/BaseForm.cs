@@ -106,13 +106,16 @@ namespace CompositeC1Contrib.FormBuilder
 
             if (SubmittedFiles != null && SubmittedFiles.Any())
             {
+                var files = SubmittedFiles.Where(f => f.Key == prop.Name);
+
                 if (t == typeof(FormFile))
                 {
-                    prop.SetValue(this, SubmittedFiles.First(), null);
+                    prop.SetValue(this, files.FirstOrDefault(), null);
+
                 }
                 else if (t == typeof(IEnumerable<FormFile>))
                 {
-                    prop.SetValue(this, SubmittedFiles, null);
+                    prop.SetValue(this, files, null);
                 }
             }
         }
@@ -182,7 +185,7 @@ namespace CompositeC1Contrib.FormBuilder
 
             return attrs.Any(attr => attr is RequiredFieldAttribute);
         }
-        
+
         private bool IsDependencyMetRecursive(PropertyInfo prop)
         {
             var attributes = prop.GetCustomAttributes(true).OfType<FormDependencyAttribute>().ToList();

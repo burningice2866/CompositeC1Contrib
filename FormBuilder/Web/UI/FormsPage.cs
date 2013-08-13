@@ -42,6 +42,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
                             files.Add(new FormFile()
                             {
+                                Key = requestFiles.AllKeys[i],
                                 ContentLength = f.ContentLength,
                                 ContentType = f.ContentType,
                                 FileName = f.FileName,
