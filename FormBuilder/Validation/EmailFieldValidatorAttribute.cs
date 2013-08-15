@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace CompositeC1Contrib.FormBuilder.Validation
@@ -10,18 +9,18 @@ namespace CompositeC1Contrib.FormBuilder.Validation
 
         public EmailFieldValidatorAttribute(string message) : base(message) { }
 
-        public override FormValidationRule CreateRule(PropertyInfo prop, BaseForm form)
+        public override FormValidationRule CreateRule(FormField field)
         {
-            var value = (string)prop.GetValue(form, null);
+            var value = (string)field.Value;
 
-            return new FormValidationRule(new[] { prop.Name })
+            return new FormValidationRule(new[] { field.Name })
             {
                 ValidationMessage = Message,
                 Rule = () =>
                 {
                     if (String.IsNullOrEmpty(value))
                     {
-                        return !form.IsRequired(prop);
+                        return !field.IsRequired;
                     }
 
                     return !Validate(value);

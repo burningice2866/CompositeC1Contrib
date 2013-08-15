@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace CompositeC1Contrib.FormBuilder.Validation
+﻿namespace CompositeC1Contrib.FormBuilder.Validation
 {
     public class IntegerRangeFieldValidatorAttribute : FormValidationAttribute
     {
@@ -14,19 +12,19 @@ namespace CompositeC1Contrib.FormBuilder.Validation
             _maxValue = maxValue;
         }
 
-        public override FormValidationRule CreateRule(PropertyInfo prop, BaseForm form)
+        public override FormValidationRule CreateRule(FormField field)
         {
-            return new FormValidationRule(new[] { prop.Name })
+            return new FormValidationRule(new[] { field.Name })
             {
                 ValidationMessage = Message,
                 Rule = () =>
                 {
-                    var s = form.SubmittedValues[prop.Name];
+                    var s = field.OwningForm.SubmittedValues[field.Name];
                     var i = 0;
 
                     if (!int.TryParse(s, out i))
                     {
-                        return !form.IsRequired(prop);
+                        return !field.IsRequired;
                     }
                     else
                     {

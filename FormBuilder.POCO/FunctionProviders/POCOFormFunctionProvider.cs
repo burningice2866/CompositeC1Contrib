@@ -9,7 +9,7 @@ using CompositeC1Contrib.FormBuilder.Attributes;
 
 namespace CompositeC1Contrib.FormBuilder.FunctionProviders
 {
-    public class FormBuilderFunctionProvider : IFunctionProvider
+    public class POCOFormFunctionProvider : IFunctionProvider
     {
         public FunctionNotifier FunctionNotifier { private get; set; }
 
@@ -31,7 +31,7 @@ namespace CompositeC1Contrib.FormBuilder.FunctionProviders
                     IFunction function = null;
                     if (!FunctionFacade.TryGetFunction(out function, functionName))
                     {
-                        yield return new FormFunction(type);
+                        yield return new POCOFormFunction(type);
                     }
                 }
             }
@@ -46,7 +46,7 @@ namespace CompositeC1Contrib.FormBuilder.FunctionProviders
             {
                 try
                 {
-                    var types = asm.GetTypes().Where(t => typeof(BaseForm).IsAssignableFrom(t) && (t != typeof(BaseForm)));
+                    var types = asm.GetTypes().Where(t => t.GetCustomAttributes(true).OfType<FormNameAttribute>().Any());
 
                     returnList.AddRange(types);
                 }

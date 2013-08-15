@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 
-namespace CompositeC1Contrib.FormBuilder.Dependencies
+using CompositeC1Contrib.FormBuilder.Web.UI;
+
+namespace CompositeC1Contrib.FormBuilder.Attributes
 {
     /// <summary>
     /// Use this attribute to register the field as conditional, depending on a value being set on another field.
@@ -25,11 +27,9 @@ namespace CompositeC1Contrib.FormBuilder.Dependencies
             _requiredValues = requiredValue;
         }
 
-        public override bool DependencyMet(object dataObject)
+        public override bool DependencyMet(FormModel model)
         {
-            var dataObjectType = dataObject.GetType();
-            var prop = dataObjectType.GetProperty(ReadFromFieldName);
-            var actualValue = prop.GetValue(dataObject, null); 
+            var actualValue = model.Fields.Single(f => f.Name == ReadFromFieldName).Value; 
 
             foreach (var obj in _requiredValues)
             {

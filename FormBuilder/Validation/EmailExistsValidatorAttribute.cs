@@ -1,8 +1,4 @@
-﻿using System.Reflection;
-using System.Web.Security;
-
-using CompositeC1Contrib.FormBuilder;
-using CompositeC1Contrib.FormBuilder.Validation;
+﻿using System.Web.Security;
 
 namespace CompositeC1Contrib.FormBuilder.Validation
 {
@@ -10,11 +6,11 @@ namespace CompositeC1Contrib.FormBuilder.Validation
     {
         public EmailExistsValidatorAttribute(string message) : base(message) { }
 
-        public override FormValidationRule CreateRule(PropertyInfo prop, BaseForm form)
+        public override FormValidationRule CreateRule(FormField field)
         {
-            var value = (string)prop.GetValue(form, null);
+            var value = (string)field.Value;
 
-            return new FormValidationRule(new[] { prop.Name })
+            return new FormValidationRule(new[] { field.Name })
             {
                 ValidationMessage = Message,
                 Rule = () =>

@@ -1,6 +1,8 @@
 ﻿using System;
 
-namespace CompositeC1Contrib.FormBuilder.Dependencies
+using CompositeC1Contrib.FormBuilder.Web.UI;
+
+namespace CompositeC1Contrib.FormBuilder.Attributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public abstract class FormDependencyAttribute: Attribute
@@ -12,7 +14,7 @@ namespace CompositeC1Contrib.FormBuilder.Dependencies
             this.ReadFromFieldName = readFromFieldName;
         }
 
-        public abstract bool DependencyMet(object dataObject);
+        public abstract bool DependencyMet(FormModel model);
         public abstract string[] RequiredFieldValues();
     }
 }

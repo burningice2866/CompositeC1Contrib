@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-
-namespace CompositeC1Contrib.FormBuilder.Validation
+﻿namespace CompositeC1Contrib.FormBuilder.Validation
 {
     public class EqualsConstantValidatorAttribute : FormValidationAttribute
     {
@@ -16,11 +10,11 @@ namespace CompositeC1Contrib.FormBuilder.Validation
             _constant = constant;
         }
 
-        public override FormValidationRule CreateRule(PropertyInfo prop, BaseForm form)
+        public override FormValidationRule CreateRule(FormField field)
         {
-            var value = prop.GetValue(form, null);
+            var value = field.Value;
 
-            return new FormValidationRule(new[] { prop.Name })
+            return new FormValidationRule(new[] { field.Name })
             {
                 ValidationMessage = Message,
                 Rule = () =>

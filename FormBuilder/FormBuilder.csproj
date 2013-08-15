@@ -78,28 +78,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\ForceHttpsConnectionAttribute.cs" />
     <Compile Include="Attributes\FormNameAttribute.cs" />
     <Compile Include="Attributes\DataSourceAttribute.cs" />
-    <Compile Include="Attributes\EqualsConstantValidatorAttribute.cs" />
+    <Compile Include="Validation\EqualsConstantValidatorAttribute.cs" />
     <Compile Include="Attributes\FieldHelpAttribute.cs" />
     <Compile Include="Attributes\FieldLabelAttribute.cs" />
     <Compile Include="Attributes\FormTagAttributesAttribute.cs" />
     <Compile Include="Attributes\FunctionBasedDataSourceAttribute.cs" />
     <Compile Include="Attributes\InputTypeAttribute.cs" />
     <Compile Include="Attributes\MethodBasedDataSourceAttribute.cs" />
-    <Compile Include="Attributes\MethodBasedSubmitHandlerAttribute.cs" />
     <Compile Include="Attributes\StringBasedDataSourceAttribute.cs" />
     <Compile Include="Attributes\SubmitButtonLabelAttribute.cs" />
-    <Compile Include="Attributes\SubmitHandlerAttribute.cs" />
     <Compile Include="Attributes\TextBeforeAttribute.cs" />
-    <Compile Include="BaseForm.cs" />
     <Compile Include="Data\FormDataAncestorProvider.cs" />
     <Compile Include="Data\FormFieldType.cs" />
     <Compile Include="Data\Types\IDefaultFormField.cs" />
     <Compile Include="Data\Types\IForm.cs" />
     <Compile Include="Data\Types\IFormField.cs" />
-    <Compile Include="Dependencies\DependsOnConstantAttribute.cs" />
-    <Compile Include="Dependencies\FormDependencyAttribute.cs" />
+    <Compile Include="Attributes\DependsOnConstantAttribute.cs" />
+    <Compile Include="Attributes\FormDependencyAttribute.cs" />
     <Compile Include="ElementProviders\Actions\DeleteFormFieldActionExecutor.cs" />
     <Compile Include="ElementProviders\Actions\DeleteFormFieldActionToken.cs" />
     <Compile Include="ElementProviders\EntityTokens\FormElementProviderEntityToken.cs" />
@@ -116,11 +114,11 @@
     <Compile Include="ElementProviders\EntityTokens\UrlActionTokenActionExecutor.cs" />
     <Compile Include="ElementProviders\FormBuilderElementProvider.cs" />
     <Compile Include="FormBuilderActionProvider.cs" />
+    <Compile Include="FormField.cs" />
     <Compile Include="FormFile.cs" />
+    <Compile Include="Web\UI\FormsPage.cs" />
+    <Compile Include="FormModel.cs" />
     <Compile Include="FormValidationEventArgs.cs" />
-    <Compile Include="FunctionProviders\FormBuilderFunctionProvider.cs" />
-    <Compile Include="FunctionProviders\FormFunction.cs" />
-    <Compile Include="FunctionProviders\FormFunctionEntityToken.cs" />
     <Compile Include="InputType.cs" />
     <Compile Include="Localization.cs">
       <AutoGen>True</AutoGen>
@@ -138,19 +136,18 @@
     <Compile Include="Validation\EmailExistsValidatorAttribute.cs" />
     <Compile Include="Validation\EmailFieldValidatorAttribute.cs" />
     <Compile Include="Validation\EmailInUseValidatorAttribute.cs" />
-    <Compile Include="Validation\FileExtensionValidator.cs" />
+    <Compile Include="Validation\FileMimeTypeValidatorAttribute.cs" />
     <Compile Include="Validation\FormValidationRule.cs" />
     <Compile Include="Validation\IntegerFieldValidatorAttribute.cs" />
     <Compile Include="Validation\IntegerRangeFieldValidatorAttribute.cs" />
     <Compile Include="Validation\MaxFieldLengthAttribute.cs" />
     <Compile Include="Validation\MinFieldLengthAttribute.cs" />
     <Compile Include="Validation\RequiredFieldAttribute.cs" />
-    <Compile Include="Web\UI\FormsPage.cs" />
+    <Compile Include="Web\UI\FormRenderer.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Web\UI\FormOptions.cs" />
-    <Compile Include="Web\UI\FormRenderer.cs" />
     <Compile Include="Web\UI\HtmlForm.cs" />
-    <Compile Include="Web\UI\StandardFormPage.cs" />
-    <Compile Include="Web\ValidateFormHandler.cs" />
     <Compile Include="Workflows\ConfirmWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -198,8 +195,6 @@
       <LastGenOutput>Localization.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
-    <None Include="Package\config\App_Data\Composite\composite.config" />
-    <None Include="Package\config\web.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">

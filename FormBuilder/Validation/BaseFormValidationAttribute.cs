@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace CompositeC1Contrib.FormBuilder.Validation
 {
@@ -13,6 +12,6 @@ namespace CompositeC1Contrib.FormBuilder.Validation
             Message = message;
         }
 
-        public abstract FormValidationRule CreateRule(PropertyInfo prop, BaseForm form);
+        public abstract FormValidationRule CreateRule(FormField field);
     }
 }

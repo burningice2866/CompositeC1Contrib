@@ -11,7 +11,7 @@ namespace CompositeC1Contrib.FormBuilder.Attributes
             _functioName = functionName;
         }
 
-        public override object GetData(BaseForm form)
+        public override object GetData()
         {
             var function = FunctionFacade.GetFunction(_functioName);
 

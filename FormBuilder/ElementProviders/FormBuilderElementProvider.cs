@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+
 using Composite.C1Console.Elements;
 using Composite.C1Console.Elements.Plugins.ElementProvider;
 using Composite.C1Console.Security;
@@ -245,31 +246,26 @@ namespace CompositeC1Contrib.FormBuilder.ElementProviders
         {
             if (source == "system")
             {
-                var formTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .Where(t => typeof(BaseForm).IsAssignableFrom(t))
-                .ToList();
+                //var formTypes = PocoFormFunctionProvider.GetFormTypes();
+                //foreach (var type in formTypes)
+                //{
+                //    var label = type.Name;
 
-                var types = formTypes;
-                foreach (var type in types)
-                {
-                    var label = type.Name;
+                //    var elementHandle = _context.CreateElementHandle(new SystemFormEntityToken(type));
+                //    var formElement = new Element(elementHandle)
+                //    {
+                //        VisualData = new ElementVisualizedData
+                //        {
+                //            Label = label,
+                //            ToolTip = label,
+                //            HasChildren = true,
+                //            Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
+                //            OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
+                //        }
+                //    };
 
-                    var elementHandle = _context.CreateElementHandle(new SystemFormEntityToken(type));
-                    var formElement = new Element(elementHandle)
-                    {
-                        VisualData = new ElementVisualizedData
-                        {
-                            Label = label,
-                            ToolTip = label,
-                            HasChildren = true,
-                            Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
-                            OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
-                        }
-                    };
-
-                    yield return formElement;
-                }
+                //    yield return formElement;
+                //}
             }
 
             if (source == "user")

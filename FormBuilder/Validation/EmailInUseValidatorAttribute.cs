@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Web.Security;
 
 using CompositeC1Contrib.FormBuilder;
@@ -12,11 +11,11 @@ namespace CompositeC1Contrib.Forms.Validation
     {
         public EmailInUseValidatorAttribute(string message) : base(message) { }
 
-        public override FormValidationRule CreateRule(PropertyInfo prop, BaseForm form)
+        public override FormValidationRule CreateRule(FormField field)
         {
-            var value = (string)prop.GetValue(form, null);
+            var value = (string)field.Value;
 
-            return new FormValidationRule(new[] { prop.Name })
+            return new FormValidationRule(new[] { field.Name })
             {
                 ValidationMessage = Message,
                 Rule = () =>

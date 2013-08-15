@@ -10,7 +10,7 @@ using CompositeC1Contrib.FormBuilder.Attributes;
 
 namespace CompositeC1Contrib.FormBuilder.FunctionProviders
 {
-    public class FormFunction : IFunction
+    public class POCOFormFunction : IFunction
     {
         private Type _formType;
 
@@ -19,7 +19,7 @@ namespace CompositeC1Contrib.FormBuilder.FunctionProviders
 
         public EntityToken EntityToken
         {
-            get { return new FormFunctionEntityToken(typeof(FormBuilderFunctionProvider).Name, String.Join(".", Namespace, Name)); }
+            get { return new POCOFormFunctionEntityToken(typeof(POCOFormFunctionProvider).Name, String.Join(".", Namespace, Name)); }
         }
 
         public string Description
@@ -45,7 +45,7 @@ namespace CompositeC1Contrib.FormBuilder.FunctionProviders
             }
         }
 
-        public FormFunction(Type type)
+        public POCOFormFunction(Type type)
         {
             _formType = type;
 

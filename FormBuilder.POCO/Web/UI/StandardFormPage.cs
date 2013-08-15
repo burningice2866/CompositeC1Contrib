@@ -1,18 +1,10 @@
 ﻿using Composite.AspNet.Razor;
-using Composite.Core.Xml;
 
 namespace CompositeC1Contrib.FormBuilder.Web.UI
 {
-    public sealed class StandardFormPage<T> : FormsPage<T> where T : BaseForm
+    public sealed class StandardFormPage<T> : POCOBasedFormsPage<T> where T : IPOCOForm
     {
-        private XhtmlDocument before;
-        private XhtmlDocument success;
-
-        public StandardFormPage(XhtmlDocument before, XhtmlDocument success)
-        {
-            this.before = before;
-            this.success = success;
-        }
+        public StandardFormPage() { }
 
         public override void Execute()
         {
@@ -23,17 +15,17 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         {
             if (IsSuccess)
             {
-                Write(Html.C1().Markup(success));
+                Write(Html.C1().Markup(SuccessResponse));
             }
             else
             {
-                Write(Html.C1().Markup(before));
+                Write(Html.C1().Markup(IntroText));
 
                 Write("<p>Felter med <span class=\"required\">*</span> skal udfyldes.</p>");
 
                 using (BeginForm())
                 {
-                    Write(Form.WriteErrors());
+                    Write(WriteErrors());
                     Write(WriteAllFields());
 
                     Write("<div class=\"Buttons\"><input type=\"submit\" value=\"" + SubmitButtonLabel + "\" name=\"SubmitForm\" /></div>");

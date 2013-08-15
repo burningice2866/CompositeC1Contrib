@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+﻿using System.Linq;
 
 namespace CompositeC1Contrib.FormBuilder.Validation
 {
@@ -14,12 +14,12 @@ namespace CompositeC1Contrib.FormBuilder.Validation
             _op = op;
         }
 
-        public override FormValidationRule CreateRule(PropertyInfo prop, BaseForm form)
+        public override FormValidationRule CreateRule(FormField field)
         {
-            var value = prop.GetValue(form, null);
-            var valueToCompare = form.GetProperty(_fieldToCompare).GetValue(form, null);
+            var value = field.Value;
+            var valueToCompare = field.OwningForm.Fields.Single(f => f.Name == _fieldToCompare).Value;
 
-            return new FormValidationRule(new[] { prop.Name, _fieldToCompare })
+            return new FormValidationRule(new[] { field.Name, _fieldToCompare })
             {
                 ValidationMessage = Message,
                 Rule = () =>

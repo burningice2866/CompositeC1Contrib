@@ -1,5 +1,4 @@
-﻿
-namespace CompositeC1Contrib.FormBuilder.Validation
+﻿namespace CompositeC1Contrib.FormBuilder.Validation
 {
     public enum CompareOperator
     {

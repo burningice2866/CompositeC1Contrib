@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace CompositeC1Contrib.FormBuilder.Validation
 {
@@ -7,11 +6,11 @@ namespace CompositeC1Contrib.FormBuilder.Validation
     {
         public RequiredFieldAttribute(string message) : base(message) { }
 
-        public override FormValidationRule CreateRule(PropertyInfo prop, BaseForm form)
+        public override FormValidationRule CreateRule(FormField field)
         {
-            var value = prop.GetValue(form, null);
+            var value = field.Value;
 
-            return new FormValidationRule(new[] { prop.Name })
+            return new FormValidationRule(new[] { field.Name })
             {
                 ValidationMessage = Message,
                 Rule = () =>

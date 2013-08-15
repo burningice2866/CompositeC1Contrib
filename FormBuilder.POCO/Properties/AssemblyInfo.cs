@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CompositeC1Contrib.FormBuilder")]
+[assembly: AssemblyTitle("CompositeC1Contrib.FormBuilder.POCO")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("CompositeC1Contrib.FormBuilder")]
+[assembly: AssemblyProduct("CompositeC1Contrib.FormBuilder.POCO")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("9d69677a-7935-4729-9beb-1c48057a9942")]
+[assembly: Guid("aa9f5ce5-b350-4eda-abdd-7073e4b6b6be")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -11,7 +11,7 @@ namespace CompositeC1Contrib.FormBuilder.Attributes
             _values = values;
         }
 
-        public override object GetData(BaseForm form)
+        public override object GetData()
         {
             return _values.ToDictionary(s => s);
         }
