@@ -58,11 +58,11 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         private static IHtmlString writeRow(FormField field, IDictionary<string, object> htmlAttributes)
         {
             var sb = new StringBuilder();
-            var includeLabel = showLabel(field.InputType, field);
+            var includeLabel = showLabel(field);
             var validationResult = field.OwningForm.ValidationResult;
-            var fieldId = getFieldId(field);
+            var fieldId = GetFieldId(field);
 
-            sb.AppendFormat("<div id=\"form-field-{0}\" class=\"control-group control-{1} {2} {3} \"", field.Name, getFieldName(field.InputType), WriteErrorClass(field.Name, validationResult), field.IsRequired ? "required" : String.Empty);
+            sb.AppendFormat("<div id=\"form-field-{0}\" class=\"control-group control-{1} {2} {3} \"", field.Name, field.InputTypeHandler.ElementName, WriteErrorClass(field.Name, validationResult), field.IsRequired ? "required" : String.Empty);
 
             if (field.DependencyAttributes.Any())
             {
@@ -107,18 +107,33 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
             sb.Append(">");
 
-            if (includeLabel)
+            if (!(field.InputTypeHandler is CheckboxInputElement && field.ValueType == typeof(bool)))
             {
-                writeLabel(field.InputType, field.Label, fieldId, field.Name, field.IsRequired, field.OwningForm.Options.HideLabels, sb);
-            }
-            else
-            {
-                writePropertyHeading(field.Label, field.Name, field.IsRequired, sb);
+                if (includeLabel)
+                {
+                    writeLabel(field, fieldId, field.OwningForm.Options.HideLabels, sb);
+                }
+                else
+                {
+                    writePropertyHeading(field, sb);
+                }
             }
 
             sb.Append("<div class=\"controls\">");
 
-            writeField(field.InputType, field.Name, field.Help, field.Label, field.IsRequired, field.OwningForm.Options, field, sb, htmlAttributes);
+            if (field.InputTypeHandler is CheckboxInputElement && field.ValueType == typeof(bool))
+            {
+                sb.Append("<label class=\"checkbox\">");
+            }
+
+            writeField(field, sb, htmlAttributes);
+
+            if (field.InputTypeHandler is CheckboxInputElement && field.ValueType == typeof(bool))
+            {
+                writeLabelContent(field, sb);
+
+                sb.Append("</label>");
+            }
 
             sb.Append("</div></div>");
 
@@ -126,14 +141,14 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         }
 
 
-        private static bool showLabel(InputType type, FormField field)
+        private static bool showLabel(FormField field)
         {
             if (field.ValueType == typeof(bool))
             {
                 return true;
             }
 
-            if (type == InputType.Checkbox || type == InputType.RadioButton)
+            if (field.InputTypeHandler is CheckboxInputElement || field.InputTypeHandler is RadioButtonInputElement)
             {
                 return false;
             }
@@ -141,228 +156,63 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             return true;
         }
 
-        private static string getFieldId(FormField field)
+        public static string GetFieldId(FormField field)
         {
             return (field.OwningForm.Name + field.Name).Replace(".", "_");
         }
 
-        private static void writeField(InputType type, string name, string help, FieldLabelAttribute attrLabel, bool required, FormOptions options, FormField field, StringBuilder sb, IDictionary<string, object> htmlAttributes)
+        private static void writeField(FormField field, StringBuilder sb, IDictionary<string, object> htmlAttributes)
         {
             var value = field.Value;
-            var strLabel = attrLabel == null ? name : attrLabel.Label;
-            var fieldId = getFieldId(field);
+            var strLabel = field.Label == null ? field.Name : field.Label.Label;
+            var strPlaceholder = strLabel;
+            var fieldId = GetFieldId(field);
 
-            if (!String.IsNullOrWhiteSpace(help))
+            if (!field.OwningForm.Options.HideLabels)
+            {
+                var placeholderAttr = field.Attributes.OfType<PlaceholderTextAttribute>().SingleOrDefault();
+                if (placeholderAttr != null)
+                {
+                    strPlaceholder = placeholderAttr.Text;
+                }
+            }
+
+            if (!String.IsNullOrWhiteSpace(field.Help))
             {
                 sb.Append("<div class=\"input-append\">");
             }
 
-            switch (type)
-            {
-                case InputType.Checkbox:
+            var str = field.InputTypeHandler.GetHtmlString(field, htmlAttributes);
+            sb.Append(str);            
 
-                    if (field.ValueType == typeof(bool))
-                    {
-                        var check = (bool)value ? "checked=\"checked\"" : "";
-
-                        sb.AppendFormat("<input type=\"checkbox\" name=\"{0}\" id=\"{1}\" value=\"on\" title=\"{2}\" {3} {4} />",
-                            HttpUtility.HtmlAttributeEncode(name),
-                            HttpUtility.HtmlAttributeEncode(fieldId),
-                            HttpUtility.HtmlAttributeEncode(strLabel),
-                            check,
-                            writeClass(htmlAttributes));
-                    }
-                    else if (field.ValueType == typeof(IEnumerable<string>))
-                    {
-                        var checkboxListOptions = field.DataSource;
-                        if (checkboxListOptions != null)
-                        {
-                            var ix = 0;
-                            var list = value == null ? Enumerable.Empty<string>() : (IEnumerable<string>)value;
-
-                            foreach (var item in checkboxListOptions)
-                            {
-                                sb.Append("<label class=\"checkbox\">");
-
-                                sb.AppendFormat("<input type=\"checkbox\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{0}\" {4} {5}/> {6} ",
-                                    HttpUtility.HtmlAttributeEncode(item.StringLabel),
-                                    HttpUtility.HtmlAttributeEncode(name),
-                                    HttpUtility.HtmlAttributeEncode(fieldId + "_" + ix++),
-                                    HttpUtility.HtmlAttributeEncode(item.Key),
-                                    writeChecked(list.Contains(item.Key), "checked"),
-                                    writeClass(htmlAttributes),
-                                    HttpUtility.HtmlEncode(item.StringLabel));
-
-                                sb.Append("</label>");
-
-                                if (item.HtmlLabel != null)
-                                {
-                                    sb.AppendFormat("<div class=\"label-rich\">{0}</div>", item.HtmlLabel);
-                                }
-                            }
-                        }
-                    }
-
-                    break;
-
-                case InputType.RadioButton:
-
-                    if (field.DataSource != null && field.DataSource.Any())
-                    {
-                        var ix = 0;
-
-                        foreach (var item in field.DataSource)
-                        {
-                            sb.Append("<label class=\"radio\">");
-
-                            sb.AppendFormat("<input type=\"radio\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{0}\" {4} {5}/> {6}",
-                                HttpUtility.HtmlAttributeEncode(item.StringLabel),
-                                HttpUtility.HtmlAttributeEncode(name),
-                                HttpUtility.HtmlAttributeEncode(fieldId + "_" + ix++),
-                                HttpUtility.HtmlAttributeEncode(item.Key),
-                                (value == null ? String.Empty : writeChecked(isEqual(value, item.Key), "checked")),
-                                writeClass(htmlAttributes),
-                                HttpUtility.HtmlEncode(item.StringLabel));
-
-                            sb.Append("</label>");
-
-                            if (item.HtmlLabel != null)
-                            {
-                                sb.AppendFormat("<div class=\"label-rich\">{0}</div>", item.HtmlLabel);
-                            }
-                        }
-                    }
-
-                    break;
-
-                case InputType.Dropdown:
-
-                    sb.AppendFormat("<select name=\"{0}\" id=\"{1}\" {2}>",
-                        HttpUtility.HtmlAttributeEncode(name),
-                        HttpUtility.HtmlAttributeEncode(fieldId),
-                        writeClass(htmlAttributes));
-
-                    if (field.DataSource != null && field.DataSource.Any())
-                    {
-                        var selectLabel = options.HideLabels ? strLabel : Localization.Widgets_Dropdown_SelectLabel;
-
-                        sb.AppendFormat("<option value=\"\" selected=\"selected\" disabled=\"disabled\">{0}</option>", HttpUtility.HtmlEncode(selectLabel));
-
-                        foreach (var item in field.DataSource)
-                        {
-                            sb.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
-                                HttpUtility.HtmlAttributeEncode(item.Key),
-                                writeChecked(item.Key == (value ?? String.Empty).ToString(), "selected"),
-                                HttpUtility.HtmlEncode(item.StringLabel));
-                        }
-                    }
-
-                    sb.Append("</select>");
-
-                    break;
-
-                case InputType.TextArea:
-                    var textarea = "<textarea name=\"{0}\" id=\"{1}\" rows=\"5\" cols=\"40\" title=\"{2}\" placeholder=\"{2}\" {3}>{4}</textarea>";
-
-                    sb.AppendFormat(textarea,
-                        HttpUtility.HtmlAttributeEncode(name),
-                        HttpUtility.HtmlAttributeEncode(fieldId),
-                        HttpUtility.HtmlAttributeEncode(strLabel),
-                        writeClass(htmlAttributes),
-                        HttpUtility.HtmlEncode(value));
-
-                    break;
-
-                case InputType.Textbox:
-                case InputType.Password:
-
-                    var s = "<input type=\"{0}\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{4}\" placeholder=\"{4}\" {5} />";
-
-                    sb.AppendFormat(s,
-                        type == InputType.Textbox ? evaluateTextboxType(field) : "password",
-                        HttpUtility.HtmlAttributeEncode(name),
-                        HttpUtility.HtmlAttributeEncode(fieldId),
-                        value == null ? "" : HttpUtility.HtmlAttributeEncode(value.ToString()),
-                        HttpUtility.HtmlAttributeEncode(strLabel),
-                        writeClass(htmlAttributes));
-
-                    break;
-
-                case InputType.Fileupload:
-
-                    sb.AppendFormat("<input type=\"file\" name=\"{0}\" id=\"{1}\" ",
-                        HttpUtility.HtmlAttributeEncode(name),
-                        HttpUtility.HtmlAttributeEncode(fieldId));
-
-                    if (field.ValueType == typeof(IEnumerable<FormFile>))
-                    {
-                        sb.Append("multiple=\"multiple\" ");
-                    }
-
-                    var fileMimeTypeValidatorAttr = field.Attributes.OfType<FileMimeTypeValidatorAttribute>().SingleOrDefault();
-                    if (fileMimeTypeValidatorAttr != null)
-                    {
-                        sb.Append("accept=" + String.Join(",", fileMimeTypeValidatorAttr.MimeTypes) +" ");
-                    }
-
-                    sb.Append("/>");
-
-                    break;
-            }
-
-            if (!String.IsNullOrWhiteSpace(help))
+            if (!String.IsNullOrWhiteSpace(field.Help))
             {
                 sb.Append("<div class=\"info-block\">");
                 sb.Append("<span class=\"add-on info-icon\">i</span>");
-                sb.AppendFormat("<div class=\"info-msg\">{0}</div>", HttpUtility.HtmlEncode(help));
+                sb.AppendFormat("<div class=\"info-msg\">{0}</div>", HttpUtility.HtmlEncode(field.Help));
                 sb.Append("</div>");
                 sb.Append("</div>");
             }
         }
 
-        private static string evaluateTextboxType(FormField field)
-        {
-            var type = Nullable.GetUnderlyingType(field.ValueType) ?? field.ValueType;
+        //private static string getFieldName(InputType type)
+        //{
+        //    switch (type)
+        //    {
+        //        case InputType.Checkbox: return "checkbox";
+        //        case InputType.Dropdown: return "selectbox";
+        //        case InputType.TextArea: return "textarea";
+        //        case InputType.Fileupload: return "file";
+        //        case InputType.RadioButton: return "radio";
 
-            if (type == typeof(DateTime))
-            {
-                return "date";
-            }
+        //        case InputType.Password:
+        //        case InputType.Textbox: return "textbox";
 
-            if (type == typeof(int))
-            {
-                return "number";
-            }
+        //        default: return "textbox";
+        //    }
+        //}
 
-            if (type == typeof(string))
-            {
-                if (field.ValidationAttributes.Any(f => f is EmailFieldValidatorAttribute))
-                {
-                    return "email";
-                }
-            }
-
-            return "text";
-        }
-
-        private static string getFieldName(InputType type)
-        {
-            switch (type)
-            {
-                case InputType.Checkbox: return "checkbox";
-                case InputType.Dropdown: return "selectbox";
-                case InputType.TextArea: return "textarea";
-                case InputType.Fileupload: return "file";
-                case InputType.RadioButton: return "radio";
-
-                case InputType.Password:
-                case InputType.Textbox: return "textbox";
-
-                default: return "textbox";
-            }
-        }
-
-        private static string writeClass(IDictionary<string, object> htmlAttributes)
+        public static string WriteClass(IDictionary<string, object> htmlAttributes)
         {
             if (htmlAttributes.ContainsKey("class"))
             {
@@ -372,7 +222,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             return String.Empty;
         }
 
-        private static string writeChecked(bool write, string attr)
+        public static string WriteChecked(bool write, string attr)
         {
             if (write)
             {
@@ -382,7 +232,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             return String.Empty;
         }
 
-        private static bool isEqual(object obj, string value)
+        public static bool IsEqual(object obj, string value)
         {
             if (obj is bool)
             {
@@ -392,49 +242,47 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             return obj.ToString() == value;
         }
 
-        private static string writeLabel(InputType type, FieldLabelAttribute label, string fieldId, string name, bool required, bool hide, StringBuilder sb)
+        private static void writeLabel(FormField field, string fieldId, bool hide, StringBuilder sb)
         {
-            if (type == InputType.Fileupload)
+            if (field.InputTypeHandler is FileuploadInputElement)
             {
                 hide = false;
             }
 
             sb.AppendFormat("<label class=\"control-label {0}\" for=\"{1}\">", hide ? "hide-text " : String.Empty, fieldId);
 
-            writeLabelContent(required, label, name, sb);
+            writeLabelContent(field, sb);
 
             sb.Append(":");
             sb.Append("</label>");
-
-            return sb.ToString();
         }
 
-        private static string writePropertyHeading(FieldLabelAttribute label, string name, bool required, StringBuilder sb)
+        private static string writePropertyHeading(FormField field, StringBuilder sb)
         {
             sb.Append("<p class=\"control-label\">");
 
-            writeLabelContent(required, label, name, sb);
+            writeLabelContent(field, sb);
 
             sb.Append("</p>");
 
             return sb.ToString();
         }
 
-        private static void writeLabelContent(bool required, FieldLabelAttribute label, string name, StringBuilder sb)
+        private static void writeLabelContent(FormField field, StringBuilder sb)
         {
-            var title = label == null ? name : label.Label;
+            var title = field.Label == null ? field.Name : field.Label.Label;
 
-            if (required)
+            if (field.IsRequired)
             {
                 sb.Append("<span class=\"required\">*</span>");
             }
 
-            if (label != null && !String.IsNullOrEmpty(label.Link))
+            if (field.Label != null && !String.IsNullOrEmpty(field.Label.Link))
             {
                 sb.AppendFormat("<a href=\"{0}\" title=\"{1}\" {2}>{3}</a>",
-                    HttpUtility.HtmlAttributeEncode(label.Link),
+                    HttpUtility.HtmlAttributeEncode(field.Label.Link),
                     HttpUtility.HtmlAttributeEncode(title),
-                    label.OpenLinkInNewWindow ? "target=\"_blank\"" : String.Empty,
+                    field.Label.OpenLinkInNewWindow ? "target=\"_blank\"" : String.Empty,
                     HttpUtility.HtmlEncode(title));
             }
             else

@@ -23,14 +23,14 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                 if (Form is IProvidesDefaultValues)
                 {
                     ((IProvidesDefaultValues)Form).SetDefaultValues();
+                }
 
-                    foreach (var prop in Form.GetType().GetProperties())
+                foreach (var prop in Form.GetType().GetProperties())
+                {
+                    var field = RenderingModel.Fields.SingleOrDefault(f => f.Name == prop.Name);
+                    if (field != null && field.ValueType == prop.PropertyType)
                     {
-                        var field = RenderingModel.Fields.SingleOrDefault(f => f.Name == prop.Name);
-                        if (field != null && field.ValueType == prop.PropertyType)
-                        {
-                            field.Value = prop.GetValue(Form, null);
-                        }
+                        field.Value = prop.GetValue(Form, null);
                     }
                 }
             }

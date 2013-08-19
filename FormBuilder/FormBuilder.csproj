@@ -78,6 +78,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\FunctionBasedInputElementProviderAttribute.cs" />
+    <Compile Include="Attributes\TypeBasedInputElementProviderAttribute.cs" />
+    <Compile Include="Attributes\PlaceholderTextAttribute.cs" />
     <Compile Include="Attributes\ForceHttpsConnectionAttribute.cs" />
     <Compile Include="Attributes\FormNameAttribute.cs" />
     <Compile Include="Attributes\DataSourceAttribute.cs" />
@@ -86,7 +89,7 @@
     <Compile Include="Attributes\FieldLabelAttribute.cs" />
     <Compile Include="Attributes\FormTagAttributesAttribute.cs" />
     <Compile Include="Attributes\FunctionBasedDataSourceAttribute.cs" />
-    <Compile Include="Attributes\InputTypeAttribute.cs" />
+    <Compile Include="Attributes\InputElementProviderAttribute.cs" />
     <Compile Include="Attributes\MethodBasedDataSourceAttribute.cs" />
     <Compile Include="Attributes\StringBasedDataSourceAttribute.cs" />
     <Compile Include="Attributes\SubmitButtonLabelAttribute.cs" />
@@ -116,10 +119,16 @@
     <Compile Include="FormBuilderActionProvider.cs" />
     <Compile Include="FormField.cs" />
     <Compile Include="FormFile.cs" />
+    <Compile Include="Web\UI\CheckboxInputElement.cs" />
+    <Compile Include="Web\UI\FunctionbasedInputElement.cs" />
+    <Compile Include="Web\UI\PasswordInputElement.cs" />
+    <Compile Include="Web\UI\DropdownInputElement.cs" />
+    <Compile Include="Web\UI\TextAreaInputElement.cs" />
+    <Compile Include="Web\UI\RadioButtonInputElement.cs" />
+    <Compile Include="Web\UI\FileuploadInputElement.cs" />
     <Compile Include="Web\UI\FormsPage.cs" />
     <Compile Include="FormModel.cs" />
     <Compile Include="FormValidationEventArgs.cs" />
-    <Compile Include="InputType.cs" />
     <Compile Include="Localization.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -148,6 +157,8 @@
     </Compile>
     <Compile Include="Web\UI\FormOptions.cs" />
     <Compile Include="Web\UI\HtmlForm.cs" />
+    <Compile Include="Web\UI\IInputElementHandler.cs" />
+    <Compile Include="Web\UI\TextboxInputElement.cs" />
     <Compile Include="Workflows\ConfirmWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>

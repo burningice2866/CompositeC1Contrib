@@ -4,6 +4,7 @@ using System.Linq;
 
 using CompositeC1Contrib.FormBuilder.Attributes;
 using CompositeC1Contrib.FormBuilder.Validation;
+using CompositeC1Contrib.FormBuilder.Web.UI;
 
 namespace CompositeC1Contrib.FormBuilder
 {
@@ -35,14 +36,14 @@ namespace CompositeC1Contrib.FormBuilder
             }
         }
 
-        public InputType InputType
+        public IInputElementHandler InputTypeHandler
         {
             get
             {
-                var inputTypeAttribute = Attributes.OfType<InputFieldTypeAttribute>().FirstOrDefault();
+                var inputTypeAttribute = Attributes.OfType<InputElementProviderAttribute>().FirstOrDefault();
                 if (inputTypeAttribute != null)
                 {
-                    return inputTypeAttribute.InputType;
+                    return inputTypeAttribute.GetInputFieldTypeHandler();
                 }
 
                 return GetDefaultInputType(ValueType);
@@ -109,12 +110,12 @@ namespace CompositeC1Contrib.FormBuilder
             ValueType = valueType;            
         }
 
-        private static InputType GetDefaultInputType(Type type)
+        private static IInputElementHandler GetDefaultInputType(Type type)
         {
-            if (type == typeof(bool)) return InputType.Checkbox;
-            if (type == typeof(FormFile) || type == typeof(IEnumerable<FormFile>)) return InputType.Fileupload;
+            if (type == typeof(bool)) return new CheckboxInputElement();
+            if (type == typeof(FormFile) || type == typeof(IEnumerable<FormFile>)) new FileuploadInputElement();
 
-            return InputType.Textbox;
+            return new TextboxInputElement();
         }
     }
 }
