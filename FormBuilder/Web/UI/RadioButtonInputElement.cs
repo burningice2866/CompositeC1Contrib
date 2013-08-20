@@ -20,7 +20,6 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             var value = field.Value;
             var strLabel = field.Label == null ? field.Name : field.Label.Label;
             var strPlaceholder = strLabel;
-            var fieldId = FormRenderer.GetFieldId(field);
 
             if (field.DataSource != null && field.DataSource.Any())
             {
@@ -33,7 +32,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                     sb.AppendFormat("<input type=\"radio\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{0}\" {4} {5}/> {6}",
                         HttpUtility.HtmlAttributeEncode(item.StringLabel),
                         HttpUtility.HtmlAttributeEncode(field.Name),
-                        HttpUtility.HtmlAttributeEncode(fieldId + "_" + ix++),
+                        HttpUtility.HtmlAttributeEncode(field.Id + "_" + ix++),
                         HttpUtility.HtmlAttributeEncode(item.Key),
                         (value == null ? String.Empty : FormRenderer.WriteChecked(FormRenderer.IsEqual(value, item.Key), "checked")),
                         FormRenderer.WriteClass(htmlAttributes),

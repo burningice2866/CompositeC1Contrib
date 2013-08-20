@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 
 using Composite.Core.Xml;
 using Composite.Functions;
+using CompositeC1Contrib.FormBuilder.Attributes;
 
 namespace CompositeC1Contrib.FormBuilder.Web.UI
 {
@@ -31,7 +33,11 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
             var paramenters = new Dictionary<string, object> 
             {
-                { "Name", field.Name }
+                { "Name", field.Name },
+                { "HtmlAttrivutes", htmlAttributes },
+                { "IsRequired", field.IsRequired },
+                { "Label", field.Label },
+                { "Placeholder", field.PlaceholderText }
             };
 
             var result = FunctionFacade.Execute<XhtmlDocument>(function, paramenters);

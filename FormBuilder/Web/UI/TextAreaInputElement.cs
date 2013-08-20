@@ -17,15 +17,13 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
             var value = field.Value;
             var strLabel = field.Label == null ? field.Name : field.Label.Label;
-            var strPlaceholder = strLabel;
-            var fieldId = FormRenderer.GetFieldId(field);
 
             var textarea = "<textarea name=\"{0}\" id=\"{1}\" rows=\"5\" cols=\"40\" title=\"{2}\" placeholder=\"{2}\" {3}>{4}</textarea>";
 
             sb.AppendFormat(textarea,
                 HttpUtility.HtmlAttributeEncode(field.Name),
-                HttpUtility.HtmlAttributeEncode(fieldId),
-                HttpUtility.HtmlAttributeEncode(strPlaceholder),
+                HttpUtility.HtmlAttributeEncode(field.Id),
+                HttpUtility.HtmlAttributeEncode(field.PlaceholderText),
                 FormRenderer.WriteClass(htmlAttributes),
                 HttpUtility.HtmlEncode(value));
 

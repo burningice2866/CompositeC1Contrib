@@ -60,7 +60,6 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             var sb = new StringBuilder();
             var includeLabel = showLabel(field);
             var validationResult = field.OwningForm.ValidationResult;
-            var fieldId = GetFieldId(field);
 
             sb.AppendFormat("<div id=\"form-field-{0}\" class=\"control-group control-{1} {2} {3} \"", field.Name, field.InputTypeHandler.ElementName, WriteErrorClass(field.Name, validationResult), field.IsRequired ? "required" : String.Empty);
 
@@ -111,7 +110,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             {
                 if (includeLabel)
                 {
-                    writeLabel(field, fieldId, field.OwningForm.Options.HideLabels, sb);
+                    writeLabel(field, field.Id, field.OwningForm.Options.HideLabels, sb);
                 }
                 else
                 {
@@ -156,17 +155,11 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             return true;
         }
 
-        public static string GetFieldId(FormField field)
-        {
-            return (field.OwningForm.Name + field.Name).Replace(".", "_");
-        }
-
         private static void writeField(FormField field, StringBuilder sb, IDictionary<string, object> htmlAttributes)
         {
             var value = field.Value;
             var strLabel = field.Label == null ? field.Name : field.Label.Label;
             var strPlaceholder = strLabel;
-            var fieldId = GetFieldId(field);
 
             if (!field.OwningForm.Options.HideLabels)
             {
@@ -194,23 +187,6 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                 sb.Append("</div>");
             }
         }
-
-        //private static string getFieldName(InputType type)
-        //{
-        //    switch (type)
-        //    {
-        //        case InputType.Checkbox: return "checkbox";
-        //        case InputType.Dropdown: return "selectbox";
-        //        case InputType.TextArea: return "textarea";
-        //        case InputType.Fileupload: return "file";
-        //        case InputType.RadioButton: return "radio";
-
-        //        case InputType.Password:
-        //        case InputType.Textbox: return "textbox";
-
-        //        default: return "textbox";
-        //    }
-        //}
 
         public static string WriteClass(IDictionary<string, object> htmlAttributes)
         {

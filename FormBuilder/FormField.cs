@@ -15,11 +15,30 @@ namespace CompositeC1Contrib.FormBuilder
         public string Name { get; set; }
         public IEnumerable<Attribute> Attributes { get; private set; }
         public object Value { get; set; }
-        public Type ValueType { get; private set; }        
+        public Type ValueType { get; private set; }
+
+        public string Id
+        {
+            get { return (OwningForm.Name + Name).Replace(".", "_"); }
+        }
 
         public FieldLabelAttribute Label
         {
             get { return Attributes.OfType<FieldLabelAttribute>().First(); }
+        }
+
+        public string PlaceholderText
+        {
+            get
+            {
+                var placeholderAttr = Attributes.OfType<PlaceholderTextAttribute>().SingleOrDefault();
+                if (placeholderAttr == null)
+                {
+                    return Label.Label;
+                }
+
+                return placeholderAttr.Text;
+            }
         }
 
         public string Help
@@ -107,7 +126,7 @@ namespace CompositeC1Contrib.FormBuilder
             OwningForm = owningForm;
             Name = name;
             Attributes = attributes;
-            ValueType = valueType;            
+            ValueType = valueType;
         }
 
         private static IInputElementHandler GetDefaultInputType(Type type)

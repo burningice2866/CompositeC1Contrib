@@ -21,17 +21,15 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
             var value = field.Value;
             var strLabel = field.Label == null ? field.Name : field.Label.Label;
-            var strPlaceholder = strLabel;
-            var fieldId = FormRenderer.GetFieldId(field);
 
             var s = "<input type=\"{0}\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{4}\" placeholder=\"{4}\" {5} />";
 
             sb.AppendFormat(s,
                 evaluateTextboxType(field),
                 HttpUtility.HtmlAttributeEncode(field.Name),
-                HttpUtility.HtmlAttributeEncode(fieldId),
+                HttpUtility.HtmlAttributeEncode(field.Id),
                 value == null ? "" : HttpUtility.HtmlAttributeEncode(value.ToString()),
-                HttpUtility.HtmlAttributeEncode(strPlaceholder),
+                HttpUtility.HtmlAttributeEncode(field.PlaceholderText),
                 FormRenderer.WriteClass(htmlAttributes));
 
             return new HtmlString(sb.ToString());
