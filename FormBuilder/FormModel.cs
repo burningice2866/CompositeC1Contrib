@@ -217,13 +217,6 @@ namespace CompositeC1Contrib.FormBuilder
 
                 field.Value = i;
             }
-            else if (field.ValueType == typeof(decimal))
-            {
-                var d = 0m;
-                decimal.TryParse(val, out d);
-
-                field.Value = d;
-            }
             else if (field.ValueType == typeof(int?))
             {
                 var i = 0;
@@ -236,6 +229,14 @@ namespace CompositeC1Contrib.FormBuilder
                     field.Value = null;
                 }
             }
+
+            else if (field.ValueType == typeof(decimal))
+            {
+                var d = 0m;
+                decimal.TryParse(val, out d);
+
+                field.Value = d;
+            }            
             else if (field.ValueType == typeof(decimal?))
             {
                 var d = 0m;
@@ -248,6 +249,7 @@ namespace CompositeC1Contrib.FormBuilder
                     field.Value = null;
                 }
             }
+
             else if (field.ValueType == typeof(bool))
             {
                 var b = false;
@@ -262,8 +264,8 @@ namespace CompositeC1Contrib.FormBuilder
                 }
 
                 field.Value = b;
-
             }
+
             else if (field.ValueType == typeof(string))
             {
                 field.Value = val;
@@ -271,6 +273,26 @@ namespace CompositeC1Contrib.FormBuilder
             else if (field.ValueType == typeof(IEnumerable<string>))
             {
                 field.Value = val.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            }
+
+            else if (field.ValueType == typeof(DateTime))
+            {
+                var dt = DateTime.MinValue;
+                DateTime.TryParse(val, out dt);
+
+                field.Value = dt;
+            }
+            else if (field.ValueType == typeof(DateTime?))
+            {
+                var dt = DateTime.MinValue;
+                if (DateTime.TryParse(val, out dt))
+                {
+                    field.Value = dt;
+                }
+                else
+                {
+                    field.Value = null;
+                }
             }
         }
     }

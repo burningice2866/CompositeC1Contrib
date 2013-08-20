@@ -84,6 +84,7 @@
     <Compile Include="Attributes\ForceHttpsConnectionAttribute.cs" />
     <Compile Include="Attributes\FormNameAttribute.cs" />
     <Compile Include="Attributes\DataSourceAttribute.cs" />
+    <Compile Include="Validation\DaysFromNowValidatorAttribute.cs" />
     <Compile Include="Validation\EqualsConstantValidatorAttribute.cs" />
     <Compile Include="Attributes\FieldHelpAttribute.cs" />
     <Compile Include="Attributes\FieldLabelAttribute.cs" />
@@ -196,6 +197,7 @@
     <Content Include="Package\content\Composite\InstalledPackages\localization\CompositeC1Contrib.FormBuilder.en-us.xml" />
     <Content Include="Package\content\Composite\InstalledPackages\localization\CompositeC1Contrib.FormBuilder.da-dk.xml" />
     <Content Include="Package\content\Frontend\js\plugins\formbuilder.validation.js" />
+    <Content Include="Package\content\Frontend\js\plugins\jquery.formbuilder.js" />
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>

@@ -18,21 +18,37 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         public IHtmlString GetHtmlString(FormField field, IDictionary<string, object> htmlAttributes)
         {
             var sb = new StringBuilder();
-
-            var value = field.Value;
             var strLabel = field.Label == null ? field.Name : field.Label.Label;
-
             var s = "<input type=\"{0}\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{4}\" placeholder=\"{4}\" {5} />";
 
             sb.AppendFormat(s,
                 evaluateTextboxType(field),
                 HttpUtility.HtmlAttributeEncode(field.Name),
                 HttpUtility.HtmlAttributeEncode(field.Id),
-                value == null ? "" : HttpUtility.HtmlAttributeEncode(value.ToString()),
+                field.Value == null ? String.Empty : HttpUtility.HtmlAttributeEncode(getValue(field)),
                 HttpUtility.HtmlAttributeEncode(field.PlaceholderText),
                 FormRenderer.WriteClass(htmlAttributes));
 
             return new HtmlString(sb.ToString());
+        }
+
+        private static string getValue(FormField field) 
+        {
+            if (field.ValueType == typeof(DateTime))
+            {
+                return ((DateTime)field.Value).ToString("yyyy-MM-dd");
+            }
+
+            if (field.ValueType == typeof(DateTime?))
+            {
+                var dt = (DateTime?)field.Value;
+                if (dt.HasValue)
+                {
+                    return dt.Value.ToString("yyyy-MM-dd");
+                }
+            }
+
+            return field.Value.ToString();
         }
 
         private static string evaluateTextboxType(FormField field)

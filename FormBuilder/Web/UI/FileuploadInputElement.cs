@@ -35,7 +35,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             var fileMimeTypeValidatorAttr = field.Attributes.OfType<FileMimeTypeValidatorAttribute>().SingleOrDefault();
             if (fileMimeTypeValidatorAttr != null)
             {
-                sb.Append("accept=" + String.Join(",", fileMimeTypeValidatorAttr.MimeTypes) + " ");
+                sb.Append("accept=\"" + String.Join(",", fileMimeTypeValidatorAttr.MimeTypes) + "\" ");
             }
 
             sb.Append("/>");

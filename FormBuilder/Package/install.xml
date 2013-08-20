@@ -21,7 +21,9 @@
         <File sourceFilename="~\Bin\CompositeC1Contrib.Core.dll" targetFilename="~\Bin\CompositeC1Contrib.Core.dll" allowOverwrite="true" />
         <File sourceFilename="~\Bin\CompositeC1Contrib.Sorting.dll" targetFilename="~\Bin\CompositeC1Contrib.Sorting.dll" allowOverwrite="true" />
         <File sourceFilename="~\Bin\CompositeC1Contrib.FormBuilder.dll" targetFilename="~\Bin\CompositeC1Contrib.FormBuilder.dll" allowOverwrite="true" />
+        
         <File sourceFilename="~\content\Frontend\js\plugins\formbuilder.validation.js" targetFilename="~\Frontend\js\plugins\formbuilder.validation.js" allowOverwrite="true" />
+        <File sourceFilename="~\content\Frontend\js\plugins\jquery.formbuilder.js" targetFilename="~\Frontend\js\plugins\jquery.formbuilder.js" allowOverwrite="true" />
       </Files>
 
       <Directories>

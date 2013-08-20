@@ -35,11 +35,14 @@ namespace CompositeC1Contrib.FormBuilder.Validation
                 {
                     foreach (var f in value)
                     {
-                        var mimeType = f.ContentType;
-                        if (!MimeTypes.Contains(mimeType))
+                        if (f.ContentLength > 0)
                         {
-                            return false;
-                        }
+                            var mimeType = f.ContentType;
+                            if (!MimeTypes.Contains(mimeType))
+                            {
+                                return false;
+                            }
+                        }                        
                     }
 
                     return true;
