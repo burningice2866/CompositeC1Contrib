@@ -17,33 +17,25 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         {
             var sb = new StringBuilder();
 
-            var value = field.Value;
-            var strLabel = field.Label == null ? field.Name : field.Label.Label;
-            var strPlaceholder = strLabel;
-
             if (field.DataSource != null && field.DataSource.Any())
             {
                 var ix = 0;
+                var value = field.Value;
 
                 foreach (var item in field.DataSource)
                 {
                     sb.Append("<label class=\"radio\">");
 
                     sb.AppendFormat("<input type=\"radio\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{0}\" {4} {5}/> {6}",
-                        HttpUtility.HtmlAttributeEncode(item.StringLabel),
+                        HttpUtility.HtmlAttributeEncode(item.Value),
                         HttpUtility.HtmlAttributeEncode(field.Name),
                         HttpUtility.HtmlAttributeEncode(field.Id + "_" + ix++),
                         HttpUtility.HtmlAttributeEncode(item.Key),
                         (value == null ? String.Empty : FormRenderer.WriteChecked(FormRenderer.IsEqual(value, item.Key), "checked")),
                         FormRenderer.WriteClass(htmlAttributes),
-                        HttpUtility.HtmlEncode(item.StringLabel));
+                        HttpUtility.HtmlEncode(item.Value));
 
                     sb.Append("</label>");
-
-                    if (item.HtmlLabel != null)
-                    {
-                        sb.AppendFormat("<div class=\"label-rich\">{0}</div>", item.HtmlLabel);
-                    }
                 }
             }
 

@@ -15,10 +15,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         public IHtmlString GetHtmlString(FormField field, IDictionary<string, object> htmlAttributes)
         {
             var sb = new StringBuilder();
-
             var value = field.Value;
-            var strLabel = field.Label == null ? field.Name : field.Label.Label;
-            var strPlaceholder = strLabel;
 
             if (field.ValueType == typeof(bool))
             {
@@ -27,7 +24,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                 sb.AppendFormat("<input type=\"checkbox\" name=\"{0}\" id=\"{1}\" value=\"on\" title=\"{2}\" {3} {4} />",
                     HttpUtility.HtmlAttributeEncode(field.Name),
                     HttpUtility.HtmlAttributeEncode(field.Id),
-                    HttpUtility.HtmlAttributeEncode(strLabel),
+                    HttpUtility.HtmlAttributeEncode(field.Label.Label),
                     check,
                     FormRenderer.WriteClass(htmlAttributes));
             }
@@ -44,20 +41,15 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                         sb.Append("<label class=\"checkbox\">");
 
                         sb.AppendFormat("<input type=\"checkbox\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{0}\" {4} {5}/> {6} ",
-                            HttpUtility.HtmlAttributeEncode(item.StringLabel),
+                            HttpUtility.HtmlAttributeEncode(item.Value),
                             HttpUtility.HtmlAttributeEncode(field.Name),
                             HttpUtility.HtmlAttributeEncode(field.Id + "_" + ix++),
                             HttpUtility.HtmlAttributeEncode(item.Key),
                             FormRenderer.WriteChecked(list.Contains(item.Key), "checked"),
                             FormRenderer.WriteClass(htmlAttributes),
-                            HttpUtility.HtmlEncode(item.StringLabel));
+                            HttpUtility.HtmlEncode(item.Value));
 
                         sb.Append("</label>");
-
-                        if (item.HtmlLabel != null)
-                        {
-                            sb.AppendFormat("<div class=\"label-rich\">{0}</div>", item.HtmlLabel);
-                        }
                     }
                 }
             }

@@ -18,14 +18,14 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         public IHtmlString GetHtmlString(FormField field, IDictionary<string, object> htmlAttributes)
         {
             var sb = new StringBuilder();
-            var strLabel = field.Label == null ? field.Name : field.Label.Label;
-            var s = "<input type=\"{0}\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{4}\" placeholder=\"{4}\" {5} />";
+            var s = "<input type=\"{0}\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{4}\" placeholder=\"{5}\" {6} />";
 
             sb.AppendFormat(s,
                 evaluateTextboxType(field),
                 HttpUtility.HtmlAttributeEncode(field.Name),
                 HttpUtility.HtmlAttributeEncode(field.Id),
                 field.Value == null ? String.Empty : HttpUtility.HtmlAttributeEncode(getValue(field)),
+                HttpUtility.HtmlAttributeEncode(field.Label.Label),
                 HttpUtility.HtmlAttributeEncode(field.PlaceholderText),
                 FormRenderer.WriteClass(htmlAttributes));
 

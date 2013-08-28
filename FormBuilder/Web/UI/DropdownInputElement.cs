@@ -17,10 +17,6 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         {
             var sb = new StringBuilder();
 
-            var value = field.Value;
-            var strLabel = field.Label == null ? field.Name : field.Label.Label;
-            var strPlaceholder = strLabel;
-
             sb.AppendFormat("<select name=\"{0}\" id=\"{1}\" {2}>",
                         HttpUtility.HtmlAttributeEncode(field.Name),
                         HttpUtility.HtmlAttributeEncode(field.Id),
@@ -28,7 +24,8 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
             if (field.DataSource != null && field.DataSource.Any())
             {
-                var selectLabel = field.OwningForm.Options.HideLabels ? strLabel : Localization.Widgets_Dropdown_SelectLabel;
+                var value = field.Value;
+                var selectLabel = field.OwningForm.Options.HideLabels ? field.Label.Label : Localization.Widgets_Dropdown_SelectLabel;
 
                 sb.AppendFormat("<option value=\"\" selected=\"selected\" disabled=\"disabled\">{0}</option>", HttpUtility.HtmlEncode(selectLabel));
 
@@ -37,7 +34,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                     sb.AppendFormat("<option value=\"{0}\" {1}>{2}</option>",
                         HttpUtility.HtmlAttributeEncode(item.Key),
                         FormRenderer.WriteChecked(item.Key == (value ?? String.Empty).ToString(), "selected"),
-                        HttpUtility.HtmlEncode(item.StringLabel));
+                        HttpUtility.HtmlEncode(item.Value));
                 }
             }
 

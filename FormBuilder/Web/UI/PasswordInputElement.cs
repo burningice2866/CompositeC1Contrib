@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using System.Web;
 
@@ -17,9 +16,6 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             var sb = new StringBuilder();
 
             var value = field.Value;
-            var strLabel = field.Label == null ? field.Name : field.Label.Label;
-            var strPlaceholder = strLabel;
-
             var s = "<input type=\"{0}\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{4}\" placeholder=\"{4}\" {5} />";
 
             sb.AppendFormat(s,
@@ -27,7 +23,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                 HttpUtility.HtmlAttributeEncode(field.Name),
                 HttpUtility.HtmlAttributeEncode(field.Id),
                 value == null ? "" : HttpUtility.HtmlAttributeEncode(value.ToString()),
-                HttpUtility.HtmlAttributeEncode(strPlaceholder),
+                HttpUtility.HtmlAttributeEncode(field.PlaceholderText),
                 FormRenderer.WriteClass(htmlAttributes));
 
             return new HtmlString(sb.ToString());

@@ -19,10 +19,6 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         {
             var sb = new StringBuilder();
 
-            var value = field.Value;
-            var strLabel = field.Label == null ? field.Name : field.Label.Label;
-            var strPlaceholder = strLabel;
-
             sb.AppendFormat("<input type=\"file\" name=\"{0}\" id=\"{1}\" ",
                         HttpUtility.HtmlAttributeEncode(field.Name),
                         HttpUtility.HtmlAttributeEncode(field.Id));

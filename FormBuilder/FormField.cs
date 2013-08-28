@@ -31,13 +31,16 @@ namespace CompositeC1Contrib.FormBuilder
         {
             get
             {
+                var ret = Label.Label;
+
                 var placeholderAttr = Attributes.OfType<PlaceholderTextAttribute>().SingleOrDefault();
-                if (placeholderAttr == null)
+                if (placeholderAttr != null)
                 {
-                    return Label.Label;
+                    ret = placeholderAttr.Text;
+                    
                 }
 
-                return placeholderAttr.Text;
+                return FormRenderer.GetLocalized(ret);
             }
         }
 
@@ -74,7 +77,7 @@ namespace CompositeC1Contrib.FormBuilder
             get { return Attributes.Any(a => a is RequiredFieldAttribute); }
         }
 
-        public IEnumerable<RichTextListItem> DataSource
+        public IEnumerable<KeyValuePair<string, string>> DataSource
         {
             get
             {
@@ -93,18 +96,13 @@ namespace CompositeC1Contrib.FormBuilder
                 var dict = ds as IDictionary<string, string>;
                 if (dict != null)
                 {
-                    return dict.Select(f => new RichTextListItem(f.Key, f.Value));
+                    return dict.Select(f => new KeyValuePair<string, string>(f.Key, FormRenderer.GetLocalized(f.Value)));
                 }
 
-                if (ds is IEnumerable<string>)
-                {
-                    return (ds as IEnumerable<string>).Select(str => new RichTextListItem(str, str));
-                }
-
-                var list = ds as IEnumerable<RichTextListItem>;
+                var list = ds as IEnumerable<string>;
                 if (list != null)
                 {
-                    return list;
+                    return list.Select(str => FormRenderer.GetLocalized(str)).Select(str => new KeyValuePair<string, string>(str, str));
                 }
 
                 throw new InvalidOperationException("Unsupported data source type: " + ds.GetType().FullName);

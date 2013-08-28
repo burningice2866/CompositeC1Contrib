@@ -16,8 +16,6 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             var sb = new StringBuilder();
 
             var value = field.Value;
-            var strLabel = field.Label == null ? field.Name : field.Label.Label;
-
             var textarea = "<textarea name=\"{0}\" id=\"{1}\" rows=\"5\" cols=\"40\" title=\"{2}\" placeholder=\"{2}\" {3}>{4}</textarea>";
 
             sb.AppendFormat(textarea,

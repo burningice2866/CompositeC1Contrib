@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Web;
 
+using Composite.Core.ResourceSystem;
+
 using CompositeC1Contrib.FormBuilder.Attributes;
 using CompositeC1Contrib.FormBuilder.Validation;
 
@@ -39,7 +41,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
                 foreach (var el in validationResult)
                 {
-                    sb.Append("<li>" + el.ValidationMessage + "</li>");
+                    sb.Append("<li>" + GetLocalized(el.ValidationMessage) + "</li>");
                 }
 
                 sb.Append("</ul>");
@@ -110,7 +112,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             {
                 if (includeLabel)
                 {
-                    writeLabel(field, field.Id, field.OwningForm.Options.HideLabels, sb);
+                    writeLabel(field, sb);
                 }
                 else
                 {
@@ -218,14 +220,15 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             return obj.ToString() == value;
         }
 
-        private static void writeLabel(FormField field, string fieldId, bool hide, StringBuilder sb)
+        private static void writeLabel(FormField field, StringBuilder sb)
         {
+            var hide = field.OwningForm.Options.HideLabels;
             if (field.InputTypeHandler is FileuploadInputElement)
             {
                 hide = false;
             }
 
-            sb.AppendFormat("<label class=\"control-label {0}\" for=\"{1}\">", hide ? "hide-text " : String.Empty, fieldId);
+            sb.AppendFormat("<label class=\"control-label {0}\" for=\"{1}\">", hide ? "hide-text " : String.Empty, field.Id);
 
             writeLabelContent(field, sb);
 
@@ -246,7 +249,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         private static void writeLabelContent(FormField field, StringBuilder sb)
         {
-            var title = field.Label == null ? field.Name : field.Label.Label;
+            var label = GetLocalized(field.Label == null ? field.Name : field.Label.Label);
 
             if (field.IsRequired)
             {
@@ -257,13 +260,13 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             {
                 sb.AppendFormat("<a href=\"{0}\" title=\"{1}\" {2}>{3}</a>",
                     HttpUtility.HtmlAttributeEncode(field.Label.Link),
-                    HttpUtility.HtmlAttributeEncode(title),
+                    HttpUtility.HtmlAttributeEncode(label),
                     field.Label.OpenLinkInNewWindow ? "target=\"_blank\"" : String.Empty,
-                    HttpUtility.HtmlEncode(title));
+                    HttpUtility.HtmlEncode(label));
             }
             else
             {
-                sb.Append(HttpUtility.HtmlEncode(title));
+                sb.Append(HttpUtility.HtmlEncode(label));
             }
         }
 
@@ -275,6 +278,11 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             }
 
             return String.Empty;
+        }
+
+        public static string GetLocalized(string text)
+        {
+            return text.Contains("${") ? StringResourceSystemFacade.ParseString(text) : text;
         }
     }
 }
