@@ -10,9 +10,8 @@ namespace CompositeC1Contrib.FormBuilder.Validation
         {
             var value = (string)field.Value;
 
-            return new FormValidationRule(new[] { field.Name })
+            return new FormValidationRule(new[] { field.Name }, Message)
             {
-                ValidationMessage = Message,
                 Rule = () =>
                 {
                     var users = Membership.FindUsersByEmail(value);

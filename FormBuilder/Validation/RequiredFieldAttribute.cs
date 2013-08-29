@@ -12,9 +12,8 @@ namespace CompositeC1Contrib.FormBuilder.Validation
         {
             var value = field.Value;
 
-            return new FormValidationRule(new[] { field.Name })
+            return new FormValidationRule(new[] { field.Name }, Message)
             {
-                ValidationMessage = Message,
                 Rule = () =>
                 {
                     if (value is string)

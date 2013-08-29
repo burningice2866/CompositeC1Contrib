@@ -120,6 +120,7 @@
     <Compile Include="FormBuilderActionProvider.cs" />
     <Compile Include="FormField.cs" />
     <Compile Include="FormFile.cs" />
+    <Compile Include="Validation\RegexValidatorAttribute.cs" />
     <Compile Include="Web\UI\CheckboxInputElement.cs" />
     <Compile Include="Web\UI\FunctionbasedInputElement.cs" />
     <Compile Include="Web\UI\PasswordInputElement.cs" />

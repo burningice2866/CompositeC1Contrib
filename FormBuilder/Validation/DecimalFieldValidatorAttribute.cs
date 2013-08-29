@@ -6,9 +6,8 @@
 
         public override FormValidationRule CreateRule(FormField field)
         {
-            return new FormValidationRule(new[] { field.Name })
+            return new FormValidationRule(new[] { field.Name }, Message)
             {
-                ValidationMessage = Message,
                 Rule = () =>
                 {
                     var s = field.OwningForm.SubmittedValues[field.Name];

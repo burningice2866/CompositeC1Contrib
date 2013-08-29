@@ -1,17 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using CompositeC1Contrib.FormBuilder.Web.UI;
+
 namespace CompositeC1Contrib.FormBuilder.Validation
 {
     public class FormValidationRule
     {
-        public string ValidationMessage { get; set; }
-        public IList<string> AffectedFormIds { get; private set; }
+        public IEnumerable<string> AffectedFormIds { get; private set; }
         public Func<bool> Rule { get; set; }
 
-        public FormValidationRule(string[] affectedFormIds)
+        private string _validationMessage;
+        public string ValidationMessage
         {
-            AffectedFormIds = new List<string>(affectedFormIds);
+            get { return FormRenderer.GetLocalized(_validationMessage); }
+        }
+
+        public FormValidationRule(string[] affectedFormIds, string validationMessage)
+        {
+            _validationMessage = validationMessage;
+            AffectedFormIds = new List<string>(affectedFormIds);            
         }
     }
 }

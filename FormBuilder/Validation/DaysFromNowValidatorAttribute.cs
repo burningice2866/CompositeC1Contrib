@@ -25,9 +25,8 @@ namespace CompositeC1Contrib.FormBuilder.Validation
                 dt = (DateTime?)field.Value;
             }
 
-            return new FormValidationRule(new[] { field.Name })
+            return new FormValidationRule(new[] { field.Name }, Message)
             {
-                ValidationMessage = Message,
                 Rule = () =>
                 {
                     if (!dt.HasValue)

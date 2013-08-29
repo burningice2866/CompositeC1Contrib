@@ -41,7 +41,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
                 foreach (var el in validationResult)
                 {
-                    sb.Append("<li>" + GetLocalized(el.ValidationMessage) + "</li>");
+                    sb.Append("<li>" + el.ValidationMessage + "</li>");
                 }
 
                 sb.Append("</ul>");
@@ -249,24 +249,22 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         private static void writeLabelContent(FormField field, StringBuilder sb)
         {
-            var label = GetLocalized(field.Label == null ? field.Name : field.Label.Label);
-
             if (field.IsRequired)
             {
                 sb.Append("<span class=\"required\">*</span>");
             }
 
-            if (field.Label != null && !String.IsNullOrEmpty(field.Label.Link))
+            if (!String.IsNullOrEmpty(field.Label.Link))
             {
                 sb.AppendFormat("<a href=\"{0}\" title=\"{1}\" {2}>{3}</a>",
                     HttpUtility.HtmlAttributeEncode(field.Label.Link),
-                    HttpUtility.HtmlAttributeEncode(label),
+                    HttpUtility.HtmlAttributeEncode(field.Label.Label),
                     field.Label.OpenLinkInNewWindow ? "target=\"_blank\"" : String.Empty,
-                    HttpUtility.HtmlEncode(label));
+                    HttpUtility.HtmlEncode(field.Label.Label));
             }
             else
             {
-                sb.Append(HttpUtility.HtmlEncode(label));
+                sb.Append(HttpUtility.HtmlEncode(field.Label.Label));
             }
         }
 

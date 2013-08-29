@@ -109,7 +109,7 @@ namespace CompositeC1Contrib.FormBuilder
             {
                 if (skipMultipleFieldsRules)
                 {
-                    return r.AffectedFormIds.Count == 1;
+                    return r.AffectedFormIds.Count() == 1;
                 }
 
                 return true;

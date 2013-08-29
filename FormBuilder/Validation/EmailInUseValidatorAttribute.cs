@@ -15,9 +15,8 @@ namespace CompositeC1Contrib.Forms.Validation
         {
             var value = (string)field.Value;
 
-            return new FormValidationRule(new[] { field.Name })
+            return new FormValidationRule(new[] { field.Name }, Message)
             {
-                ValidationMessage = Message,
                 Rule = () =>
                 {
                     var currentUser = Membership.GetUser();

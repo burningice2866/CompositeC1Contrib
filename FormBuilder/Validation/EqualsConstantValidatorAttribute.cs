@@ -14,9 +14,8 @@
         {
             var value = field.Value;
 
-            return new FormValidationRule(new[] { field.Name })
+            return new FormValidationRule(new[] { field.Name }, Message)
             {
-                ValidationMessage = Message,
                 Rule = () =>
                 {
                     return (value == _constant);

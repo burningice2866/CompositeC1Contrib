@@ -19,9 +19,8 @@ namespace CompositeC1Contrib.FormBuilder.Validation
             var value = field.Value;
             var valueToCompare = field.OwningForm.Fields.Single(f => f.Name == _fieldToCompare).Value;
 
-            return new FormValidationRule(new[] { field.Name, _fieldToCompare })
+            return new FormValidationRule(new[] { field.Name, _fieldToCompare }, Message)
             {
-                ValidationMessage = Message,
                 Rule = () =>
                 {
                     switch (_op)

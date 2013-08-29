@@ -28,9 +28,8 @@ namespace CompositeC1Contrib.FormBuilder.Validation
                 value = (IEnumerable<FormFile>)field.Value;
             }
 
-            return new FormValidationRule(new[] { field.Name })
+            return new FormValidationRule(new[] { field.Name }, Message)
             {
-                ValidationMessage = Message,
                 Rule = () =>
                 {
                     foreach (var f in value)

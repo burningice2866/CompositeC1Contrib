@@ -1,36 +1,17 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace CompositeC1Contrib.FormBuilder.Validation
 {
-    public class EmailFieldValidatorAttribute : FormValidationAttribute
+    public class EmailFieldValidatorAttribute : RegexValidatorAttribute
     {
-        private static readonly Regex _emailValidationRegex = new Regex(@"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly string _pattern = @"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b";
+        private static readonly Regex _regex = new Regex(@"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        public EmailFieldValidatorAttribute(string message) : base(message) { }
-
-        public override FormValidationRule CreateRule(FormField field)
-        {
-            var value = (string)field.Value;
-
-            return new FormValidationRule(new[] { field.Name })
-            {
-                ValidationMessage = Message,
-                Rule = () =>
-                {
-                    if (String.IsNullOrEmpty(value))
-                    {
-                        return !field.IsRequired;
-                    }
-
-                    return !Validate(value);
-                }
-            };
-        }
+        public EmailFieldValidatorAttribute(string message) : base(message, _pattern) { }
 
         public static bool Validate(string email)
         {
-            return !_emailValidationRegex.IsMatch(email);
+            return !_regex.IsMatch(email);
         }
     }
 }

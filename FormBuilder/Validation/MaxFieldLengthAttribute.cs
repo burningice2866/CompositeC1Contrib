@@ -16,9 +16,8 @@ namespace CompositeC1Contrib.FormBuilder.Validation
         {
             var value = (string)field.Value;
 
-            return new FormValidationRule(new[] { field.Name })
+            return new FormValidationRule(new[] { field.Name }, String.Format(Message, _length))
             {
-                ValidationMessage = String.Format(Message, _length),
                 Rule = () =>
                 {
                     if (String.IsNullOrEmpty(value) && !field.IsRequired)
