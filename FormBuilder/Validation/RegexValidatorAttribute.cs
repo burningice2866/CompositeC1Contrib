@@ -10,7 +10,7 @@ namespace CompositeC1Contrib.FormBuilder.Validation
         public RegexValidatorAttribute(string message, string regex)
             : base(message)
         {
-            _regex = new Regex(regex, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            _regex = new Regex(regex, RegexOptions.Compiled);
         }
 
         public override FormValidationRule CreateRule(FormField field)

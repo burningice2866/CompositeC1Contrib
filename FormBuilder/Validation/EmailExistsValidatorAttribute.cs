@@ -1,10 +1,19 @@
-﻿using System.Web.Security;
+﻿using System.Linq;
+using System.Web.Security;
 
 namespace CompositeC1Contrib.FormBuilder.Validation
 {
     public class EmailExistsValidatorAttribute : FormValidationAttribute
     {
-        public EmailExistsValidatorAttribute(string message) : base(message) { }
+        private bool _onlyApproved = true;
+
+        public EmailExistsValidatorAttribute(string message) : this(message, true) { }
+
+        public EmailExistsValidatorAttribute(string message, bool onlyApproved)
+            : base(message)
+        {
+            _onlyApproved = onlyApproved;
+        }
 
         public override FormValidationRule CreateRule(FormField field)
         {
@@ -14,9 +23,15 @@ namespace CompositeC1Contrib.FormBuilder.Validation
             {
                 Rule = () =>
                 {
-                    var users = Membership.FindUsersByEmail(value);
+                    return Membership.FindUsersByEmail(value).Cast<MembershipUser>().Where(u =>
+                    {
+                        if (_onlyApproved)
+                        {
+                            return u.IsApproved;
+                        }
 
-                    return users.Count != 0;
+                        return true;
+                    }).Any();
                 }
             };
         }

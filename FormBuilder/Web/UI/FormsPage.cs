@@ -133,7 +133,14 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         protected HtmlForm BeginForm(object htmlAttributes)
         {
-            var @class = "form formbuilder-" + RenderingModel.Name.ToLowerInvariant();
+            var htmlAttributesDictionary = new Dictionary<string, IList<string>>();
+
+            htmlAttributesDictionary.Add("class", new List<string>());
+
+            htmlAttributesDictionary["class"].Add("form");
+            htmlAttributesDictionary["class"].Add("formbuilder-" + RenderingModel.Name.ToLowerInvariant());
+
+            var htmlElementAttributes = RenderingModel.Attributes.OfType<HtmlTagAttribute>();
             var action = String.Empty;
 
             var dictionary = Functions.ObjectToDictionary(htmlAttributes);
@@ -141,7 +148,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             {
                 if (dictionary.ContainsKey("class"))
                 {
-                    @class += " " + (string)dictionary["class"];
+                    htmlAttributesDictionary["class"].Add((string)dictionary["class"]);
                 }
 
                 if (dictionary.ContainsKey("action"))
@@ -150,17 +157,33 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                 }
             }
 
-            WriteLiteral(String.Format("<form method=\"post\" class=\"{1}\" action=\"{2}\"", RenderingModel.Name, @class, action));
+            foreach (var attr in htmlElementAttributes)
+            {
+                IList<string> list;
+                if (!htmlAttributesDictionary.TryGetValue(attr.Attribute, out list))
+                {
+                    htmlAttributesDictionary.Add(attr.Attribute, new List<string>());
+                }
+
+                htmlAttributesDictionary[attr.Attribute].Add(attr.Value);
+            }
+
+            WriteLiteral(String.Format("<form method=\"post\" action=\"{1}\"", RenderingModel.Name, action));
+
+            foreach (var kvp in htmlAttributesDictionary)
+            {
+                WriteLiteral(" "+ kvp.Key + "=\"");
+                foreach (var itm in kvp.Value)
+                {
+                    WriteLiteral(itm +" ");
+                }
+
+                WriteLiteral("\"");
+            }
 
             if (RenderingModel.HasFileUpload)
             {
                 WriteLiteral(" enctype=\"multipart/form-data\"");
-            }
-
-            var formTagAttributes = RenderingModel.Attributes.OfType<FormTagAttributesAttribute>().FirstOrDefault();
-            if (formTagAttributes != null)
-            {
-                WriteLiteral(" " + formTagAttributes.Attributes);
             }
 
             WriteLiteral(">");

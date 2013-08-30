@@ -2,14 +2,19 @@
 using System.Linq;
 using System.Web.Security;
 
-using CompositeC1Contrib.FormBuilder;
-using CompositeC1Contrib.FormBuilder.Validation;
-
-namespace CompositeC1Contrib.Forms.Validation
+namespace CompositeC1Contrib.FormBuilder.Validation
 {
     public class EmailInUseValidatorAttribute : FormValidationAttribute
     {
-        public EmailInUseValidatorAttribute(string message) : base(message) { }
+        private bool _onlyApproved = true;
+
+        public EmailInUseValidatorAttribute(string message) : this(message, true) { }
+
+        public EmailInUseValidatorAttribute(string message, bool onlyApproved)
+            : base(message)
+        {
+            _onlyApproved = onlyApproved;
+        }
 
         public override FormValidationRule CreateRule(FormField field)
         {
@@ -24,7 +29,7 @@ namespace CompositeC1Contrib.Forms.Validation
                     {
                         if (!String.Equals(value, currentUser.Email, StringComparison.OrdinalIgnoreCase))
                         {
-                            return !IsEmailInUse(value);
+                            return !IsEmailInUse(value, _onlyApproved);
                         }
                         else
                         {
@@ -33,15 +38,23 @@ namespace CompositeC1Contrib.Forms.Validation
                     }
                     else
                     {
-                        return !IsEmailInUse(value);
+                        return !IsEmailInUse(value, _onlyApproved);
                     }
                 }
             };
         }
 
-        public static bool IsEmailInUse(string email)
+        public static bool IsEmailInUse(string email, bool onlyApproved)
         {
-            return Membership.FindUsersByEmail(email).Cast<MembershipUser>().Where(u => u.IsApproved).Any();
+            return Membership.FindUsersByEmail(email).Cast<MembershipUser>().Where(u =>
+            {
+                if (onlyApproved)
+                {
+                    return u.IsApproved;
+                }
+
+                return true;
+            }).Any();
         }
     }
 }

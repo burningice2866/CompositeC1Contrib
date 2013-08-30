@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 
+using CompositeC1Contrib.FormBuilder.Attributes;
 using CompositeC1Contrib.FormBuilder.Validation;
 
 namespace CompositeC1Contrib.FormBuilder.Web.UI
@@ -17,8 +18,22 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         public IHtmlString GetHtmlString(FormField field, IDictionary<string, object> htmlAttributes)
         {
+            var htmlAttributesDictionary = new Dictionary<string, IList<string>>();
+            var htmlElementAttributes = field.Attributes.OfType<HtmlTagAttribute>();
+
+            foreach (var attr in htmlElementAttributes)
+            {
+                IList<string> list;
+                if (!htmlAttributesDictionary.TryGetValue(attr.Attribute, out list))
+                {
+                    htmlAttributesDictionary.Add(attr.Attribute, new List<string>());
+                }
+
+                htmlAttributesDictionary[attr.Attribute].Add(attr.Value);
+            }
+
             var sb = new StringBuilder();
-            var s = "<input type=\"{0}\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{4}\" placeholder=\"{5}\" {6} />";
+            var s = "<input type=\"{0}\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{4}\" placeholder=\"{5}\" {6}";
 
             sb.AppendFormat(s,
                 evaluateTextboxType(field),
@@ -28,11 +43,24 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                 HttpUtility.HtmlAttributeEncode(field.Label.Label),
                 HttpUtility.HtmlAttributeEncode(field.PlaceholderText),
                 FormRenderer.WriteClass(htmlAttributes));
+            
+            foreach (var kvp in htmlAttributesDictionary)
+            {
+                sb.Append(" " + kvp.Key + "=\"");
+                foreach (var itm in kvp.Value)
+                {
+                    sb.Append(itm + " ");
+                }
+
+                sb.Append("\"");
+            }
+
+            sb.Append(" />");
 
             return new HtmlString(sb.ToString());
         }
 
-        private static string getValue(FormField field) 
+        private static string getValue(FormField field)
         {
             if (field.ValueType == typeof(DateTime))
             {

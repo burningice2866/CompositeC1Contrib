@@ -84,11 +84,13 @@
     <Compile Include="Attributes\ForceHttpsConnectionAttribute.cs" />
     <Compile Include="Attributes\FormNameAttribute.cs" />
     <Compile Include="Attributes\DataSourceAttribute.cs" />
+    <Compile Include="Validation\CredentialsValidatorAttribute.cs" />
     <Compile Include="Validation\DaysFromNowValidatorAttribute.cs" />
+    <Compile Include="Validation\EmailExistsValidatorAttribute.cs" />
     <Compile Include="Validation\EqualsConstantValidatorAttribute.cs" />
     <Compile Include="Attributes\FieldHelpAttribute.cs" />
     <Compile Include="Attributes\FieldLabelAttribute.cs" />
-    <Compile Include="Attributes\FormTagAttributesAttribute.cs" />
+    <Compile Include="Attributes\HtmlTagAttribute.cs" />
     <Compile Include="Attributes\FunctionBasedDataSourceAttribute.cs" />
     <Compile Include="Attributes\InputElementProviderAttribute.cs" />
     <Compile Include="Attributes\MethodBasedDataSourceAttribute.cs" />
@@ -121,6 +123,7 @@
     <Compile Include="FormField.cs" />
     <Compile Include="FormFile.cs" />
     <Compile Include="Validation\RegexValidatorAttribute.cs" />
+    <Compile Include="Validation\UpdatePasswordValidatorAttribute.cs" />
     <Compile Include="Web\UI\CheckboxInputElement.cs" />
     <Compile Include="Web\UI\FunctionbasedInputElement.cs" />
     <Compile Include="Web\UI\PasswordInputElement.cs" />
@@ -143,7 +146,6 @@
     <Compile Include="Validation\CompareOperator.cs" />
     <Compile Include="Validation\DecimalFieldValidatorAttribute.cs" />
     <Compile Include="Validation\DecimalRangeFieldValidatorAttribute.cs" />
-    <Compile Include="Validation\EmailExistsValidatorAttribute.cs" />
     <Compile Include="Validation\EmailFieldValidatorAttribute.cs" />
     <Compile Include="Validation\EmailInUseValidatorAttribute.cs" />
     <Compile Include="Validation\FileMimeTypeValidatorAttribute.cs" />
