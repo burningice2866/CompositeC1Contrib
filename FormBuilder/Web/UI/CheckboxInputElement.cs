@@ -19,14 +19,16 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
             if (field.ValueType == typeof(bool))
             {
-                var check = (bool)value ? "checked=\"checked\"" : "";
-
-                sb.AppendFormat("<input type=\"checkbox\" name=\"{0}\" id=\"{1}\" value=\"on\" title=\"{2}\" {3} {4} />",
+                sb.AppendFormat("<input type=\"{0}\" name=\"{1}\" id=\"{2}\" value=\"on\" title=\"{3}\" {4}",
+                    ElementName,
                     HttpUtility.HtmlAttributeEncode(field.Name),
                     HttpUtility.HtmlAttributeEncode(field.Id),
                     HttpUtility.HtmlAttributeEncode(field.Label.Label),
-                    check,
-                    FormRenderer.WriteClass(htmlAttributes));
+                    FormRenderer.WriteChecked((bool)value, "checked"));
+
+                FormRenderer.RenderExtraHtmlTags(sb, field, htmlAttributes);
+
+                sb.Append(" />");
             }
             else if (field.ValueType == typeof(IEnumerable<string>))
             {
@@ -40,16 +42,16 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                     {
                         sb.Append("<label class=\"checkbox\">");
 
-                        sb.AppendFormat("<input type=\"checkbox\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{0}\" {4} {5}/> {6} ",
+                        sb.AppendFormat("<input type=\"checkbox\" name=\"{1}\" id=\"{2}\" value=\"{3}\" title=\"{0}\" {4}",
                             HttpUtility.HtmlAttributeEncode(item.Value),
                             HttpUtility.HtmlAttributeEncode(field.Name),
                             HttpUtility.HtmlAttributeEncode(field.Id + "_" + ix++),
                             HttpUtility.HtmlAttributeEncode(item.Key),
-                            FormRenderer.WriteChecked(list.Contains(item.Key), "checked"),
-                            FormRenderer.WriteClass(htmlAttributes),
-                            HttpUtility.HtmlEncode(item.Value));
+                            FormRenderer.WriteChecked(list.Contains(item.Key), "checked"));
 
-                        sb.Append("</label>");
+                        FormRenderer.RenderExtraHtmlTags(sb, field);
+
+                        sb.AppendFormat("/> {0}</label>", HttpUtility.HtmlEncode(item.Value));
                     }
                 }
             }

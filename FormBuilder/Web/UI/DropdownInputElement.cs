@@ -16,11 +16,20 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         public IHtmlString GetHtmlString(FormField field, IDictionary<string, object> htmlAttributes)
         {
             var sb = new StringBuilder();
+            var htmlAttributesDictionary = FormRenderer.MapHtmlTagAttributes(field, htmlAttributes);
 
-            sb.AppendFormat("<select name=\"{0}\" id=\"{1}\" {2}>",
+            sb.AppendFormat("<select name=\"{0}\" id=\"{1}\"",
                         HttpUtility.HtmlAttributeEncode(field.Name),
-                        HttpUtility.HtmlAttributeEncode(field.Id),
-                        FormRenderer.WriteClass(htmlAttributes));
+                        HttpUtility.HtmlAttributeEncode(field.Id));
+
+            if (field.ValueType == typeof(IEnumerable<string>))
+            {
+                htmlAttributesDictionary.Add("multiple", new List<string>() { "multiple" });
+            }
+
+            FormRenderer.RenderExtraHtmlTags(sb, htmlAttributesDictionary);
+
+            sb.Append(">");
 
             if (field.DataSource != null && field.DataSource.Any())
             {

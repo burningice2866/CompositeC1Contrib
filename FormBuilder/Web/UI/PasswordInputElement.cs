@@ -16,14 +16,17 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             var sb = new StringBuilder();
 
             var value = field.Value;
-            var s = "<input type=\"{0}\" name=\"{1}\" id=\"{2}\" title=\"{3}\" placeholder=\"{3}\" {4} />";
+            var s = "<input type=\"{0}\" name=\"{1}\" id=\"{2}\" title=\"{3}\" placeholder=\"{3}\"";
 
             sb.AppendFormat(s,
                 "password",
                 HttpUtility.HtmlAttributeEncode(field.Name),
                 HttpUtility.HtmlAttributeEncode(field.Id),
-                HttpUtility.HtmlAttributeEncode(field.PlaceholderText),
-                FormRenderer.WriteClass(htmlAttributes));
+                HttpUtility.HtmlAttributeEncode(field.PlaceholderText));
+
+            FormRenderer.RenderExtraHtmlTags(sb, field, htmlAttributes);
+
+            sb.Append(" />");
 
             return new HtmlString(sb.ToString());
         }

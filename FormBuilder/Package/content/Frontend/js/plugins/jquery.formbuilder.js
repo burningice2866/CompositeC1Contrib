@@ -37,6 +37,17 @@
         });
     };
 
+    var isMatch = function (field, itm) {
+        var field = getFormFieldValue(field);
+        if (field) {
+            var regexp = new RegExp("^" + itm + "$", "i");
+
+            return field.match(regexp)
+        }
+
+        return false;
+    }
+
     var showFunction = function (json) {
         var show = false;
 
@@ -44,9 +55,7 @@
             var field = itm.field;
 
             $.each(itm.value, function (ix, itm) {
-                var regexp = new RegExp("^" + itm + "$", "i");
-
-                show = show || getFormFieldValue(field).match(regexp)
+                show = show || isMatch(field, itm);
             });
         });
 

@@ -15,15 +15,16 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         {
             var sb = new StringBuilder();
 
-            var value = field.Value;
-            var textarea = "<textarea name=\"{0}\" id=\"{1}\" rows=\"5\" cols=\"40\" title=\"{2}\" placeholder=\"{2}\" {3}>{4}</textarea>";
+            var textarea = "<textarea name=\"{0}\" id=\"{1}\" rows=\"5\" cols=\"40\" title=\"{2}\" placeholder=\"{2}\"";
 
             sb.AppendFormat(textarea,
                 HttpUtility.HtmlAttributeEncode(field.Name),
                 HttpUtility.HtmlAttributeEncode(field.Id),
-                HttpUtility.HtmlAttributeEncode(field.PlaceholderText),
-                FormRenderer.WriteClass(htmlAttributes),
-                HttpUtility.HtmlEncode(value));
+                HttpUtility.HtmlAttributeEncode(field.PlaceholderText));
+
+            FormRenderer.RenderExtraHtmlTags(sb, field, htmlAttributes);
+
+            sb.AppendFormat(">{0}</textarea>", HttpUtility.HtmlEncode(FormRenderer.GetValue(field)));
 
             return new HtmlString(sb.ToString());
         }

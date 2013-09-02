@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Web;
 
 using Composite.Core.ResourceSystem;
-
 using CompositeC1Contrib.FormBuilder.Attributes;
 using CompositeC1Contrib.FormBuilder.Validation;
 
@@ -141,7 +141,6 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             return new HtmlString(sb.ToString());
         }
 
-
         private static bool showLabel(FormField field)
         {
             if (field.ValueType == typeof(bool))
@@ -178,7 +177,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             }
 
             var str = field.InputTypeHandler.GetHtmlString(field, htmlAttributes);
-            sb.Append(str);            
+            sb.Append(str);
 
             if (!String.IsNullOrWhiteSpace(field.Help))
             {
@@ -188,16 +187,6 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                 sb.Append("</div>");
                 sb.Append("</div>");
             }
-        }
-
-        public static string WriteClass(IDictionary<string, object> htmlAttributes)
-        {
-            if (htmlAttributes.ContainsKey("class"))
-            {
-                return "class=\"" + htmlAttributes["class"] + "\"";
-            }
-
-            return String.Empty;
         }
 
         public static string WriteChecked(bool write, string attr)
@@ -278,9 +267,115 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             return String.Empty;
         }
 
+        public static string GetValue(FormField field)
+        {
+            if (field.Value == null)
+            {
+                return String.Empty;
+            }
+
+            var formatAttr = field.Attributes.OfType<DisplayFormatAttribute>().SingleOrDefault();
+
+            var underlyingType = Nullable.GetUnderlyingType(field.ValueType);
+            if (underlyingType != null && formatAttr != null)
+            {
+                var hasValue = (bool)field.ValueType.GetProperty("HasValue").GetValue(field.Value, null);
+                if (hasValue)
+                {
+                    var value = field.ValueType.GetProperty("Value").GetValue(field.Value, null);
+                    if (value is IFormattable)
+                    {
+                        return ((IFormattable)value).ToString(formatAttr.FormatString, CultureInfo.CurrentUICulture);
+                    }
+                }                
+            }
+
+            if (formatAttr == null || !(field.Value is IFormattable))
+            {
+                return field.Value.ToString();
+            }
+
+            return ((IFormattable)field.Value).ToString(formatAttr.FormatString, CultureInfo.CurrentUICulture);
+        }
+
         public static string GetLocalized(string text)
         {
             return text.Contains("${") ? StringResourceSystemFacade.ParseString(text) : text;
+        }
+
+        public static Dictionary<string, IList<string>> MapHtmlTagAttributes(FormField field)
+        {
+            return MapHtmlTagAttributes(field, null);
+        }
+
+        public static Dictionary<string, IList<string>> MapHtmlTagAttributes(FormField field, IDictionary<string, object> htmlAttributes)
+        {
+            var htmlAttributesDictionary = new Dictionary<string, IList<string>>()
+            {
+                { "class", new List<string>() }
+            };
+
+            var htmlElementAttributes = field.Attributes.OfType<HtmlTagAttribute>();
+
+            foreach (var attr in htmlElementAttributes)
+            {
+                IList<string> list;
+                if (!htmlAttributesDictionary.TryGetValue(attr.Attribute, out list))
+                {
+                    htmlAttributesDictionary.Add(attr.Attribute, new List<string>());
+                }
+
+                htmlAttributesDictionary[attr.Attribute].Add(attr.Value);
+            }
+
+            if (htmlAttributes != null && htmlAttributes.ContainsKey("class"))
+            {
+                var list = htmlAttributesDictionary["class"];
+                var val = ((string)htmlAttributes["class"]).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);                
+
+                foreach (var itm in val)
+                {
+                    list.Add(itm);
+                }
+            }
+
+            return htmlAttributesDictionary;
+        }
+
+        public static void RenderExtraHtmlTags(StringBuilder sb, FormField field)
+        {
+            RenderExtraHtmlTags(sb, field, null);
+        }
+
+        public static void RenderExtraHtmlTags(StringBuilder sb, FormField field, IDictionary<string, object> htmlAttributes)
+        {
+            var htmlAttributesDictionary = FormRenderer.MapHtmlTagAttributes(field, htmlAttributes);
+
+            RenderExtraHtmlTags(sb, htmlAttributesDictionary);
+        }
+
+        public static void RenderExtraHtmlTags(StringBuilder sb, Dictionary<string, IList<string>> htmlAttributesDictionary)
+        {
+            foreach (var kvp in htmlAttributesDictionary)
+            {
+                sb.Append(" " + kvp.Key + "=\"");
+
+                for (int i = 0; i < kvp.Value.Count; i++)
+                {
+                    var itm = kvp.Value[i];
+
+                    sb.Append(itm);
+
+                    if ((i + 1) < kvp.Value.Count)
+                    {
+                        var seperator = kvp.Key == "accept" ? "," : " ";
+
+                        sb.Append(seperator);
+                    }
+                }
+
+                sb.Append("\"");
+            }
         }
     }
 }
