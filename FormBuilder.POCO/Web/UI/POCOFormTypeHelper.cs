@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-
-using CompositeC1Contrib.FormBuilder.Attributes;
 
 namespace CompositeC1Contrib.FormBuilder.Web.UI
 {
@@ -32,13 +29,6 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             foreach (var prop in formType.GetProperties())
             {
                 var attributes = prop.GetCustomAttributes(true).Cast<Attribute>().ToList();
-                
-                var label = attributes.OfType<FieldLabelAttribute>().FirstOrDefault();
-                if (label == null)
-                {
-                    continue;
-                }
-
                 var field = new FormField(model, prop.Name, prop.PropertyType, attributes);
 
                 model.Fields.Add(field);

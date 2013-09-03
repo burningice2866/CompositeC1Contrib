@@ -158,25 +158,13 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         private static void writeField(FormField field, StringBuilder sb, IDictionary<string, object> htmlAttributes)
         {
-            var value = field.Value;
-            var strLabel = field.Label == null ? field.Name : field.Label.Label;
-            var strPlaceholder = strLabel;
-
-            if (!field.OwningForm.Options.HideLabels)
-            {
-                var placeholderAttr = field.Attributes.OfType<PlaceholderTextAttribute>().SingleOrDefault();
-                if (placeholderAttr != null)
-                {
-                    strPlaceholder = placeholderAttr.Text;
-                }
-            }
+            var str = field.InputTypeHandler.GetHtmlString(field, htmlAttributes);
 
             if (!String.IsNullOrWhiteSpace(field.Help))
             {
                 sb.Append("<div class=\"input-append\">");
             }
 
-            var str = field.InputTypeHandler.GetHtmlString(field, htmlAttributes);
             sb.Append(str);
 
             if (!String.IsNullOrWhiteSpace(field.Help))
@@ -221,19 +209,16 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
             writeLabelContent(field, sb);
 
-            sb.Append(":");
             sb.Append("</label>");
         }
 
-        private static string writePropertyHeading(FormField field, StringBuilder sb)
+        private static void writePropertyHeading(FormField field, StringBuilder sb)
         {
             sb.Append("<p class=\"control-label\">");
 
             writeLabelContent(field, sb);
 
             sb.Append("</p>");
-
-            return sb.ToString();
         }
 
         private static void writeLabelContent(FormField field, StringBuilder sb)
@@ -287,7 +272,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                     {
                         return ((IFormattable)value).ToString(formatAttr.FormatString, CultureInfo.CurrentUICulture);
                     }
-                }                
+                }
             }
 
             if (formatAttr == null || !(field.Value is IFormattable))
@@ -331,7 +316,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             if (htmlAttributes != null && htmlAttributes.ContainsKey("class"))
             {
                 var list = htmlAttributesDictionary["class"];
-                var val = ((string)htmlAttributes["class"]).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);                
+                var val = ((string)htmlAttributes["class"]).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var itm in val)
                 {

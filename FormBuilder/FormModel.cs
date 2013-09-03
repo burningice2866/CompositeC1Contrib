@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Linq;
 
 using CompositeC1Contrib.FormBuilder.Attributes;
@@ -210,6 +211,8 @@ namespace CompositeC1Contrib.FormBuilder
 
         private void MapValueToField(FormField field, string val)
         {
+            var formatAttr = field.Attributes.OfType<DisplayFormatAttribute>().SingleOrDefault();
+
             if (field.ValueType == typeof(int))
             {
                 var i = 0;
@@ -277,21 +280,43 @@ namespace CompositeC1Contrib.FormBuilder
 
             else if (field.ValueType == typeof(DateTime))
             {
-                var dt = DateTime.MinValue;
-                DateTime.TryParse(val, out dt);
+                var dt = DateTime.Now;
+
+                if (formatAttr != null)
+                {
+                    DateTime.TryParseExact(val, formatAttr.FormatString, CultureInfo.CurrentUICulture, DateTimeStyles.None, out dt);
+                }
+                else
+                {
+                    DateTime.TryParse(val, out dt);
+                }
 
                 field.Value = dt;
             }
             else if (field.ValueType == typeof(DateTime?))
             {
                 var dt = DateTime.MinValue;
-                if (DateTime.TryParse(val, out dt))
+                if (formatAttr != null)
                 {
-                    field.Value = dt;
+                    if (DateTime.TryParseExact(val, formatAttr.FormatString, CultureInfo.CurrentUICulture, DateTimeStyles.None, out dt))
+                    {
+                        field.Value = dt;
+                    }
+                    else
+                    {
+                        field.Value = null;
+                    }
                 }
                 else
                 {
-                    field.Value = null;
+                    if (DateTime.TryParse(val, out dt))
+                    {
+                        field.Value = dt;
+                    }
+                    else
+                    {
+                        field.Value = null;
+                    }
                 }
             }
         }

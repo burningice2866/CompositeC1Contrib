@@ -113,7 +113,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         {
             var sb = new StringBuilder();
 
-            foreach (var field in RenderingModel.Fields)
+            foreach (var field in RenderingModel.Fields.Where(f => f.Label != null))
             {
                 sb.Append(FormRenderer.FieldFor(field).ToString());
             }
@@ -133,64 +133,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         protected HtmlForm BeginForm(object htmlAttributes)
         {
-            var htmlAttributesDictionary = new Dictionary<string, IList<string>>();
-
-            htmlAttributesDictionary.Add("class", new List<string>());
-
-            htmlAttributesDictionary["class"].Add("form");
-            htmlAttributesDictionary["class"].Add("formbuilder-" + RenderingModel.Name.ToLowerInvariant());
-
-            var htmlElementAttributes = RenderingModel.Attributes.OfType<HtmlTagAttribute>();
-            var action = String.Empty;
-
-            var dictionary = Functions.ObjectToDictionary(htmlAttributes);
-            if (dictionary != null)
-            {
-                if (dictionary.ContainsKey("class"))
-                {
-                    htmlAttributesDictionary["class"].Add((string)dictionary["class"]);
-                }
-
-                if (dictionary.ContainsKey("action"))
-                {
-                    action = (string)dictionary["action"];
-                }
-            }
-
-            foreach (var attr in htmlElementAttributes)
-            {
-                IList<string> list;
-                if (!htmlAttributesDictionary.TryGetValue(attr.Attribute, out list))
-                {
-                    htmlAttributesDictionary.Add(attr.Attribute, new List<string>());
-                }
-
-                htmlAttributesDictionary[attr.Attribute].Add(attr.Value);
-            }
-
-            WriteLiteral(String.Format("<form method=\"post\" action=\"{1}\"", RenderingModel.Name, action));
-
-            foreach (var kvp in htmlAttributesDictionary)
-            {
-                WriteLiteral(" "+ kvp.Key + "=\"");
-                foreach (var itm in kvp.Value)
-                {
-                    WriteLiteral(itm +" ");
-                }
-
-                WriteLiteral("\"");
-            }
-
-            if (RenderingModel.HasFileUpload)
-            {
-                WriteLiteral(" enctype=\"multipart/form-data\"");
-            }
-
-            WriteLiteral(">");
-
-            WriteLiteral("<input type=\"hidden\" name=\"__type\" value=\"" + RenderingModel.Name + "\" />");
-
-            return new HtmlForm(this);
+            return new HtmlForm(this, RenderingModel, htmlAttributes);
         }
 
         protected string WriteErrorClass(string name)

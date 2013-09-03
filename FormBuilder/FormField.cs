@@ -24,23 +24,21 @@ namespace CompositeC1Contrib.FormBuilder
 
         public FieldLabelAttribute Label
         {
-            get { return Attributes.OfType<FieldLabelAttribute>().First(); }
+            get { return Attributes.OfType<FieldLabelAttribute>().SingleOrDefault(); }
         }
 
         public string PlaceholderText
         {
             get
             {
-                var ret = Label.Label;
-
                 var placeholderAttr = Attributes.OfType<PlaceholderTextAttribute>().SingleOrDefault();
                 if (placeholderAttr != null)
                 {
-                    ret = placeholderAttr.Text;
+                    return placeholderAttr.Text;
                     
                 }
 
-                return FormRenderer.GetLocalized(ret);
+                return Label.Label;
             }
         }
 
@@ -68,7 +66,7 @@ namespace CompositeC1Contrib.FormBuilder
                     return inputTypeAttribute.GetInputFieldTypeHandler();
                 }
 
-                return GetDefaultInputType(ValueType);
+                return GetDefaultInputType();
             }
         }
 
@@ -127,10 +125,10 @@ namespace CompositeC1Contrib.FormBuilder
             ValueType = valueType;
         }
 
-        private static IInputElementHandler GetDefaultInputType(Type type)
+        private IInputElementHandler GetDefaultInputType()
         {
-            if (type == typeof(bool)) return new CheckboxInputElement();
-            if (type == typeof(FormFile) || type == typeof(IEnumerable<FormFile>)) new FileuploadInputElement();
+            if (ValueType == typeof(bool)) return new CheckboxInputElement();
+            if (ValueType == typeof(FormFile) || ValueType == typeof(IEnumerable<FormFile>)) return new FileuploadInputElement();
 
             return new TextboxInputElement();
         }
