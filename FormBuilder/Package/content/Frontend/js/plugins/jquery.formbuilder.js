@@ -1,26 +1,31 @@
 ﻿(function ($, document, undefined) {
     var getFormFieldValue = function (fieldName) {
         var field = $('[name="' + fieldName + '"]');
-        var type = field.attr('type');
 
-        if (type) {
-            if (type.toLowerCase() == 'radio') {
-                field = field.filter(":checked");
-            }
+        if (field.is(':radio')) {
+            field = field.filter(":checked");
         }
 
-        var element = field.get(0);
-        var displayNone = false;
+        var element = field.eq(0);
+        var hidden = false;
 
-        while (element != null) {
-            if (element.style) {
-                displayNone = displayNone || element.style.display == 'none';
+        while (element.length > 0) {
+            if (element.hasClass('control-group')) {
+                hidden = hidden || !element.is(':visible');
             }
 
-            element = element.parentNode;
+            element = element.parent();
         }
 
-        return (displayNone ? null : field.val());
+        if (hidden) {
+            return null;
+        }
+
+        if (field.is(':checkbox')) {
+            return field.is(':checked').toString();
+        }
+
+        return field.val();
     }
 
     var dependecyFunction = function () {
@@ -40,7 +45,7 @@
     var isMatch = function (field, itm) {
         var field = getFormFieldValue(field);
         if (field) {
-            var regexp = new RegExp("^" + itm + "$", "i");
+            var regexp = new RegExp('^' + itm + '$', 'i');
 
             return field.match(regexp)
         }

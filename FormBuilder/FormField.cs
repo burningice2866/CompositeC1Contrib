@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 
 using CompositeC1Contrib.FormBuilder.Attributes;
 using CompositeC1Contrib.FormBuilder.Validation;
@@ -19,7 +20,7 @@ namespace CompositeC1Contrib.FormBuilder
 
         public string Id
         {
-            get { return (OwningForm.Name + Name).Replace(".", "_"); }
+            get { return (OwningForm.Name +"." + Name).Replace(".", "_"); }
         }
 
         public FieldLabelAttribute Label
@@ -50,6 +51,12 @@ namespace CompositeC1Contrib.FormBuilder
                 if (helpAttribute != null)
                 {
                     return helpAttribute.Help;
+                }
+
+                var resourceObj = HttpContext.GetGlobalResourceObject("FormBuilderHelp", Id);
+                if (resourceObj != null)
+                {
+                    return (string)resourceObj;
                 }
 
                 return String.Empty;

@@ -13,11 +13,14 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
     {
         protected T Form { get; private set; }
 
-        public override void ExecutePageHierarchy()
+        public POCOBasedFormsPage()
         {
             Form = Activator.CreateInstance<T>();
-            RenderingModel = POCOFormTypeHelper.FromBaseForm<T>(Form, Options);
+            FormModel.Current = FromBaseForm<T>(Form, Options);
+        }
 
+        public override void ExecutePageHierarchy()
+        {
             if (!IsOwnSubmit)
             {
                 if (Form is IProvidesDefaultValues)
@@ -25,9 +28,9 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                     ((IProvidesDefaultValues)Form).SetDefaultValues();
                 }
 
-                foreach (var prop in Form.GetType().GetProperties())
+                foreach (var prop in typeof(T).GetProperties())
                 {
-                    var field = RenderingModel.Fields.SingleOrDefault(f => f.Name == prop.Name);
+                    var field = FormModel.Current.Fields.SingleOrDefault(f => f.Name == prop.Name);
                     if (field != null && field.ValueType == prop.PropertyType)
                     {
                         field.Value = prop.GetValue(Form, null);
@@ -35,27 +38,19 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                 }
             }
 
-            var modelProp = typeof(T).GetProperties().SingleOrDefault(p => p.PropertyType == typeof(FormModel));
-            if (modelProp != null)
-            {
-                modelProp.SetValue(Form, RenderingModel, null);
-            }
-
             base.ExecutePageHierarchy();            
         }
 
-        protected override void OnSubmit()
+        protected override void OnMappedValues()
         {
-            foreach (var prop in Form.GetType().GetProperties())
+            foreach (var prop in typeof(T).GetProperties())
             {
-                var field = RenderingModel.Fields.SingleOrDefault(f => f.Name == prop.Name);
+                var field = FormModel.Current.Fields.SingleOrDefault(f => f.Name == prop.Name);
                 if (field != null && field.ValueType == prop.PropertyType)
                 {
                     prop.SetValue(Form, field.Value, null);
                 }
             }
-
-            base.OnSubmit();
         }
 
         protected IHtmlString FieldFor(Expression<Func<T, object>> field)
@@ -70,7 +65,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             var prop = GetProperty(fieldSelector);
             var dictionary = Functions.ObjectToDictionary(htmlAttributes);
 
-            var field = RenderingModel.Fields.Single(f => f.Name == prop.Name);
+            var field = FormModel.Current.Fields.Single(f => f.Name == prop.Name);
 
             return FormRenderer.FieldFor(field);
         }
@@ -78,7 +73,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         protected IHtmlString NameFor(Expression<Func<T, object>> fieldSelector)
         {
             var prop = GetProperty(fieldSelector);
-            var field = RenderingModel.Fields.Single(f => f.Name == prop.Name);
+            var field = FormModel.Current.Fields.Single(f => f.Name == prop.Name);
 
             return FormRenderer.NameFor(field);
         }
@@ -102,12 +97,44 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                     break;
 
                 default:
-                    memberExpression = field.Body as MemberExpression;
+                    memberExpression = (MemberExpression)field.Body;
 
                     break;
             }
 
             return (PropertyInfo)memberExpression.Member;
+        }
+
+        private FormModel FromBaseForm<T>(T instance, FormOptions options) where T : IPOCOForm
+        {
+            var formType = typeof(T);
+
+            var model = new FormModel
+            {
+                Name = formType.FullName,
+                Options = options,
+                OnSubmitHandler = instance.Submit
+            };
+
+            if (instance is IValidationHandler)
+            {
+                model.OnValidateHandler = ((IValidationHandler)instance).OnValidate;
+            }
+
+            foreach (var itm in formType.GetCustomAttributes(true).Cast<Attribute>())
+            {
+                model.Attributes.Add(itm);
+            }
+
+            foreach (var prop in formType.GetProperties())
+            {
+                var attributes = prop.GetCustomAttributes(true).Cast<Attribute>().ToList();
+                var field = new FormField(model, prop.Name, prop.PropertyType, attributes);
+
+                model.Fields.Add(field);
+            }
+
+            return model;
         }
     }
 }

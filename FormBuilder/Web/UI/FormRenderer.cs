@@ -171,7 +171,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             {
                 sb.Append("<div class=\"info-block\">");
                 sb.Append("<span class=\"add-on info-icon\">i</span>");
-                sb.AppendFormat("<div class=\"info-msg\">{0}</div>", HttpUtility.HtmlEncode(field.Help));
+                sb.AppendFormat("<div class=\"info-msg\">{0}</div>", field.Help);
                 sb.Append("</div>");
                 sb.Append("</div>");
             }

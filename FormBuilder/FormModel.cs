@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
+using System.Web;
 
 using CompositeC1Contrib.FormBuilder.Attributes;
 using CompositeC1Contrib.FormBuilder.Validation;
@@ -47,6 +48,12 @@ namespace CompositeC1Contrib.FormBuilder
             }
         }
 
+        public static FormModel Current
+        {
+            get { return (FormModel)HttpContext.Current.Items["__FormModel__"]; }
+            set { HttpContext.Current.Items["__FormModel__"] = value; }
+        }
+
         public FormModel()
         {
             Fields = new List<FormField>();
@@ -72,7 +79,7 @@ namespace CompositeC1Contrib.FormBuilder
             return true;
         }
 
-        private void Validate()
+        public void Validate()
         {
             if (SubmittedValues == null || SubmittedValues.AllKeys.Length == 0)
             {
@@ -173,7 +180,7 @@ namespace CompositeC1Contrib.FormBuilder
             return false;
         }
 
-        public void MapValuesAndValidate(NameValueCollection values, IEnumerable<FormFile> files)
+        public void MapValues(NameValueCollection values, IEnumerable<FormFile> files)
         {
             SubmittedValues = values;
 
@@ -187,8 +194,6 @@ namespace CompositeC1Contrib.FormBuilder
                     MapFilesToField(field, files);
                 }
             }
-
-            Validate();
         }
 
         private void MapFilesToField(FormField field, IEnumerable<FormFile> files)
@@ -239,7 +244,7 @@ namespace CompositeC1Contrib.FormBuilder
                 decimal.TryParse(val, out d);
 
                 field.Value = d;
-            }            
+            }
             else if (field.ValueType == typeof(decimal?))
             {
                 var d = 0m;

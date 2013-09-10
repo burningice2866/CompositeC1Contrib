@@ -76,7 +76,6 @@
     <Compile Include="IValidationHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\UI\POCOBasedFormsPage.cs" />
-    <Compile Include="Web\UI\POCOFormTypeHelper.cs" />
     <Compile Include="Web\UI\StandardFormPage.cs" />
   </ItemGroup>
   <ItemGroup>

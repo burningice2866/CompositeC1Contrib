@@ -14,7 +14,6 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 {
     public abstract class FormsPage : RazorFunction
     {
-        protected FormModel RenderingModel { get; set; }
         protected FormOptions Options { get; private set; }
 
         [FunctionParameter(Label = "Intro text", DefaultValue = null)]
@@ -30,12 +29,12 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         protected bool IsOwnSubmit
         {
-            get { return IsPost && Request.Form["__type"] == RenderingModel.Name; }
+            get { return IsPost && Request.Form["__type"] == FormModel.Current.Name; }
         }
 
         protected bool IsSuccess
         {
-            get { return IsOwnSubmit && !RenderingModel.ValidationResult.Any(); }
+            get { return IsOwnSubmit && !FormModel.Current.ValidationResult.Any(); }
         }
 
         protected string SubmitButtonLabel
@@ -44,7 +43,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             {
                 var label = "Opret";
 
-                var labelAttribute = RenderingModel.Attributes.OfType<SubmitButtonLabelAttribute>().FirstOrDefault();
+                var labelAttribute = FormModel.Current.Attributes.OfType<SubmitButtonLabelAttribute>().FirstOrDefault();
                 if (labelAttribute != null)
                 {
                     label = labelAttribute.Label;
@@ -56,7 +55,9 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         public override void ExecutePageHierarchy()
         {
-            if (RenderingModel.ForceHttps && !Request.IsSecureConnection)
+            var model = FormModel.Current;
+
+            if (model.ForceHttps && !Request.IsSecureConnection)
             {
                 string redirectUrl = Request.Url.ToString().Replace("http:", "https:");
 
@@ -82,26 +83,31 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                     });
                 }
 
-                RenderingModel.MapValuesAndValidate(Request.Form, files);
+                model.MapValues(Request.Form, files);
+
+                OnMappedValues();
+
+                model.Validate();
 
                 if (IsSuccess)
                 {
                     OnSubmit();
 
-                    RenderingModel.OnSubmitHandler();
+                    model.OnSubmitHandler();
                 }
             }
 
             base.ExecutePageHierarchy();
         }
 
+        protected virtual void OnMappedValues() { }
         protected virtual void OnSubmit() { }
 
         protected IHtmlString WriteErrors()
         {
             if (IsOwnSubmit)
             {
-                return FormRenderer.WriteErrors(RenderingModel);
+                return FormRenderer.WriteErrors(FormModel.Current);
             }
             else
             {
@@ -113,7 +119,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         {
             var sb = new StringBuilder();
 
-            foreach (var field in RenderingModel.Fields.Where(f => f.Label != null))
+            foreach (var field in FormModel.Current.Fields.Where(f => f.Label != null))
             {
                 sb.Append(FormRenderer.FieldFor(field).ToString());
             }
@@ -123,7 +129,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         protected bool HasDependencyChecks()
         {
-            return RenderingModel.Fields.Select(f => f.DependencyAttributes).Any();
+            return FormModel.Current.Fields.Select(f => f.DependencyAttributes).Any();
         }
 
         protected HtmlForm BeginForm()
@@ -133,12 +139,12 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         protected HtmlForm BeginForm(object htmlAttributes)
         {
-            return new HtmlForm(this, RenderingModel, htmlAttributes);
+            return new HtmlForm(this, FormModel.Current, htmlAttributes);
         }
 
         protected string WriteErrorClass(string name)
         {
-            var validationResult = RenderingModel.ValidationResult;
+            var validationResult = FormModel.Current.ValidationResult;
 
             return FormRenderer.WriteErrorClass(name, validationResult);
         }
