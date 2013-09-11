@@ -43,11 +43,11 @@
     };
 
     var isMatch = function (field, itm) {
-        var field = getFormFieldValue(field);
-        if (field) {
+        var fieldValue = getFormFieldValue(field);
+        if (fieldValue) {
             var regexp = new RegExp('^' + itm + '$', 'i');
 
-            return field.match(regexp)
+            return regexp.test(fieldValue)
         }
 
         return false;
@@ -58,10 +58,19 @@
 
         $.each(json, function (ix, itm) {
             var field = itm.field;
+            var fieldValid = false
 
             $.each(itm.value, function (ix, itm) {
-                show = show || isMatch(field, itm);
+                fieldValid = fieldValid || isMatch(field, itm);
             });
+
+            if (!fieldValid) {
+                show = false;
+
+                return false;
+            }
+
+            show = fieldValid;
         });
 
         return show;

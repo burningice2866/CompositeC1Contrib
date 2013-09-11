@@ -16,7 +16,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         public POCOBasedFormsPage()
         {
             Form = Activator.CreateInstance<T>();
-            FormModel.Current = FromBaseForm<T>(Form, Options);
+            RenderingModel = FromBaseForm<T>(Form, Options);
         }
 
         public override void ExecutePageHierarchy()
@@ -30,7 +30,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
                 foreach (var prop in typeof(T).GetProperties())
                 {
-                    var field = FormModel.Current.Fields.SingleOrDefault(f => f.Name == prop.Name);
+                    var field = RenderingModel.Fields.SingleOrDefault(f => f.Name == prop.Name);
                     if (field != null && field.ValueType == prop.PropertyType)
                     {
                         field.Value = prop.GetValue(Form, null);
@@ -45,7 +45,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         {
             foreach (var prop in typeof(T).GetProperties())
             {
-                var field = FormModel.Current.Fields.SingleOrDefault(f => f.Name == prop.Name);
+                var field = RenderingModel.Fields.SingleOrDefault(f => f.Name == prop.Name);
                 if (field != null && field.ValueType == prop.PropertyType)
                 {
                     prop.SetValue(Form, field.Value, null);
@@ -65,7 +65,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             var prop = GetProperty(fieldSelector);
             var dictionary = Functions.ObjectToDictionary(htmlAttributes);
 
-            var field = FormModel.Current.Fields.Single(f => f.Name == prop.Name);
+            var field = RenderingModel.Fields.Single(f => f.Name == prop.Name);
 
             return FormRenderer.FieldFor(field);
         }
@@ -73,7 +73,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         protected IHtmlString NameFor(Expression<Func<T, object>> fieldSelector)
         {
             var prop = GetProperty(fieldSelector);
-            var field = FormModel.Current.Fields.Single(f => f.Name == prop.Name);
+            var field = RenderingModel.Fields.Single(f => f.Name == prop.Name);
 
             return FormRenderer.NameFor(field);
         }

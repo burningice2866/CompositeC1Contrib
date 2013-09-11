@@ -17,16 +17,19 @@ namespace CompositeC1Contrib.FormBuilder.Validation
 
         public override FormValidationRule CreateRule(FormField field)
         {
-            IEnumerable<FormFile> value;
+            var value = Enumerable.Empty<FormFile>();
 
-            if (field.ValueType == typeof(FormFile))
+            if (field.Value != null) 
             {
-                value = new[] { (FormFile)field.Value };
-            }
-            else
-            {
-                value = (IEnumerable<FormFile>)field.Value;
-            }
+                if (field.ValueType == typeof(FormFile))
+                {
+                    value = new[] { (FormFile)field.Value };
+                }
+                else
+                {
+                    value = (IEnumerable<FormFile>)field.Value;
+                }
+            }           
 
             return new FormValidationRule(new[] { field.Name }, Message)
             {
@@ -34,14 +37,11 @@ namespace CompositeC1Contrib.FormBuilder.Validation
                 {
                     foreach (var f in value)
                     {
-                        if (f.ContentLength > 0)
+                        var mimeType = f.ContentType;
+                        if (!MimeTypes.Contains(mimeType))
                         {
-                            var mimeType = f.ContentType;
-                            if (!MimeTypes.Contains(mimeType))
-                            {
-                                return false;
-                            }
-                        }                        
+                            return false;
+                        }
                     }
 
                     return true;

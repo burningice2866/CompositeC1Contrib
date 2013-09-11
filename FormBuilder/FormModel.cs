@@ -48,12 +48,6 @@ namespace CompositeC1Contrib.FormBuilder
             }
         }
 
-        public static FormModel Current
-        {
-            get { return (FormModel)HttpContext.Current.Items["__FormModel__"]; }
-            set { HttpContext.Current.Items["__FormModel__"] = value; }
-        }
-
         public FormModel()
         {
             Fields = new List<FormField>();
@@ -109,6 +103,32 @@ namespace CompositeC1Contrib.FormBuilder
             }
 
             ValidationResult = validationList;
+        }
+
+        public void MapValues(NameValueCollection values, IEnumerable<FormFile> files)
+        {
+            SubmittedValues = values;
+
+            if (values != null)
+            {
+                foreach (var field in Fields)
+                {
+                    var val = (values[field.Name] ?? String.Empty).Trim();
+
+                    MapValueToField(field, val);
+                    MapFilesToField(field, files);
+                }
+            }
+        }
+
+        public static FormModel GetCurrent(string name)
+        {
+            return (FormModel)HttpContext.Current.Items["__FormModel__" + name];
+        }
+
+        public static void SetCurrent(string name, FormModel value)
+        {
+            HttpContext.Current.Items["__FormModel__" + name] = value;
         }
 
         private IList<FormValidationRule> getFormValidationResult(IList<FormValidationRule> rules, bool skipMultipleFieldsRules)
@@ -178,22 +198,6 @@ namespace CompositeC1Contrib.FormBuilder
             }
 
             return false;
-        }
-
-        public void MapValues(NameValueCollection values, IEnumerable<FormFile> files)
-        {
-            SubmittedValues = values;
-
-            if (values != null)
-            {
-                foreach (var field in Fields)
-                {
-                    var val = (values[field.Name] ?? String.Empty).Trim();
-
-                    MapValueToField(field, val);
-                    MapFilesToField(field, files);
-                }
-            }
         }
 
         private void MapFilesToField(FormField field, IEnumerable<FormFile> files)

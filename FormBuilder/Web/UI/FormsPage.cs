@@ -22,6 +22,19 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         [FunctionParameter(Label = "Success response", DefaultValue = null)]
         public XhtmlDocument SuccessResponse { get; set; }
 
+        private FormModel _renderingModel;
+        protected FormModel RenderingModel
+        {
+            get { return _renderingModel; }
+
+            set
+            {
+                _renderingModel = value;
+
+                FormModel.SetCurrent(RenderingModel.Name, _renderingModel);
+            }
+        }
+
         public FormsPage()
         {
             Options = new FormOptions();
@@ -29,12 +42,12 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         protected bool IsOwnSubmit
         {
-            get { return IsPost && Request.Form["__type"] == FormModel.Current.Name; }
+            get { return IsPost && Request.Form["__type"] == RenderingModel.Name; }
         }
 
         protected bool IsSuccess
         {
-            get { return IsOwnSubmit && !FormModel.Current.ValidationResult.Any(); }
+            get { return IsOwnSubmit && !RenderingModel.ValidationResult.Any(); }
         }
 
         protected string SubmitButtonLabel
@@ -43,7 +56,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             {
                 var label = "Opret";
 
-                var labelAttribute = FormModel.Current.Attributes.OfType<SubmitButtonLabelAttribute>().FirstOrDefault();
+                var labelAttribute = RenderingModel.Attributes.OfType<SubmitButtonLabelAttribute>().FirstOrDefault();
                 if (labelAttribute != null)
                 {
                     label = labelAttribute.Label;
@@ -55,9 +68,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         public override void ExecutePageHierarchy()
         {
-            var model = FormModel.Current;
-
-            if (model.ForceHttps && !Request.IsSecureConnection)
+            if (RenderingModel.ForceHttps && !Request.IsSecureConnection)
             {
                 string redirectUrl = Request.Url.ToString().Replace("http:", "https:");
 
@@ -72,28 +83,30 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
                 for (int i = 0; i < requestFiles.Count; i++)
                 {
                     var f = requestFiles[i];
-
-                    files.Add(new FormFile()
+                    if (f.ContentLength > 0)
                     {
-                        Key = requestFiles.AllKeys[i],
-                        ContentLength = f.ContentLength,
-                        ContentType = f.ContentType,
-                        FileName = f.FileName,
-                        InputStream = f.InputStream
-                    });
+                        files.Add(new FormFile()
+                        {
+                            Key = requestFiles.AllKeys[i],
+                            ContentLength = f.ContentLength,
+                            ContentType = f.ContentType,
+                            FileName = f.FileName,
+                            InputStream = f.InputStream
+                        });
+                    }
                 }
 
-                model.MapValues(Request.Form, files);
+                RenderingModel.MapValues(Request.Form, files);
 
                 OnMappedValues();
 
-                model.Validate();
+                RenderingModel.Validate();
 
                 if (IsSuccess)
                 {
                     OnSubmit();
 
-                    model.OnSubmitHandler();
+                    RenderingModel.OnSubmitHandler();
                 }
             }
 
@@ -107,7 +120,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         {
             if (IsOwnSubmit)
             {
-                return FormRenderer.WriteErrors(FormModel.Current);
+                return FormRenderer.WriteErrors(RenderingModel);
             }
             else
             {
@@ -119,7 +132,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
         {
             var sb = new StringBuilder();
 
-            foreach (var field in FormModel.Current.Fields.Where(f => f.Label != null))
+            foreach (var field in RenderingModel.Fields.Where(f => f.Label != null))
             {
                 sb.Append(FormRenderer.FieldFor(field).ToString());
             }
@@ -129,7 +142,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         protected bool HasDependencyChecks()
         {
-            return FormModel.Current.Fields.Select(f => f.DependencyAttributes).Any();
+            return RenderingModel.Fields.Select(f => f.DependencyAttributes).Any();
         }
 
         protected HtmlForm BeginForm()
@@ -139,12 +152,12 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
 
         protected HtmlForm BeginForm(object htmlAttributes)
         {
-            return new HtmlForm(this, FormModel.Current, htmlAttributes);
+            return new HtmlForm(this, RenderingModel, htmlAttributes);
         }
 
         protected string WriteErrorClass(string name)
         {
-            var validationResult = FormModel.Current.ValidationResult;
+            var validationResult = RenderingModel.ValidationResult;
 
             return FormRenderer.WriteErrorClass(name, validationResult);
         }

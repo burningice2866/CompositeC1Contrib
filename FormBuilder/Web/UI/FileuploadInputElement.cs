@@ -14,7 +14,7 @@ namespace CompositeC1Contrib.FormBuilder.Web.UI
             get { return "file"; }
         }
 
-        public IHtmlString GetHtmlString(FormField field, IDictionary<string, object> htmlAttributes)
+        public virtual IHtmlString GetHtmlString(FormField field, IDictionary<string, object> htmlAttributes)
         {
             var sb = new StringBuilder();
             var htmlAttributesDictionary = FormRenderer.MapHtmlTagAttributes(field, htmlAttributes);
