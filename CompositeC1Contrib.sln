@@ -19,15 +19,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Favorites", "Favorites\Favo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RazorFunctions", "RazorFunctions\RazorFunctions.csproj", "{D95A32C9-4806-48FC-90BB-7590FD13EE21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormBuilder", "FormBuilder\FormBuilder.csproj", "{09196DDC-350F-4E16-BA0F-312C67224559}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserControlFunctions", "UserControlFunctions\UserControlFunctions.csproj", "{C994D3CE-26C6-43C2-BEE0-F266B2E0C276}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadFoldersAsZip", "DownloadFoldersAsZip\DownloadFoldersAsZip.csproj", "{4BA9FA0F-4E1A-43D9-A383-CB54FF035A55}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProviders.FacebookMediaProvider", "DataProviders.FacebookMediaProvider\DataProviders.FacebookMediaProvider.csproj", "{AE52B2E9-C7F1-4BB0-A0E3-D6B3D02E004A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormBuilder.POCO", "FormBuilder.POCO\FormBuilder.POCO.csproj", "{0DF78956-95A8-40BD-A826-7698126FBD4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,10 +67,6 @@ Global
 		{D95A32C9-4806-48FC-90BB-7590FD13EE21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D95A32C9-4806-48FC-90BB-7590FD13EE21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D95A32C9-4806-48FC-90BB-7590FD13EE21}.Release|Any CPU.Build.0 = Release|Any CPU
-		{09196DDC-350F-4E16-BA0F-312C67224559}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{09196DDC-350F-4E16-BA0F-312C67224559}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{09196DDC-350F-4E16-BA0F-312C67224559}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{09196DDC-350F-4E16-BA0F-312C67224559}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C994D3CE-26C6-43C2-BEE0-F266B2E0C276}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C994D3CE-26C6-43C2-BEE0-F266B2E0C276}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C994D3CE-26C6-43C2-BEE0-F266B2E0C276}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -87,10 +79,6 @@ Global
 		{AE52B2E9-C7F1-4BB0-A0E3-D6B3D02E004A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE52B2E9-C7F1-4BB0-A0E3-D6B3D02E004A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE52B2E9-C7F1-4BB0-A0E3-D6B3D02E004A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0DF78956-95A8-40BD-A826-7698126FBD4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0DF78956-95A8-40BD-A826-7698126FBD4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0DF78956-95A8-40BD-A826-7698126FBD4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0DF78956-95A8-40BD-A826-7698126FBD4A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
