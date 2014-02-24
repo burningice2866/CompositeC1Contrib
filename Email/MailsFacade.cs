@@ -11,24 +11,24 @@ using CompositeC1Contrib.Email.Serialization;
 
 namespace CompositeC1Contrib.Email
 {
-    public static class EmailFacade
+    public static class MailsFacade
     {
         public static string[] GetMailQueueNames()
         {
-            using (var data = new DataConnection(PublicationScope.Unpublished))
+            using (var data = new DataConnection())
             {
-                return data.Get<IEmailQueue>().Select(q => q.Name).ToArray();
+                return data.Get<IMailQueue>().Select(q => q.Name).ToArray();
             }
         }
 
-        public static IEmailMessage EnqueueMessage(string queueName, MailMessage mailMessage)
+        public static IQueuedMailMessage EnqueueMessage(string queueName, MailMessage mailMessage)
         {
-            using (var data = new DataConnection(PublicationScope.Unpublished))
+            using (var data = new DataConnection())
             {
-                var queue = data.Get<IEmailQueue>().SingleOrDefault(q => q.Name == queueName);
+                var queue = data.Get<IMailQueue>().SingleOrDefault(q => q.Name == queueName);
                 if (queue == null)
                 {
-                    throw new ArgumentException("Unknown queue name", "queueName");
+                    throw new ArgumentException(String.Format("Unknown queue name '{0}'", queueName), "queueName");
                 }
 
                 if (mailMessage.From == null)
@@ -36,7 +36,7 @@ namespace CompositeC1Contrib.Email
                     mailMessage.From = new MailAddress(queue.From);
                 }
 
-                var message = data.CreateNew<IEmailMessage>();
+                var message = data.CreateNew<IQueuedMailMessage>();
 
                 message.Id = Guid.NewGuid();
                 message.QueueId = queue.Id;
@@ -56,7 +56,7 @@ namespace CompositeC1Contrib.Email
             }
         }
 
-        public static MailMessage GetMessage(IEmailMessage message)
+        public static MailMessage GetMailMessage(IQueuedMailMessage message)
         {
             byte[] bytes = Convert.FromBase64String(message.SerializedMessage);
 

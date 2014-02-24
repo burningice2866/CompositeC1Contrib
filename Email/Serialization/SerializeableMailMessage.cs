@@ -8,84 +8,84 @@ namespace CompositeC1Contrib.Email.Serialization
     [Serializable]
     public class SerializeableMailMessage
     {
-        Boolean IsBodyHtml { get; set; }
-        String Body { get; set; }
-        SerializeableMailAddress From { get; set; }
-        SerializeableMailAddress Sender { get; set; }
-        String Subject { get; set; }
-        Encoding BodyEncoding { get; set; }
-        Encoding SubjectEncoding { get; set; }
-        DeliveryNotificationOptions DeliveryNotificationOptions { get; set; }
-        SerializeableCollection Headers { get; set; }
-        MailPriority Priority { get; set; }
+        private readonly bool _isBodyHtml;
+        private readonly string _body;
+        private readonly SerializeableMailAddress _from;
+        private readonly SerializeableMailAddress _sender;
+        private readonly string _subject;
+        private readonly Encoding _bodyEncoding;
+        private readonly Encoding _subjectEncoding;
+        private readonly DeliveryNotificationOptions _deliveryNotificationOptions;
+        private readonly SerializeableCollection _headers;
+        private readonly MailPriority _priority;
 
-        IList<SerializeableMailAddress> To { get; set; }
-        IList<SerializeableMailAddress> CC { get; set; }
-        IList<SerializeableMailAddress> Bcc { get; set; }
-        IList<SerializeableMailAddress> ReplyToList { get; set; }
+        private readonly IList<SerializeableMailAddress> _to;
+        private readonly IList<SerializeableMailAddress> _cc;
+        private readonly IList<SerializeableMailAddress> _bcc;
+        private readonly IList<SerializeableMailAddress> _replyToList;
 
-        IList<SerializeableAlternateView> AlternateViews { get; set; }
+        private readonly IList<SerializeableAlternateView> _alternateViews;
 
-        IList<SerializeableAttachment> Attachments { get; set; }
+        private readonly IList<SerializeableAttachment> _attachments;
        
         public SerializeableMailMessage(MailMessage mailMessage)
         {
-            To = new List<SerializeableMailAddress>();
-            CC = new List<SerializeableMailAddress>();
-            Bcc = new List<SerializeableMailAddress>();
-            ReplyToList = new List<SerializeableMailAddress>();
+            _to = new List<SerializeableMailAddress>();
+            _cc = new List<SerializeableMailAddress>();
+            _bcc = new List<SerializeableMailAddress>();
+            _replyToList = new List<SerializeableMailAddress>();
 
-            AlternateViews = new List<SerializeableAlternateView>();
+            _alternateViews = new List<SerializeableAlternateView>();
 
-            Attachments = new List<SerializeableAttachment>();
+            _attachments = new List<SerializeableAttachment>();
 
-            IsBodyHtml = mailMessage.IsBodyHtml;
-            Body = mailMessage.Body;
-            Subject = mailMessage.Subject;
-            From = new SerializeableMailAddress(mailMessage.From);
+            _isBodyHtml = mailMessage.IsBodyHtml;
+            _body = mailMessage.Body;
+            _subject = mailMessage.Subject;
+            _from = new SerializeableMailAddress(mailMessage.From);
 
             foreach (MailAddress ma in mailMessage.To)
             {
-                To.Add(new SerializeableMailAddress(ma));
+                _to.Add(new SerializeableMailAddress(ma));
             }
 
             foreach (MailAddress ma in mailMessage.CC)
             {
-                CC.Add(new SerializeableMailAddress(ma));
+                _cc.Add(new SerializeableMailAddress(ma));
             }
 
             foreach (MailAddress ma in mailMessage.Bcc)
             {
-                Bcc.Add(new SerializeableMailAddress(ma));
+                _bcc.Add(new SerializeableMailAddress(ma));
             }
 
-            Attachments = new List<SerializeableAttachment>();
+            _attachments = new List<SerializeableAttachment>();
             foreach (Attachment att in mailMessage.Attachments)
             {
-                Attachments.Add(new SerializeableAttachment(att));
+                _attachments.Add(new SerializeableAttachment(att));
             }
 
-            BodyEncoding = mailMessage.BodyEncoding;
+            _bodyEncoding = mailMessage.BodyEncoding;
 
-            DeliveryNotificationOptions = mailMessage.DeliveryNotificationOptions;
-            Headers = new SerializeableCollection(mailMessage.Headers);
-            Priority = mailMessage.Priority;
+            _deliveryNotificationOptions = mailMessage.DeliveryNotificationOptions;
+            _headers = new SerializeableCollection(mailMessage.Headers);
+            _priority = mailMessage.Priority;
 
             foreach (MailAddress ma in mailMessage.ReplyToList)
             {
-                ReplyToList.Add(new SerializeableMailAddress(ma));
+                _replyToList.Add(new SerializeableMailAddress(ma));
             }
 
             if (mailMessage.Sender != null)
             {
-                Sender = new SerializeableMailAddress(mailMessage.Sender);
+                _sender = new SerializeableMailAddress(mailMessage.Sender);
             }
 
-            SubjectEncoding = mailMessage.SubjectEncoding;
+            _subjectEncoding = mailMessage.SubjectEncoding;
 
             foreach (AlternateView av in mailMessage.AlternateViews)
             {
-                AlternateViews.Add(new SerializeableAlternateView(av));
+                _alternateViews.Add(new SerializeableAlternateView(av));
             }
         }
 
@@ -93,53 +93,53 @@ namespace CompositeC1Contrib.Email.Serialization
         {
             var mailMessage = new MailMessage()
             {
-                IsBodyHtml = IsBodyHtml,
-                Body = Body,
-                Subject = Subject,
-                BodyEncoding = BodyEncoding,
-                DeliveryNotificationOptions = DeliveryNotificationOptions,
-                Priority = Priority,
-                SubjectEncoding = SubjectEncoding,
+                IsBodyHtml = _isBodyHtml,
+                Body = _body,
+                Subject = _subject,
+                BodyEncoding = _bodyEncoding,
+                DeliveryNotificationOptions = _deliveryNotificationOptions,
+                Priority = _priority,
+                SubjectEncoding = _subjectEncoding,
             };
             
-            if (From != null)
+            if (_from != null)
             {
-                mailMessage.From = From.GetMailAddress();
+                mailMessage.From = _from.GetMailAddress();
             }
 
-            foreach (var mailAddress in To)
+            foreach (var mailAddress in _to)
             {
                 mailMessage.To.Add(mailAddress.GetMailAddress());
             }
 
-            foreach (var mailAddress in CC)
+            foreach (var mailAddress in _cc)
             {
                 mailMessage.CC.Add(mailAddress.GetMailAddress());
             }
 
-            foreach (var mailAddress in Bcc)
+            foreach (var mailAddress in _bcc)
             {
                 mailMessage.Bcc.Add(mailAddress.GetMailAddress());
             }
 
-            foreach (var attachment in Attachments)
+            foreach (var attachment in _attachments)
             {
                 mailMessage.Attachments.Add(attachment.GetAttachment());
             }
             
-            Headers.CopyTo(mailMessage.Headers);
+            _headers.CopyTo(mailMessage.Headers);
 
-            foreach (var mailAddress in ReplyToList)
+            foreach (var mailAddress in _replyToList)
             {
                 mailMessage.ReplyToList.Add(mailAddress.GetMailAddress());
             }
 
-            if (Sender != null)
+            if (_sender != null)
             {
-                mailMessage.Sender = Sender.GetMailAddress();
+                mailMessage.Sender = _sender.GetMailAddress();
             }
 
-            foreach (var alternateView in AlternateViews)
+            foreach (var alternateView in _alternateViews)
             {
                 mailMessage.AlternateViews.Add(alternateView.GetAlternateView());
             }

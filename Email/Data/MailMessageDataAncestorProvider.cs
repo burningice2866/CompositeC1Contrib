@@ -12,7 +12,7 @@ namespace CompositeC1Contrib.Email.Data
     {
         public IData GetParent(IData data)
         {
-            var mailMessage = data as IEmailMessage;
+            var mailMessage = data as IQueuedMailMessage;
             if (mailMessage == null)
             {
                 throw new ArgumentException("Invalid data type", "data");
@@ -20,7 +20,7 @@ namespace CompositeC1Contrib.Email.Data
 
             using (var conn = new DataConnection())
             {
-                return conn.Get<IEmailQueue>().Single(q => q.Id == mailMessage.QueueId);
+                return conn.Get<IMailQueue>().Single(q => q.Id == mailMessage.QueueId);
             }
         }
     }

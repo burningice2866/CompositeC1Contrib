@@ -3,14 +3,14 @@
 using Composite.C1Console.Security;
 using Composite.C1Console.Security.SecurityAncestorProviders;
 
-namespace CompositeC1Contrib.Email.ElementProviders.Tokens
+namespace CompositeC1Contrib.Email.C1Console.ElementProviders.EntityTokens
 {
     [SecurityAncestorProvider(typeof(NoAncestorSecurityAncestorProvider))]
-    public class EmailElementProviderEntityToken : EntityToken
+    public class MailElementProviderEntityToken : EntityToken
     {
         public override string Id
         {
-            get { return "EmailElementProviderEntityToken"; }
+            get { return "MailElementProviderEntityToken"; }
         }
 
         public override string Serialize()
@@ -30,7 +30,7 @@ namespace CompositeC1Contrib.Email.ElementProviders.Tokens
 
         public static EntityToken Deserialize(string serializedData)
         {
-            return new EmailElementProviderEntityToken();
+            return new MailElementProviderEntityToken();
         }
     }
 }

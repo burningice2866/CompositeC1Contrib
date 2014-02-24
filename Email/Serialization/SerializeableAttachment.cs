@@ -8,44 +8,44 @@ namespace CompositeC1Contrib.Email.Serialization
     [Serializable]
     public class SerializeableAttachment
     {
-        String ContentId;
-        SerializeableContentDisposition ContentDisposition;
-        SerializeableContentType ContentType;
-        Stream ContentStream;
-        System.Net.Mime.TransferEncoding TransferEncoding;
-        String Name;
-        Encoding NameEncoding;
+        private readonly string _contentId;
+        private readonly SerializeableContentDisposition _contentDisposition;
+        private readonly SerializeableContentType _contentType;
+        private readonly Stream _contentStream;
+        private readonly System.Net.Mime.TransferEncoding _transferEncoding;
+        private readonly string _name;
+        private readonly Encoding _nameEncoding;
 
         public SerializeableAttachment(Attachment attachment)
         {
-            ContentId = attachment.ContentId;
-            ContentDisposition = new SerializeableContentDisposition(attachment.ContentDisposition);
-            ContentType = new SerializeableContentType(attachment.ContentType);
-            Name = attachment.Name;
-            TransferEncoding = attachment.TransferEncoding;
-            NameEncoding = attachment.NameEncoding;
+            _contentId = attachment.ContentId;
+            _contentDisposition = new SerializeableContentDisposition(attachment.ContentDisposition);
+            _contentType = new SerializeableContentType(attachment.ContentType);
+            _name = attachment.Name;
+            _transferEncoding = attachment.TransferEncoding;
+            _nameEncoding = attachment.NameEncoding;
 
             if (attachment.ContentStream != null)
             {
                 byte[] bytes = new byte[attachment.ContentStream.Length];
                 attachment.ContentStream.Read(bytes, 0, bytes.Length);
 
-                ContentStream = new MemoryStream(bytes);
+                _contentStream = new MemoryStream(bytes);
             }
         }
 
         public Attachment GetAttachment()
         {
-            var attachment = new Attachment(ContentStream, Name)
+            var attachment = new Attachment(_contentStream, _name)
             {
-                ContentId = ContentId,
-                ContentType = ContentType.GetContentType(),
-                Name = Name,
-                TransferEncoding = TransferEncoding,
-                NameEncoding = NameEncoding,
+                ContentId = _contentId,
+                ContentType = _contentType.GetContentType(),
+                Name = _name,
+                TransferEncoding = _transferEncoding,
+                NameEncoding = _nameEncoding,
             };
 
-            ContentDisposition.CopyTo(attachment.ContentDisposition);
+            _contentDisposition.CopyTo(attachment.ContentDisposition);
 
             return attachment;
         }   

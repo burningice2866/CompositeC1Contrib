@@ -6,32 +6,32 @@ namespace CompositeC1Contrib.Email.Serialization
     [Serializable]
     internal class SerializeableContentType
     {
-        String Boundary;
-        String CharSet;
-        String MediaType;
-        String Name;
-        SerializeableCollection Parameters;
+        private readonly string _boundary;
+        private readonly string _charSet;
+        private readonly string _mediaType;
+        private readonly string _name;
+        private readonly SerializeableCollection _parameters;
 
         public SerializeableContentType(ContentType contentType)
         {
-            Boundary = contentType.Boundary;
-            CharSet = contentType.CharSet;
-            MediaType = contentType.MediaType;
-            Name = contentType.Name;
-            Parameters = new SerializeableCollection(contentType.Parameters);
+            _boundary = contentType.Boundary;
+            _charSet = contentType.CharSet;
+            _mediaType = contentType.MediaType;
+            _name = contentType.Name;
+            _parameters = new SerializeableCollection(contentType.Parameters);
         }
 
         public ContentType GetContentType()
         {
             var sct = new ContentType()
             {
-                Boundary = Boundary,
-                CharSet = CharSet,
-                MediaType = MediaType,
-                Name = Name,
+                Boundary = _boundary,
+                CharSet = _charSet,
+                MediaType = _mediaType,
+                Name = _name,
             };
 
-            Parameters.CopyTo(sct.Parameters);
+            _parameters.CopyTo(sct.Parameters);
 
             return sct;
         }

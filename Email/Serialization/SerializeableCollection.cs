@@ -7,7 +7,7 @@ namespace CompositeC1Contrib.Email.Serialization
     [Serializable]
     public class SerializeableCollection
     {
-        IDictionary<string, string> Collection = new Dictionary<string, string>();
+        private readonly IDictionary<string, string> _collection = new Dictionary<string, string>();
 
         public SerializeableCollection() { }
 
@@ -15,7 +15,7 @@ namespace CompositeC1Contrib.Email.Serialization
         {
             foreach (string key in coll.Keys)
             {
-                Collection.Add(key, coll[key]);
+                _collection.Add(key, coll[key]);
             }
         }
 
@@ -23,29 +23,29 @@ namespace CompositeC1Contrib.Email.Serialization
         {
             foreach (string key in coll.Keys)
             {
-                Collection.Add(key, coll[key]);
+                _collection.Add(key, coll[key]);
             }
         }
 
         public void CopyTo(NameValueCollection scol)
         {
-            foreach (String key in Collection.Keys)
+            foreach (string key in _collection.Keys)
             {
-                scol.Add(key, this.Collection[key]);
+                scol.Add(key, this._collection[key]);
             }
         }
 
         public void CopyTo(StringDictionary scol)
         {
-            foreach (string key in Collection.Keys)
+            foreach (string key in _collection.Keys)
             {
                 if (scol.ContainsKey(key))
                 {
-                    scol[key] = Collection[key];
+                    scol[key] = _collection[key];
                 }
                 else
                 {
-                    scol.Add(key, Collection[key]);
+                    scol.Add(key, _collection[key]);
                 }
             }
         }        

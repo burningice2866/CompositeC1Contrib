@@ -1,9 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Threading;
+using System.Web.Hosting;
 
+using Composite;
 using Composite.C1Console.Events;
 using Composite.Core;
 using Composite.Core.Threading;
@@ -13,33 +16,33 @@ using CompositeC1Contrib.Email.Data.Types;
 
 namespace CompositeC1Contrib.Email
 {
-    public class EmailWorker
+    public class MailWorker
     {
-        private static EmailWorker _instance = new EmailWorker();
+        private static readonly MailWorker Instance = new MailWorker();
 
-        private volatile bool _running = false;
-        private Thread _thread;        
+        private volatile bool _running;
+        private readonly Thread _thread;
 
-        private EmailWorker()
+        private MailWorker()
         {
-            var threadStart = new ThreadStart(run);
+            var threadStart = new ThreadStart(Run);
             _thread = new Thread(threadStart);
         }
 
         public static void Initialize()
         {
-            GlobalEventSystemFacade.SubscribeToPrepareForShutDownEvent(prepareForShutDown);
+            GlobalEventSystemFacade.SubscribeToPrepareForShutDownEvent(PrepareForShutDown);
 
-            _instance._running = true;
-            _instance._thread.Start();
+            Instance._running = true;
+            Instance._thread.Start();
         }
 
-        private static void prepareForShutDown(PrepareForShutDownEventArgs e)
+        private static void PrepareForShutDown(PrepareForShutDownEventArgs e)
         {
-            _instance._running = false;
+            Instance._running = false;
         }
 
-        private void run()
+        private void Run()
         {
             try
             {
@@ -47,7 +50,7 @@ namespace CompositeC1Contrib.Email
                 {
                     while (_running)
                     {
-                        sendPendingMessages();
+                        SendPendingMessages();
 
                         Thread.Sleep(1000);
                     }
@@ -55,25 +58,28 @@ namespace CompositeC1Contrib.Email
             }
             catch (Exception exc)
             {
-                Log.LogCritical("Unhandled error in Email Worker", exc);
+                Log.LogCritical("Unhandled error in Mail Worker", exc);
             }
         }
 
-        private void sendPendingMessages()
+        private void SendPendingMessages()
         {
             using (var data = new DataConnection())
             {
-                var queues = data.Get<IEmailQueue>().Where(q => !q.Paused);
+                var queues = data.Get<IMailQueue>().Where(q => !q.Paused);
 
                 foreach (var queue in queues)
                 {
-                    if (!_running) return;
+                    if (!_running)
+                    {
+                        return;
+                    }
 
-                    var messages = data.Get<IEmailMessage>().Where(m => m.QueueId == queue.Id);
+                    var messages = data.Get<IQueuedMailMessage>().Where(m => m.QueueId == queue.Id);
 
                     if (messages.Any())
                     {
-                        var smtpClient = getClient(queue);
+                        var smtpClient = GetClient(queue);
                         if (smtpClient == null)
                         {
                             queue.Paused = true;
@@ -86,15 +92,20 @@ namespace CompositeC1Contrib.Email
                         {
                             foreach (var message in messages)
                             {
-                                if (!_running) return;
+                                if (!_running)
+                                {
+                                    return;
+                                }
 
-                                var mailMessage = EmailFacade.GetMessage(message);
+                                var mailMessage = MailsFacade.GetMailMessage(message);
 
                                 try
                                 {
                                     smtpClient.Send(mailMessage);
 
-                                    Log.LogInformation("Mail message", "Sent mail message " + mailMessage.Subject + " from queue " + queue.Name);
+                                    Log.LogVerbose("Mail message", "Sent mail message " + mailMessage.Subject + " from queue " + queue.Name);
+
+                                    LogSentMailMessage(data, mailMessage, message.QueueId);
 
                                     data.Delete(message);
                                 }
@@ -109,7 +120,21 @@ namespace CompositeC1Contrib.Email
             }
         }
 
-        private SmtpClient getClient(IEmailQueue queue)
+        private static void LogSentMailMessage(DataConnection data, MailMessage mailMessage, Guid queueId)
+        {
+            var sentMailMessage = data.CreateNew<ISentMailMessage>();
+
+            sentMailMessage.Id = Guid.NewGuid();
+            sentMailMessage.QueueId = queueId;
+            sentMailMessage.TimeSent = DateTime.UtcNow;
+            sentMailMessage.Subject = mailMessage.Subject;
+
+            data.Add(sentMailMessage);
+
+            MailMessageFileWriter.SaveMailMessageToDisk(sentMailMessage.Id, mailMessage);
+        }
+
+        private static SmtpClient GetClient(IMailQueue queue)
         {
             try
             {
@@ -119,9 +144,21 @@ namespace CompositeC1Contrib.Email
                     Host = queue.Host,
                     Port = queue.Port,
                     EnableSsl = queue.EnableSsl,
-                    TargetName = queue.TargetName,
-                    PickupDirectoryLocation = queue.PickupDirectoryLocation
+                    TargetName = queue.TargetName
                 };
+
+                if (smtpClient.DeliveryMethod == SmtpDeliveryMethod.SpecifiedPickupDirectory)
+                {
+                    Verify.StringNotIsNullOrWhiteSpace(queue.PickupDirectoryLocation);
+
+                    var pickupDirectoryLocation = HostingEnvironment.MapPath(queue.PickupDirectoryLocation);
+                    if (!Directory.Exists(pickupDirectoryLocation))
+                    {
+                        Directory.CreateDirectory(pickupDirectoryLocation);
+                    }
+
+                    smtpClient.PickupDirectoryLocation = pickupDirectoryLocation;
+                }
 
                 if (queue.DefaultCredentials)
                 {
@@ -139,7 +176,7 @@ namespace CompositeC1Contrib.Email
                 Log.LogCritical("Invalid smtp settings", exc);
 
                 return null;
-            }            
+            }
         }
     }
 }

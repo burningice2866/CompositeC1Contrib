@@ -7,20 +7,19 @@ using Composite.C1Console.Security;
 using Composite.C1Console.Workflow;
 using Composite.Core.ResourceSystem;
 using Composite.Data;
-
-using CompositeC1Contrib.Email.Data.Types;
-using CompositeC1Contrib.Email.ElementProviders.Actions;
-using CompositeC1Contrib.Email.ElementProviders.Tokens;
-using CompositeC1Contrib.Email.Workflows;
-using Composite.Plugins.Elements.ElementProviders.VirtualElementProvider;
 using Composite.Plugins.Elements.ElementProviders.GeneratedDataTypesElementProvider;
 
-namespace CompositeC1Contrib.Email.ElementProviders
+using CompositeC1Contrib.Email.C1Console.ElementProviders.Actions;
+using CompositeC1Contrib.Email.C1Console.ElementProviders.EntityTokens;
+using CompositeC1Contrib.Email.C1Console.Workflows;
+using CompositeC1Contrib.Email.Data.Types;
+
+namespace CompositeC1Contrib.Email.C1Console.ElementProviders
 {
-    public class EmailElementProvider : IHooklessElementProvider, IAuxiliarySecurityAncestorProvider
+    public class MailElementProvider : IHooklessElementProvider, IAuxiliarySecurityAncestorProvider
     {
-        private static readonly ActionGroup _actionGroup = new ActionGroup(ActionGroupPriority.PrimaryHigh);
-        private static readonly ActionLocation _actionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = true, ActionGroup = _actionGroup };
+        private static readonly ActionGroup ActionGroup = new ActionGroup(ActionGroupPriority.PrimaryHigh);
+        private static readonly ActionLocation ActionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = true, ActionGroup = ActionGroup };
 
         private ElementProviderContext _context;
         public ElementProviderContext Context
@@ -28,7 +27,7 @@ namespace CompositeC1Contrib.Email.ElementProviders
             set { _context = value; }
         }
 
-        public EmailElementProvider()
+        public MailElementProvider()
         {
             AuxiliarySecurityAncestorFacade.AddAuxiliaryAncestorProvider<DataEntityToken>(this);
         }
@@ -38,10 +37,10 @@ namespace CompositeC1Contrib.Email.ElementProviders
             var dataToken = entityToken as DataEntityToken;
             if (dataToken != null)
             {
-                var queue = dataToken.Data as IEmailQueue;
+                var queue = dataToken.Data as IMailQueue;
                 if (queue != null)
                 {
-                    var messages = getMessages(queue);
+                    var messages = GetMessages(queue);
 
                     foreach (var message in messages)
                     {
@@ -68,7 +67,7 @@ namespace CompositeC1Contrib.Email.ElementProviders
                                 Label = "Delete message",
                                 ToolTip = "Delete message",
                                 Icon = new ResourceHandle("Composite.Icons", "generated-type-data-delete"),
-                                ActionLocation = _actionLocation
+                                ActionLocation = ActionLocation
                             }
                         });
 
@@ -78,7 +77,7 @@ namespace CompositeC1Contrib.Email.ElementProviders
             }
             else
             {
-                var queues = getQueues();
+                var queues = GetQueues();
 
                 foreach (var queue in queues)
                 {
@@ -96,13 +95,13 @@ namespace CompositeC1Contrib.Email.ElementProviders
                         {
                             Label = label,
                             ToolTip = label,
-                            HasChildren = getMessages(queue).Any(),
+                            HasChildren = GetMessages(queue).Any(),
                             Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
                             OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
                         }
                     };
 
-                    var editActionToken = new WorkflowActionToken(typeof(EditEmailQueueWorkflow), new PermissionType[] { PermissionType.Administrate });
+                    var editActionToken = new WorkflowActionToken(typeof(EditMailQueueWorkflow), new PermissionType[] { PermissionType.Administrate });
                     queueElement.AddAction(new ElementAction(new ActionHandle(editActionToken))
                     {
                         VisualData = new ActionVisualizedData
@@ -110,11 +109,11 @@ namespace CompositeC1Contrib.Email.ElementProviders
                             Label = "Edit queue",
                             ToolTip = "Edit queue",
                             Icon = new ResourceHandle("Composite.Icons", "generated-type-data-edit"),
-                            ActionLocation = _actionLocation
+                            ActionLocation = ActionLocation
                         }
                     });
 
-                    var deleteActionToken = new ConfirmWorkflowActionToken("Are you sure?", typeof(DeleteEmailQueueActionToken));
+                    var deleteActionToken = new ConfirmWorkflowActionToken("Are you sure?", typeof(DeleteMailQueueActionToken));
                     queueElement.AddAction(new ElementAction(new ActionHandle(deleteActionToken))
                     {
                         VisualData = new ActionVisualizedData
@@ -122,11 +121,11 @@ namespace CompositeC1Contrib.Email.ElementProviders
                             Label = "Delete queue",
                             ToolTip = "Delete queue",
                             Icon = new ResourceHandle("Composite.Icons", "generated-type-data-delete"),
-                            ActionLocation = _actionLocation
+                            ActionLocation = ActionLocation
                         }
                     });
 
-                    var toggleStateActionToken = new ToggleEmailQueueStateActionToken(queue.Id);
+                    var toggleStateActionToken = new ToggleMailQueueStateActionToken(queue.Id);
                     var toggleLabel = queue.Paused ? "Resume" : "Pause";
                     var toggleIcon = queue.Paused ? "accept" : "generated-type-data-delete";
 
@@ -137,7 +136,7 @@ namespace CompositeC1Contrib.Email.ElementProviders
                             Label = toggleLabel,
                             ToolTip = toggleLabel,
                             Icon = new ResourceHandle("Composite.Icons", toggleIcon),
-                            ActionLocation = _actionLocation
+                            ActionLocation = ActionLocation
                         }
                     });
 
@@ -148,20 +147,20 @@ namespace CompositeC1Contrib.Email.ElementProviders
 
         public IEnumerable<Element> GetRoots(SearchToken searchToken)
         {
-            var elementHandle = _context.CreateElementHandle(new EmailElementProviderEntityToken());
+            var elementHandle = _context.CreateElementHandle(new MailElementProviderEntityToken());
             var rootElement = new Element(elementHandle)
             {
                 VisualData = new ElementVisualizedData
                 {
                     Label = "Email",
                     ToolTip = "Email",
-                    HasChildren = getQueues().Any(),
+                    HasChildren = GetQueues().Any(),
                     Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
                     OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
                 }
             };
 
-            var actionToken = new WorkflowActionToken(typeof(CreateEmailQueueWorkflow));
+            var actionToken = new WorkflowActionToken(typeof(CreateMailQueueWorkflow));
             rootElement.AddAction(new ElementAction(new ActionHandle(actionToken))
             {
                 VisualData = new ActionVisualizedData
@@ -169,7 +168,7 @@ namespace CompositeC1Contrib.Email.ElementProviders
                     Label = "Add queue",
                     ToolTip = "Add queue",
                     Icon = new ResourceHandle("Composite.Icons", "generated-type-data-add"),
-                    ActionLocation = _actionLocation
+                    ActionLocation = ActionLocation
                 }
             });
 
@@ -182,28 +181,28 @@ namespace CompositeC1Contrib.Email.ElementProviders
             foreach (var token in entityTokens)
             {
                 var dataToken = token as DataEntityToken;
-                if (dataToken != null && dataToken.InterfaceType == typeof(IEmailQueue))
+                if (dataToken != null && dataToken.InterfaceType == typeof(IMailQueue))
                 {
-                    dictionary.Add(token, new[] { new EmailElementProviderEntityToken() });
+                    dictionary.Add(token, new[] { new MailElementProviderEntityToken() });
                 }
             }
 
             return dictionary;
         }
 
-        private IEnumerable<IEmailQueue> getQueues()
+        private static IEnumerable<IMailQueue> GetQueues()
         {
             using (var data = new DataConnection(PublicationScope.Unpublished))
             {
-                return data.Get<IEmailQueue>();
+                return data.Get<IMailQueue>();
             }
         }
 
-        private IEnumerable<IEmailMessage> getMessages(IEmailQueue queue)
+        private static IEnumerable<IQueuedMailMessage> GetMessages(IMailQueue queue)
         {
             using (var data = new DataConnection(PublicationScope.Unpublished))
             {
-                return data.Get<IEmailMessage>().Where(m => m.QueueId == queue.Id);
+                return data.Get<IQueuedMailMessage>().Where(m => m.QueueId == queue.Id);
             }
         }        
     }

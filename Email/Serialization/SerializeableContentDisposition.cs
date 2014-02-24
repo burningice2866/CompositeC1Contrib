@@ -6,38 +6,38 @@ namespace CompositeC1Contrib.Email.Serialization
     [Serializable]
     public class SerializeableContentDisposition
     {
-        DateTime CreationDate;
-        String DispositionType;
-        String FileName;
-        Boolean Inline;
-        DateTime ModificationDate;
-        SerializeableCollection Parameters;
-        DateTime ReadDate;
-        long Size;
+        private readonly DateTime _creationDate;
+        private readonly string _dispositionType;
+        private readonly string _fileName;
+        private readonly bool _inline;
+        private readonly DateTime _modificationDate;
+        private readonly SerializeableCollection _parameters;
+        private readonly DateTime _readDate;
+        private readonly long _size;
 
         public SerializeableContentDisposition(ContentDisposition contentDisposition)
         {
-            CreationDate = contentDisposition.CreationDate;
-            DispositionType = contentDisposition.DispositionType;
-            FileName = contentDisposition.FileName;
-            Inline = contentDisposition.Inline;
-            ModificationDate = contentDisposition.ModificationDate;
-            Parameters = new SerializeableCollection(contentDisposition.Parameters);
-            ReadDate = contentDisposition.ReadDate;
-            Size = contentDisposition.Size;
+            _creationDate = contentDisposition.CreationDate;
+            _dispositionType = contentDisposition.DispositionType;
+            _fileName = contentDisposition.FileName;
+            _inline = contentDisposition.Inline;
+            _modificationDate = contentDisposition.ModificationDate;
+            _parameters = new SerializeableCollection(contentDisposition.Parameters);
+            _readDate = contentDisposition.ReadDate;
+            _size = contentDisposition.Size;
         }
 
         public void CopyTo(ContentDisposition contentDisposition)
         {
-            contentDisposition.CreationDate = CreationDate;
-            contentDisposition.DispositionType = DispositionType;
-            contentDisposition.FileName = FileName;
-            contentDisposition.Inline = Inline;
-            contentDisposition.ModificationDate = ModificationDate;
-            contentDisposition.ReadDate = ReadDate;
-            contentDisposition.Size = Size;
+            contentDisposition.CreationDate = _creationDate;
+            contentDisposition.DispositionType = _dispositionType;
+            contentDisposition.FileName = _fileName;
+            contentDisposition.Inline = _inline;
+            contentDisposition.ModificationDate = _modificationDate;
+            contentDisposition.ReadDate = _readDate;
+            contentDisposition.Size = _size;
 
-            Parameters.CopyTo(contentDisposition.Parameters);
+            _parameters.CopyTo(contentDisposition.Parameters);
         }
     }
 }

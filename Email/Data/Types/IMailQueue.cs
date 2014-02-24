@@ -15,7 +15,7 @@ namespace CompositeC1Contrib.Email.Data.Types
     [Title("Mail queue")]
     [LabelPropertyName("Name")]
     [DataAncestorProvider(typeof(NoAncestorDataAncestorProvider))]
-    public interface IEmailQueue : IData
+    public interface IMailQueue : IData
     {
         [StoreFieldType(PhysicalStoreFieldType.Guid)]
         [ImmutableFieldId("eef26b7d-2c10-4bf2-9120-1b6b67b6033c")]

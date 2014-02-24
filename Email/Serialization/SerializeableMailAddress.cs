@@ -6,22 +6,22 @@ namespace CompositeC1Contrib.Email.Serialization
     [Serializable]
     public class SerializeableMailAddress
     {
-        String User;
-        String Host;
-        String Address;
-        String DisplayName;
+        private string _user;
+        private string _host;
+        readonly string _address;
+        readonly string _displayName;
 
         public SerializeableMailAddress(MailAddress address)
         {
-            User = address.User;
-            Host = address.Host;
-            Address = address.Address;
-            DisplayName = address.DisplayName;
+            _user = address.User;
+            _host = address.Host;
+            _address = address.Address;
+            _displayName = address.DisplayName;
         }
 
         public MailAddress GetMailAddress()
         {
-            return new MailAddress(Address, DisplayName);
+            return new MailAddress(_address, _displayName);
         }
     }
 }

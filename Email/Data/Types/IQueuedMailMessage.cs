@@ -11,10 +11,10 @@ namespace CompositeC1Contrib.Email.Data.Types
     [KeyPropertyName("Id")]
     [DataScope(DataScopeIdentifier.PublicName)]
     [ImmutableTypeId("b37fa3e8-95c0-45fe-9957-c8af313234ef")]
-    [Title("Mail message")]
+    [Title("Queued mail message")]
     [LabelPropertyName("Subject")]
     [DataAncestorProvider(typeof(MailMessageDataAncestorProvider))]
-    public interface IEmailMessage : IChangeHistory, IData
+    public interface IQueuedMailMessage : IChangeHistory
     {
         [StoreFieldType(PhysicalStoreFieldType.Guid)]
         [ImmutableFieldId("36c0eef1-fc09-4ef1-822e-8bffbc28e1b8")]
@@ -23,7 +23,7 @@ namespace CompositeC1Contrib.Email.Data.Types
 
         [StoreFieldType(PhysicalStoreFieldType.Guid)]
         [ImmutableFieldId("777e7874-fe49-4c31-a568-be1d1e204055")]
-        [ForeignKey(typeof(IEmailQueue), "Id", AllowCascadeDeletes = true)]
+        [ForeignKey(typeof(IMailQueue), "Id", AllowCascadeDeletes = true)]
         Guid QueueId { get; set; }
 
         [NotNullValidator]
