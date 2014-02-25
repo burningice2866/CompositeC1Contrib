@@ -20,9 +20,9 @@ namespace CompositeC1Contrib.Sorting
     [ConfigurationElementType(typeof(NonConfigurableElementActionProvider))]
     public class SortableActionProvider : IElementActionProvider
     {
-        private static readonly Type sortableType = typeof(IGenericSortable);
-        private static readonly ActionGroup _actionGroup = new ActionGroup("Default", ActionGroupPriority.PrimaryLow);
-        private static readonly ActionLocation _actionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = false, ActionGroup = _actionGroup };
+        private static readonly Type SortableType = typeof(IGenericSortable);
+        private static readonly ActionGroup ActionGroup = new ActionGroup("Default", ActionGroupPriority.PrimaryLow);
+        private static readonly ActionLocation ActionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = false, ActionGroup = ActionGroup };
 
         public IEnumerable<ElementAction> GetActions(EntityToken entityToken)
         {
@@ -49,7 +49,7 @@ namespace CompositeC1Contrib.Sorting
                             icon = "accept";
                         }
 
-                        var actionToken = new ToggleSuperInterfaceActionToken(sortableType);
+                        var actionToken = new ToggleSuperInterfaceActionToken(SortableType);
 
                         yield return new ElementAction(new ActionHandle(actionToken))
                         {
@@ -58,7 +58,7 @@ namespace CompositeC1Contrib.Sorting
                                 Label = message,
                                 ToolTip = message,
                                 Icon = new ResourceHandle("Composite.Icons", icon),
-                                ActionLocation = _actionLocation
+                                ActionLocation = ActionLocation
                             }
                         };
                     }
@@ -72,7 +72,7 @@ namespace CompositeC1Contrib.Sorting
             if (associatedToken != null)
             {
                 var type = TypeManager.GetType(associatedToken.Payload);
-                if (sortableType.IsAssignableFrom(type))
+                if (SortableType.IsAssignableFrom(type))
                 {
                     var pageId = associatedToken.Id;
 
@@ -82,7 +82,7 @@ namespace CompositeC1Contrib.Sorting
                         if (instances.Any())
                         {
                             url = "Sort.aspx?type=" + type.FullName + "&pageId=" + pageId;
-                            label += " " + DataAttributeFacade.GetTypeTitle(type);
+                            label += " " + type.GetTypeTitle();
                         }
                     }
                 }
@@ -108,22 +108,24 @@ namespace CompositeC1Contrib.Sorting
                 }
             }
 
-            if (!String.IsNullOrEmpty(url))
+            if (String.IsNullOrEmpty(url))
             {
-                string baseUrl = UrlUtils.ResolveAdminUrl("InstalledPackages/CompositeC1Contrib.Sorting/");
-                var urlAction = new UrlActionToken(label, baseUrl + url, new[] { PermissionType.Edit, PermissionType.Publish });
-
-                yield return new ElementAction(new ActionHandle(urlAction))
-                {
-                    VisualData = new ActionVisualizedData
-                    {
-                        Label = label,
-                        ToolTip = label,
-                        Icon = new ResourceHandle("Composite.Icons", "cut"),
-                        ActionLocation = _actionLocation
-                    }
-                };
+                yield break;
             }
+
+            string baseUrl = UrlUtils.ResolveAdminUrl("InstalledPackages/CompositeC1Contrib.Sorting/");
+            var urlAction = new UrlActionToken(label, baseUrl + url, new[] { PermissionType.Edit, PermissionType.Publish });
+
+            yield return new ElementAction(new ActionHandle(urlAction))
+            {
+                VisualData = new ActionVisualizedData
+                {
+                    Label = label,
+                    ToolTip = label,
+                    Icon = new ResourceHandle("Composite.Icons", "cut"),
+                    ActionLocation = ActionLocation
+                }
+            };
         }
     }
 }

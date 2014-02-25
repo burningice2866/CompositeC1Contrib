@@ -13,11 +13,6 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders.EntityTokens
             get { return "MailElementProviderEntityToken"; }
         }
 
-        public override string Serialize()
-        {
-            return String.Empty;
-        }
-
         public override string Source
         {
             get { return String.Empty; }
@@ -31,6 +26,11 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders.EntityTokens
         public static EntityToken Deserialize(string serializedData)
         {
             return new MailElementProviderEntityToken();
+        }
+
+        public override string Serialize()
+        {
+            return String.Empty;
         }
     }
 }

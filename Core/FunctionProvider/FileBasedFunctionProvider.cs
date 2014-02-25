@@ -21,10 +21,9 @@ namespace CompositeC1Contrib.FunctionProvider
 
         private readonly IDictionary<string, FileBasedFunction<T>> _functionCache = new Dictionary<string, FileBasedFunction<T>>();
 
-        private C1FileSystemWatcher _watcher;
         private DateTime _lastUpdateTime;
-        private string _rootFolder;
-        private string _name;
+        private readonly string _rootFolder;
+        private readonly string _name;
 
         protected abstract string FileExtension { get; }
         protected abstract Type BaseType { get; }
@@ -60,7 +59,7 @@ namespace CompositeC1Contrib.FunctionProvider
                     ns = ns.Substring(0, ns.Length - 1);
 
                     var virtualPath = Path.Combine(VirtualPath, ns.Replace(".", Path.DirectorySeparatorChar.ToString()), name + "." + FileExtension);
-                    object obj = null;
+                    object obj;
 
                     try
                     {
@@ -78,9 +77,9 @@ namespace CompositeC1Contrib.FunctionProvider
                         continue;
                     }
 
-                    var parameters = getParameters(obj);
+                    var parameters = GetParameters(obj);
                     var returnType = GetReturnType(obj);
-                    var description = getDescription(obj);
+                    var description = GetDescription(obj);
 
                     var function = (FileBasedFunction<T>)typeof(T).GetConstructors().First().Invoke(new object[] { ns, name, description, parameters, returnType, virtualPath, this });
 
@@ -93,7 +92,7 @@ namespace CompositeC1Contrib.FunctionProvider
             }
         }
 
-        public FileBasedFunctionProvider(string name, string folder)
+        protected FileBasedFunctionProvider(string name, string folder)
         {
             _name = name;
 
@@ -102,24 +101,24 @@ namespace CompositeC1Contrib.FunctionProvider
 
             _rootFolder = PhysicalPath.Split(new[] { Path.DirectorySeparatorChar }).Last();
 
-            _watcher = new C1FileSystemWatcher(PhysicalPath, "*")
+            C1FileSystemWatcher watcher = new C1FileSystemWatcher(PhysicalPath, "*")
             {
                 IncludeSubdirectories = true
             };
 
-            _watcher.Created += watcher_Changed;
-            _watcher.Deleted += watcher_Changed;
-            _watcher.Changed += watcher_Changed;
-            _watcher.Renamed += watcher_Changed;
+            watcher.Created += watcher_Changed;
+            watcher.Deleted += watcher_Changed;
+            watcher.Changed += watcher_Changed;
+            watcher.Renamed += watcher_Changed;
 
-            _watcher.EnableRaisingEvents = true;
+            watcher.EnableRaisingEvents = true;
         }
 
         protected abstract Type GetReturnType(object obj);
         protected abstract object InstantiateFile(string virtualPath);
         protected abstract bool HandleChange(string path);
 
-        private IDictionary<string, FunctionParameterHolder> getParameters(object obj)
+        private IDictionary<string, FunctionParameterHolder> GetParameters(object obj)
         {
             var dict = new Dictionary<string, FunctionParameterHolder>();
             ParameterWidgets widgetProviders = null;
@@ -174,36 +173,36 @@ namespace CompositeC1Contrib.FunctionProvider
             return dict;
         }
 
-        private string getDescription(object obj)
+        private string GetDescription(object obj)
         {
             var attr = obj.GetType().GetCustomAttributes(typeof(FunctionDescriptionAttribute), false).Cast<FunctionDescriptionAttribute>().FirstOrDefault();
-            if (attr != null)
-            {
-                return attr.Description;
-            }
-
-            return String.Format("A {0} function", _name);
+            
+            return attr != null ? attr.Description : String.Format("A {0} function", _name);
         }
 
         private void watcher_Changed(object sender, FileSystemEventArgs e)
         {
-            if (FunctionNotifier != null && HandleChange(e.FullPath))
+            if (FunctionNotifier == null || !HandleChange(e.FullPath))
             {
-                lock (_lock)
+                return;
+            }
+
+            lock (_lock)
+            {
+                var timeSpan = DateTime.Now - _lastUpdateTime;
+                if (!(timeSpan.TotalMilliseconds > 100))
                 {
-                    var timeSpan = DateTime.Now - _lastUpdateTime;
-                    if (timeSpan.TotalMilliseconds > 100)
-                    {
-                        Thread.Sleep(50);
-
-                        using (ThreadDataManager.EnsureInitialize())
-                        {
-                            FunctionNotifier.FunctionsUpdated();
-                        }
-
-                        _lastUpdateTime = DateTime.Now;
-                    }
+                    return;
                 }
+
+                Thread.Sleep(50);
+
+                using (ThreadDataManager.EnsureInitialize())
+                {
+                    FunctionNotifier.FunctionsUpdated();
+                }
+
+                _lastUpdateTime = DateTime.Now;
             }
         }
     }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 
 using Composite.Core.Xml;
 
@@ -9,11 +8,11 @@ namespace CompositeC1Contrib.Web
 {
     public static class ContentFilterFacade
     {
-        private static List<IContentFilter> _contentFilters;
+        private static readonly List<IContentFilter> ContentFilters;
 
         static ContentFilterFacade()
         {
-            _contentFilters = new List<IContentFilter>();
+            ContentFilters = new List<IContentFilter>();
 
             var asms = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var asm in asms)
@@ -24,7 +23,7 @@ namespace CompositeC1Contrib.Web
                         .Where(t => typeof(IContentFilter).IsAssignableFrom(t) && !t.IsInterface)
                         .Select(t => (IContentFilter)Activator.CreateInstance(t));
 
-                    _contentFilters.AddRange(types);
+                    ContentFilters.AddRange(types);
                 }
                 catch { }
             }
@@ -42,7 +41,7 @@ namespace CompositeC1Contrib.Web
                 return null;
             }
 
-            foreach (var filter in _contentFilters)
+            foreach (var filter in ContentFilters)
             {
                 filter.Filter(doc, id);
             }

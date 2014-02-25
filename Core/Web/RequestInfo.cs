@@ -5,20 +5,20 @@ namespace CompositeC1Contrib.Web
 {
     public class RequestInfo
     {
-        private const string key = "___RI___";
+        private const string Key = "___RI___";
 
-        private HttpContext _ctx;
+        private readonly HttpContext _ctx;
 
         public static RequestInfo Current
         {
             get
             {
                 var ctx = HttpContext.Current;
-                var ri = ctx.Items[key] as RequestInfo;
+                var ri = ctx.Items[Key] as RequestInfo;
 
                 if (ri == null)
                 {
-                    ctx.Items[key] = ri = new RequestInfo(ctx);
+                    ctx.Items[Key] = ri = new RequestInfo(ctx);
                 }
 
                 return ri;

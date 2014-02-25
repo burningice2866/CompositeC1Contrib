@@ -10,7 +10,7 @@ namespace CompositeC1Contrib.FunctionProvider
 {
     public abstract class FileBasedFunction<T> : IFunction where T : FileBasedFunction<T>
     {
-        private FileBasedFunctionProvider<T> _provider;
+        private readonly FileBasedFunctionProvider<T> _provider;
 
         protected string VirtualPath { get; private set; }
         protected IDictionary<string, FunctionParameterHolder> Parameters { get; private set; }
@@ -62,7 +62,7 @@ namespace CompositeC1Contrib.FunctionProvider
             }
         }
 
-        public FileBasedFunction(string ns, string name, string description, IDictionary<string, FunctionParameterHolder> parameters, Type returnType, string virtualPath, FileBasedFunctionProvider<T> provider)
+        protected FileBasedFunction(string ns, string name, string description, IDictionary<string, FunctionParameterHolder> parameters, Type returnType, string virtualPath, FileBasedFunctionProvider<T> provider)
         {
             _provider = provider;
 

@@ -7,16 +7,16 @@ namespace CompositeC1Contrib.Security
     [SecurityAncestorProvider(typeof(StandardFunctionSecurityAncestorProvider))]
     public class FileBasedFunctionEntityToken : EntityToken
     {
-        private string _id;
+        private readonly string _id;
         public override string Id
         {
-            get { return this._id; ; }
+            get { return _id; ; }
         }
 
-        private string _source;
+        private readonly string _source;
         public override string Source
         {
-            get { return this._source; }
+            get { return _source; }
         }
 
         public override string Type
@@ -41,7 +41,7 @@ namespace CompositeC1Contrib.Security
             string source;
             string id;
 
-            EntityToken.DoDeserialize(serializedEntityToken, out type, out source, out id);
+            DoDeserialize(serializedEntityToken, out type, out source, out id);
 
             return new FileBasedFunctionEntityToken(source, id);
         }

@@ -11,7 +11,6 @@ namespace CompositeC1Contrib.Security
         public IEnumerable<EntityToken> GetParents(EntityToken entityToken)
         {
             string fullname = entityToken.Id;
-            string providerName = entityToken.Source;
 
             if (fullname.Contains('.'))
             {

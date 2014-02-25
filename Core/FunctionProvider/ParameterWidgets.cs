@@ -10,7 +10,7 @@ namespace CompositeC1Contrib.FunctionProvider
 {
     public class ParameterWidgets : IEnumerable<KeyValuePair<PropertyInfo, WidgetFunctionProvider>>
     {
-        private IDictionary<PropertyInfo, WidgetFunctionProvider> _inner;
+        private readonly IDictionary<PropertyInfo, WidgetFunctionProvider> _inner;
 
         public ParameterWidgets()
         {

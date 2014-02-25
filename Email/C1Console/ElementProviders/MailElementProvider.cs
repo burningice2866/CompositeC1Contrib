@@ -6,8 +6,8 @@ using Composite.C1Console.Elements.Plugins.ElementProvider;
 using Composite.C1Console.Security;
 using Composite.C1Console.Workflow;
 using Composite.Core.ResourceSystem;
+using Composite.Core.WebClient;
 using Composite.Data;
-using Composite.Plugins.Elements.ElementProviders.GeneratedDataTypesElementProvider;
 
 using CompositeC1Contrib.Email.C1Console.ElementProviders.Actions;
 using CompositeC1Contrib.Email.C1Console.ElementProviders.EntityTokens;
@@ -40,39 +40,55 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                 var queue = dataToken.Data as IMailQueue;
                 if (queue != null)
                 {
-                    var messages = GetMessages(queue);
+                    string baseUrl = UrlUtils.ResolveAdminUrl("InstalledPackages/CompositeC1Contrib.Email/log.aspx?queue=" + queue.Id + "&view=");
 
-                    foreach (var message in messages)
+                    var queuedCount = GetQueuedMessagesCount(queue);
+                    var queuedLabel = "Queue";
+                    if (queuedCount > 0)
                     {
-                        dataToken = message.GetDataEntityToken();
-                        var elementHandle = _context.CreateElementHandle(dataToken);
-
-                        var messageElement = new Element(elementHandle)
-                        {
-                            VisualData = new ElementVisualizedData
-                            {
-                                Label = message.Subject,
-                                ToolTip = message.Subject,
-                                HasChildren = false,
-                                Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
-                                OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
-                            }
-                        };
-
-                        var deleteActionToken = new WorkflowActionToken(typeof(DeleteDataWorkflow));
-                        messageElement.AddAction(new ElementAction(new ActionHandle(deleteActionToken))
-                        {
-                            VisualData = new ActionVisualizedData
-                            {
-                                Label = "Delete message",
-                                ToolTip = "Delete message",
-                                Icon = new ResourceHandle("Composite.Icons", "generated-type-data-delete"),
-                                ActionLocation = ActionLocation
-                            }
-                        });
-
-                        yield return messageElement;
+                        queuedLabel += " (" + queuedCount + ")";
                     }
+
+                    var queuedMailsElementHandle = _context.CreateElementHandle(new QueuedMailsEntityToken(queue));
+                    var queuedMailsElement = new Element(queuedMailsElementHandle)
+                    {
+                        VisualData = new ElementVisualizedData
+                        {
+                            Label = queuedLabel,
+                            ToolTip = "Queued",
+                            HasChildren = false,
+                            Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
+                            OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
+                        }
+                    };
+
+                    AddViewLogAction(baseUrl, "queued", queuedMailsElement);
+
+                    yield return queuedMailsElement;
+
+                    var sentCount = GetSentMessagesCount(queue);
+                    var sentLabel = "Sent";
+                    if (sentCount > 0)
+                    {
+                        sentLabel += " (" + sentCount + ")";
+                    }
+
+                    var sentMailsElementHandle = _context.CreateElementHandle(new SentMailsEntityToken(queue));
+                    var sentMailsElement = new Element(sentMailsElementHandle)
+                    {
+                        VisualData = new ElementVisualizedData
+                        {
+                            Label = sentLabel,
+                            ToolTip = "Sent",
+                            HasChildren = false,
+                            Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
+                            OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
+                        }
+                    };
+
+                    AddViewLogAction(baseUrl, "sent", sentMailsElement);
+
+                    yield return sentMailsElement;
                 }
             }
             else
@@ -95,13 +111,13 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                         {
                             Label = label,
                             ToolTip = label,
-                            HasChildren = GetMessages(queue).Any(),
+                            HasChildren = true,
                             Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
                             OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
                         }
                     };
 
-                    var editActionToken = new WorkflowActionToken(typeof(EditMailQueueWorkflow), new PermissionType[] { PermissionType.Administrate });
+                    var editActionToken = new WorkflowActionToken(typeof(EditMailQueueWorkflow), new[] { PermissionType.Administrate });
                     queueElement.AddAction(new ElementAction(new ActionHandle(editActionToken))
                     {
                         VisualData = new ActionVisualizedData
@@ -143,6 +159,21 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                     yield return queueElement;
                 }
             }
+        }
+
+        private static void AddViewLogAction(string baseUrl, string view, Element element)
+        {
+            var queuedUrlAction = new UrlActionToken("View log", baseUrl + view, new[] { PermissionType.Administrate });
+            element.AddAction(new ElementAction(new ActionHandle(queuedUrlAction))
+            {
+                VisualData = new ActionVisualizedData
+                {
+                    Label = "View log",
+                    ToolTip = "View log",
+                    Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
+                    ActionLocation = ActionLocation
+                }
+            });
         }
 
         public IEnumerable<Element> GetRoots(SearchToken searchToken)
@@ -192,18 +223,26 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
 
         private static IEnumerable<IMailQueue> GetQueues()
         {
-            using (var data = new DataConnection(PublicationScope.Unpublished))
+            using (var data = new DataConnection())
             {
                 return data.Get<IMailQueue>();
             }
         }
 
-        private static IEnumerable<IQueuedMailMessage> GetMessages(IMailQueue queue)
+        private static int GetQueuedMessagesCount(IMailQueue queue)
         {
-            using (var data = new DataConnection(PublicationScope.Unpublished))
+            using (var data = new DataConnection())
             {
-                return data.Get<IQueuedMailMessage>().Where(m => m.QueueId == queue.Id);
+                return data.Get<IQueuedMailMessage>().Count(m => m.QueueId == queue.Id);
             }
-        }        
+        }
+
+        private static int GetSentMessagesCount(IMailQueue queue)
+        {
+            using (var data = new DataConnection())
+            {
+                return data.Get<ISentMailMessage>().Count(m => m.QueueId == queue.Id);
+            }
+        }
     }
 }

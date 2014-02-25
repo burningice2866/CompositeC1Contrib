@@ -12,13 +12,24 @@ namespace CompositeC1Contrib.Email
 {
     public class MailMessageFileWriter
     {
-        private static readonly string _path = HostingEnvironment.MapPath("~/App_Data/MailMessage/");
+        private static readonly string BasePath = HostingEnvironment.MapPath("~/App_Data/MailMessage/");
 
-        static MailMessageFileWriter ()
+        static MailMessageFileWriter()
         {
-            if (!Directory.Exists(_path))
+            if (!Directory.Exists(BasePath))
             {
-                Directory.CreateDirectory(_path);
+                Directory.CreateDirectory(BasePath);
+            }
+        }
+
+        public static MailMessage ReadMailMessage(Guid id)
+        {
+            var path = Path.Combine(BasePath, id + ".bin");
+            using (var fs = File.Open(path, FileMode.Open))
+            {
+                var serializedMailMessage = (SerializeableMailMessage)new BinaryFormatter().Deserialize(fs);
+
+                return serializedMailMessage.GetMailMessage();
             }
         }
 
@@ -29,8 +40,8 @@ namespace CompositeC1Contrib.Email
             using (var ms = new MemoryStream())
             {
                 new BinaryFormatter().Serialize(ms, serializedMailMessage);
-                
-                using (var fs = File.Create(Path.Combine(_path, id + ".bin")))
+
+                using (var fs = File.Create(Path.Combine(BasePath, id + ".bin")))
                 {
                     ms.Seek(0, SeekOrigin.Begin);
                     ms.CopyTo(fs);
@@ -38,7 +49,7 @@ namespace CompositeC1Contrib.Email
             }
 
             var eml = ToEml(mailMessage);
-            File.WriteAllText(Path.Combine(_path, id + ".eml"), eml);
+            File.WriteAllText(Path.Combine(BasePath, id + ".eml"), eml);
         }
 
         private static string ToEml(MailMessage message)

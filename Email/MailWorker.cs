@@ -126,7 +126,7 @@ namespace CompositeC1Contrib.Email
 
             sentMailMessage.Id = Guid.NewGuid();
             sentMailMessage.QueueId = queueId;
-            sentMailMessage.TimeSent = DateTime.UtcNow;
+            sentMailMessage.TimeStamp = DateTime.UtcNow;
             sentMailMessage.Subject = mailMessage.Subject;
 
             data.Add(sentMailMessage);

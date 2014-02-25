@@ -39,6 +39,7 @@ namespace CompositeC1Contrib.Email
                 var message = data.CreateNew<IQueuedMailMessage>();
 
                 message.Id = Guid.NewGuid();
+                message.TimeStamp = DateTime.UtcNow;
                 message.QueueId = queue.Id;
                 message.Subject = mailMessage.Subject;
 

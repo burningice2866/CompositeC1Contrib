@@ -6,16 +6,11 @@ namespace CompositeC1Contrib.Web
 {
     public abstract class BaseResponseFilter : Stream
     {
-        private Stream _innerStream;
+        private readonly Stream _innerStream;
 
         protected HttpContext Context { get; private set; }
 
-        private long _position;
-        public override long Position
-        {
-            get { return this._position; }
-            set { this._position = value; }
-        }
+        public override long Position { get; set; }
 
         public override bool CanRead
         {

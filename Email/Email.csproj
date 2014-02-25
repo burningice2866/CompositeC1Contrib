@@ -51,6 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="C1Console\ElementProviders\EntityTokens\QueuedMailsEntityToken.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\SentMailsEntityToken.cs" />
     <Compile Include="C1Console\FormHelplers.cs" />
     <Compile Include="Data\IMailTemplatesProvider.cs" />
     <Compile Include="Data\MailMessageDataAncestorProvider.cs" />
@@ -62,6 +64,7 @@
     <Compile Include="C1Console\ElementProviders\MailElementProvider.cs" />
     <Compile Include="C1Console\ElementProviders\Actions\ToggleMailQueueStateActionToken.cs" />
     <Compile Include="C1Console\ElementProviders\EntityTokens\MailElementProviderEntityToken.cs" />
+    <Compile Include="Data\Types\IMailMessage.cs" />
     <Compile Include="Data\Types\ISentMailMessage.cs" />
     <Compile Include="MailMessageFileWriter.cs" />
     <Compile Include="MailsFacade.cs" />
@@ -84,6 +87,16 @@
     <Compile Include="C1Console\Workflows\EditMailQueueWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Web\UI\BasePage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Web\UI\MailLogItem.cs" />
+    <Compile Include="Web\UI\MailLogPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Web\UI\MailViewPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\CreateMailQueue.xml" />
@@ -91,6 +104,8 @@
     <None Include="Package\Config\App_Data\Composite\composite.config">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Email\log.aspx" />
+    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Email\view.aspx" />
     <Content Include="Package\install.xml" />
   </ItemGroup>
   <ItemGroup>

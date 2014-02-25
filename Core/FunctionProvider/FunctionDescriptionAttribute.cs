@@ -7,9 +7,7 @@ namespace CompositeC1Contrib.FunctionProvider
     {
         public string Description { get; set; }
 
-        public FunctionDescriptionAttribute()
-        {            
-        }
+        public FunctionDescriptionAttribute() { }
 
         public FunctionDescriptionAttribute(string description)
         {

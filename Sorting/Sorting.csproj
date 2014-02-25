@@ -42,18 +42,11 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IGenericSortable.cs" />
-    <Compile Include="PermissionTypeExtensionMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SortableActionProvider.cs" />
-    <Compile Include="UrlActionToken.cs" />
-    <Compile Include="UrlActionTokenActionExecutor.cs" />
     <Compile Include="Web\UI\BaseSortPage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -89,10 +82,6 @@
     <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\SortPages.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
-    <Content Include="Package\Config\install.xsl">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Package\Config\uninstall.xsl" />
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -101,12 +90,17 @@
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{1E76E3BE-F575-4E2D-A791-8A0EDA53C1B2}</Project>
       <Name>Core</Name>
+      <Private>True</Private>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Package\Config\App_Data\Composite\composite.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)CompositeC1Contrib.Core.dll" "$(ProjectDir)Package\Bin\CompositeC1Contrib.Core.dll"
-copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
+    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
 del "$(ProjectDir)\Package\package.zip"
 "$(ProjectDir)..\References\7z.exe" a "$(ProjectDir)\Package\package.zip" -tzip -r "$(ProjectDir)\Package\*"</PostBuildEvent>
   </PropertyGroup>
