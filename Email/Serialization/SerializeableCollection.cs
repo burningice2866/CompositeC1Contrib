@@ -39,15 +39,19 @@ namespace CompositeC1Contrib.Email.Serialization
         {
             foreach (string key in _collection.Keys)
             {
-                if (scol.ContainsKey(key))
+                try
                 {
-                    scol[key] = _collection[key];
+                    if (scol.ContainsKey(key))
+                    {
+                        scol[key] = _collection[key];
+                    }
+                    else
+                    {
+                        scol.Add(key, _collection[key]);
+                    }
                 }
-                else
-                {
-                    scol.Add(key, _collection[key]);
-                }
+                catch (FormatException) { }
             }
-        }        
+        }
     }
 }

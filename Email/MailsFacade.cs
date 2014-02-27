@@ -1,13 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Net.Mail;
-using System.Runtime.Serialization.Formatters.Binary;
 
 using Composite.Data;
 
 using CompositeC1Contrib.Email.Data.Types;
-using CompositeC1Contrib.Email.Serialization;
 
 namespace CompositeC1Contrib.Email
 {
@@ -42,30 +39,11 @@ namespace CompositeC1Contrib.Email
                 message.TimeStamp = DateTime.UtcNow;
                 message.QueueId = queue.Id;
                 message.Subject = mailMessage.Subject;
-
-                using (var ms = new MemoryStream())
-                {
-                    var serializedMailMessage = new SerializeableMailMessage(mailMessage);
-
-                    new BinaryFormatter().Serialize(ms, serializedMailMessage);
-                    message.SerializedMessage = Convert.ToBase64String(ms.ToArray());
-                }
+                message.SerializedMessage = MailMessageFileWriter.SerializeAsBase64(mailMessage);
 
                 data.Add(message);
 
                 return message;
-            }
-        }
-
-        public static MailMessage GetMailMessage(IQueuedMailMessage message)
-        {
-            byte[] bytes = Convert.FromBase64String(message.SerializedMessage);
-
-            using (var ms = new MemoryStream(bytes))
-            {
-                var serializedMailMessage = (SerializeableMailMessage)new BinaryFormatter().Deserialize(ms);
-
-                return serializedMailMessage.GetMailMessage();
             }
         }
     }

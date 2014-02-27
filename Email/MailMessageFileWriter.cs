@@ -47,12 +47,33 @@ namespace CompositeC1Contrib.Email
                     ms.CopyTo(fs);
                 }
             }
-
-            var eml = ToEml(mailMessage);
-            File.WriteAllText(Path.Combine(BasePath, id + ".eml"), eml);
         }
 
-        private static string ToEml(MailMessage message)
+        public static string SerializeAsBase64(MailMessage mailMessage)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var serializedMailMessage = new SerializeableMailMessage(mailMessage);
+
+                new BinaryFormatter().Serialize(ms, serializedMailMessage);
+
+                return Convert.ToBase64String(ms.ToArray());
+            }
+        }
+
+        public static MailMessage DeserializeFromBase64(string serializedMessage)
+        {
+            byte[] bytes = Convert.FromBase64String(serializedMessage);
+
+            using (var ms = new MemoryStream(bytes))
+            {
+                var serializedMailMessage = (SerializeableMailMessage)new BinaryFormatter().Deserialize(ms);
+
+                return serializedMailMessage.GetMailMessage();
+            }
+        }
+
+        public static string ToEml(MailMessage message)
         {
             var assembly = typeof(SmtpClient).Assembly;
             var mailWriterType = assembly.GetType("System.Net.Mail.MailWriter");

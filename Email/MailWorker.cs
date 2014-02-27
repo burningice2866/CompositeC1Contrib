@@ -97,15 +97,14 @@ namespace CompositeC1Contrib.Email
                                     return;
                                 }
 
-                                var mailMessage = MailsFacade.GetMailMessage(message);
+                                var mailMessage = MailMessageFileWriter.DeserializeFromBase64(message.SerializedMessage);
 
                                 try
                                 {
-                                    smtpClient.Send(mailMessage);
-
                                     Log.LogVerbose("Mail message", "Sent mail message " + mailMessage.Subject + " from queue " + queue.Name);
 
                                     LogSentMailMessage(data, mailMessage, message.QueueId);
+                                    smtpClient.Send(mailMessage);
 
                                     data.Delete(message);
                                 }

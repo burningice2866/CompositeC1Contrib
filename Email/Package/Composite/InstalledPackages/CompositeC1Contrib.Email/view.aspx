@@ -8,28 +8,28 @@
 
     <head runat="server">
         <title>Mail view</title>
-        <link type="text/css" href="css/ui-lightness/jquery-ui-1.8.16.custom.css" rel="Stylesheet" />	
         
         <control:styleloader runat="server" />
         <control:scriptloader type="sub" runat="server" />
-
-        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
-        <script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
         
         <script type="text/javascript">
             DocumentManager.isDocumentSelectable = true;
 		</script>
         
         <style>
-            a {
-                text-decoration: underline;
-                cursor: pointer;
+            #scrollbox {
+                margin: 1em;
+                border: none;
             }
+
+             a {
+                 text-decoration: underline;
+                 cursor: pointer;
+             }
 
             a:hover {
                 text-decoration: none;
             }
-
         </style>
     </head>
 
@@ -41,6 +41,7 @@
 				        <ui:toolbargroup>
 					        <aspui:ToolbarButton AutoPostBack="true" Text="Back" ImageUrl="${icon:back}" runat="server" OnClick="OnBack" />
                             <aspui:ToolbarButton AutoPostBack="true" Text="Delete" ImageUrl="${icon:delete}" runat="server" OnClick="OnDelete" />
+                            <aspui:ToolbarButton AutoPostBack="true" Text="Download Eml" ImageUrl="${icon:download}" runat="server" OnClick="OnDownload" />
 				        </ui:toolbargroup>
 			        </ui:toolbarbody>
 		        </ui:toolbar>
@@ -52,6 +53,25 @@
                     Cc: <%= String.Join(", ", Message.CC.Select(o => o.Address)) %> <br />
                     Bcc: <%= String.Join(", ", Message.Bcc.Select(o => o.Address)) %> <br /><br />
                     <b><%= Message.Subject %></b> <br /> <br />
+
+                    <asp:Repeater ID="rptAttachments" runat="server">
+                        <HeaderTemplate>
+                            <ul>
+                        </HeaderTemplate>
+                        
+                        <ItemTemplate>
+                            <li>
+                                <a href="view.aspx?view=<%= View %>&amp;id=<%= Id %>&amp;cmd=download&amp;attachmentId=<%# ((MailAttachmentItem)Container.DataItem).Id %>" target="_blank">
+                                    <%# ((MailAttachmentItem)Container.DataItem).Name %> (<%# ((MailAttachmentItem)Container.DataItem).Size %> bytes)
+                                </a>
+                            </li>
+                        </ItemTemplate>
+
+                        <FooterTemplate>
+                            </ul>
+                        </FooterTemplate>
+                    </asp:Repeater>
+
                     <br />
                     <%= Message.Body %>
                 </ui:scrollbox>

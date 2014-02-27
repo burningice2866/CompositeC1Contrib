@@ -90,6 +90,7 @@
     <Compile Include="Web\UI\BasePage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Web\UI\MailAttachmentItem.cs" />
     <Compile Include="Web\UI\MailLogItem.cs" />
     <Compile Include="Web\UI\MailLogPage.cs">
       <SubType>ASPXCodeBehind</SubType>

@@ -8,28 +8,28 @@
 
     <head runat="server">
         <title>Mail log</title>
-        <link type="text/css" href="css/ui-lightness/jquery-ui-1.8.16.custom.css" rel="Stylesheet" />	
         
         <control:styleloader runat="server" />
         <control:scriptloader type="sub" runat="server" />
-
-        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
-        <script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
         
         <script type="text/javascript">
             DocumentManager.isDocumentSelectable = true;
 		</script>
         
         <style>
-            a {
-                text-decoration: underline;
-                cursor: pointer;
+            #scrollbox {
+                margin: 1em;
+                border: none;
             }
+
+             a {
+                 text-decoration: underline;
+                 cursor: pointer;
+             }
 
             a:hover {
                 text-decoration: none;
             }
-
         </style>
     </head>
 

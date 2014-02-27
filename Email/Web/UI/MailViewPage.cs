@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Mail;
+using System.Web.UI.WebControls;
 
 using Composite.Data;
 
@@ -10,6 +11,8 @@ namespace CompositeC1Contrib.Email.Web.UI
 {
     public class MailViewPage : BasePage
     {
+        protected Repeater rptAttachments;
+
         protected DateTime TimeStamp { get; private set; }
         protected MailMessage Message { get; private set; }
 
@@ -46,10 +49,21 @@ namespace CompositeC1Contrib.Email.Web.UI
                 }
 
                 data.Delete(instance);
-
-                UpdateParents();
-                GoBack();
             }
+
+            UpdateParents();
+            GoBack();
+        }
+
+        protected void OnDownload(object sender, EventArgs e)
+        {
+            var eml = MailMessageFileWriter.ToEml(Message);
+
+            Response.Clear();
+            Response.AddHeader("Content-Disposition", "attachment; filename=" + Id + ".eml");
+            Response.AddHeader("Content-Type", "message/rfc822");
+            Response.Write(eml);
+            Response.End();
         }
 
         protected override void OnLoad(EventArgs e)
@@ -58,6 +72,37 @@ namespace CompositeC1Contrib.Email.Web.UI
             {
                 case "queued": GetQueuedMailMessage(Id); break;
                 case "sent": GetSentMailMessage(Id); break;
+            }
+
+            if (!IsPostBack)
+            {
+                if (Request.QueryString["cmd"] == "download")
+                {
+                    var attachmentId = Request.QueryString["attachmentId"];
+                    var attachment = Message.Attachments.Single(a => a.ContentId == attachmentId);
+
+                    Response.Clear();
+                    Response.AddHeader("Content-Disposition", "attachment; filename=" + attachment.Name);
+                    Response.AddHeader("Content-Type", attachment.ContentType.MediaType);
+                    attachment.ContentStream.CopyTo(Response.OutputStream);
+                    Response.End();
+
+                }
+                else
+                {
+                    if (Message.Attachments.Any())
+                    {
+                        var list = Message.Attachments.Select(attachment => new MailAttachmentItem()
+                        {
+                            Id = attachment.ContentId,
+                            Name = attachment.Name,
+                            Size = attachment.ContentStream.Length
+                        });
+
+                        rptAttachments.DataSource = list;
+                        rptAttachments.DataBind();
+                    }
+                }
             }
 
             base.OnLoad(e);
@@ -75,7 +120,7 @@ namespace CompositeC1Contrib.Email.Web.UI
                 var instance = data.Get<IQueuedMailMessage>().Single(m => m.Id == id);
 
                 TimeStamp = instance.TimeStamp.ToLocalTime();
-                Message = MailsFacade.GetMailMessage(instance);
+                Message = MailMessageFileWriter.DeserializeFromBase64(instance.SerializedMessage);
             }
         }
 

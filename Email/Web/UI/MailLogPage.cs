@@ -71,7 +71,7 @@ namespace CompositeC1Contrib.Email.Web.UI
                             instance = data.Get<ISentMailMessage>().Single(m => m.Id == id);
                             break;
                         }
-                        
+
                         data.Delete(instance);
 
                         BindControls();
@@ -109,13 +109,15 @@ namespace CompositeC1Contrib.Email.Web.UI
         {
             var now = DateTime.Now;
 
-            return mailMessages.Where(m => m.QueueId == queue.Id).Select(m => new MailLogItem()
-            {
-                Id = m.Id,
-                Subject = m.Subject,
-                TimeStamp = m.TimeStamp.ToLocalTime(),
-                TimeStampString = FormatTimeStamp(m.TimeStamp.ToLocalTime(), now)
-            }).ToList();
+            return mailMessages.Where(m => m.QueueId == queue.Id)
+                .OrderByDescending(m => m.TimeStamp)
+                .Select(m => new MailLogItem()
+                {
+                    Id = m.Id,
+                    Subject = m.Subject,
+                    TimeStamp = m.TimeStamp.ToLocalTime(),
+                    TimeStampString = FormatTimeStamp(m.TimeStamp.ToLocalTime(), now)
+                }).ToList();
         }
 
         private static string FormatTimeStamp(DateTime dt, DateTime now)
