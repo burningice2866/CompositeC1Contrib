@@ -17,7 +17,7 @@
 		</script>
         
         <style>
-            #scrollbox {
+            #scrollbox > table {
                 margin: 1em;
                 border: none;
             }
@@ -73,7 +73,7 @@
                     </asp:Repeater>
 
                     <br />
-                    <%= Message.Body %>
+                    <%= Body %>
                 </ui:scrollbox>
             </ui:page>
         </form>

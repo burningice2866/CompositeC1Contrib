@@ -66,7 +66,7 @@
     <Compile Include="C1Console\ElementProviders\EntityTokens\MailElementProviderEntityToken.cs" />
     <Compile Include="Data\Types\IMailMessage.cs" />
     <Compile Include="Data\Types\ISentMailMessage.cs" />
-    <Compile Include="MailMessageFileWriter.cs" />
+    <Compile Include="MailMessageSerializeFacade.cs" />
     <Compile Include="MailsFacade.cs" />
     <Compile Include="MailWorker.cs" />
     <Compile Include="MailModelsFacade.cs" />

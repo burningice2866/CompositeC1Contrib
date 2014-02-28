@@ -50,15 +50,24 @@ namespace CompositeC1Contrib.Email
                 {
                     while (_running)
                     {
-                        SendPendingMessages();
+                        try
+                        {
+                            SendPendingMessages();
 
-                        Thread.Sleep(1000);
+                            Thread.Sleep(1000);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.LogWarning("Unhandled error when sending pending messages, sleep for 1 minute", ex);
+
+                            Thread.Sleep(60 * 1000);
+                        }
                     }
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                Log.LogCritical("Unhandled error in Mail Worker", exc);
+                Log.LogCritical("Unhandled error in ThreadDataManager, worker is stopping", ex);
             }
         }
 
@@ -67,7 +76,6 @@ namespace CompositeC1Contrib.Email
             using (var data = new DataConnection())
             {
                 var queues = data.Get<IMailQueue>().Where(q => !q.Paused);
-
                 foreach (var queue in queues)
                 {
                     if (!_running)
@@ -76,42 +84,43 @@ namespace CompositeC1Contrib.Email
                     }
 
                     var messages = data.Get<IQueuedMailMessage>().Where(m => m.QueueId == queue.Id);
-
-                    if (messages.Any())
+                    if (!messages.Any())
                     {
-                        var smtpClient = GetClient(queue);
-                        if (smtpClient == null)
-                        {
-                            queue.Paused = true;
-                            data.Update(queue);
+                        continue;
+                    }
 
-                            return;
-                        }
+                    var smtpClient = GetClient(queue);
+                    if (smtpClient == null)
+                    {
+                        queue.Paused = true;
+                        data.Update(queue);
 
-                        using (smtpClient)
+                        return;
+                    }
+
+                    using (smtpClient)
+                    {
+                        foreach (var message in messages)
                         {
-                            foreach (var message in messages)
+                            if (!_running)
                             {
-                                if (!_running)
-                                {
-                                    return;
-                                }
+                                return;
+                            }
 
-                                var mailMessage = MailMessageFileWriter.DeserializeFromBase64(message.SerializedMessage);
+                            try
+                            {
+                                var mailMessage = MailMessageSerializeFacade.DeserializeFromBase64(message.SerializedMessage);
+                                smtpClient.Send(mailMessage);
+                                Log.LogVerbose("Mail message", "Sent mail message " + mailMessage.Subject + " from queue " + queue.Name);
 
-                                try
-                                {
-                                    Log.LogVerbose("Mail message", "Sent mail message " + mailMessage.Subject + " from queue " + queue.Name);
+                                mailMessage = MailMessageSerializeFacade.DeserializeFromBase64(message.SerializedMessage);
+                                LogSentMailMessage(data, mailMessage, message.QueueId);
 
-                                    LogSentMailMessage(data, mailMessage, message.QueueId);
-                                    smtpClient.Send(mailMessage);
-
-                                    data.Delete(message);
-                                }
-                                catch (Exception exc)
-                                {
-                                    Log.LogCritical("Error in sending message", exc);
-                                }
+                                data.Delete(message);
+                            }
+                            catch (Exception exc)
+                            {
+                                Log.LogCritical("Error in sending message", exc);
                             }
                         }
                     }
@@ -130,7 +139,7 @@ namespace CompositeC1Contrib.Email
 
             data.Add(sentMailMessage);
 
-            MailMessageFileWriter.SaveMailMessageToDisk(sentMailMessage.Id, mailMessage);
+            MailMessageSerializeFacade.SaveMailMessageToDisk(sentMailMessage.Id, mailMessage);
         }
 
         private static SmtpClient GetClient(IMailQueue queue)
@@ -150,7 +159,13 @@ namespace CompositeC1Contrib.Email
                 {
                     Verify.StringNotIsNullOrWhiteSpace(queue.PickupDirectoryLocation);
 
-                    var pickupDirectoryLocation = HostingEnvironment.MapPath(queue.PickupDirectoryLocation);
+                    var pickupDirectoryLocation = queue.PickupDirectoryLocation;
+                    
+                    if (pickupDirectoryLocation.StartsWith("/") || pickupDirectoryLocation.StartsWith("~/"))
+                    {
+                        pickupDirectoryLocation = HostingEnvironment.MapPath(pickupDirectoryLocation);
+                    }
+
                     if (!Directory.Exists(pickupDirectoryLocation))
                     {
                         Directory.CreateDirectory(pickupDirectoryLocation);

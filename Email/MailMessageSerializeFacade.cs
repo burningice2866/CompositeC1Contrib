@@ -10,11 +10,11 @@ using CompositeC1Contrib.Email.Serialization;
 
 namespace CompositeC1Contrib.Email
 {
-    public class MailMessageFileWriter
+    public class MailMessageSerializeFacade
     {
         private static readonly string BasePath = HostingEnvironment.MapPath("~/App_Data/MailMessage/");
 
-        static MailMessageFileWriter()
+        static MailMessageSerializeFacade()
         {
             if (!Directory.Exists(BasePath))
             {
@@ -22,7 +22,7 @@ namespace CompositeC1Contrib.Email
             }
         }
 
-        public static MailMessage ReadMailMessage(Guid id)
+        public static MailMessage ReadMailMessageFromDisk(Guid id)
         {
             var path = Path.Combine(BasePath, id + ".bin");
             using (var fs = File.Open(path, FileMode.Open))

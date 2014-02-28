@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Mail;
 
+using Composite;
 using Composite.Data;
 
 using CompositeC1Contrib.Email.Data.Types;
@@ -18,6 +19,20 @@ namespace CompositeC1Contrib.Email
             }
         }
 
+        public static IQueuedMailMessage EnqueueMessage(MailMessage mailMessage)
+        {
+            using (var data = new DataConnection())
+            {
+                var queue = data.Get<IMailQueue>().FirstOrDefault();
+                if (queue == null)
+                {
+                    throw new InvalidOperationException("There are no queues configured, unable to process mails");
+                }
+
+                return EnqueueMessage(queue, mailMessage);
+            }
+        }
+
         public static IQueuedMailMessage EnqueueMessage(string queueName, MailMessage mailMessage)
         {
             using (var data = new DataConnection())
@@ -28,6 +43,17 @@ namespace CompositeC1Contrib.Email
                     throw new ArgumentException(String.Format("Unknown queue name '{0}'", queueName), "queueName");
                 }
 
+                return EnqueueMessage(queue, mailMessage);
+            }
+        }
+
+        public static IQueuedMailMessage EnqueueMessage(IMailQueue queue, MailMessage mailMessage)
+        {
+            Verify.ArgumentNotNull(queue, "queue");
+            Verify.ArgumentNotNull(mailMessage, "mailMessage");
+
+            using (var data = new DataConnection())
+            {
                 if (mailMessage.From == null)
                 {
                     mailMessage.From = new MailAddress(queue.From);
@@ -39,7 +65,7 @@ namespace CompositeC1Contrib.Email
                 message.TimeStamp = DateTime.UtcNow;
                 message.QueueId = queue.Id;
                 message.Subject = mailMessage.Subject;
-                message.SerializedMessage = MailMessageFileWriter.SerializeAsBase64(mailMessage);
+                message.SerializedMessage = MailMessageSerializeFacade.SerializeAsBase64(mailMessage);
 
                 data.Add(message);
 

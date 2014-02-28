@@ -1,8 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net.Mail;
+using System.Text;
 using System.Web.UI.WebControls;
 
+using Composite.C1Console.Events;
 using Composite.Data;
 
 using CompositeC1Contrib.Email.Data.Types;
@@ -15,6 +18,7 @@ namespace CompositeC1Contrib.Email.Web.UI
 
         protected DateTime TimeStamp { get; private set; }
         protected MailMessage Message { get; private set; }
+        protected string Body;
 
         protected Guid Id
         {
@@ -57,13 +61,10 @@ namespace CompositeC1Contrib.Email.Web.UI
 
         protected void OnDownload(object sender, EventArgs e)
         {
-            var eml = MailMessageFileWriter.ToEml(Message);
+            var url = "/Composite/InstalledPackages/CompositeC1Contrib.Email/view.aspx?view=" + View + "&id=" + Id + "&cmd=download";
+            var queueItem = new DownloadFileMessageQueueItem(url);
 
-            Response.Clear();
-            Response.AddHeader("Content-Disposition", "attachment; filename=" + Id + ".eml");
-            Response.AddHeader("Content-Type", "message/rfc822");
-            Response.Write(eml);
-            Response.End();
+            ConsoleMessageQueueFacade.Enqueue(queueItem, ConsoleId);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -74,19 +75,47 @@ namespace CompositeC1Contrib.Email.Web.UI
                 case "sent": GetSentMailMessage(Id); break;
             }
 
+            if (String.IsNullOrEmpty(Body))
+            {
+                var view = Message.AlternateViews.SingleOrDefault(v => v.ContentType.MediaType == "text/html");
+                if (view != null)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        view.ContentStream.CopyTo(ms);
+
+                        var bytes = ms.ToArray();
+
+                        Body = Encoding.UTF8.GetString(bytes);
+                    }
+                }
+            }
+
             if (!IsPostBack)
             {
                 if (Request.QueryString["cmd"] == "download")
                 {
-                    var attachmentId = Request.QueryString["attachmentId"];
-                    var attachment = Message.Attachments.Single(a => a.ContentId == attachmentId);
-
                     Response.Clear();
-                    Response.AddHeader("Content-Disposition", "attachment; filename=" + attachment.Name);
-                    Response.AddHeader("Content-Type", attachment.ContentType.MediaType);
-                    attachment.ContentStream.CopyTo(Response.OutputStream);
-                    Response.End();
 
+                    var attachmentId = Request.QueryString["attachmentId"];
+                    if (attachmentId != null)
+                    {
+                        var attachment = Message.Attachments.Single(a => a.ContentId == attachmentId);
+
+                        Response.AddHeader("Content-Disposition", "attachment; filename=" + attachment.Name);
+                        Response.AddHeader("Content-Type", attachment.ContentType.MediaType);
+                        attachment.ContentStream.CopyTo(Response.OutputStream);
+                    }
+                    else
+                    {
+                        var eml = MailMessageSerializeFacade.ToEml(Message);
+
+                        Response.AddHeader("Content-Disposition", "attachment; filename=" + Id + ".eml");
+                        Response.AddHeader("Content-Type", "message/rfc822");
+                        Response.Write(eml);
+                    }
+
+                    Response.End();
                 }
                 else
                 {
@@ -120,7 +149,8 @@ namespace CompositeC1Contrib.Email.Web.UI
                 var instance = data.Get<IQueuedMailMessage>().Single(m => m.Id == id);
 
                 TimeStamp = instance.TimeStamp.ToLocalTime();
-                Message = MailMessageFileWriter.DeserializeFromBase64(instance.SerializedMessage);
+                Message = MailMessageSerializeFacade.DeserializeFromBase64(instance.SerializedMessage);
+                Body = Message.Body;
             }
         }
 
@@ -131,7 +161,8 @@ namespace CompositeC1Contrib.Email.Web.UI
                 var instance = data.Get<ISentMailMessage>().Single(m => m.Id == id);
 
                 TimeStamp = instance.TimeStamp.ToLocalTime();
-                Message = MailMessageFileWriter.ReadMailMessage(id);
+                Message = MailMessageSerializeFacade.ReadMailMessageFromDisk(id);
+                Body = Message.Body;
             }
         }
     }

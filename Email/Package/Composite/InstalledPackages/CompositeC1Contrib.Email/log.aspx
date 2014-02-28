@@ -17,7 +17,7 @@
 		</script>
         
         <style>
-            #scrollbox {
+            #scrollbox > table {
                 margin: 1em;
                 border: none;
             }
