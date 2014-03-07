@@ -19,7 +19,7 @@ namespace CompositeC1Contrib.Email
             }
         }
 
-        public static IQueuedMailMessage EnqueueMessage(MailMessage mailMessage)
+        public static IMailQueue GetDefaultMailQueue()
         {
             using (var data = new DataConnection())
             {
@@ -29,8 +29,22 @@ namespace CompositeC1Contrib.Email
                     throw new InvalidOperationException("There are no queues configured, unable to process mails");
                 }
 
-                return EnqueueMessage(queue, mailMessage);
+                return queue;
             }
+        }
+
+        public static IQueuedMailMessage BuildMessageAndEnqueue(object mailModel)
+        {
+            var message = MailModelsFacade.BuildEmailMessage(mailModel);
+
+            return EnqueueMessage(message);
+        }
+
+        public static IQueuedMailMessage EnqueueMessage(MailMessage mailMessage)
+        {
+            var defaultQuueue = GetDefaultMailQueue();
+
+            return EnqueueMessage(defaultQuueue, mailMessage);
         }
 
         public static IQueuedMailMessage EnqueueMessage(string queueName, MailMessage mailMessage)

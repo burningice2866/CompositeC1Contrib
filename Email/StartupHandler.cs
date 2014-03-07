@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 using Composite.Core.Application;
 using Composite.Data;
@@ -27,13 +26,19 @@ namespace CompositeC1Contrib.Email
             {
                 var mailTemplates = data.Get<IMailTemplate>().ToDictionary(t => t.Key);
 
-                var asms = AppDomain.CurrentDomain.GetAssemblies();
-                foreach (var asm in asms)
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                foreach (var assembly in assemblies)
                 {
                     try
                     {
-                        AddTemplatesFromProviders(data, mailTemplates, asm);
-                        AddTemplatesFromModels(data, mailTemplates, asm);
+                        try
+                        {
+                            var types = assembly.GetTypes();
+
+                            AddTemplatesFromProviders(data, mailTemplates, types);
+                            AddTemplatesFromModels(data, mailTemplates, types);
+                        }
+                        catch { }
                     }
                     catch { }
                 }
@@ -42,31 +47,31 @@ namespace CompositeC1Contrib.Email
             MailWorker.Initialize();
         }
 
-        private static void AddTemplatesFromProviders(DataConnection data, IDictionary<string, IMailTemplate> mailTemplates, Assembly asm)
+        private static void AddTemplatesFromProviders(DataConnection data, IDictionary<string, IMailTemplate> mailTemplates, IEnumerable<Type> types)
         {
-            foreach (var type in asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract && typeof(IMailTemplatesProvider).IsAssignableFrom(t)))
+            foreach (var type in types.Where(t => t.IsClass && !t.IsAbstract && typeof(IMailTemplatesProvider).IsAssignableFrom(t)))
             {
                 var provicer = (IMailTemplatesProvider)Activator.CreateInstance(type);
                 var templates = provicer.GetTemplates();
 
                 foreach (var template in templates)
                 {
-                    EnsureUniqueTemplateKey(mailTemplates, template.Item1);
+                    EnsureUniqueTemplateKey(mailTemplates, template.Key);
 
                     var instance = data.CreateNew<IMailTemplate>();
 
                     instance.Id = Guid.NewGuid();
-                    instance.Key = template.Item1;
-                    instance.ModelType = template.Item2.AssemblyQualifiedName;
+                    instance.Key = template.Key;
+                    instance.ModelType = template.ModelType.AssemblyQualifiedName;
 
                     data.Add(instance);
                 }
             }
         }
 
-        private static void AddTemplatesFromModels(DataConnection data, IDictionary<string, IMailTemplate> mailTemplates, Assembly asm)
+        private static void AddTemplatesFromModels(DataConnection data, IDictionary<string, IMailTemplate> mailTemplates, IEnumerable<Type> types)
         {
-            foreach (var type in asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract))
+            foreach (var type in types.Where(t => t.IsClass && !t.IsAbstract))
             {
                 var attribute = type.GetCustomAttributes(typeof(MailModelAttribute), false).Cast<MailModelAttribute>().FirstOrDefault();
                 if (attribute == null)

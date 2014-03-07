@@ -31,7 +31,7 @@ namespace CompositeC1Contrib.Email.Serialization
         {
             foreach (string key in _collection.Keys)
             {
-                scol.Add(key, this._collection[key]);
+                scol.Add(key, _collection[key]);
             }
         }
 

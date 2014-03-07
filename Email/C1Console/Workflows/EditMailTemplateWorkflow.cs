@@ -11,24 +11,24 @@ using CompositeC1Contrib.Workflows;
 namespace CompositeC1Contrib.Email.C1Console.Workflows
 {
     [AllowPersistingWorkflow(WorkflowPersistingType.Idle)]
-    public sealed class EditMailQueueWorkflow : Basic1StepDocumentWorkflow
+    public sealed class EditMailTemplateWorkflow : Basic1StepDocumentWorkflow
     {
-        public EditMailQueueWorkflow() : base("\\InstalledPackages\\CompositeC1Contrib.Email\\EditMailQueue.xml") { }
+        public EditMailTemplateWorkflow() : base("\\InstalledPackages\\CompositeC1Contrib.Email\\EditMailTemplate.xml") { }
         
         public override bool Validate()
         {
-            var mailQueue = GetBinding<IMailQueue>("MailQueue");
+            var mailTemplate = GetBinding<IMailTemplate>("MailTemplate");
 
             using (var data = new DataConnection())
             {
-                var savedQueue = data.Get<IMailQueue>().Single(q => q.Id == mailQueue.Id);
+                var savedTemplate = data.Get<IMailTemplate>().Single(q => q.Id == mailTemplate.Id);
 
-                if (savedQueue.Name != mailQueue.Name)
+                if (savedTemplate.Key != mailTemplate.Key)
                 {
-                    var nameExists = data.Get<IMailQueue>().Any(q => q.Name == mailQueue.Name);
+                    var nameExists = data.Get<IMailTemplate>().Any(q => q.Key == mailTemplate.Key);
                     if (nameExists)
                     {
-                        ShowFieldMessage("MailQueue.Name", "Mail queue with this name already exists");
+                        ShowFieldMessage("MailTemplate.Name", "Template with this key already exists");
 
                         return false;
                     }
@@ -40,28 +40,28 @@ namespace CompositeC1Contrib.Email.C1Console.Workflows
         
         public override void OnInitialize(object sender, EventArgs e)
         {
-            if (BindingExist("MailQueue"))
+            if (BindingExist("MailTemplate"))
             {
                 return;
             }
 
             var dataToken = (DataEntityToken)EntityToken;
-            var queue = (IMailQueue)dataToken.Data;
+            var template = (IMailTemplate)dataToken.Data;
 
-            Bindings.Add("MailQueue", queue);
+            Bindings.Add("MailTemplate", template);
         }
 
         public override void OnFinish(object sender, EventArgs e)
         {
-            var mailQueue = GetBinding<IMailQueue>("MailQueue");
+            var mailTemplate = GetBinding<IMailTemplate>("MailTemplate");
 
             using (var data = new DataConnection())
             {
-                data.Update(mailQueue);
+                data.Update(mailTemplate);
             }
 
             var treeRefresher = CreateSpecificTreeRefresher();
-            treeRefresher.PostRefreshMesseges(new MailQueuesEntityToken());
+            treeRefresher.PostRefreshMesseges(new MailTemplatesEntityToken());
 
             SetSaveStatus(true);
         }

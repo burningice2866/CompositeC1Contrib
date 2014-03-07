@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 using Composite.C1Console.Actions;
 using Composite.C1Console.Security;
@@ -10,8 +9,8 @@ using CompositeC1Contrib.Email.Data.Types;
 
 namespace CompositeC1Contrib.Email.C1Console.ElementProviders.Actions
 {
-    [ActionExecutor(typeof(DeleteMailQueueActionExecutor))]
-    public class DeleteMailQueueActionToken : ActionToken
+    [ActionExecutor(typeof(DeleteMailTemplateActionExecutor))]
+    public class DeleteMailTemplateActionToken : ActionToken
     {
         static private readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Administrate };
 
@@ -22,7 +21,7 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders.Actions
 
         public override string Serialize()
         {
-            return "DeleteMailQueueActionToken";
+            return "DeleteMailTemplateActionToken";
         }
 
         public static ActionToken Deserialize(string serializedData)
@@ -31,23 +30,20 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders.Actions
         }
     }
 
-    public class DeleteMailQueueActionExecutor : IActionExecutor
+    public class DeleteMailTemplateActionExecutor : IActionExecutor
     {
         public FlowToken Execute(EntityToken entityToken, ActionToken actionToken, FlowControllerServicesContainer flowControllerServicesContainer)
         {
             var dataToken = (DataEntityToken)entityToken;
-            var queue = (IMailQueue)dataToken.Data;
+            var template = (IMailTemplate)dataToken.Data;
 
             using (var data = new DataConnection())
             {
-                var messages = data.Get<IQueuedMailMessage>().Where(m => m.QueueId == queue.Id).AsEnumerable();
-                data.Delete(messages);
-
-                data.Delete(queue);
+                data.Delete(template);
             }
 
             var treeRefresher = new SpecificTreeRefresher(flowControllerServicesContainer);
-            treeRefresher.PostRefreshMesseges(new MailQueuesEntityToken());
+            treeRefresher.PostRefreshMesseges(new MailTemplatesEntityToken());
 
             return null;
         }

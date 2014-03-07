@@ -26,6 +26,7 @@ namespace CompositeC1Contrib.Email.Serialization
             if (alternativeView.ContentStream != null)
             {
                 byte[] bytes = new byte[alternativeView.ContentStream.Length];
+
                 alternativeView.ContentStream.Read(bytes, 0, bytes.Length);
                 _contentStream = new MemoryStream(bytes);
             }

@@ -21,12 +21,14 @@ namespace CompositeC1Contrib.Email.Serialization
             _contentType = new SerializeableContentType(linkedResource.ContentType);
             _transferEncoding = linkedResource.TransferEncoding;
 
-            if (linkedResource.ContentStream != null)
+            if (linkedResource.ContentStream == null)
             {
-                var bytes = new byte[linkedResource.ContentStream.Length];
-                linkedResource.ContentStream.Read(bytes, 0, bytes.Length);
-                _contentStream = new MemoryStream(bytes);
+                return;
             }
+
+            var bytes = new byte[linkedResource.ContentStream.Length];
+            linkedResource.ContentStream.Read(bytes, 0, bytes.Length);
+            _contentStream = new MemoryStream(bytes);
         }
 
         public LinkedResource GetLinkedResource()

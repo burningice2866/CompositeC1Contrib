@@ -6,12 +6,10 @@ namespace CompositeC1Contrib.Email.Data
     public class MailModelAttribute : Attribute
     {
         public string Key { get; set; }
-        public string TemplateName { get; set; }
 
-        public MailModelAttribute(string key, string templateName)
+        public MailModelAttribute(string key)
         {
             Key = key;
-            TemplateName = templateName;
         }
     }
 }

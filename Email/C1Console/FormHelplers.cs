@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Composite.Data;
-
 using CompositeC1Contrib.Email.Data.Types;
 
 namespace CompositeC1Contrib.Email.C1Console
@@ -17,7 +16,7 @@ namespace CompositeC1Contrib.Email.C1Console
                 return
                     data.Get<IMailTemplate>()
                         .Where(t => t.Key == key && !String.IsNullOrEmpty(t.ModelType))
-                        .Select(t => Type.GetType(t.ModelType));
+                        .Select(t => Type.GetType(t.ModelType)).ToArray();
             }
         }
     }

@@ -25,13 +25,15 @@ namespace CompositeC1Contrib.Email.Serialization
             _transferEncoding = attachment.TransferEncoding;
             _nameEncoding = attachment.NameEncoding;
 
-            if (attachment.ContentStream != null)
+            if (attachment.ContentStream == null)
             {
-                byte[] bytes = new byte[attachment.ContentStream.Length];
-                attachment.ContentStream.Read(bytes, 0, bytes.Length);
-
-                _contentStream = new MemoryStream(bytes);
+                return;
             }
+
+            byte[] bytes = new byte[attachment.ContentStream.Length];
+            attachment.ContentStream.Read(bytes, 0, bytes.Length);
+
+            _contentStream = new MemoryStream(bytes);
         }
 
         public Attachment GetAttachment()

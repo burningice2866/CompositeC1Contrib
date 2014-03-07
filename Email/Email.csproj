@@ -51,12 +51,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="C1Console\ElementProviders\Actions\DeleteMailTemplateActionToken.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\MailTemplatesEntityToken.cs" />
     <Compile Include="C1Console\ElementProviders\EntityTokens\QueuedMailsEntityToken.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\MailQueuesEntityToken.cs" />
     <Compile Include="C1Console\ElementProviders\EntityTokens\SentMailsEntityToken.cs" />
     <Compile Include="C1Console\FormHelplers.cs" />
+    <Compile Include="C1Console\Workflows\EditMailTemplateWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Data\IMailTemplatesProvider.cs" />
     <Compile Include="Data\MailMessageDataAncestorProvider.cs" />
     <Compile Include="Data\MailModelAttribute.cs" />
+    <Compile Include="Data\TemplateModelRelation.cs" />
     <Compile Include="Data\Types\IQueuedMailMessage.cs" />
     <Compile Include="Data\Types\IMailQueue.cs" />
     <Compile Include="Data\Types\IMailTemplate.cs" />

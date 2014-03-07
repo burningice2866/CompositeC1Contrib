@@ -91,7 +91,8 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                     yield return sentMailsElement;
                 }
             }
-            else
+
+            if (entityToken is MailQueuesEntityToken)
             {
                 var queues = GetQueues();
 
@@ -105,7 +106,7 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                     }
 
                     var elementHandle = _context.CreateElementHandle(queue.GetDataEntityToken());
-                    var queueElement = new Element(elementHandle)
+                    var element = new Element(elementHandle)
                     {
                         VisualData = new ElementVisualizedData
                         {
@@ -118,7 +119,7 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                     };
 
                     var editActionToken = new WorkflowActionToken(typeof(EditMailQueueWorkflow), new[] { PermissionType.Administrate });
-                    queueElement.AddAction(new ElementAction(new ActionHandle(editActionToken))
+                    element.AddAction(new ElementAction(new ActionHandle(editActionToken))
                     {
                         VisualData = new ActionVisualizedData
                         {
@@ -130,7 +131,7 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                     });
 
                     var deleteActionToken = new ConfirmWorkflowActionToken("Are you sure?", typeof(DeleteMailQueueActionToken));
-                    queueElement.AddAction(new ElementAction(new ActionHandle(deleteActionToken))
+                    element.AddAction(new ElementAction(new ActionHandle(deleteActionToken))
                     {
                         VisualData = new ActionVisualizedData
                         {
@@ -145,7 +146,7 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                     var toggleLabel = queue.Paused ? "Resume" : "Pause";
                     var toggleIcon = queue.Paused ? "accept" : "generated-type-data-delete";
 
-                    queueElement.AddAction(new ElementAction(new ActionHandle(toggleStateActionToken))
+                    element.AddAction(new ElementAction(new ActionHandle(toggleStateActionToken))
                     {
                         VisualData = new ActionVisualizedData
                         {
@@ -156,8 +157,102 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                         }
                     });
 
-                    yield return queueElement;
+                    yield return element;
                 }
+            }
+
+            if (entityToken is MailTemplatesEntityToken)
+            {
+                var templates = GetTemplates();
+
+                foreach (var template in templates)
+                {
+                    var label = template.Key;
+
+                    var elementHandle = _context.CreateElementHandle(template.GetDataEntityToken());
+                    var element = new Element(elementHandle)
+                    {
+                        VisualData = new ElementVisualizedData
+                        {
+                            Label = label,
+                            ToolTip = label,
+                            HasChildren = false,
+                            Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
+                            OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
+                        }
+                    };
+
+                    var editActionToken = new WorkflowActionToken(typeof(EditMailTemplateWorkflow), new[] { PermissionType.Administrate });
+                    element.AddAction(new ElementAction(new ActionHandle(editActionToken))
+                    {
+                        VisualData = new ActionVisualizedData
+                        {
+                            Label = "Edit template",
+                            ToolTip = "Edit template",
+                            Icon = new ResourceHandle("Composite.Icons", "generated-type-data-edit"),
+                            ActionLocation = ActionLocation
+                        }
+                    });
+
+                    var deleteActionToken = new ConfirmWorkflowActionToken("Are you sure?", typeof(DeleteMailTemplateActionToken));
+                    element.AddAction(new ElementAction(new ActionHandle(deleteActionToken))
+                    {
+                        VisualData = new ActionVisualizedData
+                        {
+                            Label = "Delete template",
+                            ToolTip = "Delete template",
+                            Icon = new ResourceHandle("Composite.Icons", "generated-type-data-delete"),
+                            ActionLocation = ActionLocation
+                        }
+                    });
+
+                    yield return element;
+                }
+            }
+
+            if (entityToken is MailElementProviderEntityToken)
+            {
+                var queuesElementHandle = _context.CreateElementHandle(new MailQueuesEntityToken());
+                var queuesElement = new Element(queuesElementHandle)
+                {
+                    VisualData = new ElementVisualizedData
+                    {
+                        Label = "Queues",
+                        ToolTip = "Queues",
+                        HasChildren = GetQueues().Any(),
+                        Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
+                        OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
+                    }
+                };
+
+                var createQueueActionToken = new WorkflowActionToken(typeof(CreateMailQueueWorkflow));
+                queuesElement.AddAction(new ElementAction(new ActionHandle(createQueueActionToken))
+                {
+                    VisualData = new ActionVisualizedData
+                    {
+                        Label = "Add queue",
+                        ToolTip = "Add queue",
+                        Icon = new ResourceHandle("Composite.Icons", "generated-type-data-add"),
+                        ActionLocation = ActionLocation
+                    }
+                });
+
+                yield return queuesElement;
+
+                var templatesElementHandle = _context.CreateElementHandle(new MailTemplatesEntityToken());
+                var templatesElement = new Element(templatesElementHandle)
+                {
+                    VisualData = new ElementVisualizedData
+                    {
+                        Label = "Templates",
+                        ToolTip = "Templates",
+                        HasChildren = GetQueues().Any(),
+                        Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
+                        OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
+                    }
+                };
+
+                yield return templatesElement;
             }
         }
 
@@ -185,23 +280,11 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                 {
                     Label = "Email",
                     ToolTip = "Email",
-                    HasChildren = GetQueues().Any(),
+                    HasChildren = GetTemplates().Any(),
                     Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
                     OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
                 }
             };
-
-            var actionToken = new WorkflowActionToken(typeof(CreateMailQueueWorkflow));
-            rootElement.AddAction(new ElementAction(new ActionHandle(actionToken))
-            {
-                VisualData = new ActionVisualizedData
-                {
-                    Label = "Add queue",
-                    ToolTip = "Add queue",
-                    Icon = new ResourceHandle("Composite.Icons", "generated-type-data-add"),
-                    ActionLocation = ActionLocation
-                }
-            });
 
             return new[] { rootElement };
         }
@@ -212,13 +295,31 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
             foreach (var token in entityTokens)
             {
                 var dataToken = token as DataEntityToken;
-                if (dataToken != null && dataToken.InterfaceType == typeof(IMailQueue))
+                if (dataToken == null)
                 {
-                    dictionary.Add(token, new[] { new MailElementProviderEntityToken() });
+                    continue;
+                }
+
+                if (dataToken.InterfaceType == typeof(IMailQueue))
+                {
+                    dictionary.Add(token, new[] { new MailQueuesEntityToken(),  });
+                }
+
+                if (dataToken.InterfaceType == typeof(IMailTemplate))
+                {
+                    dictionary.Add(token, new[] { new MailTemplatesEntityToken(),  });
                 }
             }
 
             return dictionary;
+        }
+
+        private static IEnumerable<IMailTemplate> GetTemplates()
+        {
+            using (var data = new DataConnection())
+            {
+                return data.Get<IMailTemplate>();
+            }
         }
 
         private static IEnumerable<IMailQueue> GetQueues()
