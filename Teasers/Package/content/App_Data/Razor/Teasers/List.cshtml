@@ -1,0 +1,35 @@
+﻿@using System
+@using System.Linq
+@using Composite.Functions
+@using Data
+@using Web.UI
+
+@inherits Composite.AspNet.Razor.RazorFunction
+
+@functions
+{
+    [FunctionParameter(Label = "Position")]
+    public string Position { get; set; }
+}
+
+@{
+    var pageTeaserHolders = TeaserFacade.PageTeasersForRequest.Where(t => t.Position == Position).ToList();
+}
+
+@if (pageTeaserHolders.Any())
+{
+    <div class="teasers">
+        @foreach (var pageTeaserHolder in pageTeaserHolders.OrderByDescending(o => o.AdditionalInfo.ReverseDepth).ThenBy(o => o.AdditionalInfo.Teaser.LocalOrdering))
+        {
+            var teaser = pageTeaserHolder.AdditionalInfo.Teaser;
+            var typeName = teaser.DataSourceId.InterfaceType.Name;
+            
+            @Html.RenderFocusLink(teaser, "Focus")
+            @Html.RenderEditLink(teaser, "Edit")
+
+            <div class="teaser teaser-@pageTeaserHolder.SharedTeaserGuid.ToString().Substring(0,8) type-@pageTeaserHolder.AdditionalInfo.InterfaceType.Name.Replace("IPageTeaser", String.Empty).ToLower() reverse-depth-@pageTeaserHolder.AdditionalInfo.ReverseDepth">
+                @Function("Teaser.Types." + typeName, new { Teaser = teaser })
+            </div>
+        }
+    </div>
+}

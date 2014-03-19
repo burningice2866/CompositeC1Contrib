@@ -1,0 +1,16 @@
+﻿@using System
+@using System.Linq
+@using Composite.Data
+@using Data.Types
+
+@inherits Web.UI.BaseTeaserFunction<IPageTeaserShared>
+
+@{
+    var type = Type.GetType(Teaser.SharedTeaserType);
+    var instance = DataFacade.GetData(type).Cast<ISharedTeaser>().SingleOrDefault(t => t.Id == Teaser.SharedTeaserId);
+}
+
+@if (instance != null)
+{
+    @Function("Teasers.Types." + instance.DataSourceId.InterfaceType.Name, new {Teaser = instance})
+}

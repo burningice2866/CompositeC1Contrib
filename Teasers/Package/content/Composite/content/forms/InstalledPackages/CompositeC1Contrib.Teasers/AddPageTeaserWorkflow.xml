@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cms:formdefinition xmlns="http://www.composite.net/ns/management/bindingforms/std.ui.controls.lib/1.0" xmlns:f="http://www.composite.net/ns/management/bindingforms/std.function.lib/1.0" xmlns:cms="http://www.composite.net/ns/management/bindingforms/1.0">
+  <cms:bindings>
+    <cms:binding name="PageTeaserType" type="System.String" />
+    <cms:binding name="Name" type="System.String" />
+  </cms:bindings>
+
+  <cms:layout label="Add a new page teaser">
+    <FieldGroup>
+      <KeySelector Label="Select type" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
+        <KeySelector.Options>
+          <f:StaticMethodCall Type="CompositeC1Contrib.Teasers.C1Console.WorkFlows.AddPageTeaserWorkFlow, CompositeC1Contrib.Teasers" Method="GetPageTeaserTypes" />
+        </KeySelector.Options>
+
+        <KeySelector.Selected>
+          <cms:bind source="PageTeaserType" />
+        </KeySelector.Selected>
+      </KeySelector>
+
+      <TextBox Label="Navn" Help="Navn på teaser, bruges i træet" SpellCheck="true">
+        <TextBox.Text>
+          <cms:bind source="Name" />
+        </TextBox.Text>
+      </TextBox>
+    </FieldGroup>
+  </cms:layout>
+</cms:formdefinition>

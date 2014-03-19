@@ -1,0 +1,15 @@
+﻿<cms:formdefinition xmlns:cms="http://www.composite.net/ns/management/bindingforms/1.0" xmlns="http://www.composite.net/ns/management/bindingforms/std.ui.controls.lib/1.0" xmlns:ff="http://www.composite.net/ns/management/bindingforms/std.function.lib/1.0" xmlns:f="http://www.composite.net/ns/function/1.0">
+	<cms:bindings>
+		<cms:binding name="HideAncestorTeasers" type="System.Boolean" optional="true" />
+	</cms:bindings>
+	
+	<cms:layout>
+		<FieldGroup>
+			<CheckBox Label="Skjul nedarvede teasere" Help="Hvis der på denne sides forfædre er tilføjet teasere, der er markeret med &quot;Vis på undersider&quot;, kan du forhindre disse teasere i at blive vist ved at afkrydse dette felt.">
+				<CheckBox.Checked>
+					<cms:bind source="HideAncestorTeasers" />
+				</CheckBox.Checked>
+			</CheckBox>
+		</FieldGroup>
+	</cms:layout>
+</cms:formdefinition>

@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ElementStructure xmlns="http://www.composite.net/ns/management/trees/treemarkup/1.0" xmlns:f="http://www.composite.net/ns/function/1.0">
+	<ElementStructure.AutoAttachments>
+		<NamedParent Name="Content.WebsiteItems" Position="Bottom" />
+	</ElementStructure.AutoAttachments>
+
+	<ElementRoot>
+		<Children>
+			<Element Label="Teasere" Id="Teasers" Icon="data">
+				<Actions>
+					<AddDataAction Type="CompositeC1Contrib.Teasers.Data.Types.ISharedTeaserGroup, CompositeC1Contrib.Teasers" Label="Tilføj teasergruppe" />
+				</Actions>
+
+				<Children>
+					<DataElements Type="CompositeC1Contrib.Teasers.Data.Types.ISharedTeaserGroup, CompositeC1Contrib.Teasers">
+						<Actions>
+							<AddDataAction Type="CompositeC1Contrib.Teasers.Data.Types.ISharedTeaserFreeFormat, CompositeC1Contrib.Teasers" Label="Tilføj free format teaser" />
+							<EditDataAction Label="Rediger teasergruppe" />
+							<DeleteDataAction Label="Slet teasergruppe" />
+						</Actions>
+
+						<Children>
+							<DataElements Type="CompositeC1Contrib.Teasers.Data.Types.ISharedTeaserFreeFormat, CompositeC1Contrib.Teasers" Icon="data">
+								<Actions>
+									<EditDataAction Label="Rediger teaser" />
+									<DeleteDataAction Label="Slet teaser" />
+								</Actions>
+
+								<Filters>
+									<ParentIdFilter ParentType="CompositeC1Contrib.Teasers.Data.Types.ISharedTeaserGroup" ReferenceFieldName="TeaserGroup" />
+								</Filters>
+
+								<OrderBy>
+									<Field FieldName="Name" />
+								</OrderBy>
+							</DataElements>
+						</Children>
+					</DataElements>
+				</Children>
+			</Element>
+		</Children>
+	</ElementRoot>
+</ElementStructure>

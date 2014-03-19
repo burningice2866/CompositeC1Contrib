@@ -1,0 +1,78 @@
+﻿<cms:formdefinition xmlns:cms="http://www.composite.net/ns/management/bindingforms/1.0" xmlns="http://www.composite.net/ns/management/bindingforms/std.ui.controls.lib/1.0" xmlns:ff="http://www.composite.net/ns/management/bindingforms/std.function.lib/1.0" xmlns:f="http://www.composite.net/ns/function/1.0">
+  <cms:bindings>
+    <cms:binding name="Label" type="System.String" optional="true" />
+    <cms:binding name="Positions" type="System.Object" optional="true" />
+
+    <cms:binding name="Name" type="System.String" optional="true" />
+    <cms:binding name="Position" type="System.String" optional="true" />
+    <cms:binding name="AdditionalHeader" type="System.String" optional="true" />
+    <cms:binding name="ShowOnDescendants" type="System.Boolean" optional="true" />
+    <cms:binding name="PublishDate" type="System.DateTime" optional="true" />
+    <cms:binding name="UnpublishDate" type="System.DateTime" optional="true" />
+
+    <cms:binding name="PageId" type="System.Guid" optional="true" />
+    <cms:binding name="Content" type="System.String" optional="true" />
+  </cms:bindings>
+
+  <cms:layout>
+    <cms:layout.label>
+      <cms:read source="Label" />
+    </cms:layout.label>
+    
+    <TabPanels>
+      <PlaceHolder Label="Opsætning">
+        <FieldGroup Label="Fritekstteaser">
+          <Text>Note: Skriv teaserens indhold på næste faneblad</Text>
+        </FieldGroup>
+
+        <FieldGroup Label="Basisopsætning">
+          <TextBox Label="Navn" Help="Navn på teaser, bruges i træet" SpellCheck="true">
+            <TextBox.Text>
+              <cms:bind source="Name" />
+            </TextBox.Text>
+          </TextBox>
+          
+          <KeySelector Label="Placering" Help="" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
+            <KeySelector.Selected>
+              <cms:bind source="Position"/>
+            </KeySelector.Selected>
+            
+            <KeySelector.Options>
+              <cms:read source="Positions" />
+            </KeySelector.Options>
+          </KeySelector>
+
+          <TextBox Label="Ekstra overskrift" Help="Bruges eksemplevis hvis der er behov for at kategorisere teaserne" SpellCheck="true">
+            <TextBox.Text>
+              <cms:bind source="AdditionalHeader" />
+            </TextBox.Text>
+          </TextBox>
+
+          <CheckBox Label="Vis på undersider" Help="">
+            <CheckBox.Checked>
+              <cms:bind source="ShowOnDescendants" />
+            </CheckBox.Checked>
+          </CheckBox>
+
+          <DateSelector Label="Publiceringsdato" Help="">
+            <DateSelector.Date>
+              <cms:bind source="PublishDate" />
+            </DateSelector.Date>
+          </DateSelector>
+
+          <DateSelector Label="Afpubliceringsdato" Help="">
+            <DateSelector.Date>
+              <cms:bind source="UnpublishDate" />
+            </DateSelector.Date>
+          </DateSelector>
+        </FieldGroup>
+      </PlaceHolder>
+
+      <XhtmlEditor Label="Indhold" ClassConfigurationName="common">
+        <XhtmlEditor.Xhtml>
+          <cms:bind source="Content" />
+        </XhtmlEditor.Xhtml>
+      </XhtmlEditor>
+    </TabPanels>
+  </cms:layout>
+</cms:formdefinition>
