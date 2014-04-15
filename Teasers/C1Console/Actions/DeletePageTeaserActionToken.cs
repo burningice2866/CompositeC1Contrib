@@ -35,7 +35,7 @@ namespace CompositeC1Contrib.Teasers.C1Console.Actions
         public FlowToken Execute(EntityToken entityToken, ActionToken actionToken, FlowControllerServicesContainer flowControllerServicesContainer)
         {
             var teaserInstance = (PageTeaserInstanceEntityToken)entityToken;
-            var data = EntityTokenSerializer.Deserialize<DataEntityToken>(teaserInstance.Id).Data;
+            var data = teaserInstance.Teaser;
 
             DataFacade.Delete(data);
 

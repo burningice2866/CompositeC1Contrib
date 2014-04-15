@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{1E76E3BE-F575-4E2D-A791-8A0EDA53C1B2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rendering.Mvc", "Rendering.Mvc\Rendering.Mvc.csproj", "{87226084-B9C0-4BAD-951F-2EEA9302C36F}"
@@ -24,6 +26,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadFoldersAsZip", "DownloadFoldersAsZip\DownloadFoldersAsZip.csproj", "{4BA9FA0F-4E1A-43D9-A383-CB54FF035A55}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProviders.FacebookMediaProvider", "DataProviders.FacebookMediaProvider\DataProviders.FacebookMediaProvider.csproj", "{AE52B2E9-C7F1-4BB0-A0E3-D6B3D02E004A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Teasers", "Teasers\Teasers.csproj", "{CF410AB8-8ED7-4AE5-B6F9-C51B42089855}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,6 +83,10 @@ Global
 		{AE52B2E9-C7F1-4BB0-A0E3-D6B3D02E004A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE52B2E9-C7F1-4BB0-A0E3-D6B3D02E004A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE52B2E9-C7F1-4BB0-A0E3-D6B3D02E004A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF410AB8-8ED7-4AE5-B6F9-C51B42089855}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF410AB8-8ED7-4AE5-B6F9-C51B42089855}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF410AB8-8ED7-4AE5-B6F9-C51B42089855}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF410AB8-8ED7-4AE5-B6F9-C51B42089855}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

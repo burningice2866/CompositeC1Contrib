@@ -1,9 +1,9 @@
-﻿@using System
-@using System.Linq
-@using Composite.Data
-@using Data.Types
+﻿@using System.Linq
 
-@inherits Web.UI.BaseTeaserFunction<IPageTeaserShared>
+@using CompositeC1Contrib.Teasers.Data
+@using CompositeC1Contrib.Teasers.Web.UI
+
+@inherits BaseTeaserFunction<IPageTeaserShared>
 
 @{
     var type = Type.GetType(Teaser.SharedTeaserType);

@@ -65,12 +65,14 @@ namespace CompositeC1Contrib.Teasers.Web.UI
                     {
                         string number = hashId(instance);
 
-                        if (newOrder.ContainsKey(number) && newOrder[number] != instance.LocalOrdering)
+                        if (!newOrder.ContainsKey(number) || newOrder[number] == instance.LocalOrdering)
                         {
-                            instance.LocalOrdering = newOrder[number];
-
-                            DataFacade.Update(instance);
+                            continue;
                         }
+
+                        instance.LocalOrdering = newOrder[number];
+
+                        DataFacade.Update(instance);
                     }
                 }
             }

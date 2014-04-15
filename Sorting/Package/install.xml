@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" standalone="yes"?>
 <mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
-  <mi:PackageRequirements minimumCompositeVersion="4.0.4906.36306" 
+  <mi:PackageRequirements minimumCompositeVersion="4.0.4897.31550" 
                           maximumCompositeVersion="9.9999.9999.9999" />
   
   <mi:PackageInformation name="CompositeC1Contrib.Sorting" 

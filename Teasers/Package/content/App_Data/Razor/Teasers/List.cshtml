@@ -1,10 +1,7 @@
-﻿@using System
-@using System.Linq
-@using Composite.Functions
-@using Data
-@using Web.UI
+﻿@using System.Linq
 
-@inherits Composite.AspNet.Razor.RazorFunction
+@using CompositeC1Contrib.Teasers.Data
+@using CompositeC1Contrib.Teasers.Web.UI
 
 @functions
 {
@@ -14,22 +11,25 @@
 
 @{
     var pageTeaserHolders = TeaserFacade.PageTeasersForRequest.Where(t => t.Position == Position).ToList();
-}
+    if (pageTeaserHolders.Any())
+    {
+        pageTeaserHolders = pageTeaserHolders.OrderByDescending(o => o.AdditionalInfo.ReverseDepth).ThenBy(o => o.AdditionalInfo.Teaser.LocalOrdering).ToList();
 
-@if (pageTeaserHolders.Any())
-{
-    <div class="teasers">
-        @foreach (var pageTeaserHolder in pageTeaserHolders.OrderByDescending(o => o.AdditionalInfo.ReverseDepth).ThenBy(o => o.AdditionalInfo.Teaser.LocalOrdering))
-        {
-            var teaser = pageTeaserHolder.AdditionalInfo.Teaser;
-            var typeName = teaser.DataSourceId.InterfaceType.Name;
-            
-            @Html.RenderFocusLink(teaser, "Focus")
-            @Html.RenderEditLink(teaser, "Edit")
+        <div class="teasers">
+            @Html.RenderScriptTags()
 
-            <div class="teaser teaser-@pageTeaserHolder.SharedTeaserGuid.ToString().Substring(0,8) type-@pageTeaserHolder.AdditionalInfo.InterfaceType.Name.Replace("IPageTeaser", String.Empty).ToLower() reverse-depth-@pageTeaserHolder.AdditionalInfo.ReverseDepth">
-                @Function("Teaser.Types." + typeName, new { Teaser = teaser })
-            </div>
-        }
-    </div>
+            @foreach (var pageTeaserHolder in pageTeaserHolders)
+            {
+                var teaser = pageTeaserHolder.AdditionalInfo.Teaser;
+                var typeName = teaser.DataSourceId.InterfaceType.Name;
+
+                @Html.RenderFocusLink(teaser, "Focus")
+                @Html.RenderEditLink(teaser, "Edit")
+
+                <div class="teaser type-@pageTeaserHolder.AdditionalInfo.InterfaceType.Name.Replace("IPageTeaser", String.Empty).ToLower() reverse-depth-@pageTeaserHolder.AdditionalInfo.ReverseDepth">
+                    @Function("Teasers.Types." + typeName, new {Teaser = teaser})
+                </div>
+            }
+        </div>
+    }
 }

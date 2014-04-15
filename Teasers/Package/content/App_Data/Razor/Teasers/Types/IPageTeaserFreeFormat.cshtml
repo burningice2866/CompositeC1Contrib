@@ -1,3 +1,6 @@
-﻿@inherits Web.UI.BaseTeaserFunction<Data.Types.IPageTeaserFreeFormat>
+﻿@using CompositeC1Contrib.Teasers.Data
+@using CompositeC1Contrib.Teasers.Web.UI
+
+@inherits BaseTeaserFunction<IPageTeaserFreeFormat>
 
 @Html.Raw(Teaser.Content)

@@ -239,7 +239,7 @@ namespace CompositeC1Contrib.Teasers.C1Console
                     }
                 });
 
-                var url = String.Format("InstalledPackages/CompositeC1Contrib.Teasers/SortPageTeasers.aspx?pageId={0}&position={1}", page.Id, position);
+                var url = String.Format("InstalledPackages/CompositeC1Contrib.Teasers/SortPageTeasers.aspx?pageId={0}&position={1}", page.Id, position.Item1);
                 var sortActionToken = new UrlActionToken("Sort fields", UrlUtils.ResolveAdminUrl(url), new[] { PermissionType.Add, PermissionType.Edit, PermissionType.Administrate, });
                 positionElement.AddAction(new ElementAction(new ActionHandle(sortActionToken))
                 {
