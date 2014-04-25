@@ -7,7 +7,7 @@ using Composite.Data.Hierarchy.DataAncestorProviders;
 namespace CompositeC1Contrib.Email.Data.Types
 {
     [AutoUpdateble]
-    [KeyPropertyName("Id")]
+    [KeyPropertyName("Key")]
     [LabelPropertyName("Key")]
     [Title("Mail template")]
     [DataAncestorProvider(typeof(NoAncestorDataAncestorProvider))]
@@ -15,11 +15,6 @@ namespace CompositeC1Contrib.Email.Data.Types
     [DataScope(DataScopeIdentifier.PublicName)]
     public interface IMailTemplate : IData
     {
-        [StoreFieldType(PhysicalStoreFieldType.Guid)]
-        [ImmutableFieldId("ba04e85a-154d-47ec-92a2-88588306fbcc")]
-        [FunctionBasedNewInstanceDefaultFieldValue("<f:function name=\"Composite.Utils.Guid.NewGuid\" xmlns:f=\"http://www.composite.net/ns/function/1.0\" />")]
-        Guid Id { get; set; }
-
         [ImmutableFieldId("35ac3650-afe9-4acf-9e98-621b576312d4")]
         [StoreFieldType(PhysicalStoreFieldType.String, 128)]
         string Key { get; set; }
@@ -31,6 +26,10 @@ namespace CompositeC1Contrib.Email.Data.Types
         [ImmutableFieldId("4081688c-a8e7-4339-9bcc-9e0a0cf643e8")]
         [StoreFieldType(PhysicalStoreFieldType.String, 256)]
         string To { get; set; }
+
+        [ImmutableFieldId(" f963d29e-e308-4f68-9dd3-c5499802cb04")]
+        [StoreFieldType(PhysicalStoreFieldType.String, 256, IsNullable = true)]
+        string Cc { get; set; }
 
         [ImmutableFieldId("a44cd1c4-9f77-4859-80c3-553696fca462")]
         [StoreFieldType(PhysicalStoreFieldType.String, 256, IsNullable = true)]
@@ -47,5 +46,13 @@ namespace CompositeC1Contrib.Email.Data.Types
         [ImmutableFieldId("c52dda12-1ae2-4f32-bfc2-bd971c3cfb9b")]
         [StoreFieldType(PhysicalStoreFieldType.LargeString)]
         string Body { get; set; }
+
+        [ImmutableFieldId("44991190-8622-468b-a01b-f37418d78da3")]
+        [StoreFieldType(PhysicalStoreFieldType.Boolean)]
+        bool EncryptMessage { get; set; }
+
+        [ImmutableFieldId("0880b90e-5774-4332-9034-e93400610511")]
+        [StoreFieldType(PhysicalStoreFieldType.String, 256)]
+        string EncryptPassword { get; set; }
     }
 }

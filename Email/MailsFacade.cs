@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Mail;
+using System.Text.RegularExpressions;
 
 using Composite;
 using Composite.Data;
@@ -11,6 +12,14 @@ namespace CompositeC1Contrib.Email
 {
     public static class MailsFacade
     {
+        private const string Pattern = @"(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b";
+        private static readonly Regex Regex = new Regex(Pattern, RegexOptions.Compiled);
+
+        public static bool ValidateMailAddress(string email)
+        {
+            return !Regex.IsMatch(email);
+        }
+
         public static string[] GetMailQueueNames()
         {
             using (var data = new DataConnection())

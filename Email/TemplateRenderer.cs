@@ -46,6 +46,7 @@ namespace CompositeC1Contrib.Email
             PageRenderer.ExecuteEmbeddedFunctions(templateMarkup.Root, new FunctionContextContainer());
 
             ResolveFields(templateMarkup, mailModel);
+            templateMarkup = XhtmlDocument.Parse(PageUrlHelper.ChangeRenderingPageUrlsToPublic(templateMarkup.ToString()));
             ResolveRelativeToAbsolutePaths(templateMarkup);
 
             foreach (var property in mailModel.GetType().GetProperties().Where(d => d.CanRead))
@@ -63,9 +64,7 @@ namespace CompositeC1Contrib.Email
                 }
             }
 
-            var mailBody = PageUrlHelper.ChangeRenderingPageUrlsToPublic(templateMarkup.ToString());
-
-            return mailBody;
+            return templateMarkup.ToString();
         }
 
         private static void ResolveFields(XDocument document, object mailModel)
@@ -129,6 +128,7 @@ namespace CompositeC1Contrib.Email
                             if (objectValues[reference.FieldName] != null)
                             {
                                 var dataReference = DataReferenceFacade.BuildDataReference(referencedType, objectValues[reference.FieldName]);
+
                                 value = DataXhtmlRenderingServices.Render(dataReference, XhtmlRenderingType.Embedable).Root;
                             }
                         }
@@ -157,15 +157,20 @@ namespace CompositeC1Contrib.Email
                 return;
             }
 
-            var hostName = ctx.Request.Url.GetComponents(UriComponents.SchemeAndServer, UriFormat.UriEscaped);
             var xhtmlElements = xhtmlDocument.Descendants().Where(f => f.Name.Namespace == Namespaces.Xhtml);
             var pathAttributes = xhtmlElements.Attributes().Where(f => f.Name.LocalName == "src" || f.Name.LocalName == "href" || f.Name.LocalName == "action");
+
             var relativePathAttributes = pathAttributes.Where(f => f.Value.StartsWith("/")).ToList();
+            if (!relativePathAttributes.Any())
+            {
+                return;
+            }
+
+            var hostName = ctx.Request.Url.GetComponents(UriComponents.SchemeAndServer, UriFormat.UriEscaped);
+            var baseUri = new Uri(hostName);
 
             foreach (var relativePathAttribute in relativePathAttributes)
             {
-                var baseUri = new Uri(hostName);
-
                 relativePathAttribute.Value = new Uri(baseUri, relativePathAttribute.Value).OriginalString;
             }
         }

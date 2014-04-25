@@ -111,6 +111,7 @@ namespace CompositeC1Contrib.Email.Web.UI
 
             return mailMessages.Where(m => m.QueueId == queue.Id)
                 .OrderByDescending(m => m.TimeStamp)
+                .Take(100)
                 .Select(m => new MailLogItem()
                 {
                     Id = m.Id,

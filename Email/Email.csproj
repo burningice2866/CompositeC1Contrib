@@ -11,8 +11,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CompositeC1Contrib.Email</RootNamespace>
     <AssemblyName>CompositeC1Contrib.Email</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Composite">
@@ -37,6 +42,9 @@
     </Reference>
     <Reference Include="Composite.Workflows">
       <HintPath>..\References\Composite.Workflows.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation">
       <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
@@ -109,9 +117,11 @@
   <ItemGroup>
     <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\CreateMailQueue.xml" />
     <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\EditMailQueue.xml" />
+    <None Include="packages.config" />
     <None Include="Package\Config\App_Data\Composite\composite.config">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\EditMailTemplate.xml" />
     <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Email\log.aspx" />
     <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Email\view.aspx" />
     <Content Include="Package\install.xml" />
@@ -128,6 +138,13 @@
 del "$(ProjectDir)\Package\package.zip"
 "$(ProjectDir)..\References\7z.exe" a "$(ProjectDir)\Package\package.zip" -tzip -r "$(ProjectDir)\Package\*"</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

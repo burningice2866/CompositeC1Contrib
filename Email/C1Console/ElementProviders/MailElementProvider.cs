@@ -318,7 +318,7 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
         {
             using (var data = new DataConnection())
             {
-                return data.Get<IMailTemplate>();
+                return data.Get<IMailTemplate>().OrderBy(t => t.Key);
             }
         }
 

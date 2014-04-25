@@ -56,11 +56,13 @@ namespace CompositeC1Contrib.Email
 
                 foreach (var template in templates)
                 {
-                    EnsureUniqueTemplateKey(mailTemplates, template.Key);
+                    if (mailTemplates.ContainsKey(template.Key))
+                    {
+                        continue;
+                    }
 
                     var instance = data.CreateNew<IMailTemplate>();
 
-                    instance.Id = Guid.NewGuid();
                     instance.Key = template.Key;
                     instance.ModelType = template.ModelType.AssemblyQualifiedName;
 
@@ -79,23 +81,17 @@ namespace CompositeC1Contrib.Email
                     continue;
                 }
 
-                EnsureUniqueTemplateKey(mailTemplates, attribute.Key);
+                if (mailTemplates.ContainsKey(attribute.Key))
+                {
+                    continue;
+                }
 
                 var template = data.CreateNew<IMailTemplate>();
 
-                template.Id = Guid.NewGuid();
                 template.Key = attribute.Key;
                 template.ModelType = type.AssemblyQualifiedName;
 
                 data.Add(template);
-            }
-        }
-
-        private static void EnsureUniqueTemplateKey(IDictionary<string, IMailTemplate> mailTemplates, string key)
-        {
-            if (mailTemplates.ContainsKey(key))
-            {
-                throw new InvalidOperationException(String.Format("A template with the key '{0}' already exists", key));
             }
         }
     }

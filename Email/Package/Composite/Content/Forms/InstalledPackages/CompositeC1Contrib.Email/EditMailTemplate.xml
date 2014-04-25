@@ -8,25 +8,25 @@
     <TabPanels>
       <PlaceHolder Label="Template Info">
         <FieldGroup>
-          <TextBox Label="Key" Help="" SpellCheck="false">
-            <TextBox.Text>
-              <cms:bind source="MailTemplate.Key" />
-            </TextBox.Text>
-          </TextBox>
-
-          <TextBox Label="To" Help="" SpellCheck="true">
+          <TextBox Label="To" Help="" SpellCheck="false">
             <TextBox.Text>
               <cms:bind source="MailTemplate.To" />
             </TextBox.Text>
           </TextBox>
 
-          <TextBox Label="Bcc" Help="" SpellCheck="true">
+          <TextBox Label="Cc" Help="" SpellCheck="false">
+            <TextBox.Text>
+              <cms:bind source="MailTemplate.Cc" />
+            </TextBox.Text>
+          </TextBox>
+
+          <TextBox Label="Bcc" Help="" SpellCheck="false">
             <TextBox.Text>
               <cms:bind source="MailTemplate.Bcc" />
             </TextBox.Text>
           </TextBox>
 
-          <TextBox Label="From" Help="" SpellCheck="true">
+          <TextBox Label="From" Help="" SpellCheck="false">
             <TextBox.Text>
               <cms:bind source="MailTemplate.From" />
             </TextBox.Text>
@@ -53,6 +53,22 @@
           <cms:bind source="MailTemplate.Body" />
         </XhtmlEditor.Xhtml>
       </XhtmlEditor>
+
+      <PlaceHolder Label="Encryption">
+        <FieldGroup Label="Encryption settings">
+          <CheckBox Label="Encrypt message" Help="">
+            <CheckBox.Checked>
+              <cms:bind source="MailTemplate.EncryptMessage" />
+            </CheckBox.Checked>
+          </CheckBox>
+
+          <TextBox Label="Password" Help="" SpellCheck="true">
+            <TextBox.Text>
+              <cms:bind source="MailTemplate.EncryptPassword" />
+            </TextBox.Text>
+          </TextBox>
+        </FieldGroup>
+      </PlaceHolder>
     </TabPanels>
   </cms:layout>
 </cms:formdefinition>

@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Mail;
+using System.Text;
+
+using ICSharpCode.SharpZipLib.Zip;
 
 using Composite;
 using Composite.Data;
@@ -16,16 +21,19 @@ namespace CompositeC1Contrib.Email
             using (var data = new DataConnection())
             {
                 var modelType = mailModel.GetType();
+                var templates = data.Get<IMailTemplate>().Where(t => !String.IsNullOrEmpty(t.ModelType) && Type.GetType(t.ModelType) == modelType).ToList();
 
-                var template = data.Get<IMailTemplate>()
-                    .SingleOrDefault(t => !String.IsNullOrEmpty(t.ModelType) && Type.GetType(t.ModelType) == modelType);
-
-                if (template == null)
+                if (templates.Count == 0)
                 {
-                    throw new ArgumentException("There is either zero or more than one template using the supplied model");
+                    throw new ArgumentException("There is zero templates using the supplied model");
                 }
 
-                return BuildEmailMessage(template, mailModel);
+                if (templates.Count > 1)
+                {
+                    throw new ArgumentException("There is more than one template using the supplied model");
+                }
+
+                return BuildEmailMessage(templates.Single(), mailModel);
             }
         }
 
@@ -50,17 +58,89 @@ namespace CompositeC1Contrib.Email
                 IsBodyHtml = true,
             };
 
-            if (!String.IsNullOrEmpty(template.To))
-            {
-                msg.To.Add(new MailAddress(template.To));
-            }
+            AppendMailAddresses(msg.To, template.To, mailModel);
+            AppendMailAddresses(msg.CC, template.Cc, mailModel);
+            AppendMailAddresses(msg.Bcc, template.Bcc, mailModel);
 
-            if (!String.IsNullOrEmpty(template.Bcc))
+            if (template.EncryptMessage)
             {
-                msg.Bcc.Add(template.Bcc);
+                var byteArray = Encoding.Default.GetBytes(msg.Body);
+
+                var fileStreamProviders = new Dictionary<string, Func<Stream>>
+				{
+					{"content.html", () => new MemoryStream((byteArray))}
+				};
+
+                for (int i = 0; i < msg.Attachments.Count; i++)
+                {
+                    var file = msg.Attachments[i];
+
+                    fileStreamProviders.Add("Attached file (" + (i + 1) + ") " + file.Name, () => file.ContentStream);
+                }
+
+                var encryptedAttachment = GetPasswordProtectedZip(fileStreamProviders, template.EncryptPassword);
+
+                msg.Attachments.Clear();
+                msg.Attachments.Add(encryptedAttachment);
+
+                msg.Body = "Encrypted message attached";
+                msg.IsBodyHtml = false;
             }
 
             return msg;
+        }
+
+        private static void AppendMailAddresses(MailAddressCollection collection, string s, object model)
+        {
+            if (!String.IsNullOrEmpty(s))
+            {
+                var split = s.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var part in split)
+                {
+                    var resolvedPart = TemplateRenderer.ResolveText(part, model);
+                    var address = new MailAddress(resolvedPart);
+
+                    collection.Add(address);
+                }
+            }
+        }
+
+        private static Attachment GetPasswordProtectedZip(Dictionary<string, Func<Stream>> fileStreamProviders, string password)
+        {
+            var memStream = new MemoryStream();
+
+            var zipOutput = new ZipOutputStream(memStream)
+            {
+                Password = password
+            };
+
+            zipOutput.SetLevel(3);
+
+            foreach (var fileStreamProvider in fileStreamProviders)
+            {
+                var filename = fileStreamProvider.Key;
+                var streamProvider = fileStreamProvider.Value;
+
+                var zipEntry = new ZipEntry(filename)
+                {
+                    DateTime = DateTime.Now
+                };
+
+                zipOutput.PutNextEntry(zipEntry);
+
+                using (var streamReader = streamProvider())
+                {
+                    streamReader.CopyTo(zipOutput, 4096);
+                }
+
+                zipOutput.CloseEntry();
+            }
+
+            zipOutput.IsStreamOwner = false;
+            zipOutput.Close();
+            memStream.Position = 0;
+
+            return new Attachment(memStream, "EncryptedMail.zip", "application/zip");
         }
     }
 }
