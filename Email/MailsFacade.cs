@@ -44,7 +44,7 @@ namespace CompositeC1Contrib.Email
 
         public static IQueuedMailMessage BuildMessageAndEnqueue(object mailModel)
         {
-            var message = MailModelsFacade.BuildEmailMessage(mailModel);
+            var message = MailModelsFacade.BuildMailMessage(mailModel);
 
             return EnqueueMessage(message);
         }
@@ -94,6 +94,11 @@ namespace CompositeC1Contrib.Email
 
                 return message;
             }
+        }
+
+        public static void EncryptMessage(MailMessage mailMessage, string password)
+        {
+            EncryptionHelper.EncryptMessage(mailMessage, password);
         }
     }
 }

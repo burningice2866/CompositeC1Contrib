@@ -8,6 +8,12 @@
     <TabPanels>
       <PlaceHolder Label="Template Info">
         <FieldGroup>
+          <TextBox Label="From" Help="" SpellCheck="false">
+            <TextBox.Text>
+              <cms:bind source="MailTemplate.From" />
+            </TextBox.Text>
+          </TextBox>
+          
           <TextBox Label="To" Help="" SpellCheck="false">
             <TextBox.Text>
               <cms:bind source="MailTemplate.To" />
@@ -23,12 +29,6 @@
           <TextBox Label="Bcc" Help="" SpellCheck="false">
             <TextBox.Text>
               <cms:bind source="MailTemplate.Bcc" />
-            </TextBox.Text>
-          </TextBox>
-
-          <TextBox Label="From" Help="" SpellCheck="false">
-            <TextBox.Text>
-              <cms:bind source="MailTemplate.From" />
             </TextBox.Text>
           </TextBox>
 

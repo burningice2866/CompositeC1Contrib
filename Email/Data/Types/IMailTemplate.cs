@@ -1,6 +1,4 @@
-﻿using System;
-
-using Composite.Data;
+﻿using Composite.Data;
 using Composite.Data.Hierarchy;
 using Composite.Data.Hierarchy.DataAncestorProviders;
 
@@ -23,6 +21,10 @@ namespace CompositeC1Contrib.Email.Data.Types
         [StoreFieldType(PhysicalStoreFieldType.String, 512, IsNullable = true)]
         string ModelType { get; set; }
 
+        [ImmutableFieldId("f6315390-0595-4b20-8b89-d8459daa4707")]
+        [StoreFieldType(PhysicalStoreFieldType.String, 256)]
+        string From { get; set; }
+
         [ImmutableFieldId("4081688c-a8e7-4339-9bcc-9e0a0cf643e8")]
         [StoreFieldType(PhysicalStoreFieldType.String, 256)]
         string To { get; set; }
@@ -34,10 +36,6 @@ namespace CompositeC1Contrib.Email.Data.Types
         [ImmutableFieldId("a44cd1c4-9f77-4859-80c3-553696fca462")]
         [StoreFieldType(PhysicalStoreFieldType.String, 256, IsNullable = true)]
         string Bcc { get; set; }
-
-        [ImmutableFieldId("f6315390-0595-4b20-8b89-d8459daa4707")]
-        [StoreFieldType(PhysicalStoreFieldType.String, 256)]
-        string From { get; set; }
 
         [ImmutableFieldId("c7a4ef88-3c73-4cca-89af-67455bf8e7d9")]
         [StoreFieldType(PhysicalStoreFieldType.String, 256)]
