@@ -32,8 +32,6 @@ namespace CompositeC1Contrib.Email
 
         public MailMessage BuildMailMessage()
         {
-            var dict = GetDictionaryFromModel();
-
             var mailMessage = new MailMessage
             {
                 From = new MailAddress(ResolveText(_template.From)),

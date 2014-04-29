@@ -15,7 +15,11 @@ namespace CompositeC1Contrib.Email
             using (var data = new DataConnection())
             {
                 var modelType = mailModel.GetType();
-                var templates = data.Get<IMailTemplate>().Where(t => !String.IsNullOrEmpty(t.ModelType) && Type.GetType(t.ModelType) == modelType).ToList();
+                var templates = data.Get<IMailTemplate>()
+                    .Where(t => t.ModelType != null && !t.ModelType.Equals(String.Empty))
+                    .AsEnumerable()
+                    .Where(t => Type.GetType(t.ModelType) == modelType)
+                    .ToList();
 
                 if (templates.Count == 0)
                 {
@@ -38,7 +42,7 @@ namespace CompositeC1Contrib.Email
                 var template = data.Get<IMailTemplate>().SingleOrDefault(t => String.Compare(t.Key, key, StringComparison.OrdinalIgnoreCase) == 0);
                 if (template == null)
                 {
-                    throw new ArgumentException("There is no templates with the specified key: "+ key, "key"); 
+                    throw new ArgumentException("There is no templates with the specified key: " + key, "key");
                 }
 
                 return BuildMailMessage(template, mailModel);

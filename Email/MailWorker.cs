@@ -146,7 +146,7 @@ namespace CompositeC1Contrib.Email
         {
             try
             {
-                var smtpClient = new SmtpClient()
+                var smtpClient = new SmtpClient
                 {
                     DeliveryMethod = (SmtpDeliveryMethod)Enum.Parse(typeof(SmtpDeliveryMethod), queue.DeliveryMethod),
                     Host = queue.Host,

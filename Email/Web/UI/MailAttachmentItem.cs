@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CompositeC1Contrib.Email.Web.UI
+﻿namespace CompositeC1Contrib.Email.Web.UI
 {
     public class MailAttachmentItem
     {

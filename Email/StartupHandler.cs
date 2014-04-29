@@ -21,6 +21,7 @@ namespace CompositeC1Contrib.Email
             DynamicTypeManager.EnsureCreateStore(typeof(IMailQueue));
             DynamicTypeManager.EnsureCreateStore(typeof(IQueuedMailMessage));
             DynamicTypeManager.EnsureCreateStore(typeof(ISentMailMessage));
+            DynamicTypeManager.EnsureCreateStore(typeof(IMailTemplate));
 
             using (var data = new DataConnection())
             {
@@ -31,14 +32,10 @@ namespace CompositeC1Contrib.Email
                 {
                     try
                     {
-                        try
-                        {
-                            var types = assembly.GetTypes();
+                        var types = assembly.GetTypes();
 
-                            AddTemplatesFromProviders(data, mailTemplates, types);
-                            AddTemplatesFromModels(data, mailTemplates, types);
-                        }
-                        catch { }
+                        AddTemplatesFromProviders(data, mailTemplates, types);
+                        AddTemplatesFromModels(data, mailTemplates, types);
                     }
                     catch { }
                 }
@@ -61,12 +58,7 @@ namespace CompositeC1Contrib.Email
                         continue;
                     }
 
-                    var instance = data.CreateNew<IMailTemplate>();
-
-                    instance.Key = template.Key;
-                    instance.ModelType = template.ModelType.AssemblyQualifiedName;
-
-                    data.Add(instance);
+                    AddMailTemplate(template.Key, template.ModelType, data);
                 }
             }
         }
@@ -86,13 +78,20 @@ namespace CompositeC1Contrib.Email
                     continue;
                 }
 
-                var template = data.CreateNew<IMailTemplate>();
-
-                template.Key = attribute.Key;
-                template.ModelType = type.AssemblyQualifiedName;
-
-                data.Add(template);
+                AddMailTemplate(attribute.Key, type, data);
             }
+        }
+
+        private static void AddMailTemplate(string key, Type type, DataConnection data)
+        {
+            var template = data.CreateNew<IMailTemplate>();
+
+            template.Key = key;
+            template.ModelType = type.AssemblyQualifiedName;
+            template.Subject = String.Empty;
+            template.Body = String.Empty;
+
+            data.Add(template);
         }
     }
 }

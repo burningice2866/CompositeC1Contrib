@@ -11,26 +11,17 @@ namespace CompositeC1Contrib.Email.Web.UI
     {
         protected string View
         {
-            get
-            {
-                return Request.QueryString["view"];
-            }
+            get { return Request.QueryString["view"]; }
         }
 
         protected string EntityToken
         {
-            get
-            {
-                return Request.QueryString["EntityToken"];
-            }
+            get { return Request.QueryString["EntityToken"]; }
         }
 
         protected string ConsoleId
         {
-            get
-            {
-                return Request.QueryString["consoleId"];
-            }
+            get { return Request.QueryString["consoleId"]; }
         }
 
         protected string BaseUrl

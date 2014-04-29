@@ -15,7 +15,7 @@ namespace CompositeC1Contrib.Email.C1Console
             {
                 return
                     data.Get<IMailTemplate>()
-                        .Where(t => t.Key == key && !String.IsNullOrEmpty(t.ModelType))
+                        .Where(t => t.Key == key && t.ModelType != null && !t.ModelType.Equals(String.Empty))
                         .Select(t => Type.GetType(t.ModelType)).ToArray();
             }
         }

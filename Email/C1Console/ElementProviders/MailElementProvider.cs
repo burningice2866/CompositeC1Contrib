@@ -302,12 +302,12 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
 
                 if (dataToken.InterfaceType == typeof(IMailQueue))
                 {
-                    dictionary.Add(token, new[] { new MailQueuesEntityToken(),  });
+                    dictionary.Add(token, new[] { new MailQueuesEntityToken() });
                 }
 
                 if (dataToken.InterfaceType == typeof(IMailTemplate))
                 {
-                    dictionary.Add(token, new[] { new MailTemplatesEntityToken(),  });
+                    dictionary.Add(token, new[] { new MailTemplatesEntityToken() });
                 }
             }
 
