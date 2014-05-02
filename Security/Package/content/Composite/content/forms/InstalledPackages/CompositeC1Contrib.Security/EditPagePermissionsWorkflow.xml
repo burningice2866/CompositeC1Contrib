@@ -1,0 +1,34 @@
+<cms:formdefinition xmlns:cms="http://www.composite.net/ns/management/bindingforms/1.0" xmlns="http://www.composite.net/ns/management/bindingforms/std.ui.controls.lib/1.0" xmlns:ff="http://www.composite.net/ns/management/bindingforms/std.function.lib/1.0" xmlns:f="http://www.composite.net/ns/function/1.0">
+  <cms:bindings>
+    <cms:binding name="Title" type="System.String" optional="true" />
+    <cms:binding name="PagePermissions" type="CompositeC1Contrib.Security.Data.Types.IPagePermissions" />
+  </cms:bindings>
+
+  <cms:layout>
+    <cms:layout.label>
+      <cms:read source="Title" />
+    </cms:layout.label>
+
+    <FieldGroup>
+      <MultiKeySelector Label="Allow" Help="" Required="false" CompactMode="true">
+        <MultiKeySelector.SelectedAsString>
+          <cms:bind source="PagePermissions.AllowedRoles" />
+        </MultiKeySelector.SelectedAsString>
+
+        <MultiKeySelector.Options>
+          <ff:StaticMethodCall Type="System.Web.Security.Roles" Method="GetAllRoles" />
+        </MultiKeySelector.Options>
+      </MultiKeySelector>
+
+      <MultiKeySelector Label="Deny" Help="" Required="false" CompactMode="true">
+        <MultiKeySelector.SelectedAsString>
+          <cms:bind source="PagePermissions.DeniedRoles" />
+        </MultiKeySelector.SelectedAsString>
+
+        <MultiKeySelector.Options>
+          <ff:StaticMethodCall Type="System.Web.Security.Roles" Method="GetAllRoles" />
+        </MultiKeySelector.Options>
+      </MultiKeySelector>
+    </FieldGroup>
+  </cms:layout>
+</cms:formdefinition>
