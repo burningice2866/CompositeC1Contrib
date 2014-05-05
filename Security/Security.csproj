@@ -51,7 +51,10 @@
     <Reference Include="System.Workflow.ComponentModel" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Types\IMediaFolderPermissions.cs" />
     <Compile Include="Data\Types\IMembershipUser.cs" />
+    <Compile Include="Data\Types\IMediaFilePermissions.cs" />
+    <Compile Include="Data\Types\IDataPermissions.cs" />
     <Compile Include="Data\Types\IPagePermissions.cs" />
     <Compile Include="PagePermissionsActionProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -62,6 +65,15 @@
     <Compile Include="Web\ResponseHandler.cs" />
     <Compile Include="Web\CompositeC1MembershipProvider.cs" />
     <Compile Include="Web\CompositeC1RoleProvider.cs" />
+    <Compile Include="Workflows\BaseEditPermissionsWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Workflows\EditMediaFolderPermissionsWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Workflows\EditMediaFilePermissionsWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Workflows\EditPagePermissionsWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -73,7 +85,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Security\EditPagePermissionsWorkflow.xml" />
+    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Security\EditPermissionsWorkflow.xml" />
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>

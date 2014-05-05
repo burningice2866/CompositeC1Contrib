@@ -23,24 +23,40 @@ namespace CompositeC1Contrib.Security
         public IEnumerable<ElementAction> GetActions(EntityToken entityToken)
         {
             var dataToken = entityToken as DataEntityToken;
-            if (dataToken != null)
+            if (dataToken == null)
             {
-                var page = dataToken.Data as IPage;
-                if (page != null)
-                {
-                    var actionToken = new WorkflowActionToken(typeof(EditPagePermissionsWorkflow));
+                yield break;
+            }
 
-                    yield return new ElementAction(new ActionHandle(actionToken))
+            WorkflowActionToken actionToken = null;
+
+            if (dataToken.Data is IPage)
+            {
+                actionToken = new WorkflowActionToken(typeof(EditPagePermissionsWorkflow));
+            }
+
+            if (dataToken.Data is IMediaFile)
+            {
+                actionToken = new WorkflowActionToken(typeof(EditMediaFilePermissionsWorkflow));
+            }
+
+            if (dataToken.Data is IMediaFileFolder)
+            {
+                actionToken = new WorkflowActionToken(typeof(EditMediaFolderPermissionsWorkflow));
+            }
+
+            if (actionToken != null)
+            {
+                yield return new ElementAction(new ActionHandle(actionToken))
+                {
+                    VisualData = new ActionVisualizedData
                     {
-                        VisualData = new ActionVisualizedData
-                        {
-                            Label = "Edit membership permissions",
-                            ToolTip = "Edit membership permissions",
-                            Icon = new ResourceHandle("Composite.Icons", "generated-type-data-edit"),
-                            ActionLocation = ActionLocation
-                        }
-                    };
-                }
+                        Label = "Edit membership permissions",
+                        ToolTip = "Edit membership permissions",
+                        Icon = new ResourceHandle("Composite.Icons", "generated-type-data-edit"),
+                        ActionLocation = ActionLocation
+                    }
+                };
             }
         }
     }

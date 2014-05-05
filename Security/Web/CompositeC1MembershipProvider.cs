@@ -26,7 +26,7 @@ namespace CompositeC1Contrib.Security.Web
 
         public override int MinRequiredNonAlphanumericCharacters
         {
-            get { throw new NotImplementedException(); }
+            get { throw new NotSupportedException(); }
         }
 
         public override int MinRequiredPasswordLength
@@ -36,7 +36,7 @@ namespace CompositeC1Contrib.Security.Web
 
         public override int PasswordAttemptWindow
         {
-            get { throw new NotImplementedException(); }
+            get { throw new NotSupportedException(); }
         }
 
         public override MembershipPasswordFormat PasswordFormat
@@ -46,7 +46,7 @@ namespace CompositeC1Contrib.Security.Web
 
         public override string PasswordStrengthRegularExpression
         {
-            get { throw new NotImplementedException(); }
+            get { throw new NotSupportedException(); }
         }
 
         public override bool RequiresQuestionAndAnswer
@@ -61,7 +61,7 @@ namespace CompositeC1Contrib.Security.Web
 
         public override bool EnablePasswordReset
         {
-            get { return true; ; }
+            get { return true; }
         }
 
         public override bool EnablePasswordRetrieval
@@ -109,7 +109,7 @@ namespace CompositeC1Contrib.Security.Web
 
         public override bool ChangePasswordQuestionAndAnswer(string username, string password, string newPasswordQuestion, string newPasswordAnswer)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override MembershipUser CreateUser(string username, string password, string email, string passwordQuestion, string passwordAnswer, bool isApproved, object providerUserKey, out MembershipCreateStatus status)
@@ -161,69 +161,27 @@ namespace CompositeC1Contrib.Security.Web
 
         public override MembershipUserCollection FindUsersByEmail(string emailToMatch, int pageIndex, int pageSize, out int totalRecords)
         {
-            var coll = new MembershipUserCollection();
-
-            using (var data = new DataConnection())
-            {
-                var allUsers = data.Get<IMembershipUser>().Where(EmailPredicate(emailToMatch));
-
-                totalRecords = allUsers.Count();
-
-                foreach (var user in allUsers.Skip(pageSize * pageIndex).Take(pageSize))
-                {
-                    coll.Add(MapUser(user));
-                }
-            }
-
-            return coll;
+            return GetAllUsers(pageIndex, pageSize, out totalRecords, EmailPredicate(emailToMatch));
         }
 
         public override MembershipUserCollection FindUsersByName(string usernameToMatch, int pageIndex, int pageSize, out int totalRecords)
         {
-            var coll = new MembershipUserCollection();
-
-            using (var data = new DataConnection())
-            {
-                var allUsers = data.Get<IMembershipUser>().Where(UsernamePredicate(usernameToMatch));
-
-                totalRecords = allUsers.Count();
-
-                foreach (var user in allUsers.Skip(pageSize * pageIndex).Take(pageSize))
-                {
-                    coll.Add(MapUser(user));
-                }
-            }
-
-            return coll;
+            return GetAllUsers(pageIndex, pageSize, out totalRecords, UsernamePredicate(usernameToMatch));
         }
 
         public override MembershipUserCollection GetAllUsers(int pageIndex, int pageSize, out int totalRecords)
         {
-            var coll = new MembershipUserCollection();
-
-            using (var data = new DataConnection())
-            {
-                var allUsers = data.Get<IMembershipUser>();
-
-                totalRecords = allUsers.Count();
-
-                foreach (var user in allUsers.Skip(pageSize * pageIndex).Take(pageSize))
-                {
-                    coll.Add(MapUser(user));
-                }
-            }
-
-            return coll;
+            return GetAllUsers(pageIndex, pageSize, out totalRecords, null);
         }
 
         public override int GetNumberOfUsersOnline()
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override string GetPassword(string username, string answer)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override MembershipUser GetUser(string username, bool userIsOnline)
@@ -302,19 +260,21 @@ namespace CompositeC1Contrib.Security.Web
         {
             using (var data = new DataConnection())
             {
-                var c1user = data.Get<IMembershipUser>().SingleOrDefault(u => u.Id == (Guid)user.ProviderUserKey);
-                if (c1user != null)
+                var c1User = data.Get<IMembershipUser>().SingleOrDefault(u => u.Id == (Guid)user.ProviderUserKey);
+                if (c1User == null)
                 {
-                    c1user.IsApproved = user.IsApproved;
-                    c1user.IsLockedOut = user.IsLockedOut;
-                    c1user.LastActivityDate = (user.LastActivityDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastActivityDate;
-                    c1user.LastLockoutDate = (user.LastLockoutDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastLockoutDate;
-                    c1user.LastLoginDate = (user.LastLoginDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastLoginDate;
-                    c1user.LastPasswordChangedDate = (c1user.LastPasswordChangedDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : c1user.LastPasswordChangedDate;
-                    c1user.Email = user.Email;
-
-                    data.Update(c1user);
+                    return;
                 }
+
+                c1User.IsApproved = user.IsApproved;
+                c1User.IsLockedOut = user.IsLockedOut;
+                c1User.LastActivityDate = (user.LastActivityDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastActivityDate;
+                c1User.LastLockoutDate = (user.LastLockoutDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastLockoutDate;
+                c1User.LastLoginDate = (user.LastLoginDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastLoginDate;
+                c1User.LastPasswordChangedDate = (c1User.LastPasswordChangedDate == DateTime.MinValue.ToLocalTime()) ? null : c1User.LastPasswordChangedDate;
+                c1User.Email = user.Email;
+
+                data.Update(c1User);
             }
         }
 
@@ -336,19 +296,43 @@ namespace CompositeC1Contrib.Security.Web
         {
             using (var data = new DataConnection())
             {
-                var c1user = data.Get<IMembershipUser>().SingleOrDefault(UsernamePredicate(username));
-                if (c1user != null)
+                var c1User = data.Get<IMembershipUser>().SingleOrDefault(UsernamePredicate(username));
+                if (c1User == null)
                 {
-                    c1user.Password = PasswordHash.HashPassword(newPassword);
-                    c1user.LastPasswordChangedDate = DateTime.UtcNow;
+                    return false;
+                }
 
-                    data.Update(c1user);
+                c1User.Password = PasswordHash.HashPassword(newPassword);
+                c1User.LastPasswordChangedDate = DateTime.UtcNow;
 
-                    return true;
+                data.Update(c1User);
+
+                return true;
+            }
+        }
+
+        private MembershipUserCollection GetAllUsers(int pageIndex, int pageSize, out int totalRecords, Expression<Func<IMembershipUser, bool>> wherePredicate)
+        {
+            var coll = new MembershipUserCollection();
+
+            using (var data = new DataConnection())
+            {
+                var allUsers = data.Get<IMembershipUser>();
+
+                if (wherePredicate != null)
+                {
+                    allUsers = allUsers.Where(wherePredicate);
+                }
+
+                totalRecords = allUsers.Count();
+
+                foreach (var user in allUsers.Skip(pageSize * pageIndex).Take(pageSize))
+                {
+                    coll.Add(MapUser(user));
                 }
             }
 
-            return false;
+            return coll;
         }
 
         private MembershipUser MapUser(IMembershipUser user)

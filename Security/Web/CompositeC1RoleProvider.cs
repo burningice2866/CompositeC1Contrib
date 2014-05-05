@@ -8,8 +8,8 @@ namespace CompositeC1Contrib.Security.Web
 {
     public class CompositeC1RoleProvider : RoleProvider
     {
-        private const string AuthenticatedRole = "AUTHENTICATED";
-        private const string AnonymousdRole = "ANONYMOUS";
+        public static readonly string AuthenticatedRole = "AUTHENTICATED";
+        public static readonly string AnonymousdRole = "ANONYMOUS";
 
         public override string ApplicationName { get; set; }
 
@@ -26,17 +26,17 @@ namespace CompositeC1Contrib.Security.Web
 
         public override void AddUsersToRoles(string[] usernames, string[] roleNames)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override void CreateRole(string roleName)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override bool DeleteRole(string roleName, bool throwOnPopulatedRole)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override string[] FindUsersInRole(string roleName, string usernameToMatch)
@@ -66,7 +66,7 @@ namespace CompositeC1Contrib.Security.Web
 
         public override void RemoveUsersFromRoles(string[] usernames, string[] roleNames)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override bool RoleExists(string roleName)

@@ -1,7 +1,7 @@
 <cms:formdefinition xmlns:cms="http://www.composite.net/ns/management/bindingforms/1.0" xmlns="http://www.composite.net/ns/management/bindingforms/std.ui.controls.lib/1.0" xmlns:ff="http://www.composite.net/ns/management/bindingforms/std.function.lib/1.0" xmlns:f="http://www.composite.net/ns/function/1.0">
   <cms:bindings>
     <cms:binding name="Title" type="System.String" optional="true" />
-    <cms:binding name="PagePermissions" type="CompositeC1Contrib.Security.Data.Types.IPagePermissions" />
+    <cms:binding name="Permissions" type="CompositeC1Contrib.Security.Data.Types.IDataPermissions" />
   </cms:bindings>
 
   <cms:layout>
@@ -12,7 +12,7 @@
     <FieldGroup>
       <MultiKeySelector Label="Allow" Help="" Required="false" CompactMode="true">
         <MultiKeySelector.SelectedAsString>
-          <cms:bind source="PagePermissions.AllowedRoles" />
+          <cms:bind source="Permissions.AllowedRoles" />
         </MultiKeySelector.SelectedAsString>
 
         <MultiKeySelector.Options>
@@ -22,7 +22,7 @@
 
       <MultiKeySelector Label="Deny" Help="" Required="false" CompactMode="true">
         <MultiKeySelector.SelectedAsString>
-          <cms:bind source="PagePermissions.DeniedRoles" />
+          <cms:bind source="Permissions.DeniedRoles" />
         </MultiKeySelector.SelectedAsString>
 
         <MultiKeySelector.Options>

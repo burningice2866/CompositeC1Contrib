@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Web;
 using System.Web.Security;
 
@@ -34,65 +33,76 @@ namespace CompositeC1Contrib.Security.Web
             var returnUrl = EnsureHttps(ctx.Request.Url).AbsolutePath;
             var loginPage = EnsureHttps(new Uri(ctx.Request.Url, LoginSiteMapNode.Url));
 
-            return new Uri(loginPage + "?ReturnUrl=" + HttpUtility.UrlEncode(returnUrl.ToString()));
+            return new Uri(loginPage + "?ReturnUrl=" + HttpUtility.UrlEncode(returnUrl));
         }
 
         public RenderingResponseHandlerResult GetDataResponseHandling(DataEntityToken requestedItemEntityToken)
         {
-            var result = new RenderingResponseHandlerResult();
             var ctx = HttpContext.Current;
-            var isAuthenticated = Thread.CurrentPrincipal.Identity.IsAuthenticated;
+            var result = new RenderingResponseHandlerResult();
 
             var page = requestedItemEntityToken.Data as IPage;
             if (page != null)
             {
-                var isSecureConnection = ctx.Request.IsSecureConnection;
-                var isLoginPage = LoginSiteMapNode.Key == page.Id.ToString();
-
-                if (isLoginPage)
-                {
-                    if (FormsAuthentication.RequireSSL && !isSecureConnection)
-                    {
-                        EndResult(result, EnsureHttps(ctx.Request.Url));
-                    }
-
-                    if (ctx.Request.QueryString["cmd"] == "logoff")
-                    {
-                        FormsAuthentication.SignOut();
-                        ctx.Session.Clear();
-
-                        var uri = MakeNormal(new Uri(ctx.Request.Url, "/"));
-
-                        EndResult(result, uri);
-                    }
-                }
-
-                if (!result.EndRequest)
-                {
-                    if (!PermissionsFacade.HasAccess(page))
-                    {
-                        Uri loginUri;
-
-                        if (isLoginPage)
-                        {
-                            loginUri = new Uri(ctx.Request.Url, "/");
-                        }
-                        else
-                        {
-                            loginUri = GetLoginUri();
-                        }
-
-                        EndResult(result, loginUri);
-                    }
-                }
+                HandlePageRequest(result, page);
             }
 
-            if (isAuthenticated)
+            var media = requestedItemEntityToken.Data as IMediaFile;
+            if (media != null)
+            {
+                HandleMediaRequest(result, media);
+            }
+
+            if (ctx.User.Identity.IsAuthenticated)
             {
                 result.PreventPublicCaching = true;
             }
 
             return result;
+        }
+
+        private static void HandlePageRequest(RenderingResponseHandlerResult result, IPage page)
+        {
+            var ctx = HttpContext.Current;
+            var isSecureConnection = ctx.Request.IsSecureConnection;
+            var isLoginPage = LoginSiteMapNode.Key == page.Id.ToString();
+
+            if (isLoginPage)
+            {
+                if (FormsAuthentication.RequireSSL && !isSecureConnection)
+                {
+                    EndResult(result, EnsureHttps(ctx.Request.Url));
+                }
+
+                if (ctx.Request.QueryString["cmd"] == "logoff")
+                {
+                    FormsAuthentication.SignOut();
+                    ctx.Session.Clear();
+
+                    var uri = MakeNormal(new Uri(ctx.Request.Url, "/"));
+
+                    EndResult(result, uri);
+                }
+            }
+
+            if (result.EndRequest || PermissionsFacade.HasAccess(page))
+            {
+                return;
+            }
+
+            var loginUri = isLoginPage ? new Uri(ctx.Request.Url, "/") : GetLoginUri();
+
+            EndResult(result, loginUri);
+        }
+
+        private static void HandleMediaRequest(RenderingResponseHandlerResult result, IMediaFile media)
+        {
+            if (PermissionsFacade.HasAccess(media))
+            {
+                return;
+            }
+
+            EndResult(result, null);
         }
 
         private static Uri MakeNormal(Uri uri)
@@ -126,7 +136,11 @@ namespace CompositeC1Contrib.Security.Web
         {
             result.EndRequest = true;
             result.PreventPublicCaching = true;
-            result.RedirectRequesterTo = uri;
+
+            if (uri != null)
+            {
+                result.RedirectRequesterTo = uri;
+            }
         }
     }
 }

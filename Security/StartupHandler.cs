@@ -1,8 +1,9 @@
 ﻿using Composite.Core.Application;
 using Composite.Data.DynamicTypes;
+
 using CompositeC1Contrib.Security.Data.Types;
 
-namespace DanskRetursystem.Udbyderportal.Security
+namespace CompositeC1Contrib.Security
 {
     [ApplicationStartup]
     public sealed class StartupHandler
@@ -13,6 +14,7 @@ namespace DanskRetursystem.Udbyderportal.Security
         {
             DynamicTypeManager.EnsureCreateStore(typeof(IMembershipUser));
             DynamicTypeManager.EnsureCreateStore(typeof(IPagePermissions));
+            DynamicTypeManager.EnsureCreateStore(typeof(IMediaFilePermissions));
         }
     }
 }

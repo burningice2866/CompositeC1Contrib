@@ -10,23 +10,23 @@ using CompositeC1Contrib.Security.Data.Types;
 namespace CompositeC1Contrib.Security.Workflows
 {
     [AllowPersistingWorkflow(WorkflowPersistingType.Idle)]
-    public sealed class EditPagePermissionsWorkflow : BaseEditPermissionsWorkflow<IPagePermissions, IPage>
+    public sealed class EditMediaFolderPermissionsWorkflow : BaseEditPermissionsWorkflow<IMediaFolderPermissions, IMediaFileFolder>
     {
-        protected override IPagePermissions GetPermissions()
+        protected override IMediaFolderPermissions GetPermissions()
         {
             using (var data = new DataConnection())
             {
-                return data.Get<IPagePermissions>().SingleOrDefault(p => p.PageId == DataEntity.Id);
+                return data.Get<IMediaFolderPermissions>().SingleOrDefault(p => p.KeyPath == DataEntity.KeyPath);
             }
         }
 
-        protected override void SavePermissions(IPagePermissions permissions)
+        protected override void SavePermissions(IMediaFolderPermissions permissions)
         {
             using (var data = new DataConnection())
             {
-                if (permissions.PageId == Guid.Empty)
+                if (String.IsNullOrEmpty(permissions.KeyPath))
                 {
-                    permissions.PageId = DataEntity.Id;
+                    permissions.KeyPath = DataEntity.KeyPath;
 
                     data.Add(permissions);
                 }
