@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Linq;
 
 using Composite.Core.Serialization;
 using Composite.Data;
 
 using CompositeC1Contrib.Teasers.C1Console.EntityTokens;
+using CompositeC1Contrib.Teasers.Data;
 using CompositeC1Contrib.Teasers.Data.Types;
 using CompositeC1Contrib.Workflows;
 
@@ -35,6 +37,7 @@ namespace CompositeC1Contrib.Teasers.C1Console.WorkFlows
 
                 Teaser.Name = name;
                 Teaser.Position = pageTeaserPositionFolderEntityToken.Id;
+                Teaser.LocalOrdering = TeaserFacade.GetPageTeasers(pageTeaserPositionFolderEntityToken.Page).Max(t => t.LocalOrdering) + 1;
             }
 
             if (BindingExist("Label"))

@@ -97,39 +97,26 @@ namespace CompositeC1Contrib.Teasers.Web
                     }
 
                     var rand = new Random();
-                    int index = rand.Next(sharedTeasers.Count());
-
+                    var index = rand.Next(sharedTeasers.Count());
                     var sharedTeaser = sharedTeasers[index];
 
-                    if (sharedTeasersInUse.Contains(sharedTeaser.Id))
-                    {
-                        continue;
-                    }
+                    sharedTeasersInUse.Add(sharedTeaser.Id);
 
-					sharedTeasersInUse.Add(sharedTeaser.Id);
+                    var pageTeaserShared = data.CreateNew<IPageTeaserShared>();
 
-                    var sharedTeaserType = sharedTeaser.DataSourceId.InterfaceType;
+                    pageTeaserShared.PageId = pageTeaser.PageId;
+                    pageTeaserShared.Name = sharedTeaser.Name;
+                    pageTeaserShared.LocalOrdering = pageTeaser.LocalOrdering;
+                    pageTeaserShared.Position = pageTeaser.Position;
+                    pageTeaserShared.AdditionalHeader = pageTeaser.AdditionalHeader;
 
-                    var newTeaser = DataFacade.BuildNew(sharedTeaserType) as IPageTeaserShared;
-                    if (newTeaser == null)
-                    {
-                        continue;
-                    }
+                    pageTeaserShared.SharedTeaserType = sharedTeaser.DataSourceId.InterfaceType.AssemblyQualifiedName;
+                    pageTeaserShared.SharedTeaserId = sharedTeaser.Id;
 
-                    newTeaser.Id = new Guid();
-                    newTeaser.PageId = pageTeaser.PageId;
-                    newTeaser.LocalOrdering = pageTeaser.LocalOrdering;
-                    newTeaser.Position = pageTeaser.Position;
-                    newTeaser.AdditionalHeader = pageTeaser.AdditionalHeader;
-                    newTeaser.SharedTeaserType = sharedTeaserType.Name;
-                    newTeaser.SharedTeaserId = sharedTeaser.Id;
-                    newTeaser.Name = sharedTeaser.Name;
+                    var specificSharedTeaser = new PageTeaserWrapper(pageTeaserShared, 0);
+                    var teaserHolder = new PageTeaserHolder(pageTeaser.Position, sharedTeaser.Id, specificSharedTeaser);
 
-                    var newPageTeaserWithAdditionalInfo = new PageTeaserWrapper(newTeaser, 0);
-
-                    pageTeasers.Add(newPageTeaserWithAdditionalInfo);
-
-                    TeaserFacade.PageTeasersForRequest.Add(new PageTeaserHolder(pageTeaser.Position, sharedTeaser.Id, newPageTeaserWithAdditionalInfo));
+                    TeaserFacade.PageTeasersForRequest.Add(teaserHolder);
                 }
             }
         }
