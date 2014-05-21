@@ -32,12 +32,13 @@ namespace CompositeC1Contrib.Teasers.C1Console.WorkFlows
 
                 var teaserType = Type.GetType(StringConversionServices.DeserializeValue<string>(payload["teaserType"]));
                 var name = StringConversionServices.DeserializeValue<string>(payload["name"]);
+                var existingTeasers = TeaserFacade.GetPageTeasers(pageTeaserPositionFolderEntityToken.Page).ToList();
 
                 Teaser = (T)DataFacade.BuildNew(teaserType);
 
                 Teaser.Name = name;
                 Teaser.Position = pageTeaserPositionFolderEntityToken.Id;
-                Teaser.LocalOrdering = TeaserFacade.GetPageTeasers(pageTeaserPositionFolderEntityToken.Page).Max(t => t.LocalOrdering) + 1;
+                Teaser.LocalOrdering = existingTeasers.Any() ? existingTeasers.Max(t => t.LocalOrdering) + 1 : 1;
             }
 
             if (BindingExist("Label"))
