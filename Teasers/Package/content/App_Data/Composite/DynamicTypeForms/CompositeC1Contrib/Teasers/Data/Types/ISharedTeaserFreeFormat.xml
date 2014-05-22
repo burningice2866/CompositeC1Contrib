@@ -1,62 +1,81 @@
 ﻿<cms:formdefinition xmlns:cms="http://www.composite.net/ns/management/bindingforms/1.0" xmlns="http://www.composite.net/ns/management/bindingforms/std.ui.controls.lib/1.0" xmlns:ff="http://www.composite.net/ns/management/bindingforms/std.function.lib/1.0" xmlns:f="http://www.composite.net/ns/function/1.0">
-	<cms:bindings>
-		<cms:binding name="Name" type="System.String" optional="false" />
-		<cms:binding name="PublishDate" type="System.DateTime" optional="true" />
-		<cms:binding name="UnpublishDate" type="System.DateTime" optional="true" />
-		<cms:binding name="TeaserGroup" type="System.Guid" optional="true" />
-		<cms:binding name="InclInRotation" type="System.Boolean" optional="true" />
-		<cms:binding name="Content" type="System.String" optional="true" />
-	</cms:bindings>
-  
-	<cms:layout>
-		<cms:layout.label>
-			<cms:read source="Name" />
-		</cms:layout.label>
-    
-		<TabPanels>
-			<PlaceHolder Label="Opsætning">
-				<FieldGroup>
-					<TextBox Label="Administrativt navn" Help="" SpellCheck="true">
-						<TextBox.Text>
-							<cms:bind source="Name" />
-						</TextBox.Text>
-					</TextBox>
+  <cms:bindings>
+    <cms:binding name="Name" type="System.String" optional="false" />
+    <cms:binding name="PublishDate" type="System.DateTime" optional="true" />
+    <cms:binding name="UnpublishDate" type="System.DateTime" optional="true" />
+    <cms:binding name="TeaserGroup" type="System.Guid" optional="true" />
+    <cms:binding name="DesignName" type="System.String" optional="true" />
+    <cms:binding name="InclInRotation" type="System.Boolean" optional="true" />
+    <cms:binding name="Content" type="System.String" optional="true" />
+  </cms:bindings>
 
-					<KeySelector Label="Teasergruppe" Help="" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
-						<KeySelector.Selected>
-							<cms:bind source="TeaserGroup"/>
-						</KeySelector.Selected>
-            
-						<KeySelector.Options>
-							<ff:StaticMethodCall Type="CompositeC1Contrib.Teasers.C1Console.FormHelpers, CompositeC1Contrib.Teasers" Method="GetSharedTeaserGroups" />
-						</KeySelector.Options>
-					</KeySelector>
+  <cms:layout>
+    <cms:layout.label>
+      <cms:read source="Name" />
+    </cms:layout.label>
 
-					<DateSelector Label="Publiseringsdato" Help="">
-						<DateSelector.Date>
-							<cms:bind source="PublishDate" />
-						</DateSelector.Date>
-					</DateSelector>
+    <TabPanels>
+      <PlaceHolder Label="Opsætning">
+        <FieldGroup>
+          <TextBox Label="Administrativt navn" Help="" SpellCheck="true">
+            <TextBox.Text>
+              <cms:bind source="Name" />
+            </TextBox.Text>
+          </TextBox>
 
-					<DateSelector Label="Afpubliceringsdato" Help="">
-						<DateSelector.Date>
-							<cms:bind source="UnpublishDate" />
-						</DateSelector.Date>
-					</DateSelector>
+          <KeySelector Label="Teasergruppe" Help="" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
+            <KeySelector.Selected>
+              <cms:bind source="TeaserGroup"/>
+            </KeySelector.Selected>
 
-					<CheckBox Label="Inkludér i rotationer" Help="">
-						<CheckBox.Checked>
-							<cms:bind source="InclInRotation" />
-						</CheckBox.Checked>
-					</CheckBox>
-				</FieldGroup>
-			</PlaceHolder>
+            <KeySelector.Options>
+              <ff:StaticMethodCall Type="CompositeC1Contrib.Teasers.C1Console.FormHelpers, CompositeC1Contrib.Teasers" Method="GetSharedTeaserGroups" />
+            </KeySelector.Options>
+          </KeySelector>
 
-			<XhtmlEditor Label="Indhold" ClassConfigurationName="common">
-				<XhtmlEditor.Xhtml>
-					<cms:bind source="Content" />
-				</XhtmlEditor.Xhtml>
-			</XhtmlEditor>
-		</TabPanels>
-	</cms:layout>
+          <ff:NullCheck>
+            <ff:NullCheck.CheckValue>
+              <ff:StaticMethodCall Type="CompositeC1Contrib.Teasers.C1Console.FormHelpers" Method="GetDesigns" />
+            </ff:NullCheck.CheckValue>
+
+            <ff:NullCheck.WhenNotNull>
+              <KeySelector Label="Design" Help="" OptionsKeyField="Key" OptionsLabelField="Value" Required="false">
+                <KeySelector.Selected>
+                  <cms:bind source="DesignName"/>
+                </KeySelector.Selected>
+
+                <KeySelector.Options>
+                  <ff:StaticMethodCall Type="CompositeC1Contrib.Teasers.C1Console.FormHelpers" Method="GetDesigns" />
+                </KeySelector.Options>
+              </KeySelector>
+            </ff:NullCheck.WhenNotNull>
+          </ff:NullCheck>
+
+          <DateSelector Label="Publiseringsdato" Help="">
+            <DateSelector.Date>
+              <cms:bind source="PublishDate" />
+            </DateSelector.Date>
+          </DateSelector>
+
+          <DateSelector Label="Afpubliceringsdato" Help="">
+            <DateSelector.Date>
+              <cms:bind source="UnpublishDate" />
+            </DateSelector.Date>
+          </DateSelector>
+
+          <CheckBox Label="Inkludér i rotationer" Help="">
+            <CheckBox.Checked>
+              <cms:bind source="InclInRotation" />
+            </CheckBox.Checked>
+          </CheckBox>
+        </FieldGroup>
+      </PlaceHolder>
+
+      <XhtmlEditor Label="Indhold" ClassConfigurationName="common">
+        <XhtmlEditor.Xhtml>
+          <cms:bind source="Content" />
+        </XhtmlEditor.Xhtml>
+      </XhtmlEditor>
+    </TabPanels>
+  </cms:layout>
 </cms:formdefinition>

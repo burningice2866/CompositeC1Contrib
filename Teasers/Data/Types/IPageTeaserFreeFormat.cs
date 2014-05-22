@@ -10,7 +10,7 @@ namespace CompositeC1Contrib.Teasers.Data.Types
     [Title("Page Teaser (Free Format)")]
     [Icon("editor-sourceview")]
     [EditWorkflow(typeof(EditPageTeaserFreeFormatWorkFlow))]
-    public interface IPageTeaserFreeFormat : IPageTeaser
+    public interface IPageTeaserFreeFormat : IPageTeaser, ITeaserDesign
     {
         [ImmutableFieldId("FABC3247-BA58-4EBF-B957-30E803355A5A")]
         [StoreFieldType(PhysicalStoreFieldType.LargeString)]

@@ -1,4 +1,7 @@
-﻿using CompositeC1Contrib.Teasers.Data.Types;
+﻿using Composite.Core.Xml;
+
+using CompositeC1Contrib.Teasers.Configuration;
+using CompositeC1Contrib.Teasers.Data.Types;
 
 namespace CompositeC1Contrib.Teasers.C1Console.WorkFlows
 {
@@ -8,12 +11,17 @@ namespace CompositeC1Contrib.Teasers.C1Console.WorkFlows
 
         protected override void SaveBindings()
         {
-            Teaser.Content = GetBinding<string>("Content");
+            Teaser.Content = GetBinding<string>("Content") ?? new XhtmlDocument().ToString();
+            Teaser.DesignName = GetBinding<string>("DesignName");
         }
 
         protected override void LoadBindings()
         {
+            var designs = TeasersSection.GetSection().Designs;
+
             Bindings.Add("Content", Teaser.Content);
+            Bindings.Add("Designs", designs.Count > 0 ? designs : null);
+            Bindings.Add("DesignName", Teaser.DesignName);
         }
     }
 }

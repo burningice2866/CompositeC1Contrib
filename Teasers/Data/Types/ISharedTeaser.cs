@@ -6,7 +6,7 @@ namespace CompositeC1Contrib.Teasers.Data.Types
 {
     [KeyPropertyName("Id")]
     [LabelPropertyName("Name")]
-    public interface ISharedTeaser : ITeaser
+    public interface ISharedTeaser : ITeaser, ITeaserDesign
     {
         [ImmutableFieldId("2706E8BB-9BAA-46FA-9AC8-5B5CE7CE6A3E")]
         [StoreFieldType(PhysicalStoreFieldType.Guid)]

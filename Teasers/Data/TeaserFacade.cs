@@ -67,7 +67,7 @@ namespace CompositeC1Contrib.Teasers.Data
 
             foreach (var type in SharedTeaserTypes)
             {
-                IQueryable<ISharedTeaser> query = DataFacade.GetData(type).Cast<ISharedTeaser>().Where(t => t.TeaserGroup == teaserGroup);
+                var query = DataFacade.GetData(type).Cast<ISharedTeaser>().Where(t => t.TeaserGroup == teaserGroup);
 
                 if (filterPublished)
                 {
@@ -96,7 +96,7 @@ namespace CompositeC1Contrib.Teasers.Data
 
             foreach (var type in PageTeaserTypes)
             {
-                IQueryable<IPageTeaser> query = DataFacade.GetData(type).Cast<IPageTeaser>();
+                var query = DataFacade.GetData(type).Cast<IPageTeaser>();
 
                 if (page != null)
                 {

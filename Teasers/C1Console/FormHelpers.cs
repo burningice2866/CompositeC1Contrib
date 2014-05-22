@@ -4,6 +4,7 @@ using System.Linq;
 
 using Composite.Data;
 
+using CompositeC1Contrib.Teasers.Configuration;
 using CompositeC1Contrib.Teasers.Data;
 using CompositeC1Contrib.Teasers.Data.Types;
 
@@ -11,6 +12,13 @@ namespace CompositeC1Contrib.Teasers.C1Console
 {
     public static class FormHelpers
     {
+        public static Dictionary<string, string> GetDesigns()
+        {
+            var designs = TeasersSection.GetSection().Designs;
+            
+            return designs.Count == 0 ? null : designs.Cast<TeasersDesignElement>().ToDictionary(el => el.Name, el => el.Label);
+        }
+
         public static Dictionary<Guid, string> GetSharedTeaserGroups()
         {
             using (var data = new DataConnection())

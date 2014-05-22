@@ -2,9 +2,11 @@
   <cms:bindings>
     <cms:binding name="Label" type="System.String" optional="true" />
     <cms:binding name="Positions" type="System.Object" optional="true" />
+    <cms:binding name="Designs" type="System.Object" optional="true" />
 
     <cms:binding name="Name" type="System.String" optional="true" />
     <cms:binding name="Position" type="System.String" optional="true" />
+    <cms:binding name="DesignName" type="System.String" optional="true" />
     <cms:binding name="AdditionalHeader" type="System.String" optional="true" />
     <cms:binding name="ShowOnDescendants" type="System.Boolean" optional="true" />
     <cms:binding name="PublishDate" type="System.DateTime" optional="true" />
@@ -18,7 +20,7 @@
     <cms:layout.label>
       <cms:read source="Label" />
     </cms:layout.label>
-    
+
     <TabPanels>
       <PlaceHolder Label="Opsætning">
         <FieldGroup Label="Fritekstteaser">
@@ -31,16 +33,34 @@
               <cms:bind source="Name" />
             </TextBox.Text>
           </TextBox>
-          
+
           <KeySelector Label="Placering" Help="" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
             <KeySelector.Selected>
               <cms:bind source="Position"/>
             </KeySelector.Selected>
-            
+
             <KeySelector.Options>
               <cms:read source="Positions" />
             </KeySelector.Options>
           </KeySelector>
+
+          <ff:NullCheck>
+            <ff:NullCheck.CheckValue>
+              <cms:read source="Designs"/>
+            </ff:NullCheck.CheckValue>
+
+            <ff:NullCheck.WhenNotNull>
+              <KeySelector Label="Design" Help="" OptionsKeyField="Name" OptionsLabelField="Label" Required="false">
+                <KeySelector.Selected>
+                  <cms:bind source="DesignName"/>
+                </KeySelector.Selected>
+
+                <KeySelector.Options>
+                  <cms:read source="Designs" />
+                </KeySelector.Options>
+              </KeySelector>
+            </ff:NullCheck.WhenNotNull>
+          </ff:NullCheck>
 
           <TextBox Label="Ekstra overskrift" Help="Bruges eksemplevis hvis der er behov for at kategorisere teaserne" SpellCheck="true">
             <TextBox.Text>

@@ -1,12 +1,39 @@
 ﻿@using System.Linq
+@using System.Text
 
+@using CompositeC1Contrib.Teasers.Configuration
 @using CompositeC1Contrib.Teasers.Data
+@using CompositeC1Contrib.Teasers.Data.Types
 @using CompositeC1Contrib.Teasers.Web.UI
 
 @functions
 {
     [FunctionParameter(Label = "Position")]
     public string Position { get; set; }
+
+    private static string GenerateCssClasses(PageTeaserHolder holder)
+    {
+        var sb = new StringBuilder();
+        var additionalInfo = holder.AdditionalInfo;
+
+        sb.Append("teaser");
+        sb.AppendFormat(" type-{0}", additionalInfo.InterfaceType.Name.Replace("IPageTeaser", String.Empty).ToLower());
+        sb.AppendFormat(" reverse-depth-{0}", additionalInfo.ReverseDepth);
+
+        if (!String.IsNullOrEmpty(holder.Design))
+        {
+            var designs = TeasersSection.GetSection().Designs.Cast<TeasersDesignElement>();
+            var designName = holder.Design;
+            var designElement = designs.SingleOrDefault(el => el.Name == designName);
+
+            if (designElement != null)
+            {
+                sb.Append(" " + designElement.CssClass);
+            }
+        }
+
+        return sb.ToString();
+    }
 }
 
 @{
@@ -26,8 +53,8 @@
                 @Html.RenderFocusLink(teaser, "Focus")
                 @Html.RenderEditLink(teaser, "Edit")
 
-                <div class="teaser type-@pageTeaserHolder.AdditionalInfo.InterfaceType.Name.Replace("IPageTeaser", String.Empty).ToLower() reverse-depth-@pageTeaserHolder.AdditionalInfo.ReverseDepth">
-                    @Function("Teasers.Types." + typeName, new {Teaser = teaser})
+                <div class="@GenerateCssClasses(pageTeaserHolder)">
+                    @Function("Teasers.Types." + typeName, new { Teaser = teaser })
                 </div>
             }
         </div>

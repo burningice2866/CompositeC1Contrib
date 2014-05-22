@@ -4,6 +4,13 @@ namespace CompositeC1Contrib.Teasers.Configuration
 {
 	public class TeasersSection : ConfigurationSection
     {
+        [ConfigurationProperty("designs", IsRequired = false)]
+        public TeasersDesignCollection Designs
+        {
+            get { return (TeasersDesignCollection)this["designs"]; }
+            set { this["designs"] = value; }
+        }
+
         [ConfigurationProperty("positions", IsRequired = true)]
 		public TeasersPositionCollection Positions
         {

@@ -71,8 +71,8 @@ namespace CompositeC1Contrib.Teasers.Web
 
                 foreach (var teaser in pageTeasers.Where(f => f.InterfaceType == typeof(IPageTeaserShared)))
                 {
-                    var pageTeaser = teaser.Teaser;
-                    var sharedTeaserId = ((IPageTeaserShared)pageTeaser).SharedTeaserId;
+                    var pageTeaser = (IPageTeaserShared)teaser.Teaser;
+                    var sharedTeaserId = pageTeaser.SharedTeaserId;
 
                     if (sharedTeasersInUse.Contains(sharedTeaserId))
                     {
@@ -81,7 +81,15 @@ namespace CompositeC1Contrib.Teasers.Web
 
                     sharedTeasersInUse.Add(sharedTeaserId);
 
-                    TeaserFacade.PageTeasersForRequest.Add(new PageTeaserHolder(pageTeaser.Position, sharedTeaserId, teaser));
+                    var sharedTeaserType = Type.GetType(pageTeaser.SharedTeaserType);
+                    var instance = DataFacade.GetData(sharedTeaserType).Cast<ISharedTeaser>().SingleOrDefault(t => t.Id == sharedTeaserId);
+
+                    if (instance != null)
+                    {
+                        var teaserHolder = new PageTeaserHolder(pageTeaser.Position, instance.DesignName, sharedTeaserId, teaser);
+
+                        TeaserFacade.PageTeasersForRequest.Add(teaserHolder);
+                    }
                 }
 
                 //IPageTeaserRandom is transformed into IPageTeaserShared
@@ -112,9 +120,9 @@ namespace CompositeC1Contrib.Teasers.Web
 
                     pageTeaserShared.SharedTeaserType = sharedTeaser.DataSourceId.InterfaceType.AssemblyQualifiedName;
                     pageTeaserShared.SharedTeaserId = sharedTeaser.Id;
-
+                    
                     var specificSharedTeaser = new PageTeaserWrapper(pageTeaserShared, 0);
-                    var teaserHolder = new PageTeaserHolder(pageTeaser.Position, sharedTeaser.Id, specificSharedTeaser);
+                    var teaserHolder = new PageTeaserHolder(pageTeaser.Position, sharedTeaser.DesignName, sharedTeaser.Id, specificSharedTeaser);
 
                     TeaserFacade.PageTeasersForRequest.Add(teaserHolder);
                 }

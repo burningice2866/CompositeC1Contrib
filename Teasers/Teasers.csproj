@@ -52,6 +52,8 @@
     </Reference>
     <Reference Include="System.Workflow.Activities" />
     <Reference Include="System.Workflow.ComponentModel" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="C1Console\Actions\DeletePageTeaserActionToken.cs" />
@@ -81,7 +83,9 @@
     <Compile Include="Configuration\TeasersSection.cs" />
     <Compile Include="Configuration\TeasersTemplateCollection.cs" />
     <Compile Include="Configuration\TeasersTemplateElement.cs" />
+    <Compile Include="Configuration\TeasersDesignCollection.cs" />
     <Compile Include="Configuration\TeasersTemplatePositionCollection.cs" />
+    <Compile Include="Configuration\TeasersDesignElement.cs" />
     <Compile Include="Configuration\TeasersTemplatePositionElement.cs" />
     <Compile Include="Data\PageTeaserHolder.cs" />
     <Compile Include="Data\PageTeaserWrapper.cs" />
@@ -95,6 +99,7 @@
     <Compile Include="Data\Types\ISharedTeaser.cs" />
     <Compile Include="Data\Types\ISharedTeaserFreeFormat.cs" />
     <Compile Include="Data\Types\ISharedTeaserGroup.cs" />
+    <Compile Include="Data\Types\ITeaserDesign.cs" />
     <Compile Include="Data\Types\ITeaser.cs" />
     <Compile Include="IconAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
