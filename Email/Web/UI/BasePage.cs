@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Web.UI;
-
-using Composite.C1Console.Events;
-using Composite.C1Console.Security;
 
 namespace CompositeC1Contrib.Email.Web.UI
 {
@@ -36,24 +32,7 @@ namespace CompositeC1Contrib.Email.Web.UI
 
         protected void UpdateParents()
         {
-            var entityToken = EntityTokenSerializer.Deserialize(EntityToken);
-            var graph = new RelationshipGraph(entityToken, RelationshipGraphSearchOption.Both);
-
-            if (graph.Levels.Count() <= 1)
-            {
-                return;
-            }
-
-            var level = graph.Levels.ElementAt(1);
-            foreach (var token in level.AllEntities)
-            {
-                var consoleMessageQueueItem = new RefreshTreeMessageQueueItem
-                {
-                    EntityToken = token
-                };
-
-                ConsoleMessageQueueFacade.Enqueue(consoleMessageQueueItem, ConsoleId);
-            }
+            Util.UpdateParents(EntityToken, ConsoleId);
         }
     }
 }

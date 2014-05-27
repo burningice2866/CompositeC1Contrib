@@ -28,7 +28,8 @@ namespace CompositeC1Contrib.Email.Web.UI
                 {
                     var list = data.Get<IQueuedMailMessage>();
 
-                    list = Filter(list);
+                    list = FilterQueue(list);
+                    list = FilterTemplate(list);
 
                     data.Delete<IQueuedMailMessage>(list);
                 }
@@ -97,15 +98,14 @@ namespace CompositeC1Contrib.Email.Web.UI
                     query = data.Get<ISentMailMessage>();
                 }
 
-                query = Filter(query);
+                query = FilterQueue(query);
 
-                var mailLogItems = SelectLogItems(query, data);
-
-                var templateFilter = mailLogItems.Select(itm => itm.Template)
+                var templateFilter = SelectLogItems(query).Select(itm => itm.Template)
                     .Where(t => t != null)
                     .Select(t => t.Key)
                     .Distinct();
 
+                ddlTemplates.Items.Clear();
                 ddlTemplates.Items.Add(new ListItem("no filter", "[]"));
                 ddlTemplates.Items.AddRange(templateFilter.Select(t => new ListItem(t, t)).ToArray());
 
@@ -116,21 +116,17 @@ namespace CompositeC1Contrib.Email.Web.UI
                         itm.Selected = true;
                     }
                 }
+                
+                query = FilterTemplate(query);
 
-                rptLog.DataSource = mailLogItems;
+                rptLog.DataSource = SelectLogItems(query);
             }
 
             DataBind();
         }
 
-        private IQueryable<T> Filter<T>(IQueryable<T> mailMessages) where T : IMailMessage
+        private IQueryable<T> FilterQueue<T>(IQueryable<T> mailMessages) where T : IMailMessage
         {
-            var template = Request.QueryString["template"];
-            if (!String.IsNullOrEmpty(template))
-            {
-                mailMessages = mailMessages.Where(m => m.MailTemplateKey == template);
-            }
-
             Guid queueId;
             if (Guid.TryParse(Request.QueryString["queue"], out queueId))
             {
@@ -140,35 +136,24 @@ namespace CompositeC1Contrib.Email.Web.UI
             return mailMessages;
         }
 
-        private static IEnumerable<MailLogItem> SelectLogItems(IQueryable<IMailMessage> mailMessages, DataConnection data)
+        private IQueryable<T> FilterTemplate<T>(IQueryable<T> mailMessages) where T : IMailMessage
         {
-            var templates = data.Get<IMailTemplate>().ToDictionary(t => t.Key);
+            var template = Request.QueryString["template"];
+            if (!String.IsNullOrEmpty(template))
+            {
+                mailMessages = mailMessages.Where(m => m.MailTemplateKey == template);
+            }
 
+            return mailMessages;
+        }
+
+        private static IEnumerable<MailLogItem> SelectLogItems(IQueryable<IMailMessage> mailMessages)
+        {
             return mailMessages
                 .OrderByDescending(m => m.TimeStamp)
                 .Take(100)
-                .Select(m => new MailLogItem
-                {
-                    Id = m.Id,
-                    Subject = m.Subject,
-                    TimeStamp = m.TimeStamp.ToLocalTime(),
-                    Template = GetTemplateForMessage(m, templates)
-                }).ToList();
-        }
-
-        private static IMailTemplate GetTemplateForMessage(IMailMessage message, IDictionary<string, IMailTemplate> templates)
-        {
-            if (String.IsNullOrEmpty(message.MailTemplateKey))
-            {
-                return null;
-            }
-
-            if (!templates.ContainsKey(message.MailTemplateKey))
-            {
-                return null;
-            }
-
-            return templates[message.MailTemplateKey];
+                .Select(MailLogItem.FromIMailMessage)
+                .ToList();
         }
     }
 }

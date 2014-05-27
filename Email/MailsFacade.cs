@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Net.Configuration;
@@ -14,6 +15,9 @@ namespace CompositeC1Contrib.Email
 {
     public static class MailsFacade
     {
+        public static readonly IList<Action<IQueuedMailMessage>> MailQueuedNotifications = new List<Action<IQueuedMailMessage>>();
+        public static readonly IList<Action<ISentMailMessage>> MailSentNotifications = new List<Action<ISentMailMessage>>();
+
         private const string Pattern = @"(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b";
         private static readonly Regex Regex = new Regex(Pattern, RegexOptions.Compiled);
 
@@ -107,6 +111,11 @@ namespace CompositeC1Contrib.Email
                 }
 
                 data.Add(message);
+
+                foreach (var action in MailQueuedNotifications)
+                {
+                    action(message);
+                }
 
                 return message;
             }

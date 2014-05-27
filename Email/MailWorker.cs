@@ -146,6 +146,11 @@ namespace CompositeC1Contrib.Email
             data.Add(sentMailMessage);
 
             MailMessageSerializeFacade.SaveMailMessageToDisk(sentMailMessage.Id, mailMessage);
+
+            foreach (var action in MailsFacade.MailSentNotifications)
+            {
+                action(sentMailMessage);
+            }
         }
 
         private static SmtpClient GetClient(IMailQueue queue)

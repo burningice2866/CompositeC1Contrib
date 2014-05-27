@@ -9,6 +9,7 @@ using Composite.C1Console.Workflow;
 using Composite.Core.ResourceSystem;
 using Composite.Core.WebClient;
 using Composite.Data;
+using Composite.Data.Types;
 
 using CompositeC1Contrib.Email.C1Console.ElementProviders.Actions;
 using CompositeC1Contrib.Email.C1Console.ElementProviders.EntityTokens;
@@ -34,6 +35,23 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
         public MailElementProvider()
         {
             AuxiliarySecurityAncestorFacade.AddAuxiliaryAncestorProvider<DataEntityToken>(this);
+
+            MailsFacade.MailQueuedNotifications.Add(UpdateQueues);
+        }
+
+        private static void UpdateQueues(IMailMessage message)
+        {
+            using (var data = new DataConnection())
+            {
+                var consoleIds = data.Get<IUserConsoleInformation>().Select(u => u.ConsoleId).ToList();
+                var queuesEntityToken = new MailQueuesEntityToken();
+                var serializedToken = EntityTokenSerializer.Serialize(queuesEntityToken);
+
+                foreach (var id in consoleIds)
+                {
+                    Util.UpdateParents(serializedToken, id);
+                }
+            }
         }
 
         public IEnumerable<Element> GetChildren(EntityToken entityToken, SearchToken searchToken)

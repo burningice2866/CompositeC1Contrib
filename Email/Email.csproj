@@ -40,14 +40,29 @@
     <Reference Include="Composite">
       <HintPath>..\References\Composite.dll</HintPath>
     </Reference>
-    <Reference Include="Composite.Workflows">
-      <HintPath>..\References\Composite.Workflows.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Core">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.0.3\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Owin, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Owin.2.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security">
+      <HintPath>..\packages\Microsoft.Owin.Security.2.1.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation">
       <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Owin">
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -69,6 +84,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Data\IMailTemplatesProvider.cs" />
+    <Compile Include="SignalR\MailHub.cs" />
     <Compile Include="MailMessageBuilder.cs" />
     <Compile Include="Data\MailMessageDataAncestorProvider.cs" />
     <Compile Include="Data\MailModelAttribute.cs" />
@@ -97,6 +113,8 @@
     <Compile Include="Serialization\SerializeableLinkedResource.cs" />
     <Compile Include="Serialization\SerializeableMailAddress.cs" />
     <Compile Include="Serialization\SerializeableMailMessage.cs" />
+    <Compile Include="SignalR\MailMessage.cs" />
+    <Compile Include="SignalR\OwinStartupHandler.cs" />
     <Compile Include="StartupHandler.cs" />
     <Compile Include="C1Console\Workflows\CreateMailQueueWorkflow.cs">
       <SubType>Component</SubType>
@@ -104,6 +122,7 @@
     <Compile Include="C1Console\Workflows\EditMailQueueWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Util.cs" />
     <Compile Include="Web\UI\BasePage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -128,6 +147,7 @@
     <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.Email\log.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
+    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.Email\signalr.js" />
     <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.Email\view.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
