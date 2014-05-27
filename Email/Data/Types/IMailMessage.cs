@@ -24,6 +24,11 @@ namespace CompositeC1Contrib.Email.Data.Types
         [ForeignKey(typeof(IMailQueue), "Id", AllowCascadeDeletes = true)]
         Guid QueueId { get; set; }
 
+        [StoreFieldType(PhysicalStoreFieldType.String, 128, IsNullable = true)]
+        [ImmutableFieldId("ab5ecc63-bd38-432c-9b86-e77b2aa380b4")]
+        [ForeignKey(typeof(IMailTemplate), "Key", AllowCascadeDeletes = true, NullReferenceValue = null)]
+        string MailTemplateKey { get; set; }
+
         [ImmutableFieldId("d5d239cd-1642-4c00-a861-5482e8ca0299")]
         [StoreFieldType(PhysicalStoreFieldType.DateTime)]
         DateTime TimeStamp { get; set; }

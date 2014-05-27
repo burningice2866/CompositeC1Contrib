@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
+using System.Net.Configuration;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
@@ -79,7 +81,15 @@ namespace CompositeC1Contrib.Email
             {
                 if (mailMessage.From == null)
                 {
-                    mailMessage.From = new MailAddress(queue.From);
+                    var from = queue.From;
+                    if (String.IsNullOrEmpty(from))
+                    {
+                        var configuration = (SmtpSection)ConfigurationManager.GetSection("system.net/mailSettings/smtp");
+
+                        from = configuration.From;
+                    }
+
+                    mailMessage.From = new MailAddress(from);
                 }
 
                 var message = data.CreateNew<IQueuedMailMessage>();
@@ -89,6 +99,12 @@ namespace CompositeC1Contrib.Email
                 message.QueueId = queue.Id;
                 message.Subject = mailMessage.Subject;
                 message.SerializedMessage = MailMessageSerializeFacade.SerializeAsBase64(mailMessage);
+
+                var templateKey = mailMessage.Headers["X-C1Contrib-Mail-TemplateKey"];
+                if (!String.IsNullOrEmpty(templateKey) && data.Get<IMailTemplate>().Any(t => t.Key == templateKey))
+                {
+                    message.MailTemplateKey = templateKey;
+                }
 
                 data.Add(message);
 

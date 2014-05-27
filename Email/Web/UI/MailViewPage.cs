@@ -24,7 +24,8 @@ namespace CompositeC1Contrib.Email.Web.UI
         {
             get
             {
-                var id = new Guid(Request.QueryString["id"]);
+                Guid id;
+                Guid.TryParse(Request.QueryString["id"], out id);
 
                 return id;
             }
@@ -43,13 +44,8 @@ namespace CompositeC1Contrib.Email.Web.UI
 
                 switch (View)
                 {
-                    case "queued":
-                    instance = data.Get<IQueuedMailMessage>().Single(m => m.Id == Id);
-                    break;
-
-                    case "sent":
-                    instance = data.Get<ISentMailMessage>().Single(m => m.Id == Id);
-                    break;
+                    case LogViewMode.Queued: instance = data.Get<IQueuedMailMessage>().Single(m => m.Id == Id); break;
+                    case LogViewMode.Sent: instance = data.Get<ISentMailMessage>().Single(m => m.Id == Id); break;
                 }
 
                 data.Delete(instance);
@@ -71,8 +67,8 @@ namespace CompositeC1Contrib.Email.Web.UI
         {
             switch (View)
             {
-                case "queued": GetQueuedMailMessage(Id); break;
-                case "sent": GetSentMailMessage(Id); break;
+                case LogViewMode.Queued: GetQueuedMailMessage(Id); break;
+                case LogViewMode.Sent: GetSentMailMessage(Id); break;
             }
 
             if (String.IsNullOrEmpty(Body))

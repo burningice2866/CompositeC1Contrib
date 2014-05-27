@@ -107,6 +107,7 @@
     <Compile Include="Web\UI\BasePage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Web\UI\LogViewMode.cs" />
     <Compile Include="Web\UI\MailAttachmentItem.cs" />
     <Compile Include="Web\UI\MailLogItem.cs" />
     <Compile Include="Web\UI\MailLogPage.cs">
@@ -117,15 +118,19 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\CreateMailQueue.xml" />
-    <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\EditMailQueue.xml" />
     <None Include="packages.config" />
     <None Include="Package\Config\App_Data\Composite\composite.config">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\EditMailTemplate.xml" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Email\log.aspx" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Email\view.aspx" />
+    <Content Include="Package\Content\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\CreateMailQueue.xml" />
+    <Content Include="Package\Content\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\EditMailQueue.xml" />
+    <Content Include="Package\Content\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\EditMailTemplate.xml" />
+    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.Email\log.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
+    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.Email\view.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="Package\install.xml" />
   </ItemGroup>
   <ItemGroup>

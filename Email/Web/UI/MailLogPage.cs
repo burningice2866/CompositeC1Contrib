@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.UI.WebControls;
 
+using Composite.Core.WebClient.UiControlLib;
 using Composite.Data;
 
 using CompositeC1Contrib.Email.Data.Types;
@@ -12,20 +13,7 @@ namespace CompositeC1Contrib.Email.Web.UI
     public class MailLogPage : BasePage
     {
         protected Repeater rptLog;
-
-        protected IMailQueue Queue
-        {
-            get
-            {
-                var queueId = Guid.Parse(Request.QueryString["queue"]);
-                using (var data = new DataConnection())
-                {
-                    var queue = data.Get<IMailQueue>().Single(q => q.Id == queueId);
-
-                    return queue;
-                }
-            }
-        }
+        protected Selector ddlTemplates;
 
         protected void OnRefresh(object sender, EventArgs e)
         {
@@ -36,9 +24,11 @@ namespace CompositeC1Contrib.Email.Web.UI
         {
             using (var data = new DataConnection())
             {
-                if (View == "queued")
+                if (View == LogViewMode.Queued)
                 {
-                    var list = data.Get<IQueuedMailMessage>().Where(m => m.QueueId == Queue.Id).ToList();
+                    var list = data.Get<IQueuedMailMessage>();
+
+                    list = Filter(list);
 
                     data.Delete<IQueuedMailMessage>(list);
                 }
@@ -46,6 +36,19 @@ namespace CompositeC1Contrib.Email.Web.UI
 
             BindControls();
             UpdateParents();
+        }
+
+        protected void OnTemplateChanged(object sender, EventArgs e)
+        {
+            var selected = ddlTemplates.SelectedValue;
+            if (selected == "[]")
+            {
+                selected = String.Empty;
+            }
+
+            var url = BaseUrl.Replace("template=" + Request.QueryString["template"], "template=" + selected);
+
+            Response.Redirect("log.aspx" + url);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -63,13 +66,8 @@ namespace CompositeC1Contrib.Email.Web.UI
 
                         switch (View)
                         {
-                            case "queued":
-                            instance = data.Get<IQueuedMailMessage>().Single(m => m.Id == id);
-                            break;
-
-                            case "sent":
-                            instance = data.Get<ISentMailMessage>().Single(m => m.Id == id);
-                            break;
+                            case LogViewMode.Queued: instance = data.Get<IQueuedMailMessage>().Single(m => m.Id == id); break;
+                            case LogViewMode.Sent: instance = data.Get<ISentMailMessage>().Single(m => m.Id == id); break;
                         }
 
                         data.Delete(instance);
@@ -90,7 +88,7 @@ namespace CompositeC1Contrib.Email.Web.UI
             using (var data = new DataConnection())
             {
                 IQueryable<IMailMessage> query;
-                if (View == "queued")
+                if (View == LogViewMode.Queued)
                 {
                     query = data.Get<IQueuedMailMessage>();
                 }
@@ -99,41 +97,78 @@ namespace CompositeC1Contrib.Email.Web.UI
                     query = data.Get<ISentMailMessage>();
                 }
 
-                rptLog.DataSource = SelectLogItems(query, Queue);
+                query = Filter(query);
+
+                var mailLogItems = SelectLogItems(query, data);
+
+                var templateFilter = mailLogItems.Select(itm => itm.Template)
+                    .Where(t => t != null)
+                    .Select(t => t.Key)
+                    .Distinct();
+
+                ddlTemplates.Items.Add(new ListItem("no filter", "[]"));
+                ddlTemplates.Items.AddRange(templateFilter.Select(t => new ListItem(t, t)).ToArray());
+
+                foreach (ListItem itm in ddlTemplates.Items)
+                {
+                    if (itm.Value == Request.QueryString["template"])
+                    {
+                        itm.Selected = true;
+                    }
+                }
+
+                rptLog.DataSource = mailLogItems;
             }
 
             DataBind();
         }
 
-        private static IList<MailLogItem> SelectLogItems(IQueryable<IMailMessage> mailMessages, IMailQueue queue)
+        private IQueryable<T> Filter<T>(IQueryable<T> mailMessages) where T : IMailMessage
         {
-            var now = DateTime.Now;
+            var template = Request.QueryString["template"];
+            if (!String.IsNullOrEmpty(template))
+            {
+                mailMessages = mailMessages.Where(m => m.MailTemplateKey == template);
+            }
 
-            return mailMessages.Where(m => m.QueueId == queue.Id)
+            Guid queueId;
+            if (Guid.TryParse(Request.QueryString["queue"], out queueId))
+            {
+                mailMessages = mailMessages.Where(m => m.QueueId == queueId);
+            }
+
+            return mailMessages;
+        }
+
+        private static IEnumerable<MailLogItem> SelectLogItems(IQueryable<IMailMessage> mailMessages, DataConnection data)
+        {
+            var templates = data.Get<IMailTemplate>().ToDictionary(t => t.Key);
+
+            return mailMessages
                 .OrderByDescending(m => m.TimeStamp)
                 .Take(100)
-                .Select(m => new MailLogItem()
+                .Select(m => new MailLogItem
                 {
                     Id = m.Id,
                     Subject = m.Subject,
                     TimeStamp = m.TimeStamp.ToLocalTime(),
-                    TimeStampString = FormatTimeStamp(m.TimeStamp.ToLocalTime(), now)
+                    Template = GetTemplateForMessage(m, templates)
                 }).ToList();
         }
 
-        private static string FormatTimeStamp(DateTime dt, DateTime now)
+        private static IMailTemplate GetTemplateForMessage(IMailMessage message, IDictionary<string, IMailTemplate> templates)
         {
-            if (dt.Date == now.Date)
+            if (String.IsNullOrEmpty(message.MailTemplateKey))
             {
-                return dt.ToString("HH:mm:ss");
+                return null;
             }
 
-            if (dt.Year == now.Year)
+            if (!templates.ContainsKey(message.MailTemplateKey))
             {
-                return dt.ToString("dd-MM HH:mm:ss");
+                return null;
             }
 
-            return dt.ToString("dd-MM-yyyy HH:mm:ss");
+            return templates[message.MailTemplateKey];
         }
     }
 }

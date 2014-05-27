@@ -26,6 +26,7 @@ namespace CompositeC1Contrib.Email
         private MailWorker()
         {
             var threadStart = new ThreadStart(Run);
+
             _thread = new Thread(threadStart);
         }
 
@@ -34,6 +35,7 @@ namespace CompositeC1Contrib.Email
             GlobalEventSystemFacade.SubscribeToPrepareForShutDownEvent(PrepareForShutDown);
 
             Instance._running = true;
+
             Instance._thread.Start();
         }
 
@@ -110,11 +112,12 @@ namespace CompositeC1Contrib.Email
                             try
                             {
                                 var mailMessage = MailMessageSerializeFacade.DeserializeFromBase64(message.SerializedMessage);
+
                                 smtpClient.Send(mailMessage);
+
                                 Log.LogVerbose("Mail message", "Sent mail message " + mailMessage.Subject + " from queue " + queue.Name);
 
-                                mailMessage = MailMessageSerializeFacade.DeserializeFromBase64(message.SerializedMessage);
-                                LogSentMailMessage(data, mailMessage, message.QueueId);
+                                LogSentMailMessage(data, message);
 
                                 data.Delete(message);
                             }
@@ -128,12 +131,15 @@ namespace CompositeC1Contrib.Email
             }
         }
 
-        private static void LogSentMailMessage(DataConnection data, MailMessage mailMessage, Guid queueId)
+        private static void LogSentMailMessage(DataConnection data, IQueuedMailMessage message)
         {
+            var mailMessage = MailMessageSerializeFacade.DeserializeFromBase64(message.SerializedMessage);
+
             var sentMailMessage = data.CreateNew<ISentMailMessage>();
 
             sentMailMessage.Id = Guid.NewGuid();
-            sentMailMessage.QueueId = queueId;
+            sentMailMessage.QueueId = message.QueueId;
+            sentMailMessage.MailTemplateKey = message.MailTemplateKey;
             sentMailMessage.TimeStamp = DateTime.UtcNow;
             sentMailMessage.Subject = mailMessage.Subject;
 

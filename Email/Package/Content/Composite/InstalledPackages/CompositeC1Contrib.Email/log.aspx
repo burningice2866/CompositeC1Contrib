@@ -2,6 +2,7 @@
 
 <%@ Page Language="C#" AutoEventWireup="true" Inherits="CompositeC1Contrib.Email.Web.UI.MailLogPage" %>
 <%@ Import Namespace="CompositeC1Contrib.Email.Web.UI" %>
+<%@ Register TagPrefix="aspui" Namespace="Composite.Core.WebClient.UiControlLib" Assembly="Composite" %>
 
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://www.w3.org/1999/xhtml" xmlns:control="http://www.composite.net/ns/uicontrol">
     <control:httpheaders runat="server" />
@@ -40,18 +41,20 @@
 			        <ui:toolbarbody>
 				        <ui:toolbargroup>
 					        <aspui:ToolbarButton AutoPostBack="true" Text="Refresh" ImageUrl="${icon:refresh}" runat="server" OnClick="OnRefresh" />
-                            <aspui:ToolbarButton AutoPostBack="true" Text="Empty queue" ImageUrl="${icon:delete}" runat="server" OnClick="OnDeleteAll" Visible='<%# View == "queued" %>' />
+                            <aspui:ToolbarButton AutoPostBack="true" Text="Empty queue" ImageUrl="${icon:delete}" runat="server" OnClick="OnDeleteAll" Visible='<%# View == LogViewMode.Queued %>' />
+                            <aspui:Selector runat="server" ID="ddlTemplates" AutoPostBack="True" OnSelectedIndexChanged="OnTemplateChanged" DataValueField="Key" DataTextField="Value"/>
 				        </ui:toolbargroup>
 			        </ui:toolbarbody>
 		        </ui:toolbar>
                            
                 <ui:scrollbox id="scrollbox">
-                    <asp:Repeater ID="rptLog" runat="server">
+                    <asp:Repeater ID="rptLog" ItemType="CompositeC1Contrib.Email.Web.UI.MailLogItem" runat="server">
                         <HeaderTemplate>
                             <table>
                                 <tr>
                                     <th>Subject</th>
                                     <th>Timestamp</th>
+                                    <th>Template</th>
                                     
                                     <th></th>
                                     <th></th>
@@ -60,15 +63,16 @@
 
                         <ItemTemplate>
                                 <tr>
-                                    <td><%# ((MailLogItem)Container.DataItem).Subject %></td>
-                                    <td><%# ((MailLogItem)Container.DataItem).TimeStampString %></td>
+                                    <td><%# Item.Subject %></td>
+                                    <td><%# Item.FormatTimeStamp() %></td>
+                                    <td><%# Item.Template == null ? "No template" : Item.Template.Key %></td>
 
                                     <td>
-                                        <a href="<%= BaseUrl.Replace("&", "&amp;") %>&amp;cmd=delete&amp;id=<%# ((MailLogItem)Container.DataItem).Id %>">Delete</a>
+                                        <a href="<%= BaseUrl.Replace("&", "&amp;") %>&amp;cmd=delete&amp;id=<%# Item.Id %>">Delete</a>
                                     </td>
                                     
                                     <td>
-                                        <a href="view.aspx<%= BaseUrl.Replace("&", "&amp;") %>&amp;id=<%# ((MailLogItem)Container.DataItem).Id %>">View</a>
+                                        <a href="view.aspx<%= BaseUrl.Replace("&", "&amp;") %>&amp;id=<%# Item.Id %>">View</a>
                                     </td>
                                 </tr>
                         </ItemTemplate>

@@ -34,15 +34,23 @@ namespace CompositeC1Contrib.Email
         {
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(ResolveText(_template.From)),
                 Subject = ResolveText(_template.Subject),
                 Body = ResolveHtml(_template.Body),
                 IsBodyHtml = true
             };
 
+            if (!String.IsNullOrEmpty(_template.From))
+            {
+                var resolvedFrom = ResolveText(_template.From);
+
+                mailMessage.From = new MailAddress(resolvedFrom);
+            }
+
             AppendMailAddresses(mailMessage.To, _template.To);
             AppendMailAddresses(mailMessage.CC, _template.Cc);
             AppendMailAddresses(mailMessage.Bcc, _template.Bcc);
+
+            mailMessage.Headers.Add("X-C1Contrib-Mail-TemplateKey", _template.Key);
 
             foreach (var attachment in _attachments)
             {

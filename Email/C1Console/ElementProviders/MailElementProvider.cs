@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Composite.C1Console.Elements;
@@ -13,6 +14,7 @@ using CompositeC1Contrib.Email.C1Console.ElementProviders.Actions;
 using CompositeC1Contrib.Email.C1Console.ElementProviders.EntityTokens;
 using CompositeC1Contrib.Email.C1Console.Workflows;
 using CompositeC1Contrib.Email.Data.Types;
+using CompositeC1Contrib.Email.Web.UI;
 
 namespace CompositeC1Contrib.Email.C1Console.ElementProviders
 {
@@ -20,6 +22,8 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
     {
         private static readonly ActionGroup ActionGroup = new ActionGroup(ActionGroupPriority.PrimaryHigh);
         private static readonly ActionLocation ActionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = true, ActionGroup = ActionGroup };
+
+        private const string UrlTemplate = "InstalledPackages/CompositeC1Contrib.Email/log.aspx?view={0}&queue={1}&template={2}";
 
         private ElementProviderContext _context;
         public ElementProviderContext Context
@@ -40,8 +44,6 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                 var queue = dataToken.Data as IMailQueue;
                 if (queue != null)
                 {
-                    string baseUrl = UrlUtils.ResolveAdminUrl("InstalledPackages/CompositeC1Contrib.Email/log.aspx?queue=" + queue.Id + "&view=");
-
                     var queuedCount = GetQueuedMessagesCount(queue);
                     var queuedLabel = "Queue";
                     if (queuedCount > 0)
@@ -62,7 +64,7 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                         }
                     };
 
-                    AddViewLogAction(baseUrl, "queued", queuedMailsElement);
+                    AddViewLogAction(LogViewMode.Queued, queue, null, queuedMailsElement);
 
                     yield return queuedMailsElement;
 
@@ -86,7 +88,7 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                         }
                     };
 
-                    AddViewLogAction(baseUrl, "sent", sentMailsElement);
+                    AddViewLogAction(LogViewMode.Sent, queue, null, sentMailsElement);
 
                     yield return sentMailsElement;
                 }
@@ -206,6 +208,8 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                         }
                     });
 
+                    AddViewLogAction(LogViewMode.Sent, null, template, element);
+
                     yield return element;
                 }
             }
@@ -256,9 +260,12 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
             }
         }
 
-        private static void AddViewLogAction(string baseUrl, string view, Element element)
+        private static void AddViewLogAction(LogViewMode view, IMailQueue queue, IMailTemplate template, Element element)
         {
-            var queuedUrlAction = new UrlActionToken("View log", baseUrl + view, new[] { PermissionType.Administrate });
+            var url = String.Format(UrlTemplate, view, queue == null ? String.Empty : queue.Id.ToString(), template == null ? String.Empty : template.Key);
+            url = UrlUtils.ResolveAdminUrl(url);
+
+            var queuedUrlAction = new UrlActionToken("View log", url, new[] { PermissionType.Administrate });
             element.AddAction(new ElementAction(new ActionHandle(queuedUrlAction))
             {
                 VisualData = new ActionVisualizedData
@@ -280,7 +287,7 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
                 {
                     Label = "Email",
                     ToolTip = "Email",
-                    HasChildren = GetTemplates().Any(),
+                    HasChildren = true,
                     Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
                     OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
                 }

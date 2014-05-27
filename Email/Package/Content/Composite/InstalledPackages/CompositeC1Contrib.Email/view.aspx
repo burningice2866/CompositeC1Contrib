@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 
 <%@ Page Language="C#" AutoEventWireup="true" Inherits="CompositeC1Contrib.Email.Web.UI.MailViewPage" %>
-<%@ Import Namespace="CompositeC1Contrib.Email.Web.UI" %>
+<%@ Register TagPrefix="aspui" Namespace="Composite.Core.WebClient.UiControlLib" Assembly="Composite" %>
 
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://www.w3.org/1999/xhtml" xmlns:control="http://www.composite.net/ns/uicontrol">
     <control:httpheaders runat="server" />
@@ -54,15 +54,15 @@
                     Bcc: <%= String.Join(", ", Message.Bcc.Select(o => o.Address)) %> <br /><br />
                     <b><%= Message.Subject %></b> <br /> <br />
 
-                    <asp:Repeater ID="rptAttachments" runat="server">
+                    <asp:Repeater ID="rptAttachments" ItemType="CompositeC1Contrib.Email.Web.UI.MailAttachmentItem" runat="server">
                         <HeaderTemplate>
                             <ul>
                         </HeaderTemplate>
                         
                         <ItemTemplate>
                             <li>
-                                <a href="view.aspx?view=<%= View %>&amp;id=<%= Id %>&amp;cmd=download&amp;attachmentId=<%# ((MailAttachmentItem)Container.DataItem).Id %>" target="_blank">
-                                    <%# ((MailAttachmentItem)Container.DataItem).Name %> (<%# ((MailAttachmentItem)Container.DataItem).Size %> bytes)
+                                <a href="view.aspx?view=<%= View %>&amp;id=<%= Id %>&amp;cmd=download&amp;attachmentId=<%# Item.Id %>" target="_blank">
+                                    <%# Item.Name %> (<%# Item.Size %> bytes)
                                 </a>
                             </li>
                         </ItemTemplate>

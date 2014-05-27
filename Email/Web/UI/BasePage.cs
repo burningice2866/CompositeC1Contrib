@@ -9,9 +9,9 @@ namespace CompositeC1Contrib.Email.Web.UI
 {
     public abstract class BasePage : Page
     {
-        protected string View
+        protected LogViewMode View
         {
-            get { return Request.QueryString["view"]; }
+            get { return (LogViewMode)Enum.Parse(typeof(LogViewMode), Request.QueryString["view"]); }
         }
 
         protected string EntityToken
@@ -30,7 +30,7 @@ namespace CompositeC1Contrib.Email.Web.UI
             {
                 var qs = Request.QueryString;
 
-                return String.Format("?queue={0}&view={1}&consoleId={2}&EntityToken={3}", qs["queue"], View, ConsoleId, EntityToken);
+                return String.Format("?view={0}&queue={1}&template={2}&consoleId={3}&EntityToken={4}", View, qs["queue"], qs["template"], ConsoleId, EntityToken);
             }
         }
 

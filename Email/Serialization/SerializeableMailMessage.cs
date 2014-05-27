@@ -91,7 +91,7 @@ namespace CompositeC1Contrib.Email.Serialization
 
         public MailMessage GetMailMessage()
         {
-            var mailMessage = new MailMessage()
+            var mailMessage = new MailMessage
             {
                 IsBodyHtml = _isBodyHtml,
                 Body = _body,
