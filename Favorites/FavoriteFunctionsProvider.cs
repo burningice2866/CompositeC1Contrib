@@ -38,11 +38,11 @@ namespace CompositeC1Contrib.Favorites
 
         public FavoriteFunctionsProvider()
         {
-            DataEventSystemFacade.SubscribeToDataAfterAdd<IFavoriteFunction>(onDataChanged, false);
-            DataEventSystemFacade.SubscribeToDataDeleted<IFavoriteFunction>(onDataChanged, false);
+            DataEventSystemFacade.SubscribeToDataAfterAdd<IFavoriteFunction>(OnDataChanged, false);
+            DataEventSystemFacade.SubscribeToDataDeleted<IFavoriteFunction>(OnDataChanged, false);
         }
 
-        private void onDataChanged(object sender, DataEventArgs e)
+        private static void OnDataChanged(object sender, DataEventArgs e)
         {
             _globalNotifier.FunctionsUpdated();
         }

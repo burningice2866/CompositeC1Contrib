@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" standalone="yes"?>
 <mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
-  <mi:PackageRequirements minimumCompositeVersion="2.1.4113.99" 
+  <mi:PackageRequirements minimumCompositeVersion="4.0.4897.31550" 
                           maximumCompositeVersion="9.9999.9999.9999" />
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.Favorites" 
                          groupName="Contribution.CompositeC1Contrib" 
-                         version="1.0.3" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="1.0.5" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="b88187c5-d10e-4a98-811c-4c893d8ddce3" 
                          canBeUninstalled="true" 

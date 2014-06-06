@@ -1,22 +1,19 @@
 using System;
 using System.Linq;
-using System.Workflow.Activities;
 
 using Composite.Data;
 using Composite.Functions;
 
 using CompositeC1Contrib.Favorites.Data.Types;
+using CompositeC1Contrib.Workflows;
 
 namespace CompositeC1Contrib.Favorites.Workflows
 {
-    public sealed partial class AddToFavoritesQueueWorkflow : Composite.C1Console.Workflow.Activities.FormsWorkflow
+    public sealed class AddToFavoritesQueueWorkflow : Basic1StepDialogWorkflow
     {
-        public AddToFavoritesQueueWorkflow()
-        {
-            InitializeComponent();
-        }
+        public AddToFavoritesQueueWorkflow() : base("\\InstalledPackages\\CompositeC1Contrib.Favorites\\AddToFavorites.xml") { }
 
-        private void validateSave(object sender, ConditionalEventArgs e)
+        public override bool Validate()
         {
             var favoriteFunction = GetBinding<IFavoriteFunction>("FavoriteFunction");
 
@@ -27,36 +24,36 @@ namespace CompositeC1Contrib.Favorites.Workflows
                 {
                     ShowFieldMessage("Favorite function", "Favorite with this name or function already exists");
 
-                    e.Result = false;
-
-                    return;
+                    return false;
                 }
             }
 
-            e.Result = true;
+            return base.Validate();
         }
 
-        private void initCodeActivity_ExecuteCode(object sender, EventArgs e)
+        public override void OnInitialize(object sender, EventArgs e)
         {
-            if (!BindingExist("FavoriteFunction"))
+            if (BindingExist("FavoriteFunction"))
             {
-                using (var data = new DataConnection())
-                {
-                    var favoriteFunction = data.CreateNew<IFavoriteFunction>();
+                return;
+            }
 
-                    var fullName = FavoriteFunctionWrapper.GetFunctionNameFromEntityToken(EntityToken);
-                    var iFunction = FunctionFacade.GetFunction(fullName);
+            using (var data = new DataConnection())
+            {
+                var favoriteFunction = data.CreateNew<IFavoriteFunction>();
 
-                    favoriteFunction.Id = Guid.NewGuid();
-                    favoriteFunction.FunctionName = fullName;
-                    favoriteFunction.Name = iFunction.Name;
+                var fullName = FavoriteFunctionWrapper.GetFunctionNameFromEntityToken(EntityToken);
+                var iFunction = FunctionFacade.GetFunction(fullName);
 
-                    Bindings.Add("FavoriteFunction", favoriteFunction);
-                }
+                favoriteFunction.Id = Guid.NewGuid();
+                favoriteFunction.FunctionName = fullName;
+                favoriteFunction.Name = iFunction.Name;
+
+                Bindings.Add("FavoriteFunction", favoriteFunction);
             }
         }
 
-        private void saveCodeActivity_ExecuteCode(object sender, EventArgs e)
+        public override void OnFinish(object sender, EventArgs e)
         {
             var favoriteFunction = GetBinding<IFavoriteFunction>("FavoriteFunction");
 

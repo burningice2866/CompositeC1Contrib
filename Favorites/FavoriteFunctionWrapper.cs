@@ -10,7 +10,7 @@ namespace CompositeC1Contrib.Favorites
 {
     public class FavoriteFunctionWrapper : IFunction
     {
-        private IFunction _function;
+        private readonly IFunction _function;
 
         public string Description
         {
@@ -22,7 +22,7 @@ namespace CompositeC1Contrib.Favorites
             get { return _function.EntityToken; }
         }
 
-        private string _name;
+        private readonly string _name;
         public string Name
         {
             get { return _name; }

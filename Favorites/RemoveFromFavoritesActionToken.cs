@@ -9,7 +9,7 @@ namespace CompositeC1Contrib.Favorites
     [ActionExecutor(typeof(RemoveFromFavoritesActionExecutor))]
     public class RemoveFromFavoritesActionToken : ActionToken
     {
-        private static IEnumerable<PermissionType> _permissionTypes = new PermissionType[] { PermissionType.Administrate };
+        private static readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Administrate };
 
         public override IEnumerable<PermissionType> PermissionTypes
         {

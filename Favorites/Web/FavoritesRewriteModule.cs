@@ -19,75 +19,77 @@ namespace CompositeC1Contrib.Favorites.Web
 
         public void Init(HttpApplication app)
         {
-            app.BeginRequest += new EventHandler(app_BeginRequest);
+            app.BeginRequest += app_BeginRequest;
         }
 
-        private void app_BeginRequest(object sender, EventArgs e)
+        private static void app_BeginRequest(object sender, EventArgs e)
         {
             var ctx = ((HttpApplication)sender).Context;
+            var request = ctx.Request;
 
-            if (ctx.Request.Path.EndsWith("Composite/services/WysiwygEditor/XhtmlTransformations.asmx") && ctx.Request.RequestType == "POST" && ctx.Request.Headers["x-supress-rewrite"] != "true")
+            if (!request.Path.EndsWith("Composite/services/WysiwygEditor/XhtmlTransformations.asmx") || request.RequestType != "POST" || request.Headers["x-supress-rewrite"] == "true")
             {
-                string action = ctx.Request.Headers["SOAPAction"];
+                return;
+            }
 
-                if (action == "http://www.composite.net/ns/management/GetFunctionInfo")
+            string action = ctx.Request.Headers["SOAPAction"];
+            if (action != "http://www.composite.net/ns/management/GetFunctionInfo")
+            {
+                return;
+            }
+
+            string xmlData;
+            using (var reader = new StreamReader(ctx.Request.InputStream))
+            {
+                xmlData = reader.ReadToEnd();
+            }
+
+            var functionName = XElement.Parse(xmlData).Descendants().Single(el => el.Name.LocalName == "functionName").Value;
+            if (functionName.StartsWith("__Favorites"))
+            {
+                var name = functionName.Substring(12, functionName.Length - 12);
+
+                using (var data = new DataConnection())
                 {
-                    string xmlData;
-
-                    using (var reader = new StreamReader(ctx.Request.InputStream))
+                    var favorite = data.Get<IFavoriteFunction>().SingleOrDefault(f => f.Name == name);
+                    if (favorite != null)
                     {
-                        xmlData = reader.ReadToEnd();
+                        xmlData = xmlData.Replace(functionName, favorite.FunctionName);
                     }
+                }
+            }
 
-                    var functionName = XElement.Parse(xmlData).Descendants().Single(el => el.Name.LocalName == "functionName").Value;
+            var bytesToWrite = Encoding.UTF8.GetBytes(xmlData);
 
-                    if (functionName.StartsWith("__Favorites"))
+            var req = (HttpWebRequest)WebRequest.Create(ctx.Request.Url);
+            req.Method = "POST";
+            req.Accept = "text/xml";
+            req.ContentType = "text/xml;charset=\"utf-8\"";
+            req.Headers.Add("x-supress-rewrite", "true");
+            req.ContentLength = bytesToWrite.Length;
+
+            CopyHeader(ctx.Request.Headers, req.Headers);
+
+            using (var requestStream = req.GetRequestStream())
+            {
+                requestStream.Write(bytesToWrite, 0, bytesToWrite.Length);
+
+                using (var response = req.GetResponse())
+                {
+                    using (var stream = response.GetResponseStream())
                     {
-                        var name = functionName.Substring(12, functionName.Length - 12);
+                        CopyHeader(response.Headers, ctx.Response.Headers);
 
-                        using (var data = new DataConnection())
-                        {
-                            var favorite = data.Get<IFavoriteFunction>().SingleOrDefault(f => f.Name == name);
-                            if (favorite != null)
-                            {
-                                xmlData = xmlData.Replace(functionName, favorite.FunctionName);
-                            }
-                        }
-                    }
+                        stream.CopyTo(ctx.Response.OutputStream);
 
-                    var bytesToWrite = Encoding.UTF8.GetBytes(xmlData);
-
-                    var req = (HttpWebRequest)WebRequest.Create(ctx.Request.Url);
-                    req.Method = "POST";
-                    req.Accept = "text/xml";
-                    req.ContentType = "text/xml;charset=\"utf-8\"";
-                    req.Headers.Add("x-supress-rewrite", "true");
-                    req.ContentLength = bytesToWrite.Length;
-
-                    copyHeader(ctx.Request.Headers, req.Headers);
-
-                    using (var requestStream = req.GetRequestStream())
-                    {
-                        requestStream.Write(bytesToWrite, 0, bytesToWrite.Length);
-
-                        using (var response = req.GetResponse())
-                        {
-                            using (var stream = response.GetResponseStream())
-                            {
-                                copyHeader(response.Headers, ctx.Response.Headers);
-
-                                stream.CopyTo(ctx.Response.OutputStream);
-
-                                ctx.Response.ContentType = response.ContentType;
-                                ctx.Response.End();
-                            }
-                        }
+                        ctx.Response.ContentType = response.ContentType;
+                        ctx.Response.End();
                     }
                 }
             }
         }
 
-        private void copyHeader(NameValueCollection from, NameValueCollection to)
+        private static void CopyHeader(NameValueCollection from, NameValueCollection to)
         {
             foreach (var key in from.AllKeys)
             {

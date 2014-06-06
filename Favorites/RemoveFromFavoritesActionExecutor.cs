@@ -17,6 +17,7 @@ namespace CompositeC1Contrib.Favorites
             using (var data = new DataConnection())
             {
                 var favorite = data.Get<IFavoriteFunction>().Single(f => f.FunctionName == functionName);
+
                 data.Delete(favorite);
             }
 
