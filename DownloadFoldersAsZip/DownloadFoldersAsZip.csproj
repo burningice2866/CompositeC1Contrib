@@ -78,8 +78,13 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
+    <PostBuildEvent>del "$(ProjectDir)Package\Bin\"
+mkdir "$(ProjectDir)Package\Bin\"
+
+copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
+
 del "$(ProjectDir)\Package\package.zip"
+
 "$(ProjectDir)..\References\7z.exe" a "$(ProjectDir)\Package\package.zip" -tzip -r "$(ProjectDir)\Package\*"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
