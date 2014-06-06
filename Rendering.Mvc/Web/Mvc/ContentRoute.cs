@@ -5,7 +5,9 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
+using Composite.AspNet;
 using Composite.C1Console.Security;
+using Composite.Core.Routing;
 using Composite.Data;
 using Composite.Data.Types;
 
@@ -32,7 +34,7 @@ namespace CompositeC1Contrib.Web.Mvc
             IPage page = null;
             DataScope dataScope = null;
 
-            var node = CompositeC1SiteMapProvider.ResolveNodeFromUrl(ctx.Request.Url.LocalPath, ctx.Request.Url.Query);
+            var node = (CompositeC1SiteMapNode)SiteMap.Provider.FindSiteMapNode(ctx.Request.RawUrl);
             if (node != null)
             {
                 dataScope = new DataScope(DataScopeIdentifier.FromPublicationScope(scope), node.Culture);
@@ -42,33 +44,33 @@ namespace CompositeC1Contrib.Web.Mvc
             if (page == null)
             {
                 NameValueCollection qs;
-                
-                var pageUrl = PageUrl.Parse(ctx.Request.Url.OriginalString, out qs);
-                if (pageUrl != null)
+
+                var pageUrlData = PageUrls.ParseUrl(ctx.Request.RawUrl);
+                if (pageUrlData != null)
                 {
-                    dataScope = new DataScope(DataScopeIdentifier.FromPublicationScope(pageUrl.PublicationScope), pageUrl.Locale);
-                    page = PageManager.GetPageById(pageUrl.PageId);
+                    dataScope = new DataScope(DataScopeIdentifier.FromPublicationScope(pageUrlData.PublicationScope), pageUrlData.LocalizationScope);
+                    page = PageManager.GetPageById(pageUrlData.PageId);
                 }
             }
 
-            if (page != null)
+            if (page == null)
             {
-                using (var data = new DataConnection())
-                {
-                    var pageType = data.Get<IPageType>().Single(p => p.Id == page.PageTypeId);
-                    var routeData = new RouteData(this, new MvcRouteHandler());
-
-                    routeData.DataTokens.Add("ID", page);
-                    routeData.Values["controller"] = pageType.Name;
-                    routeData.Values["action"] = "Index";
-                    routeData.Values["ID"] = page.Id;
-                    routeData.Values["dataScope"] = dataScope;
-
-                    return routeData;
-                }
+                return new RouteData(this, new StopRoutingHandler());
             }
 
-            return new RouteData(this, new StopRoutingHandler());
+            using (var data = new DataConnection())
+            {
+                var pageType = data.Get<IPageType>().Single(p => p.Id == page.PageTypeId);
+                var routeData = new RouteData(this, new MvcRouteHandler());
+
+                routeData.DataTokens.Add("ID", page);
+                routeData.Values["controller"] = pageType.Name;
+                routeData.Values["action"] = "Index";
+                routeData.Values["ID"] = page.Id;
+                routeData.Values["dataScope"] = dataScope;
+
+                return routeData;
+            }
         }
     }
 }

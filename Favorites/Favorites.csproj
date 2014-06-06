@@ -11,8 +11,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CompositeC1Contrib.Favorites</RootNamespace>
     <AssemblyName>CompositeC1Contrib.Favorites</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,13 +32,11 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Composite">
       <HintPath>..\References\Composite.dll</HintPath>
-    </Reference>
-    <Reference Include="Composite.Workflows">
-      <HintPath>..\References\Composite.Workflows.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common">
       <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
@@ -48,15 +48,10 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Workflow.Activities" />
     <Reference Include="System.Workflow.ComponentModel" />
-    <Reference Include="System.Workflow.Runtime" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -72,25 +67,12 @@
     <Compile Include="Workflows\AddToFavoritesQueueWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Workflows\AddToFavoritesQueueWorkflow.designer.cs">
-      <DependentUpon>AddToFavoritesQueueWorkflow.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Workflows\ConfirmWorkflow.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Workflows\ConfirmWorkflow.Designer.cs">
-      <DependentUpon>ConfirmWorkflow.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Workflows\ConfirmWorkflowActionToken.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <EmbeddedResource Include="Workflows\AddToFavoritesQueueWorkflow.layout">
-      <DependentUpon>AddToFavoritesQueueWorkflow.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Workflows\ConfirmWorkflow.layout">
-      <DependentUpon>ConfirmWorkflow.cs</DependentUpon>
-    </EmbeddedResource>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{1e76e3be-f575-4e2d-a791-8a0eda53c1b2}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Favorites\AddToFavorites.xml" />
