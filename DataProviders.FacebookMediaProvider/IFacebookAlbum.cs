@@ -37,5 +37,4 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
         [ImmutableFieldId("b4469843-0394-4afd-897f-1bb4de31fd50")]
         string AccessToken { get; set; }
     }
-
 }

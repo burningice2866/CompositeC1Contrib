@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("CompositeC1Contrib.Core")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Act A/S")]
+[assembly: AssemblyCompany("Acto A/S")]
 [assembly: AssemblyProduct("CompositeC1Contrib.Core")]
 [assembly: AssemblyCopyright("Copyright © Acto A/S 2014")]
 [assembly: AssemblyTrademark("")]

@@ -15,14 +15,14 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
     {
         public Stream GetNewWriteStream(IFile file)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Stream GetReadStream(IFile file)
         {
             using (var data = new DataConnection(PublicationScope.Published))
             {
-                var fileId = file.DataSourceId.DataId as FacebookMediaFileId;
+                var fileId = (FacebookMediaFileId)file.DataSourceId.DataId;
                 var album = data.Get<IFacebookAlbum>().Single(a => a.Id == fileId.AlbumId);
 
                 var client = new FacebookClient(album.AccessToken);
@@ -36,7 +36,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
 
         public void SubscribeOnFileChanged(IFile file, OnFileChangedDelegate handler)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }

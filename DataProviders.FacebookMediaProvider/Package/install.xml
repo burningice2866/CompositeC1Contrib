@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" standalone="yes"?>
 <mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
-  <mi:PackageRequirements minimumCompositeVersion="3.1.4400.42718" 
+  <mi:PackageRequirements minimumCompositeVersion="4.0.4897.31550" 
                           maximumCompositeVersion="9.9999.9999.9999" />
   
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.FacebookMediaProvider" 
                          groupName="Contribution.CompositeC1Contrib" 
-                         version="0.1.1" author="@burningice" website="http://compositec1contrib.codeplex.com" 
+                         version="0.1.2" author="@burningice" website="http://compositec1contrib.codeplex.com" 
                          readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="9dfe6139-c147-4a4c-b218-65842db7fd33" 
                          canBeUninstalled="true" 

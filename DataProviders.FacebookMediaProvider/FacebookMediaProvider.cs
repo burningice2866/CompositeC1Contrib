@@ -12,14 +12,14 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
 {
     public class FacebookMediaProvider : IDataProvider
     {
-        private static readonly object _lock = new object();
+        private static readonly object Lock = new object();
 
         private IQueryable<IMediaFile> _cachedFacebookPhotos;
 
         private DataProviderContext _context;
         public DataProviderContext Context
         {
-            set { this._context = value; }
+            set { _context = value; }
         }
 
         private IMediaFileStore _store;
@@ -39,14 +39,14 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
 
         public FacebookMediaProvider()
         {
-            DataEvents<IFacebookAlbum>.OnAfterAdd += clearPhotosCache;
-            DataEvents<IFacebookAlbum>.OnAfterUpdate += clearPhotosCache;
-            DataEvents<IFacebookAlbum>.OnDeleted += clearPhotosCache;
+            DataEvents<IFacebookAlbum>.OnAfterAdd += ClearPhotosCache;
+            DataEvents<IFacebookAlbum>.OnAfterUpdate += ClearPhotosCache;
+            DataEvents<IFacebookAlbum>.OnDeleted += ClearPhotosCache;
         }
 
-        private void clearPhotosCache(object sender, DataEventArgs dataEventArgs)
+        private void ClearPhotosCache(object sender, DataEventArgs dataEventArgs)
         {
-            lock (_lock)
+            lock (Lock)
             {
                 _cachedFacebookPhotos = null;
             }
@@ -61,7 +61,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
                 {
                     var album = data.Get<IFacebookAlbum>().Single(a => a.Id == folderId.Id);
 
-                    var id = new FacebookMediaFolderId()
+                    var id = new FacebookMediaFolderId
                     {
                         Id = album.Id
                     };
@@ -79,7 +79,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
                 {
                     var photo = data.Get<IFacebookPhoto>().Single(p => p.Id == fileId.Id);
                     var album = data.Get<IFacebookAlbum>().Single(a => a.Id == fileId.AlbumId);
-                    var dataSourceId = _context.CreateDataSourceId(new FacebookMediaFileId() { Id = photo.Id, AlbumId = album.Id }, typeof(IMediaFile));
+                    var dataSourceId = _context.CreateDataSourceId(new FacebookMediaFileId { Id = photo.Id, AlbumId = album.Id }, typeof(IMediaFile));
 
                     return (new FacebookMediaFile(photo, album, Store.Id, dataSourceId)) as T;
                 }
@@ -98,7 +98,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
 
                         dynamic photo = client.Get(photoId.Id);
 
-                        var id = new FacebookPhotoId()
+                        var id = new FacebookPhotoId
                         {
                             Id = photo.Id,
                             AlbumId = album.AlbumId
@@ -130,7 +130,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
                     var albums = data.Get<IFacebookAlbum>();
                     foreach (var album in albums)
                     {
-                        var id = new FacebookMediaFolderId()
+                        var id = new FacebookMediaFolderId
                         {
                             Id = album.Id
                         };
@@ -144,11 +144,12 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
                     return (IQueryable<T>)list.AsQueryable();
                 }
             }
-            else if (typeof(T) == typeof(IMediaFile))
+
+            if (typeof(T) == typeof(IMediaFile))
             {
                 if (_cachedFacebookPhotos == null)
                 {
-                    lock (_lock)
+                    lock (Lock)
                     {
                         if (_cachedFacebookPhotos == null)
                         {
@@ -160,7 +161,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
                                 foreach (var photo in photos)
                                 {
                                     var album = data.Get<IFacebookAlbum>().Single(a => a.AlbumId == photo.AlbumId);
-                                    var dataSourceId = _context.CreateDataSourceId(new FacebookMediaFileId() { Id = photo.Id, AlbumId = album.Id }, typeof(IMediaFile));
+                                    var dataSourceId = _context.CreateDataSourceId(new FacebookMediaFileId { Id = photo.Id, AlbumId = album.Id }, typeof(IMediaFile));
 
                                     var file = new FacebookMediaFile(photo, album, Store.Id, dataSourceId);
 
@@ -175,7 +176,8 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
 
                 return (IQueryable<T>)_cachedFacebookPhotos;
             }
-            else if (typeof(T) == typeof(IFacebookPhoto))
+
+            if (typeof(T) == typeof(IFacebookPhoto))
             {
                 var list = new List<IFacebookPhoto>();
 
@@ -190,7 +192,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
                         dynamic result = client.Get(album.AlbumId + "/photos");
                         foreach (var photo in result.data)
                         {
-                            var id = new FacebookPhotoId()
+                            var id = new FacebookPhotoId
                             {
                                 Id = photo.Id,
                                 AlbumId = album.AlbumId
@@ -214,7 +216,8 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
                     return (IQueryable<T>)list.AsQueryable();
                 }
             }
-            else if (typeof(T) == typeof(IMediaFileStore))
+
+            if (typeof(T) == typeof(IMediaFileStore))
             {
                 var store = new[] { Store }.AsQueryable();
 

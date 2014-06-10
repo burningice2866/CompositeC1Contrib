@@ -18,8 +18,8 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
     [ConfigurationElementType(typeof(NonConfigurableElementActionProvider))]
     public class ActionProvider : IElementActionProvider
     {
-        private static readonly ActionGroup _actionGroup = new ActionGroup("Default", ActionGroupPriority.PrimaryLow);
-        private static readonly ActionLocation _actionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = false, ActionGroup = _actionGroup };
+        private static readonly ActionGroup ActionGroup = new ActionGroup("Default", ActionGroupPriority.PrimaryLow);
+        private static readonly ActionLocation ActionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = false, ActionGroup = ActionGroup };
 
         public IEnumerable<ElementAction> GetActions(EntityToken entityToken)
         {
@@ -27,6 +27,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
             if (mediaRootEntityToken != null)
             {
                 var actionToken = new DownloadArchiveActionToken(mediaRootEntityToken.Id);
+
                 yield return createElementAction(actionToken);
             }
 
@@ -37,6 +38,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
                 if (folder != null)
                 {
                     var actionToken = new DownloadMediaFolderActionToken(folder);
+
                     yield return createElementAction(actionToken);
                 }
             }            
@@ -45,6 +47,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
             if (websiteFileRootEntityToken != null)
             {
                 var actionToken = new DownloadFileFolderActionToken(HostingEnvironment.MapPath("~"));
+
                 yield return createElementAction(actionToken);
             }
 
@@ -55,6 +58,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
                 if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
                 {
                     var actionToken = new DownloadFileFolderActionToken(websiteFileEntityToken.Path);
+
                     yield return createElementAction(actionToken);
                 }
             }
@@ -69,7 +73,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
                     Label = "Download",
                     ToolTip = "Download",
                     Icon = new ResourceHandle("Composite.Icons", "down"),
-                    ActionLocation = _actionLocation
+                    ActionLocation = ActionLocation
                 }
             };
         }

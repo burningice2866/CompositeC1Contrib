@@ -7,13 +7,13 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
 {
     public class FacebookMediaFolder : IMediaFileFolder
     {
-        private Guid _id;
+        private readonly Guid _id;
         public Guid Id
         {
             get { return _id; }
         }
 
-        private DataSourceId _dataSourceId;
+        private readonly DataSourceId _dataSourceId;
         public DataSourceId DataSourceId
         {
             get { return _dataSourceId; }
@@ -32,7 +32,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
         public string CompositePath
         {
             get { return KeyPath; }
-            set { throw new NotImplementedException(); }
+            set { throw new NotSupportedException(); }
         }
 
         public string Description { get; set; }

@@ -5,7 +5,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
 {
     public class FacebookMediaStore : IMediaFileStore
     {
-        private DataSourceId _dataSourceId;
+        private readonly DataSourceId _dataSourceId;
         public DataSourceId DataSourceId
         {
             get { return _dataSourceId; }

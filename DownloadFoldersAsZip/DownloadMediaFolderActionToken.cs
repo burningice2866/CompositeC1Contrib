@@ -11,11 +11,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
     [ActionExecutor(typeof(DownloadActionExecutor))]
     public class DownloadMediaFolderActionToken : ActionToken
     {
-        private IMediaFileFolder _folder;
-        public IMediaFileFolder MediaFileFolder
-        {
-            get { return _folder; }
-        }
+        public IMediaFileFolder MediaFileFolder { get; private set; }
 
         public override IEnumerable<PermissionType> PermissionTypes
         {
@@ -29,12 +25,12 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
 
         public DownloadMediaFolderActionToken(IMediaFileFolder folder)
         {
-            _folder = folder;
+            MediaFileFolder = folder;
         }
 
         public override string Serialize()
         {
-            return _folder.KeyPath;
+            return MediaFileFolder.KeyPath;
         }
 
         public static ActionToken Deserialize(string serialiedWorkflowActionToken)

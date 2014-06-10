@@ -6,7 +6,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
 {
     public class FacebookPhoto : IFacebookPhoto
     {
-        private DataSourceId _dataSourceId;
+        private readonly DataSourceId _dataSourceId;
 
         public string Id { get; set; }
         public string AlbumId { get; set; }

@@ -2,8 +2,5 @@
 
 namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
 {
-    public class FacebookMediaStoreId : IDataId
-    {
-        
-    }
+    public class FacebookMediaStoreId : IDataId { }
 }

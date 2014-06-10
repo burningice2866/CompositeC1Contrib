@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
-using System.Web.Hosting;
 
 using ICSharpCode.SharpZipLib.Zip;
 
@@ -23,76 +22,88 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
         {
             Action<ZipOutputStream> compress = null;
 
+            var fileName = String.Empty;
             var mode = ctx.Request.QueryString["mode"];
 
-            string folderName = String.Empty;
-            var fileName = String.Empty;
-
-            if (mode == "media")
+            switch (mode)
             {
-                var keyPath = ctx.Request.QueryString["keypath"];
-                var archive = ctx.Request.QueryString["archive"];
-
-                var files = Enumerable.Empty<IMediaFile>();
-
-                using (var data = new DataConnection())
-                {
-                    if (!String.IsNullOrEmpty(keyPath))
-                    {
-                        var folder = data.Get<IMediaFileFolder>().Single(f => f.KeyPath == keyPath);
-                        files = data.Get<IMediaFile>().Where(f => f.StoreId == folder.StoreId && f.FolderPath.StartsWith(folder.Path));
-
-                        folderName = folder.Path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Last();
-                        fileName = folder.StoreId + "_" + folder.Id + ".zip";
-                    }
-                    else if (!String.IsNullOrEmpty(archive))
-                    {
-                        files = data.Get<IMediaFile>().Where(f => f.StoreId == archive);
-
-                        folderName = archive;
-                        fileName = "archive_" + archive + ".zip";
-                    }
-                }
-
-                compress = (s) => compressMediaFiles(files, s);
-            }
-            else if (mode == "file")
-            {
-                var path = HttpUtility.UrlDecode(ctx.Request.QueryString["folder"]);
-
-                folderName = Path.GetFileName(path);
-                if (folderName == String.Empty)
-                {
-                    folderName = "root";
-                }
-
-                fileName = "files_" + folderName + ".zip";
-
-                int folderOffset = ctx.Server.MapPath("~").Length;
-                compress = (s) => compressFolder(path, s, folderOffset);
+                case "media": compress = HandleCompressMedia(ctx, out fileName); break;
+                case "file": compress = HandleCompressFile(ctx, out fileName); break;
             }
 
-            if (compress != null)
+            if (compress == null)
             {
-                using (var zipStream = new ZipOutputStream(ctx.Response.OutputStream))
-                {
-                    ctx.Response.Clear();
-                    ctx.Response.BufferOutput = false;
-                    ctx.Response.AddHeader("Content-Disposition", "attachment; filename=" + folderName + ".zip");
-                    ctx.Response.AddHeader("Content-Type", "application/zip");
+                return;
+            }
 
-                    zipStream.SetLevel(3);
+            using (var zipStream = new ZipOutputStream(ctx.Response.OutputStream))
+            {
+                var response = ctx.Response;
 
-                    compress(zipStream);
+                response.Clear();
+                response.BufferOutput = false;
+                response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
+                response.AddHeader("Content-Type", "application/zip");
 
-                    ctx.Response.Flush();
-                }
+                zipStream.SetLevel(3);
+
+                compress(zipStream);
+
+                response.Flush();
             }
         }
 
-        private static void compressFolder(string path, ZipOutputStream zipStream, int folderOffset)
+        private static Action<ZipOutputStream> HandleCompressFile(HttpContext ctx, out string fileName)
         {
-            string[] files = Directory.GetFiles(path);
+            var path = HttpUtility.UrlDecode(ctx.Request.QueryString["folder"]);
+
+            var folderName = Path.GetFileName(path);
+            if (folderName == String.Empty)
+            {
+                folderName = "root";
+            }
+
+            fileName = "files_" + folderName + ".zip";
+
+            int folderOffset = ctx.Server.MapPath("~").Length;
+
+            return s => CompressFolder(path, s, folderOffset);
+        }
+
+        private static Action<ZipOutputStream> HandleCompressMedia(HttpContext ctx, out string fileName)
+        {
+            var keyPath = ctx.Request.QueryString["keypath"];
+            var archive = ctx.Request.QueryString["archive"];
+
+            var files = Enumerable.Empty<IMediaFile>();
+
+            using (var data = new DataConnection())
+            {
+                if (!String.IsNullOrEmpty(keyPath))
+                {
+                    var folder = data.Get<IMediaFileFolder>().Single(f => f.KeyPath == keyPath);
+                    files = data.Get<IMediaFile>().Where(f => f.StoreId == folder.StoreId && f.FolderPath.StartsWith(folder.Path));
+
+                    fileName = folder.StoreId + "_" + folder.Id + ".zip";
+                }
+                else if (!String.IsNullOrEmpty(archive))
+                {
+                    files = data.Get<IMediaFile>().Where(f => f.StoreId == archive);
+
+                    fileName = "archive_" + archive + ".zip";
+                }
+                else
+                {
+                    fileName = String.Empty;
+                }
+            }
+
+            return s => CompressMediaFiles(files, s);
+        }
+
+        private static void CompressFolder(string path, ZipOutputStream zipStream, int folderOffset)
+        {
+            var files = Directory.GetFiles(path);
             foreach (string filename in files)
             {
                 try
@@ -101,7 +112,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
                     {
                         var fi = new FileInfo(filename);
 
-                        string entryName = filename.Substring(folderOffset);
+                        var entryName = filename.Substring(folderOffset);
                         entryName = ZipEntry.CleanName(entryName);
 
                         var newEntry = new ZipEntry(entryName)
@@ -123,11 +134,11 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
             var folders = Directory.GetDirectories(path);
             foreach (string folder in folders)
             {
-                compressFolder(folder, zipStream, folderOffset);
+                CompressFolder(folder, zipStream, folderOffset);
             }
         }
 
-        private static void compressMediaFiles(IEnumerable<IMediaFile> files, ZipOutputStream zipStream)
+        private static void CompressMediaFiles(IEnumerable<IMediaFile> files, ZipOutputStream zipStream)
         {
             foreach (var file in files)
             {
@@ -155,7 +166,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
                             Stream ms = null;
                             try
                             {
-                                ms = new MemoryStream(); ;
+                                ms = new MemoryStream();
 
                                 using (readStream)
                                 {

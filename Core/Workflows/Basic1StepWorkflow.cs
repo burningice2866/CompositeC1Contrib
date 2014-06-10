@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Workflow.Activities;
+
 using Composite.C1Console.Workflow.Activities;
 
 namespace CompositeC1Contrib.Workflows

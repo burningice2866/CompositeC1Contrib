@@ -11,13 +11,13 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
     [FileStreamManager(typeof(FacebookFileStreamManager))]
     public class FacebookMediaFile : IMediaFile
     {
-        private Guid _id;
+        private readonly Guid _id;
         public Guid Id
         {
             get { return _id; }
         }
 
-        private DataSourceId _dataSourceId;
+        private readonly DataSourceId _dataSourceId;
         public DataSourceId DataSourceId
         {
             get { return _dataSourceId; }
@@ -36,16 +36,16 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
         public string CompositePath
         {
             get { return KeyPath; }
-            set { throw new NotImplementedException(); }
+            set { throw new NotSupportedException(); }
         }
 
-        private DateTime _creationTime;
+        private readonly DateTime _creationTime;
         public DateTime? CreationTime
         {
             get { return _creationTime; }
         }
 
-        private DateTime _lastWriteTime;
+        private readonly DateTime _lastWriteTime;
         public DateTime? LastWriteTime
         {
             get { return _lastWriteTime; }
@@ -70,7 +70,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
 
         public FacebookMediaFile(IFacebookPhoto photo, IFacebookAlbum album, string storeId, DataSourceId dataSourceId)
         {
-            _id = makeGuidFromString(photo.Id);
+            _id = MakeGuidFromString(photo.Id);
             _creationTime = photo.CreatedTime;
             _lastWriteTime = photo.UpdatedTime;
 
@@ -86,7 +86,7 @@ namespace CompositeC1Contrib.DataProviders.FacebookMediaProvider
             _dataSourceId = dataSourceId;
         }
 
-        private Guid makeGuidFromString(string input)
+        private static Guid MakeGuidFromString(string input)
         {
             var provider = new MD5CryptoServiceProvider();
             var inputBytes = Encoding.Default.GetBytes(input);

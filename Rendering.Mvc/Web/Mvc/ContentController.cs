@@ -46,7 +46,7 @@ namespace CompositeC1Contrib.Web.Mvc
         {
             if (Request.QueryString["dataScope"] == "administrated" && !UserValidationFacade.IsLoggedIn())
             {
-                string url = String.Format("{0}/Composite/Login.aspx?ReturnUrl={1}", Composite.Core.WebClient.UrlUtils.PublicRootPath, HttpUtility.UrlEncodeUnicode(Request.Url.OriginalString));
+                string url = String.Format("{0}/Composite/Login.aspx?ReturnUrl={1}", Composite.Core.WebClient.UrlUtils.PublicRootPath, HttpUtility.UrlEncode(Request.Url.OriginalString));
                 filterContext.Result = new RedirectResult(url);
             }
         }

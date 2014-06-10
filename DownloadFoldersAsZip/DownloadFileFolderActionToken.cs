@@ -8,11 +8,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
     [ActionExecutor(typeof(DownloadActionExecutor))]
     public class DownloadFileFolderActionToken : ActionToken
     {
-        private string _path;
-        public string Path
-        {
-            get { return _path; }
-        }
+        public string Path { get; private set; }
 
         public override IEnumerable<PermissionType> PermissionTypes
         {
@@ -26,12 +22,12 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
 
         public DownloadFileFolderActionToken(string path)
         {
-            _path = path;
+            Path = path;
         }
 
         public override string Serialize()
         {
-            return _path;
+            return Path;
         }
 
         public static ActionToken Deserialize(string serialiedWorkflowActionToken)

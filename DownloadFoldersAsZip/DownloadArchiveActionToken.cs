@@ -8,11 +8,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
     [ActionExecutor(typeof(DownloadActionExecutor))]
     public class DownloadArchiveActionToken : ActionToken
     {
-        private string _archiveId;
-        public string ArchiveId
-        {
-            get { return _archiveId; }
-        }
+        public string ArchiveId { get; private set; }
 
         public override IEnumerable<PermissionType> PermissionTypes
         {
@@ -26,12 +22,12 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
 
         public DownloadArchiveActionToken(string archiveId)
         {
-            _archiveId = archiveId;
+            ArchiveId = archiveId;
         }
 
         public override string Serialize()
         {
-            return _archiveId;
+            return ArchiveId;
         }
 
         public static ActionToken Deserialize(string serialiedWorkflowActionToken)
