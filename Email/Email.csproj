@@ -84,6 +84,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Data\IMailTemplatesProvider.cs" />
+    <Compile Include="SignalR\C1ConsoleAuthorizeAttribute.cs" />
     <Compile Include="SignalR\MailHub.cs" />
     <Compile Include="MailMessageBuilder.cs" />
     <Compile Include="Data\MailMessageDataAncestorProvider.cs" />
@@ -168,6 +169,7 @@ mkdir "$(ProjectDir)Package\Bin\"
 copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
 
 del "$(ProjectDir)\Package\package.zip"
+
 "$(ProjectDir)..\References\7z.exe" a "$(ProjectDir)\Package\package.zip" -tzip -r "$(ProjectDir)\Package\*"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

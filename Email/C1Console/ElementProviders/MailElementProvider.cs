@@ -36,20 +36,18 @@ namespace CompositeC1Contrib.Email.C1Console.ElementProviders
         {
             AuxiliarySecurityAncestorFacade.AddAuxiliaryAncestorProvider<DataEntityToken>(this);
 
-            MailsFacade.MailQueuedNotifications.Add(UpdateQueues);
+            MailsFacade.MailQueuedNotifications.Add(m => UpdateQueues());
         }
 
-        private static void UpdateQueues(IMailMessage message)
+        public static void UpdateQueues()
         {
             using (var data = new DataConnection())
             {
                 var consoleIds = data.Get<IUserConsoleInformation>().Select(u => u.ConsoleId).ToList();
-                var queuesEntityToken = new MailQueuesEntityToken();
-                var serializedToken = EntityTokenSerializer.Serialize(queuesEntityToken);
 
                 foreach (var id in consoleIds)
                 {
-                    Util.UpdateParents(serializedToken, id);
+                    Util.UpdateQueuesCount(id);
                 }
             }
         }

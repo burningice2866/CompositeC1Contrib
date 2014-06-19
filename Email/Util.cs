@@ -3,10 +3,20 @@
 using Composite.C1Console.Events;
 using Composite.C1Console.Security;
 
+using CompositeC1Contrib.Email.C1Console.ElementProviders.EntityTokens;
+
 namespace CompositeC1Contrib.Email
 {
     public class Util
     {
+        public static void UpdateQueuesCount(string consoleId)
+        {
+            var queuesEntityToken = new MailQueuesEntityToken();
+            var serializedToken = EntityTokenSerializer.Serialize(queuesEntityToken);
+
+            UpdateParents(serializedToken, consoleId);
+        }
+
         public static void UpdateParents(string entityToken, string consoleId)
         {
             var deserializedEntityToken = EntityTokenSerializer.Deserialize(entityToken);

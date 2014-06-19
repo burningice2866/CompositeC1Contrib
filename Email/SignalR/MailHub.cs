@@ -9,6 +9,7 @@ using CompositeC1Contrib.Email.Data.Types;
 
 namespace CompositeC1Contrib.Email.SignalR
 {
+    [C1ConsoleAuthorize]
     public class MailHub : Hub
     {
         static MailHub()
@@ -37,9 +38,9 @@ namespace CompositeC1Contrib.Email.SignalR
             }
         }
 
-        public void UpdateParents(string entityToken, string consoleId)
+        public void UpdateQueuesCount(string consoleId)
         {
-            Util.UpdateParents(entityToken, consoleId);
+            Util.UpdateQueuesCount(consoleId);
         }
 
         private static void MailQueued(IQueuedMailMessage message)

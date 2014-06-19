@@ -8,6 +8,8 @@ using System.Xml.Linq;
 using Composite.Core.WebClient;
 using Composite.Core.WebClient.Renderings.Page;
 using Composite.Core.Xml;
+using Composite.Data;
+using Composite.Data.Types;
 using Composite.Functions;
 
 using CompositeC1Contrib.Email.Data.Types;
@@ -82,6 +84,7 @@ namespace CompositeC1Contrib.Email
             PageRenderer.ExecuteEmbeddedFunctions(doc.Root, functionContextContainer);
 
             body = doc.ToString();
+            body = MediaUrlHelper.ChangeInternalMediaUrlsToPublic(body);
             body = PageUrlHelper.ChangeRenderingPageUrlsToPublic(body);
             body = resolveHtmlFunction(body);
 
@@ -116,12 +119,6 @@ namespace CompositeC1Contrib.Email
 
         private static void AppendHostnameToAbsolutePaths(XhtmlDocument doc)
         {
-            var ctx = HttpContext.Current;
-            if (ctx == null)
-            {
-                return;
-            }
-
             var elements = doc.Descendants().Where(f => f.Name.Namespace == Namespaces.Xhtml);
             var pathAttributes = elements.Attributes().Where(f => f.Name.LocalName == "src" || f.Name.LocalName == "href" || f.Name.LocalName == "action");
 
@@ -131,12 +128,44 @@ namespace CompositeC1Contrib.Email
                 return;
             }
 
-            var hostName = ctx.Request.Url.GetComponents(UriComponents.SchemeAndServer, UriFormat.UriEscaped);
-            var baseUri = new Uri(hostName);
+            AppendHostnameToAbsolutePaths(absolutePathAttributes);
+        }
+
+        private static void AppendHostnameToAbsolutePaths(IEnumerable<XAttribute> absolutePathAttributes)
+        {
+            var ctx = HttpContext.Current;
+            string hostname = null;
+            var scheme = "http";
+            int? port = null;
+
+            if (ctx != null)
+            {
+                hostname = ctx.Request.Url.Host;
+                scheme = ctx.Request.Url.Scheme;
+                port = ctx.Request.Url.Port;
+            }
+            else
+            {
+                using (var data = new DataConnection())
+                {
+                    var binding = data.Get<IHostnameBinding>().FirstOrDefault();
+                    if (binding != null)
+                    {
+                        hostname = binding.Hostname;
+                    }
+                }
+            }
+
+            if (hostname == null)
+            {
+                return;
+            }
+
+            var builder = port.HasValue ? new UriBuilder(scheme, hostname, port.Value) : new UriBuilder(scheme, hostname);
 
             foreach (var attr in absolutePathAttributes)
             {
-                attr.Value = new Uri(baseUri, attr.Value).OriginalString;
+                attr.Value = new Uri(builder.Uri, attr.Value).ToString();
             }
         }
 

@@ -24,7 +24,7 @@
     };
 
     var updateParents = function () {
-        hub.server.updateParents(entityToken, consoleId).done(function () {
+        hub.server.updateQueuesCount(consoleId).done(function () {
             MessageQueue.update();
         });
     };
