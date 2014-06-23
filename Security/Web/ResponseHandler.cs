@@ -13,29 +13,6 @@ namespace CompositeC1Contrib.Security.Web
 {
     public class ResponseHandler : IDataRenderingResponseHandler
     {
-        public static SiteMapNode LoginSiteMapNode
-        {
-            get
-            {
-                var loginPage = FormsAuthentication.LoginUrl;
-                if (loginPage.StartsWith("/"))
-                {
-                    loginPage = loginPage.Remove(0, 1);
-                }
-
-                return SiteMap.Provider.FindSiteMapNodeFromKey(loginPage);
-            }
-        }
-
-        public static Uri GetLoginUri()
-        {
-            var ctx = HttpContext.Current;
-            var returnUrl = EnsureHttps(ctx.Request.Url).AbsolutePath;
-            var loginPage = EnsureHttps(new Uri(ctx.Request.Url, LoginSiteMapNode.Url));
-
-            return new Uri(loginPage + "?ReturnUrl=" + HttpUtility.UrlEncode(returnUrl));
-        }
-
         public RenderingResponseHandlerResult GetDataResponseHandling(DataEntityToken requestedItemEntityToken)
         {
             var ctx = HttpContext.Current;
@@ -44,7 +21,7 @@ namespace CompositeC1Contrib.Security.Web
             var page = requestedItemEntityToken.Data as IPage;
             if (page != null)
             {
-                HandlePageRequest(result, page);
+                HandlePageRequest(result, page, ctx);
             }
 
             var media = requestedItemEntityToken.Data as IMediaFile;
@@ -61,17 +38,16 @@ namespace CompositeC1Contrib.Security.Web
             return result;
         }
 
-        private static void HandlePageRequest(RenderingResponseHandlerResult result, IPage page)
+        private static void HandlePageRequest(RenderingResponseHandlerResult result, IPage page, HttpContext ctx)
         {
-            var ctx = HttpContext.Current;
             var isSecureConnection = ctx.Request.IsSecureConnection;
-            var isLoginPage = LoginSiteMapNode.Key == page.Id.ToString();
+            var isLoginPage = PermissionsFacade.LoginSiteMapNode.Key == page.Id.ToString();
 
             if (isLoginPage)
             {
                 if (FormsAuthentication.RequireSSL && !isSecureConnection)
                 {
-                    EndResult(result, EnsureHttps(ctx.Request.Url));
+                    EndResult(result, PermissionsFacade.EnsureHttps(ctx.Request.Url));
                 }
 
                 if (ctx.Request.QueryString["cmd"] == "logoff")
@@ -79,7 +55,7 @@ namespace CompositeC1Contrib.Security.Web
                     FormsAuthentication.SignOut();
                     ctx.Session.Clear();
 
-                    var uri = MakeNormal(new Uri(ctx.Request.Url, "/"));
+                    var uri = MakeNormal(new Uri(ctx.Request.Url, "/"), ctx);
 
                     EndResult(result, uri);
                 }
@@ -90,7 +66,7 @@ namespace CompositeC1Contrib.Security.Web
                 return;
             }
 
-            var loginUri = isLoginPage ? new Uri(ctx.Request.Url, "/") : GetLoginUri();
+            var loginUri = isLoginPage ? new Uri(ctx.Request.Url, "/") : PermissionsFacade.GetLoginUri();
 
             EndResult(result, loginUri);
         }
@@ -105,28 +81,12 @@ namespace CompositeC1Contrib.Security.Web
             EndResult(result, null);
         }
 
-        private static Uri MakeNormal(Uri uri)
+        private static Uri MakeNormal(Uri uri, HttpContext ctx)
         {
             var uriBuilder = new UriBuilder(uri)
             {
                 Scheme = "http",
-                Port = 80
-            };
-
-            return uriBuilder.Uri;
-        }
-
-        private static Uri EnsureHttps(Uri uri)
-        {
-            if (!FormsAuthentication.RequireSSL)
-            {
-                return uri;
-            }
-
-            var uriBuilder = new UriBuilder(uri)
-            {
-                Scheme = "https",
-                Port = 443
+                Port = ctx.Request.Url.Port
             };
 
             return uriBuilder.Uri;

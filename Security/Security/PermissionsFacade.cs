@@ -15,6 +15,36 @@ namespace CompositeC1Contrib.Security.Security
 {
     public static class PermissionsFacade
     {
+        private static SiteMapNode _loginSiteMapNode;
+
+        public static SiteMapNode LoginSiteMapNode
+        {
+            get
+            {
+                if (_loginSiteMapNode == null)
+                {
+                    var loginPage = FormsAuthentication.LoginUrl;
+                    if (loginPage.StartsWith("/"))
+                    {
+                        loginPage = loginPage.Remove(0, 1);
+                    }
+
+                    _loginSiteMapNode = SiteMap.Provider.FindSiteMapNodeFromKey(loginPage);
+                }
+
+                return _loginSiteMapNode;
+            }
+        }
+
+        public static Uri GetLoginUri()
+        {
+            var ctx = HttpContext.Current;
+            var returnUrl = EnsureHttps(ctx.Request.Url).AbsolutePath;
+            var loginPage = EnsureHttps(new Uri(ctx.Request.Url, LoginSiteMapNode.Url));
+
+            return new Uri(loginPage + "?ReturnUrl=" + HttpUtility.UrlEncode(returnUrl));
+        }
+
         public static bool HasAccess(SiteMapNode node)
         {
             var page = PageManager.GetPageById(new Guid(node.Key));
@@ -24,11 +54,6 @@ namespace CompositeC1Contrib.Security.Security
 
         public static bool HasAccess(IPage page)
         {
-            if (page.Id.ToString() == SiteMap.RootNode.Key)
-            {
-                return true;
-            }
-
             using (var data = new DataConnection())
             {
                 var permissions = data.Get<IPagePermissions>().SingleOrDefault(p => p.PageId == page.Id);
@@ -94,6 +119,22 @@ namespace CompositeC1Contrib.Security.Security
             }
 
             return true;
+        }
+
+        public static Uri EnsureHttps(Uri uri)
+        {
+            if (!FormsAuthentication.RequireSSL)
+            {
+                return uri;
+            }
+
+            var uriBuilder = new UriBuilder(uri)
+            {
+                Scheme = "https",
+                Port = 443
+            };
+
+            return uriBuilder.Uri;
         }
     }
 }
