@@ -78,20 +78,21 @@ namespace CompositeC1Contrib.Email
 
         protected string ResolveHtml(string body, FunctionContextContainer functionContextContainer, Func<string, string> resolveHtmlFunction)
         {
-            var dict = GetDictionaryFromModel();
+            body = resolveHtmlFunction(body);
+
             var doc = XhtmlDocument.Parse(body);
 
             PageRenderer.ExecuteEmbeddedFunctions(doc.Root, functionContextContainer);
 
             body = doc.ToString();
+
             body = MediaUrlHelper.ChangeInternalMediaUrlsToPublic(body);
             body = PageUrlHelper.ChangeRenderingPageUrlsToPublic(body);
-            body = resolveHtmlFunction(body);
-
+            
             doc = XhtmlDocument.Parse(body);
 
             AppendHostnameToAbsolutePaths(doc);
-            ResolveTextInLinks(doc, dict);
+            ResolveTextInLinks(doc);
 
             return doc.ToString();
         }
@@ -99,8 +100,10 @@ namespace CompositeC1Contrib.Email
         protected abstract IDictionary<string, object> GetDictionaryFromModel();
         protected abstract string ResolveHtml(string body);
 
-        private static void ResolveTextInLinks(XhtmlDocument doc, IDictionary<string, object> model)
+        private void ResolveTextInLinks(XhtmlDocument doc)
         {
+            var model = GetDictionaryFromModel();
+
             foreach (var kvp in model)
             {
                 var elements = doc.Descendants().Where(el => el.Name.LocalName == "a").ToList();

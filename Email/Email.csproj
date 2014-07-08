@@ -84,6 +84,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Data\IMailTemplatesProvider.cs" />
+    <Compile Include="FunctionProviders\EmailFunction.cs" />
+    <Compile Include="FunctionProviders\EmailFunctionEntityToken.cs" />
+    <Compile Include="FunctionProviders\EmailFunctionProvider.cs" />
     <Compile Include="SignalR\C1ConsoleAuthorizeAttribute.cs" />
     <Compile Include="SignalR\MailHub.cs" />
     <Compile Include="MailMessageBuilder.cs" />

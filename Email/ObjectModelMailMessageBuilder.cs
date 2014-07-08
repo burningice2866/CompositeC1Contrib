@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
 using Composite.Core.Types;
 using Composite.Core.Xml;
+using Composite.Data;
 using Composite.Data.DynamicTypes;
+using Composite.Data.Types;
 using Composite.Functions;
 
 using CompositeC1Contrib.Email.Data.Types;
@@ -15,7 +18,8 @@ namespace CompositeC1Contrib.Email
     {
         private readonly object _model;
 
-        public ObjectModelMailMessageBuilder(IMailTemplate template, object mailModel) : base(template)
+        public ObjectModelMailMessageBuilder(IMailTemplate template, object mailModel)
+            : base(template)
         {
             _model = mailModel;
         }
@@ -35,7 +39,7 @@ namespace CompositeC1Contrib.Email
             var doc = XhtmlDocument.Parse(body);
 
             var type = mailModel.GetType();
-            var objectValues = type.GetProperties().ToDictionary(p => p.Name, p => p.PropertyType == typeof(XElement) ? p.GetValue(mailModel, null) : (object)(p.GetValue(mailModel, null)).ToString());
+            var objectValues = type.GetProperties().ToDictionary(p => p.Name, p => ResolveContent(p.GetValue(mailModel, null)));
 
             var fieldReferenceElements = doc.Descendants(Namespaces.DynamicData10 + "fieldreference");
             foreach (var el in fieldReferenceElements)
@@ -63,6 +67,39 @@ namespace CompositeC1Contrib.Email
             }
 
             return doc.ToString();
+        }
+
+        private static object ResolveContent(object value)
+        {
+            var pageReference = value as DataReference<IPage>;
+            if (pageReference != null)
+            {
+                var s = String.Format("<a href=\"~/page({0})\">{1}</a>", pageReference.KeyValue, pageReference.Data.Title);
+
+                return XElement.Parse(s);
+            }
+
+            var mediaReference = value as DataReference<IMediaFile>;
+            if (mediaReference != null)
+            {
+                var s = String.Format("<a href=\"~/media({0})\">{1}</a>", mediaReference.KeyValue, mediaReference.Data.Title);
+
+                return XElement.Parse(s);
+            }
+
+            var xhtmlDocument = value as XhtmlDocument;
+            if (xhtmlDocument != null)
+            {
+                return xhtmlDocument.Body.Nodes();
+            }
+
+            var xElement = value as XElement;
+            if (xElement != null)
+            {
+                return xElement;
+            }
+
+            return (value ?? String.Empty).ToString();
         }
     }
 }
