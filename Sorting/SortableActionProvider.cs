@@ -82,7 +82,6 @@ namespace CompositeC1Contrib.Sorting
                         if (instances.Any())
                         {
                             url = "Sort.aspx?type=" + type.FullName + "&pageId=" + pageId;
-                            label += " " + type.GetTypeTitle();
                         }
                     }
                 }
@@ -102,7 +101,7 @@ namespace CompositeC1Contrib.Sorting
                         if (data.Get<IPageStructure>().Count(ps => ps.ParentId == page.Id) > 1)
                         {
                             url = "SortPages.aspx?pageId=" + page.Id;
-                            label += " " + page.Title;
+                            label += " Childpages";
                         }
                     }
                 }

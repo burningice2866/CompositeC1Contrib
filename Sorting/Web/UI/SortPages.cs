@@ -17,13 +17,32 @@ namespace CompositeC1Contrib.Sorting.Web.UI
             UpdateOrder(Guid.Parse(pageId), serializedOrder);
 
             var serializedEntityToken = HttpUtility.UrlDecode(entityToken);
-            updateParents(serializedEntityToken, consoleId);
+            UpdateParents(serializedEntityToken, consoleId);
         }
 
-        protected IEnumerable<IPage> getPages()
+        protected override void OnLoad(EventArgs e)
         {
-            var pageId = Guid.Parse(Request.QueryString["pageId"]);
+            var pageId = Request.QueryString["pageId"];
 
+            if (Request.HttpMethod == "POST")
+            {
+                pageId = Request.Form["pageId"];
+            }
+
+            Master.CustomJsonDataName = "pageId";
+            Master.CustomJsonDataValue = pageId;
+
+            Master.SortableItems = GetChildPages(Guid.Parse(pageId)).Select(i => new SortableItem
+            {
+                Id = HashId(i),
+                Name = i.GetLabel()
+            });
+
+            base.OnLoad(e);
+        }
+
+        protected IEnumerable<IPage> GetChildPages(Guid pageId)
+        {
             using (var data = new DataConnection(PublicationScope.Unpublished))
             {
                 var pages = data.Get<IPage>();
@@ -35,32 +54,22 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 
         private static void UpdateOrder(Guid pageId, string serializedOrder)
         {
-            var newOrder = new Dictionary<string, int>();
+            var newOrder = ParseNewOrder(serializedOrder);
 
-            serializedOrder = serializedOrder.Replace("instance[]=", ",").Replace("&", "");
-            var split = serializedOrder.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-            for (int i = 0; i < split.Length; i++)
+            using (var data = new DataConnection(PublicationScope.Unpublished))
             {
-                newOrder.Add(split[i], i);
-            }
-
-            foreach (var dataScope in new[] { DataScopeIdentifier.Administrated, DataScopeIdentifier.Public })
-            {
-                using (var data = new DataConnection(PublicationScope.Unpublished))
+                var instances = data.Get<IPageStructure>().Where(s => s.ParentId == pageId).OrderBy(s => s.LocalOrdering);
+                foreach (var instance in instances)
                 {
-                    var instances = data.Get<IPageStructure>().Where(s => s.ParentId == pageId).OrderBy(s => s.LocalOrdering);
-                    foreach (var instance in instances)
+                    var number = HashId(instance);
+                    if (!newOrder.ContainsKey(number) || newOrder[number] == instance.LocalOrdering)
                     {
-                        string number = hashId(instance);
-
-                        if (newOrder.ContainsKey(number) && newOrder[number] != instance.LocalOrdering)
-                        {
-                            instance.LocalOrdering = newOrder[number];
-
-                            data.Update(instance);
-                        }
+                        continue;
                     }
+
+                    instance.LocalOrdering = newOrder[number];
+
+                    data.Update(instance);
                 }
             }
         }

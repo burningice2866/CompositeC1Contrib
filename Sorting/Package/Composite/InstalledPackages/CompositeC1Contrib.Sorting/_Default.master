@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<%@ Master Language="C#" AutoEventWireup="true" Inherits="CompositeC1Contrib.Sorting.Web.UI.SortMasterPage" %>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://www.w3.org/1999/xhtml" xmlns:control="http://www.composite.net/ns/uicontrol">
+    <control:httpheaders runat="server" />
+
+    <head runat="server">
+        <title>Sort</title>
+        <link type="text/css" href="/Composite/InstalledPackages/CompositeC1Contrib.Sorting/css/ui-lightness/jquery-ui-1.8.16.custom.css" rel="Stylesheet" />
+        <link type="text/css" href="/Composite/InstalledPackages/CompositeC1Contrib.Sorting/css/page.css" rel="Stylesheet" />
+        
+        <control:scriptloader type="sub" runat="server" />
+
+        <script type="text/javascript" src="/Composite/InstalledPackages/CompositeC1Contrib.Sorting/js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="/Composite/InstalledPackages/CompositeC1Contrib.Sorting/js/jquery-ui-1.8.16.custom.min.js"></script>
+        
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('ul').sortable(
+                {
+                    placeholder: 'ui-state-highlight',
+                    handle: '.handle',
+                    update: function () {
+                        var order = $('ul').sortable('serialize');
+
+                        $.ajax(
+                        {
+                            type: 'POST',
+                            url: '<%= Request.Url.LocalPath %>/UpdateOrder',
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: 'json',
+                            data: "{ '<%= CustomJsonDataName %>':'<%= HttpUtility.UrlEncode(CustomJsonDataValue) %>', 'consoleId': '<%= Request.QueryString["consoleId"] %>', 'entityToken': \"<%= HttpUtility.UrlEncode(Request.QueryString["EntityToken"]) %>\", 'serializedOrder': '" + order + "' }",
+                            success: function () {
+                                MessageQueue.update();
+                            }
+                        });
+			        }
+                });
+
+                $('#sortable').disableSelection();
+            });
+        </script>
+    </head>
+    <body>
+        <ui:page id="sort">
+            <h1>Reorder</h1>
+            Use mouse drag &amp; drop to change the order 
+            <br />
+            <br />
+
+            <ul>        
+                <asp:Repeater ID="rpt" ItemType="CompositeC1Contrib.Sorting.Web.UI.SortableItem" runat="server">
+                    <ItemTemplate>
+                        <li id="instance_<%# Item.Id %>" class="ui-state-default">
+                            <img src="/Composite/InstalledPackages/CompositeC1Contrib.Sorting/arrow.png" alt="Drag" class="handle" />
+                            <%# Server.HtmlEncode(Item.Name) %>
+                        </li>
+                    </ItemTemplate>
+                </asp:Repeater>        
+            </ul>
+        </ui:page>
+    </body>
+</html>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Web;
 using System.Web.Services;
 
@@ -21,43 +22,72 @@ namespace CompositeC1Contrib.Sorting.Web.UI
             var serializedEntityToken = HttpUtility.UrlDecode(entityToken);
             if (!String.IsNullOrEmpty(serializedEntityToken))
             {
-                updateParents(serializedEntityToken, consoleId);
+                UpdateParents(serializedEntityToken, consoleId);
             }
         }
 
-        protected IEnumerable<IGenericSortable> getInstances()
+        protected override void OnLoad(EventArgs e)
         {
-            var sType = HttpUtility.UrlDecode(Request.QueryString["type"]);
-            var sFilter = Request.QueryString["filter"] != null ? HttpUtility.UrlDecode(Request.QueryString["filter"]) : String.Empty;
+            var pageId = Request.QueryString["pageId"];
+            var type = Request.QueryString["type"];
+            var filter = Request.QueryString["filter"];
+
+            if (Request.HttpMethod == "POST")
+            {
+                pageId = Request.Form["pageId"];
+                type = Request.Form["type"];
+                filter = Request.Form["filter"];
+            }
+
+            Master.CustomJsonDataName = "type";
+            Master.CustomJsonDataValue = type;
+
+            Master.SortableItems = GetInstances(pageId, type, filter).Select(i => new SortableItem
+            {
+                Id = HashId(i),
+                Name = i.GetLabel()
+            });
+
+            base.OnLoad(e);
+        }
+
+        protected IEnumerable<IGenericSortable> GetInstances(string sPageId, string sType, string sFilter)
+        {
+            sType = HttpUtility.UrlDecode(sType);
+            sFilter = sFilter != null ? HttpUtility.UrlDecode(sFilter) : String.Empty;
             var type = TypeManager.GetType(sType);
 
             using (new DataScope(DataScopeIdentifier.Administrated))
             {
-                IEnumerable<IGenericSortable> instances = DataFacade.GetData(type).Cast<IGenericSortable>();
+                var instances = DataFacade.GetData(type).Cast<IGenericSortable>();
 
                 if (typeof(IPageFolderData).IsAssignableFrom(type))
                 {
-                    var pageId = Guid.Parse(Request.QueryString["pageId"]);
+                    var pageId = Guid.Parse(sPageId);
 
                     instances = instances.Cast<IPageFolderData>().Where(f => f.PageId == pageId).Cast<IGenericSortable>();
                 }
 
                 instances = instances.OrderBy(g => g.LocalOrdering);
 
-                if (!String.IsNullOrEmpty(sFilter))
+                if (String.IsNullOrEmpty(sFilter))
                 {
-                    var filterParts = sFilter.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (filterParts.Length == 2)
-                    {
-                        instances = instances.AsEnumerable().Where(d =>
-                        {
-                            var prop = type.GetProperty(filterParts[0]);
-                            var value = filterParts[1];
-
-                            return prop.GetValue(d, null).ToString() == value;
-                        });
-                    }
+                    return instances;
                 }
+
+                var filterParts = sFilter.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                if (filterParts.Length != 2)
+                {
+                    return instances;
+                }
+
+                var param = Expression.Parameter(type);
+                var prop = Expression.Property(param, filterParts[0]);
+                var value = Expression.Constant(filterParts[1]);
+                var equal = Expression.Equal(prop, value);
+                var lambda = Expression.Lambda<Func<IGenericSortable, bool>>(equal, param);
+
+                instances = instances.Where(lambda);
 
                 return instances;
             }
@@ -65,15 +95,7 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 
         private static void UpdateOrder(Type type, string serializedOrder)
         {
-            var newOrder = new Dictionary<string, int>();
-
-            serializedOrder = serializedOrder.Replace("instance[]=", ",").Replace("&", "");
-            var split = serializedOrder.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-            for (int i = 0; i < split.Length; i++)
-            {
-                newOrder.Add(split[i], i);
-            }
+            var newOrder = ParseNewOrder(serializedOrder);
 
             foreach (var dataScope in new[] { DataScopeIdentifier.Administrated, DataScopeIdentifier.Public })
             {
@@ -83,14 +105,15 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 
                     foreach (var instance in instances)
                     {
-                        string number = hashId(instance);
-
-                        if (newOrder.ContainsKey(number) && newOrder[number] != instance.LocalOrdering)
+                        var number = HashId(instance);
+                        if (!newOrder.ContainsKey(number) || newOrder[number] == instance.LocalOrdering)
                         {
-                            instance.LocalOrdering = newOrder[number];
-
-                            DataFacade.Update(instance);
+                            continue;
                         }
+
+                        instance.LocalOrdering = newOrder[number];
+
+                        DataFacade.Update(instance);
                     }
                 }
             }
