@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Services;
-using System.Web.UI.WebControls;
 
 using Composite.Data;
 
@@ -15,8 +14,6 @@ namespace CompositeC1Contrib.Teasers.Web.UI
 {
     public class SortPageTeasersPage : BaseSortPage 
     {
-        protected Repeater rptFields;
-
         [WebMethod]
         public static void UpdateOrder(string pageId, string position, string consoleId, string entityToken, string serializedOrder)
         {
@@ -28,34 +25,39 @@ namespace CompositeC1Contrib.Teasers.Web.UI
             var serializedEntityToken = HttpUtility.UrlDecode(entityToken);
             if (!String.IsNullOrEmpty(serializedEntityToken))
             {
-                updateParents(serializedEntityToken, consoleId);
+                UpdateParents(serializedEntityToken, consoleId);
             }
         }
 
         protected override void OnLoad(EventArgs e)
         {
-            var pageId = new Guid(Request.QueryString["pageId"]);
-            var page = PageManager.GetPageById(pageId);
+            var pageId = Request.QueryString["pageId"];
             var position = Request.QueryString["position"];
+            
+            if (Request.HttpMethod == "POST")
+            {
+                pageId = Request.Form["pageId"];
+                position = Request.Form["position"];
+            }
+
+            var page = PageManager.GetPageById(Guid.Parse(pageId));
             var pageTeasers = TeaserFacade.GetPageTeasers(page, position, false);
 
-            rptFields.DataSource = pageTeasers;
-            rptFields.DataBind();
+            Master.CustomJsonDataName = "position";
+            Master.CustomJsonDataValue = position;
+
+            Master.SortableItems = pageTeasers.Select(i => new SortableItem
+            {
+                Id = HashId(i),
+                Name = i.GetLabel()
+            });
 
             base.OnLoad(e);
         }
 
         private static void UpdateOrder(IList<IPageTeaser> pageTeasers, string serializedOrder)
         {
-            var newOrder = new Dictionary<string, int>();
-
-            serializedOrder = serializedOrder.Replace("instance[]=", ",").Replace("&", "");
-            var split = serializedOrder.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-            for (int i = 0; i < split.Length; i++)
-            {
-                newOrder.Add(split[i], i);
-            }
+            var newOrder = ParseNewOrder(serializedOrder);
 
             foreach (var dataScope in new[] { DataScopeIdentifier.Administrated, DataScopeIdentifier.Public })
             {
@@ -63,7 +65,7 @@ namespace CompositeC1Contrib.Teasers.Web.UI
                 {
                     foreach (var instance in pageTeasers)
                     {
-                        string number = hashId(instance);
+                        string number = HashId(instance);
 
                         if (!newOrder.ContainsKey(number) || newOrder[number] == instance.LocalOrdering)
                         {

@@ -5,7 +5,7 @@
 
   <mi:PackageInformation name="Contribution.CompositeC1Contrib.Teasers"
                          groupName="Contribution.CompositeC1Contrib"
-                         version="0.5.0" author="@burningice" website="http://compositec1contrib.codeplex.com"
+                         version="0.5.1" author="@burningice" website="http://compositec1contrib.codeplex.com"
                          readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="797036af-781c-4eae-bf5f-189550473c3e"
                          canBeUninstalled="true"
