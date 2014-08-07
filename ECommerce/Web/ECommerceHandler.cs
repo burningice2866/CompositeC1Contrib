@@ -63,15 +63,15 @@ namespace CompositeC1Contrib.ECommerce.Web
         {
             Utils.WriteLog(null, "Cancel request recieved, redirecting to main page");
 
-            var confirmNode = SiteMap.Provider.FindSiteMapNodeFromKey(config.MainPageId);
-            if (confirmNode != null)
+            var confirmUrl = GetPageUrl(config.MainPageId);
+            if (!String.IsNullOrEmpty(confirmUrl))
             {
                 if (config.UseIFrame)
                 {
-                    return "<script>parent.location.href = '" + confirmNode.Url + "';</script>";
+                    return "<script>parent.location.href = '" + confirmUrl + "';</script>";
                 }
 
-                ctx.Response.Redirect(confirmNode.Url);
+                ctx.Response.Redirect(confirmUrl);
             }
 
             return null;
@@ -99,10 +99,15 @@ namespace CompositeC1Contrib.ECommerce.Web
                     orderProcessor.HandleHandlerContinue(order);
                 }
 
-                var recieptNode = SiteMap.Provider.FindSiteMapNodeFromKey(ECommerceConfig.RecieptPageId);
-                var redirectUrl = recieptNode.Url + "?orderid=" + order.Id;
+                ECommerceWorker.ProcessOrdersNow();
 
-                request.RequestContext.HttpContext.Response.Redirect(redirectUrl);
+                var recieptUrl = GetPageUrl(ECommerceConfig.RecieptPageId);
+                if (!String.IsNullOrEmpty(recieptUrl))
+                {
+                    recieptUrl = recieptUrl + "?orderid=" + order.Id;
+
+                    request.RequestContext.HttpContext.Response.Redirect(recieptUrl);
+                }
             }
 
             return null;
@@ -129,10 +134,20 @@ namespace CompositeC1Contrib.ECommerce.Web
                 {
                     Utils.WriteLog(order, "Request is authorized, redirecting to reciept page");
 
-                    var config = ECommerceSection.GetSection();
-                    if (config.UseIFrame)
+                    var recieptUrl = GetPageUrl(ECommerceConfig.RecieptPageId);
+                    if (!String.IsNullOrEmpty(recieptUrl))
                     {
-                        return "<script>parent.location.href = '/da/betaling/kvittering?orderid=" + orderId + "';</script>";
+                        recieptUrl = recieptUrl + "?orderid=" + order.Id;
+
+                        var config = ECommerceSection.GetSection();
+                        if (config.UseIFrame)
+                        {
+                            return "<script>parent.location.href = '" + recieptUrl + "';</script>";
+                        }
+
+                        request.RequestContext.HttpContext.Response.Redirect(recieptUrl);
+
+                        return null;
                     }
                 }
 
@@ -147,6 +162,34 @@ namespace CompositeC1Contrib.ECommerce.Web
 
                 return provider.GeneratePaymentWindow(order, request.Url);
             }
+        }
+
+        private static string GetPageUrl(string id)
+        {
+            string pathInfo = null;
+
+            if (id.Contains("/"))
+            {
+                var split = id.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                id = split[0];
+                pathInfo = split[1];
+            }
+
+            var node = SiteMap.Provider.FindSiteMapNodeFromKey(id);
+            if (node == null)
+            {
+                return null;
+            }
+
+            var url = node.Url;
+
+            if (!String.IsNullOrEmpty(pathInfo))
+            {
+                url += "/" + pathInfo;
+            }
+
+            return url;
         }
     }
 }

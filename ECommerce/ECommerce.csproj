@@ -80,6 +80,12 @@
       <Name>Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Package\install.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Package\Config\web.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(ProjectDir)Package\Bin\"

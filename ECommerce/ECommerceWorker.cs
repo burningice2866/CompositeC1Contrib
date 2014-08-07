@@ -14,12 +14,16 @@ namespace CompositeC1Contrib.ECommerce
     public class ECommerceWorker
     {
         private static readonly ECommerceWorker Instance = new ECommerceWorker();
+        private static readonly TimeSpan OneSecond = TimeSpan.FromSeconds(1);
 
         private volatile bool _running;
+        private volatile bool _processOrdersNow;
         private readonly Thread _thread;
 
         private ECommerceWorker()
         {
+            GlobalEventSystemFacade.SubscribeToPrepareForShutDownEvent(PrepareForShutDown);
+
             var threadStart = new ThreadStart(Run);
 
             _thread = new Thread(threadStart);
@@ -27,20 +31,26 @@ namespace CompositeC1Contrib.ECommerce
 
         public static void Initialize()
         {
-            GlobalEventSystemFacade.SubscribeToPrepareForShutDownEvent(PrepareForShutDown);
-
             Instance._running = true;
 
             Instance._thread.Start();
         }
 
-        private static void PrepareForShutDown(PrepareForShutDownEventArgs e)
+        public static void ProcessOrdersNow()
         {
-            Instance._running = false;
+            Instance._processOrdersNow = true;
+        }
+
+        private void PrepareForShutDown(PrepareForShutDownEventArgs e)
+        {
+            _running = false;
+            _processOrdersNow = false;
         }
 
         private void Run()
         {
+            var ticker = 60;
+
             try
             {
                 using (ThreadDataManager.EnsureInitialize())
@@ -49,15 +59,29 @@ namespace CompositeC1Contrib.ECommerce
                     {
                         try
                         {
+                            if (!_processOrdersNow && ticker != 60)
+                            {
+                                continue;
+                            }
+
                             PostProcessPendingOrders();
 
-                            Thread.Sleep(1000);
+                            _processOrdersNow = false;
                         }
                         catch (Exception ex)
                         {
-                            Log.LogWarning("Unhandled error when postprocessing orders, sleep for 1 minute", ex);
+                            Log.LogWarning("Unhandled error when postprocessing orders", ex);
+                        }
+                        finally
+                        {
+                            if (ticker == 60)
+                            {
+                                ticker = 0;
+                            }
 
-                            Thread.Sleep(60 * 1000);
+                            ticker = ticker + 1;
+
+                            Thread.Sleep(OneSecond);
                         }
                     }
                 }
