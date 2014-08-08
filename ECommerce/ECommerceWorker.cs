@@ -64,9 +64,9 @@ namespace CompositeC1Contrib.ECommerce
                                 continue;
                             }
 
-                            PostProcessPendingOrders();
-
                             _processOrdersNow = false;
+
+                            PostProcessPendingOrders();
                         }
                         catch (Exception ex)
                         {
