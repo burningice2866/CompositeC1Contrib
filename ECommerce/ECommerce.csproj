@@ -59,6 +59,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="C1Console\ElementProviders\ECommerceElementProvider.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\ECommerceElementProviderEntityToken.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\AuthorizedOrdersEntityToken.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\PendingOrdersEntityToken.cs" />
     <Compile Include="Configuration\ECommerceSection.cs" />
     <Compile Include="ECommerce.cs" />
     <Compile Include="FileUtils.cs" />
@@ -73,6 +77,15 @@
     <Compile Include="StartupHandler.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Web\ECommerceHandler.cs" />
+    <Compile Include="Web\UI\ListShopOrders.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Web\UI\ViewShopOrderLog.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Web\UI\ViewShopOrderMaster.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
@@ -81,11 +94,22 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.ECommerce\ListShopOrders.aspx" />
+    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.ECommerce\ViewShopOrderLog.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="Package\install.xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Package\Config\App_Data\Composite\composite.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Package\Config\web.config" />
+    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.ECommerce\ViewShopOrder.master">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "$(ProjectDir)Package\Bin\"

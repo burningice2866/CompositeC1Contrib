@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+
+<%@ Master Language="C#" AutoEventWireup="true" Inherits="CompositeC1Contrib.ECommerce.Web.UI.ViewShopOrderMaster" %>
+
+<%@ Import Namespace="CompositeC1Contrib.ECommerce" %>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://www.w3.org/1999/xhtml" xmlns:control="http://www.composite.net/ns/uicontrol">
+<control:httpheaders runat="server" />
+<head runat="server">
+    <title>Order view</title>
+
+    <control:styleloader runat="server" />
+    <control:scriptloader type="sub" runat="server" />
+
+    <script type="text/javascript">
+        DocumentManager.isDocumentSelectable = true;
+    </script>
+</head>
+
+<body>
+    <form id="form1" runat="server">
+        <ui:page id="mailView">
+            <ui:toolbar id="toolbar">
+                <ui:toolbarbody>
+                    <ui:toolbargroup>
+                        <aspui:toolbarbutton autopostback="true" text="Back" imageurl="${icon:back}" runat="server" onclick="OnBack" />
+                        <aspui:toolbarbutton autopostback="true" text="View log" imageurl="${icon:log}" runat="server" onclick="OnViewLog" />
+                    </ui:toolbargroup>
+                </ui:toolbarbody>
+            </ui:toolbar>
+
+            <ui:scrollbox id="scrollbox">
+                <div>
+                    Id: <%= ShopOrder.Id %>
+                    <br />
+                    Created on: <%= ShopOrder.CreatedOn %>
+                    <br />
+                    Total: <%= ShopOrder.OrderTotal %>
+                    <br />
+                    Status: <%= (PaymentStatus)ShopOrder.PaymentStatus %>
+                    <br />
+                    Authorization id: <%= ShopOrder.AuthorizationTransactionId %>
+                    <br />
+                </div>
+
+                <div>
+                    <asp:ContentPlaceHolder ID="CustomData" runat="server" />
+                </div>
+            </ui:scrollbox>
+        </ui:page>
+    </form>
+</body>
+</html>

@@ -5,7 +5,7 @@
 
   <mi:PackageInformation name="CompositeC1Contrib.ECommerce"
                          groupName="Contribution.CompositeC1Contrib"
-                         version="0.1.0" author="@burningice" website="http://compositec1contrib.codeplex.com"
+                         version="0.2.0" author="@burningice" website="http://compositec1contrib.codeplex.com"
                          readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="ae333251-499a-498a-8ef2-bf717f08a3a2"
                          canBeUninstalled="true"
@@ -20,11 +20,16 @@
       <Files>
         <File sourceFilename="~\bin\CompositeC1Contrib.Teasers.dll" targetFilename="~\bin\CompositeC1Contrib.Teasers.dll" allowOverwrite="true" />
       </Files>
+
+      <Directories>
+        <Directory sourceDirectory="~\content\Composite\InstalledPackages\CompositeC1Contrib.ECommerce\" targetDirectory="~\Composite\InstalledPackages\CompositeC1Contrib.ECommerce" allowOverwrite="true" deleteTargetDirectory="true" />
+      </Directories>
     </mi:Add>
 
     <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentUninstaller, Composite">
       <XmlFileMerges>
         <XmlFileMerge changeDefinitionPath="~\config\web.config" targetFilePath="~\web.config" />
+        <XmlFileMerge changeDefinitionPath="~\config\App_Data\Composite\composite.config" targetFilePath="~\App_Data\Composite\composite.config" />
       </XmlFileMerges>
     </mi:Add>
   </mi:PackageFragmentInstallers>
