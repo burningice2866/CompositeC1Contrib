@@ -73,6 +73,12 @@ namespace CompositeC1Contrib.Email
         {
             var dict = GetDictionaryFromModel();
 
+            var builder = GetSchemaAndHost();
+            if (builder != null)
+            {
+                dict.Add("%schema_and_host%", builder.ToString());
+            }
+
             return dict.Aggregate(text, (current, kvp) => ReplaceText(current, kvp.Key, kvp.Value));
         }
 
@@ -88,7 +94,7 @@ namespace CompositeC1Contrib.Email
 
             body = MediaUrlHelper.ChangeInternalMediaUrlsToPublic(body);
             body = PageUrlHelper.ChangeRenderingPageUrlsToPublic(body);
-            
+
             doc = XhtmlDocument.Parse(body);
 
             AppendHostnameToAbsolutePaths(doc);
@@ -136,6 +142,20 @@ namespace CompositeC1Contrib.Email
 
         private static void AppendHostnameToAbsolutePaths(IEnumerable<XAttribute> absolutePathAttributes)
         {
+            var builder = GetSchemaAndHost();
+            if (builder == null)
+            {
+                return;
+            }
+
+            foreach (var attr in absolutePathAttributes)
+            {
+                attr.Value = new Uri(builder.Uri, attr.Value).ToString();
+            }
+        }
+
+        private static UriBuilder GetSchemaAndHost()
+        {
             var ctx = HttpContext.Current;
             string hostname = null;
             var scheme = "http";
@@ -161,15 +181,10 @@ namespace CompositeC1Contrib.Email
 
             if (hostname == null)
             {
-                return;
+                return null;
             }
 
-            var builder = port.HasValue ? new UriBuilder(scheme, hostname, port.Value) : new UriBuilder(scheme, hostname);
-
-            foreach (var attr in absolutePathAttributes)
-            {
-                attr.Value = new Uri(builder.Uri, attr.Value).ToString();
-            }
+            return port.HasValue ? new UriBuilder(scheme, hostname, port.Value) : new UriBuilder(scheme, hostname);
         }
 
         private void AppendMailAddresses(MailAddressCollection collection, string s)

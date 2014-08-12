@@ -31,7 +31,15 @@ namespace CompositeC1Contrib.Email
 
         protected override string ResolveHtml(string body)
         {
-            return ResolveHtml(body, new FunctionContextContainer(), s => ResolveFields(s, _model));
+            return ResolveHtml(body, new FunctionContextContainer(), s =>
+            {
+                var ret = s;
+
+                ret = ResolveFields(ret, _model);
+                ret = ResolveText(ret);
+
+                return ret;
+            });
         }
 
         private static string ResolveFields(string body, object mailModel)
