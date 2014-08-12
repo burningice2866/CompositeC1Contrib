@@ -126,7 +126,7 @@ namespace CompositeC1Contrib.ECommerce
 
             if (!String.IsNullOrEmpty(OrderNumberPrefix))
             {
-                sOrderId = OrderNumberPrefix + orderId;
+                sOrderId = OrderNumberPrefix + sOrderId;
             }
 
             if (IsTestMode)
