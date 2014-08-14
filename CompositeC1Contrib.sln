@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Security", "Security\Securi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommerce", "ECommerce\ECommerce.csproj", "{7148E1A8-C72C-485C-B803-81715C9AAAFB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewRelic", "NewRelic\NewRelic.csproj", "{E2700E32-C5C2-4081-8D83-3DC95E8B9419}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{7148E1A8-C72C-485C-B803-81715C9AAAFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7148E1A8-C72C-485C-B803-81715C9AAAFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7148E1A8-C72C-485C-B803-81715C9AAAFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2700E32-C5C2-4081-8D83-3DC95E8B9419}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2700E32-C5C2-4081-8D83-3DC95E8B9419}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2700E32-C5C2-4081-8D83-3DC95E8B9419}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2700E32-C5C2-4081-8D83-3DC95E8B9419}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
