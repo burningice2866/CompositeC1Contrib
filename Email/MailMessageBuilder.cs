@@ -208,7 +208,7 @@ namespace CompositeC1Contrib.Email
         {
             string s = (value ?? String.Empty).ToString();
 
-            return text.Replace(String.Format("%{0}%", name), s);
+            return text.Replace(String.Format("%{0}%", name), HttpUtility.HtmlEncode(s));
         }
     }
 }
