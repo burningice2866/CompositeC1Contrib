@@ -137,9 +137,10 @@ namespace CompositeC1Contrib.ECommerce
                     hashMachineName = hashMachineName.Remove(0, 1);
                 }
 
-                if (hashMachineName.Length > 8)
+                var maxHashineNameLength = 20 - sOrderId.Length - 4;
+                if (hashMachineName.Length > maxHashineNameLength)
                 {
-                    hashMachineName = hashMachineName.Substring(0, 8);
+                    hashMachineName = hashMachineName.Substring(0, maxHashineNameLength);
                 }
 
                 sOrderId = String.Format("TEST{0}{1}", hashMachineName, sOrderId);
