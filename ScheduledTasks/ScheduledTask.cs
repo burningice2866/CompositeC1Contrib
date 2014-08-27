@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Reflection;
 
-using CompositeC1Contrib.ScheduledTasks.Cron;
+using NCrontab;
 
 namespace CompositeC1Contrib.ScheduledTasks
 {
+    [Serializable]
     public class ScheduledTask
     {
-        private readonly CronSchedule _cronSchedule;
+        private readonly CrontabSchedule _cronSchedule;
 
         public string Name { get; set; }
         public DateTime LastRun { get; private set; }
@@ -31,7 +32,7 @@ namespace CompositeC1Contrib.ScheduledTasks
 
         public ScheduledTask(string cronExpression, DateTime? lastRun, DateTime? nextRun)
         {
-            _cronSchedule = CronSchedule.Parse(cronExpression);
+            _cronSchedule = CrontabSchedule.Parse(cronExpression);
 
             LastRun = lastRun.HasValue ? lastRun.Value : DateTime.MinValue;
             NextRun = nextRun.HasValue ? nextRun.Value : GetNextRun(DateTime.Now);
@@ -39,12 +40,7 @@ namespace CompositeC1Contrib.ScheduledTasks
 
         private DateTime GetNextRun(DateTime start)
         {
-            DateTime nextRun;
-            _cronSchedule.GetNext(start, out nextRun);
-
-            NextRun = nextRun;
-
-            return NextRun;
+            return _cronSchedule.GetNextOccurrence(start);
         }
 
         public bool ShouldBeExecuted(DateTime now)

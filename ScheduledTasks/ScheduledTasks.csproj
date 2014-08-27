@@ -13,6 +13,8 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,6 +39,9 @@
     <Reference Include="Composite">
       <HintPath>..\References\Composite.dll</HintPath>
     </Reference>
+    <Reference Include="NCrontab">
+      <HintPath>..\packages\ncrontab.2.0.0\lib\net20\NCrontab.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -51,15 +56,6 @@
     <Compile Include="Configuration\ScheduledTaskCollection.cs" />
     <Compile Include="Configuration\ScheduledTaskElement.cs" />
     <Compile Include="Configuration\ScheduledTasksSection.cs" />
-    <Compile Include="Cron\CronEntity.cs" />
-    <Compile Include="Cron\CronEntryBase.cs" />
-    <Compile Include="Cron\CronSchedule.cs" />
-    <Compile Include="Cron\DaysCronEntry.cs" />
-    <Compile Include="Cron\DaysOfWeekCronEntry.cs" />
-    <Compile Include="Cron\HoursCronEntry.cs" />
-    <Compile Include="Cron\ICronEntry.cs" />
-    <Compile Include="Cron\MinutesCronEntry.cs" />
-    <Compile Include="Cron\MonthsCronEntry.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -79,6 +75,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Package\Config\web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +93,13 @@ del "$(ProjectDir)\Package\package.zip"
 
 "$(ProjectDir)..\References\7z.exe" a "$(ProjectDir)\Package\package.zip" -tzip -r "$(ProjectDir)\Package\*"</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
