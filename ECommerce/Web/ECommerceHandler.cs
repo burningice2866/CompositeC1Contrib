@@ -30,7 +30,6 @@ namespace CompositeC1Contrib.ECommerce.Web
         private static string GetOutput(HttpContext ctx)
         {
             var request = ctx.Request;
-            var config = ECommerceSection.GetSection();
             var provider = ECommerce.DefaultProvider;
 
             if (request.HttpMethod == "POST")
@@ -38,13 +37,12 @@ namespace CompositeC1Contrib.ECommerce.Web
                 switch (request.PathInfo)
                 {
                     case "/callback": return HandleCallback(request, provider);
-                    default: return null;
                 }
             }
 
             switch (request.PathInfo)
             {
-                case "/cancel": return HandleCancel(ctx, config);
+                case "/cancel": return HandleCancel(ctx);
                 case "/continue": return HandleContinue(request);
                 default: return HandleDefault(request, provider);
             }
@@ -59,14 +57,14 @@ namespace CompositeC1Contrib.ECommerce.Web
             return null;
         }
 
-        private static string HandleCancel(HttpContext ctx, ECommerceSection config)
+        private static string HandleCancel(HttpContext ctx)
         {
             Utils.WriteLog(null, "Cancel request recieved, redirecting to main page");
 
-            var confirmUrl = GetPageUrl(config.MainPageId);
+            var confirmUrl = GetPageUrl(ECommerceConfig.MainPageId);
             if (!String.IsNullOrEmpty(confirmUrl))
             {
-                if (config.UseIFrame)
+                if (ECommerceConfig.UseIFrame)
                 {
                     return "<script>parent.location.href = '" + confirmUrl + "';</script>";
                 }
@@ -106,6 +104,11 @@ namespace CompositeC1Contrib.ECommerce.Web
                 {
                     recieptUrl = recieptUrl + "?orderid=" + order.Id;
 
+                    if (ECommerceConfig.UseIFrame)
+                    {
+                        return "<script>parent.location.href = '" + recieptUrl + "';</script>";
+                    }
+
                     request.RequestContext.HttpContext.Response.Redirect(recieptUrl);
                 }
             }
@@ -139,8 +142,7 @@ namespace CompositeC1Contrib.ECommerce.Web
                     {
                         recieptUrl = recieptUrl + "?orderid=" + order.Id;
 
-                        var config = ECommerceSection.GetSection();
-                        if (config.UseIFrame)
+                        if (ECommerceConfig.UseIFrame)
                         {
                             return "<script>parent.location.href = '" + recieptUrl + "';</script>";
                         }

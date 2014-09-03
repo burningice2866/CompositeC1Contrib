@@ -1,5 +1,4 @@
-﻿
-using CompositeC1Contrib.ECommerce.Data.Types;
+﻿using CompositeC1Contrib.ECommerce.Data.Types;
 
 namespace CompositeC1Contrib.ECommerce
 {

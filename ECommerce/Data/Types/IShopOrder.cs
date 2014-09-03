@@ -44,6 +44,10 @@ namespace CompositeC1Contrib.ECommerce.Data.Types
         [ImmutableFieldId("8edef5d0-4deb-415b-988e-ac6dc91abe45")]
         int PaymentStatus { get; set; }
 
+        [StoreFieldType(PhysicalStoreFieldType.String, 10, IsNullable = true)]
+        [ImmutableFieldId("a0097cad-cf19-4592-851c-d54805cc1962")]
+        string CreditCardType { get; set; }
+
         [StoreFieldType(PhysicalStoreFieldType.Boolean)]
         [ImmutableFieldId("73279466-21f4-4795-ae73-4f193d9b28d8")]
         bool PostProcessed { get; set; }

@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
 using Composite.C1Console.Events;
-using Composite.Core;
 using Composite.Core.Threading;
 using Composite.Data;
 
@@ -31,7 +31,17 @@ namespace CompositeC1Contrib.ECommerce
 
         public static void Initialize()
         {
+            var orderProcessor = ECommerce.OrderProcessor;
+            if (orderProcessor == null)
+            {
+                Utils.WriteLog(null, "No orderprocessor defined, worker is stopping");
+
+                return;
+            }
+
             Instance._running = true;
+
+            Utils.WriteLog(null, "Worker is starting, orderprocessor is "+ orderProcessor.GetType().FullName);
 
             Instance._thread.Start();
         }
@@ -70,7 +80,7 @@ namespace CompositeC1Contrib.ECommerce
                         }
                         catch (Exception ex)
                         {
-                            Log.LogWarning("Unhandled error when postprocessing orders", ex);
+                            Utils.WriteLog("Unhandled error when postprocessing orders", ex);
                         }
                         finally
                         {
@@ -88,30 +98,30 @@ namespace CompositeC1Contrib.ECommerce
             }
             catch (Exception ex)
             {
-                Log.LogCritical("Unhandled error in ThreadDataManager, worker is stopping", ex);
+                Utils.WriteLog("Unhandled error in ThreadDataManager, worker is stopping", ex);
             }
         }
 
         private void PostProcessPendingOrders()
         {
-            var orderProcessor = ECommerce.OrderProcessor;
-            if (orderProcessor == null)
-            {
-                return;
-            }
+            IList<IShopOrder> orders;
 
             using (var data = new DataConnection())
             {
-                var orders = data.Get<IShopOrder>().Where(s => s.PaymentStatus == (int)PaymentStatus.Authorized && !s.PostProcessed);
-                foreach (var order in orders)
-                {
-                    if (!_running)
-                    {
-                        return;
-                    }
+                orders =
+                    data.Get<IShopOrder>()
+                        .Where(s => s.PaymentStatus == (int)PaymentStatus.Authorized && !s.PostProcessed)
+                        .ToList();
+            }
 
-                    Utils.PostProcessOrder(order, orderProcessor, data);
+            foreach (var order in orders)
+            {
+                if (!_running)
+                {
+                    return;
                 }
+
+                Utils.PostProcessOrder(order, ECommerce.OrderProcessor);
             }
         }
     }

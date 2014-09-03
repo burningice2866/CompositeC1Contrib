@@ -94,11 +94,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.ECommerce\ListShopOrders.aspx" />
+    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.ECommerce\ListShopOrders.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.ECommerce\ViewShopOrderLog.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
-    <Content Include="Package\install.xml" />
+    <Content Include="Package\install.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="Package\Config\App_Data\Composite\composite.config">

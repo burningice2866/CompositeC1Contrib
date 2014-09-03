@@ -9,7 +9,22 @@ namespace CompositeC1Contrib.ECommerce
 {
     public class Utils
     {
+        public static void WriteLog(string message, Exception exc)
+        {
+            WriteLog(null, message, exc);
+        }
+
+        public static void WriteLog(string message)
+        {
+            WriteLog(null, message);
+        }
+
         public static void WriteLog(IShopOrder order, string message)
+        {
+            WriteLog(order, message, null);
+        }
+
+        public static void WriteLog(IShopOrder order, string message, Exception exc)
         {
             string logFile;
 
@@ -26,6 +41,11 @@ namespace CompositeC1Contrib.ECommerce
             {
                 using (var writer = FileUtils.GetOrCreateFile(logFile))
                 {
+                    if (exc != null)
+                    {
+                        message += ", Exception: " + exc;
+                    }
+
                     writer.Write(DateTime.Now);
                     writer.Write("\t");
                     writer.Write(message);
@@ -34,7 +54,7 @@ namespace CompositeC1Contrib.ECommerce
             }
         }
 
-        public static void PostProcessOrder(IShopOrder order, IOrderProcessor processor, DataConnection data)
+        public static void PostProcessOrder(IShopOrder order, IOrderProcessor processor)
         {
             WriteLog(order, "Postprocessing order");
 
@@ -44,13 +64,16 @@ namespace CompositeC1Contrib.ECommerce
 
                 order.PostProcessed = true;
 
-                data.Update(order);
+                using (var data = new DataConnection())
+                {
+                    data.Update(order);
+                }
 
                 WriteLog(order, "Order postprocessed");
             }
             catch (Exception ex)
             {
-                WriteLog(order, "Unhandled error when postprocessing order, Exception: " + ex);
+                WriteLog(order, "Unhandled error when postprocessing order", ex);
             }
         }
     }

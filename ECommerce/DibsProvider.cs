@@ -31,11 +31,6 @@ namespace CompositeC1Contrib.ECommerce
             }
 
             GatewayUrl = config["gatewayUrl"];
-            if (String.IsNullOrEmpty(GatewayUrl))
-            {
-                throw new ConfigurationErrorsException("gatewayUrl");
-            }
-
             config.Remove("gatewayUrl");
 
             MD5Secret2 = config["md5Secret2"];
@@ -55,15 +50,15 @@ namespace CompositeC1Contrib.ECommerce
 
             //http://tech.dibs.dk/integration_methods/flexwin/parameters/
 
-            string merchant = MerchantId;
-            string amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture);
-            string accepturl = schemeAndServer + ContinueUrl;
+            var merchant = MerchantId;
+            var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture);
+            var accepturl = schemeAndServer + ContinueUrl;
 
             // optional parameters
-            string test = IsTestMode ? "yes" : String.Empty;
-            string md5key = CalcMD5Key(merchant, order.Id, amount);
-            string cancelurl = schemeAndServer + CancelUrl;
-            string callbackurl = schemeAndServer + CallbackUrl;
+            var test = IsTestMode ? "yes" : String.Empty;
+            var md5key = CalcMD5Key(merchant, order.Id, amount);
+            var cancelurl = schemeAndServer + CancelUrl;
+            var callbackurl = schemeAndServer + CallbackUrl;
 
             var data = new NameValueCollection
             {
@@ -90,7 +85,7 @@ namespace CompositeC1Contrib.ECommerce
         {
             //http://tech.dibs.dk/integration_methods/flexwin/return_pages/
 
-            string orderid = GetFormString("orderid", form);
+            var orderid = GetFormString("orderid", form);
 
             using (var data = new DataConnection())
             {
@@ -106,7 +101,7 @@ namespace CompositeC1Contrib.ECommerce
 
                 data.Update(order);
 
-                string statuscode = GetFormString("statuscode", form);
+                var statuscode = GetFormString("statuscode", form);
                 if (statuscode != StatusOk)
                 {
                     Utils.WriteLog(order, "Error in status, values is " + statuscode + " but " + StatusOk + " was expected");
@@ -114,11 +109,11 @@ namespace CompositeC1Contrib.ECommerce
                     return;
                 }
 
-                string amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture);
-                string authkey = GetFormString("authkey", form);
-                string transact = GetFormString("transact", form);
-                
-                bool isValid = authkey == CalcAuthKey(transact, amount);
+                var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture);
+                var authkey = GetFormString("authkey", form);
+                var transact = GetFormString("transact", form);
+
+                var isValid = authkey == CalcAuthKey(transact, amount);
                 if (!isValid)
                 {
                     Utils.WriteLog(order, "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
@@ -126,6 +121,7 @@ namespace CompositeC1Contrib.ECommerce
                     return;
                 }
 
+                order.CreditCardType = GetFormString("paytype", form); ;
                 order.AuthorizationTransactionId = transact;
                 order.PaymentStatus = (int)PaymentStatus.Authorized;
 
@@ -141,17 +137,22 @@ namespace CompositeC1Contrib.ECommerce
 
             using (var md5 = MD5.Create())
             {
-                var hash = md5.ComputeHash(Encoding.ASCII.GetBytes(MD5Secret + String.Format("merchant={0}&orderid={1}&currency={2}&amount={3}", merchantId, orderId, Currency, amount)));
+                var s = MD5Secret + String.Format("merchant={0}&orderid={1}&currency={2}&amount={3}", merchantId, orderId, Currency, amount);
+                var bytes = Encoding.ASCII.GetBytes(s);
+                var hash = md5.ComputeHash(bytes);
 
-                foreach (byte b in hash)
+                foreach (var b in hash)
                 {
                     sb.Append(b.ToString("x2"));
                 }
 
-                hash = md5.ComputeHash(Encoding.ASCII.GetBytes(MD5Secret2 + sb));
+                s = MD5Secret2 + sb;
+                bytes = Encoding.ASCII.GetBytes(s);
+                hash = md5.ComputeHash(bytes);
+
                 sb.Length = 0;
 
-                foreach (byte b in hash)
+                foreach (var b in hash)
                 {
                     sb.Append(b.ToString("x2"));
                 }
@@ -166,17 +167,22 @@ namespace CompositeC1Contrib.ECommerce
 
             using (var md5 = MD5.Create())
             {
-                var hash = md5.ComputeHash(Encoding.ASCII.GetBytes(MD5Secret + String.Format("transact={0}&amount={1}&currency={2}", transact, amount, Currency)));
+                var s = MD5Secret + String.Format("transact={0}&amount={1}&currency={2}", transact, amount, Currency);
+                var bytes = Encoding.ASCII.GetBytes(s);
+                var hash = md5.ComputeHash(bytes);
 
-                foreach (byte b in hash)
+                foreach (var b in hash)
                 {
                     sb.Append(b.ToString("x2"));
                 }
 
-                hash = md5.ComputeHash(Encoding.ASCII.GetBytes(MD5Secret2 + sb));
+                s = MD5Secret2 + sb;
+                bytes = Encoding.ASCII.GetBytes(s);
+                hash = md5.ComputeHash(bytes);
+
                 sb.Length = 0;
 
-                foreach (byte b in hash)
+                foreach (var b in hash)
                 {
                     sb.Append(b.ToString("x2"));
                 }
@@ -187,7 +193,9 @@ namespace CompositeC1Contrib.ECommerce
 
         public override bool IsAuthorizedRequest(NameValueCollection qs)
         {
-            return !String.IsNullOrEmpty(qs["authkey"]);
+            var authkey = qs["authkey"];
+
+            return !String.IsNullOrEmpty(authkey);
         }
     }
 }
