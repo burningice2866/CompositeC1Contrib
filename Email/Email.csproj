@@ -43,23 +43,13 @@
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.SignalR.Core">
-      <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.0.3\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
+    <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.1.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.1.1\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Owin, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Owin.2.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Security">
-      <HintPath>..\packages\Microsoft.Owin.Security.2.1.0\lib\net45\Microsoft.Owin.Security.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation">
       <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
@@ -74,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OwinExtensions.cs" />
     <Compile Include="C1Console\ElementProviders\Actions\DeleteMailTemplateActionToken.cs" />
     <Compile Include="C1Console\ElementProviders\EntityTokens\MailTemplatesEntityToken.cs" />
     <Compile Include="C1Console\ElementProviders\EntityTokens\QueuedMailsEntityToken.cs" />
@@ -118,7 +109,6 @@
     <Compile Include="Serialization\SerializeableMailAddress.cs" />
     <Compile Include="Serialization\SerializeableMailMessage.cs" />
     <Compile Include="SignalR\MailMessage.cs" />
-    <Compile Include="SignalR\OwinStartupHandler.cs" />
     <Compile Include="StartupHandler.cs" />
     <Compile Include="C1Console\Workflows\CreateMailQueueWorkflow.cs">
       <SubType>Component</SubType>
@@ -148,9 +138,9 @@
     <Content Include="Package\Content\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\CreateMailQueue.xml" />
     <Content Include="Package\Content\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\EditMailQueue.xml" />
     <Content Include="Package\Content\Composite\Content\Forms\InstalledPackages\CompositeC1Contrib.Email\EditMailTemplate.xml" />
-    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.Email\log.aspx">
-      <SubType>ASPXCodeBehind</SubType>
-    </Content>
+    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.Email\bindings\LogCommandBinding.js" />
+    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.Email\bindings\LogTableBinding.js" />
+    <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.Email\log.aspx" />
     <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.Email\signalr.js" />
     <Content Include="Package\Content\Composite\InstalledPackages\CompositeC1Contrib.Email\view.aspx">
       <SubType>ASPXCodeBehind</SubType>
