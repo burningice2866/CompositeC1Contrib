@@ -1,5 +1,7 @@
-﻿using Composite.C1Console.Workflow;
-using Composite.Core.Application;
+﻿using Composite.Core.Application;
+using Composite.Data.DynamicTypes;
+
+using Hangfire.CompositeC1.Types;
 
 namespace CompositeC1Contrib.ScheduledTasks
 {
@@ -10,10 +12,15 @@ namespace CompositeC1Contrib.ScheduledTasks
 
         public static void OnInitialized()
         {
-            var workflowInstance = WorkflowFacade.CreateNewWorkflow(typeof(ScheduledTasksWorkflow));
-            workflowInstance.Start();
-
-            WorkflowFacade.RunWorkflow(workflowInstance);
+            DynamicTypeManager.EnsureCreateStore(typeof(ICounter));
+            DynamicTypeManager.EnsureCreateStore(typeof(IHash));
+            DynamicTypeManager.EnsureCreateStore(typeof(IJob));
+            DynamicTypeManager.EnsureCreateStore(typeof(IJobParameter));
+            DynamicTypeManager.EnsureCreateStore(typeof(IJobQueue));
+            DynamicTypeManager.EnsureCreateStore(typeof(IList));
+            DynamicTypeManager.EnsureCreateStore(typeof(IServer));
+            DynamicTypeManager.EnsureCreateStore(typeof(ISet));
+            DynamicTypeManager.EnsureCreateStore(typeof(IState));
         }
     }
 }

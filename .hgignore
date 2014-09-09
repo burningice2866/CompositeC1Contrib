@@ -1,6 +1,7 @@
 .*/*.suo
 .*/*.user
 .*/*.layout
+.*/package.zip
 
 .*/Package/Bin/./*
 References/*
