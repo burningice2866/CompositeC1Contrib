@@ -64,6 +64,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="C1Console\ElementProviders\Actions\RequeueScheduledTaskActionToken.cs" />
+    <Compile Include="C1Console\ElementProviders\Actions\TriggerRecurringTaskActionToken.cs" />
+    <Compile Include="C1Console\ElementProviders\Actions\DeleteRecurringTaskActionToken.cs" />
+    <Compile Include="C1Console\ElementProviders\Actions\DeleteScheduledTaskActionToken.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\TaskEntityToken.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\FolderEntityToken.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\ScheduledTasksElementProviderEntityToken.cs" />
+    <Compile Include="C1Console\ElementProviders\ScheduledTasksElementProvider.cs" />
     <Compile Include="CompositeC1AuthorizationFilter.cs" />
     <Compile Include="OwinExtensions.cs" />
     <Compile Include="Configuration\ScheduledTaskCollection.cs" />
@@ -71,15 +79,25 @@
     <Compile Include="Configuration\ScheduledTasksSection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StartupHandler.cs" />
+    <Compile Include="TaskType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Package\Config\App_Data\Composite\composite.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Package\Config\web.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{1e76e3be-f575-4e2d-a791-8a0eda53c1b2}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
