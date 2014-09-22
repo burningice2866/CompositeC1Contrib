@@ -11,7 +11,7 @@ using Composite.Data.Types;
 using CompositeC1Contrib.Security.Data.Types;
 using CompositeC1Contrib.Security.Web;
 
-namespace CompositeC1Contrib.Security.Security
+namespace CompositeC1Contrib.Security
 {
     public static class PermissionsFacade
     {
@@ -54,12 +54,7 @@ namespace CompositeC1Contrib.Security.Security
 
         public static bool HasAccess(IPage page)
         {
-            using (var data = new DataConnection())
-            {
-                var permissions = data.Get<IPagePermissions>().SingleOrDefault(p => p.PageId == page.Id);
-
-                return HasAccess(permissions);
-            }
+            return EvaluatedPagePermissions.HasAccess(page);
         }
 
         public static bool HasAccess(IMediaFile media)
@@ -70,26 +65,42 @@ namespace CompositeC1Contrib.Security.Security
                 var folderPermission = data.Get<IMediaFolderPermissions>().SingleOrDefault(f => f.KeyPath == folder.KeyPath);
                 if (folderPermission != null)
                 {
-                    return HasAccess(folderPermission);
+                    var fep = EvaluatePermissions(folderPermission);
+
+                    return HasAccess(fep);
                 }
 
                 var mediaPermissions = data.Get<IMediaFilePermissions>().SingleOrDefault(m => m.KeyPath == media.KeyPath);
+                var mep = EvaluatePermissions(mediaPermissions);
 
-                return HasAccess(mediaPermissions);
+                return HasAccess(mep);
             }
         }
+        
+        public static EvaluatedPermissions EvaluatePermissions(IDataPermissions permissions)
+        {
+            var evaluatedPermissions = new EvaluatedPermissions
+            {
+                ExplicitAllowedRoles = Split(permissions.AllowedRoles).ToArray(),
+                ExplicitDeniedRoled = Split(permissions.DeniedRoles).ToArray(),
+            };
 
-        public static bool HasAccess(IDataPermissions permissions)
+            return evaluatedPermissions;
+        }
+
+        public static IEnumerable<string> Split(string roles)
+        {
+            return roles == null ? new string[0] : roles.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static bool HasAccess(EvaluatedPermissions permissions)
         {
             if (permissions == null)
             {
                 return true;
             }
 
-            var allowedRoles = permissions.AllowedRoles == null ? new string[0] : permissions.AllowedRoles.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            var deniedRoles = permissions.DeniedRoles == null ? new string[0] : permissions.DeniedRoles.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-            if (deniedRoles.Length <= 0 && allowedRoles.Length <= 0)
+            if (permissions.DeniedRoled.Length <= 0 && permissions.AllowedRoles.Length <= 0)
             {
                 return true;
             }
@@ -108,12 +119,12 @@ namespace CompositeC1Contrib.Security.Security
                 userRoles.Add(CompositeC1RoleProvider.AnonymousdRole);
             }
 
-            if (deniedRoles.Intersect(userRoles).Any())
+            if (permissions.DeniedRoled.Intersect(userRoles).Any())
             {
                 return false;
             }
 
-            if (!allowedRoles.Intersect(userRoles).Any())
+            if (!permissions.AllowedRoles.Intersect(userRoles).Any())
             {
                 return false;
             }

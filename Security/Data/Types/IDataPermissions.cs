@@ -28,5 +28,9 @@ namespace CompositeC1Contrib.Security.Data.Types
         [StoreFieldType(PhysicalStoreFieldType.LargeString)]
         [ImmutableFieldId("39e057f7-a933-41cf-a3ab-bbadfd29ca53")]
         string DeniedRoles { get; set; }
+
+        [StoreFieldType(PhysicalStoreFieldType.Boolean)]
+        [ImmutableFieldId("01cc8f10-773a-4d37-9961-e29d43d32df3")]
+        bool DisableInheritance { get; set; }
     }
 }

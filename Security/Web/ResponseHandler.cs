@@ -7,8 +7,6 @@ using Composite.Core.WebClient.Renderings.Plugins.RenderingResponseHandler;
 using Composite.Data;
 using Composite.Data.Types;
 
-using CompositeC1Contrib.Security.Security;
-
 namespace CompositeC1Contrib.Security.Web
 {
     public class ResponseHandler : IDataRenderingResponseHandler

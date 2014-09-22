@@ -58,13 +58,18 @@
     <Compile Include="Data\Types\IPagePermissions.cs" />
     <Compile Include="PagePermissionsActionProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Security\PasswordHash.cs" />
-    <Compile Include="Security\PermissionsFacade.cs" />
+    <Compile Include="EvaluatedPagePermissions.cs" />
+    <Compile Include="EvaluatedPermissions.cs" />
+    <Compile Include="PasswordHash.cs" />
+    <Compile Include="PermissionsFacade.cs" />
     <Compile Include="StartupHandler.cs" />
     <Compile Include="Web\C1ConsoleHttpsEnforcer.cs" />
     <Compile Include="Web\ResponseHandler.cs" />
     <Compile Include="Web\CompositeC1MembershipProvider.cs" />
     <Compile Include="Web\CompositeC1RoleProvider.cs" />
+    <Compile Include="Web\UI\InheritedPermissions.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Workflows\BaseEditPermissionsWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -86,7 +91,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Security\EditPermissionsWorkflow.xml" />
+    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Security\EditPermissionsWorkflow.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Security\InheritedPermissions.ascx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>

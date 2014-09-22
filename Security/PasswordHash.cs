@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace CompositeC1Contrib.Security.Security
+namespace CompositeC1Contrib.Security
 {
     public class PasswordHash
     {

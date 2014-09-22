@@ -7,7 +7,9 @@ using CompositeC1Contrib.Workflows;
 
 namespace CompositeC1Contrib.Security.Workflows
 {
-    public abstract class BaseEditPermissionsWorkflow<TPermissionType, TEntityType> : Basic1StepDialogWorkflow where TPermissionType : class, IDataPermissions where TEntityType : IData
+    public abstract class BaseEditPermissionsWorkflow<TPermissionType, TEntityType> : Basic1StepDialogWorkflow
+        where TPermissionType : class, IDataPermissions
+        where TEntityType : IData
     {
         protected BaseEditPermissionsWorkflow() : base("\\InstalledPackages\\CompositeC1Contrib.Security\\EditPermissionsWorkflow.xml") { }
 
@@ -16,7 +18,7 @@ namespace CompositeC1Contrib.Security.Workflows
             get
             {
                 var dataToken = (DataEntityToken)EntityToken;
-                
+
                 return (TEntityType)dataToken.Data;
             }
         }
@@ -37,6 +39,7 @@ namespace CompositeC1Contrib.Security.Workflows
                 }
             }
 
+            Bindings.Add("EvaluatedPermissions", GetEvaluatedPermissions());
             Bindings.Add("Permissions", permissions);
             Bindings.Add("Title", permissions.GetTypeTitle());
         }
@@ -53,6 +56,7 @@ namespace CompositeC1Contrib.Security.Workflows
             SetSaveStatus(true);
         }
 
+        protected abstract EvaluatedPermissions GetEvaluatedPermissions();
         protected abstract TPermissionType GetPermissions();
         protected abstract void SavePermissions(TPermissionType permissions);
     }

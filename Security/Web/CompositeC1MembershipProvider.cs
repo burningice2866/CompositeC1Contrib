@@ -8,7 +8,6 @@ using System.Web.Security;
 using Composite.Data;
 
 using CompositeC1Contrib.Security.Data.Types;
-using CompositeC1Contrib.Security.Security;
 
 namespace CompositeC1Contrib.Security.Web
 {

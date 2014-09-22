@@ -12,6 +12,11 @@ namespace CompositeC1Contrib.Security.Workflows
     [AllowPersistingWorkflow(WorkflowPersistingType.Idle)]
     public sealed class EditMediaFilePermissionsWorkflow : BaseEditPermissionsWorkflow<IMediaFilePermissions, IMediaFile>
     {
+        protected override EvaluatedPermissions GetEvaluatedPermissions()
+        {
+            return new EvaluatedPermissions();
+        }
+
         protected override IMediaFilePermissions GetPermissions()
         {
             using (var data = new DataConnection())

@@ -12,6 +12,11 @@ namespace CompositeC1Contrib.Security.Workflows
     [AllowPersistingWorkflow(WorkflowPersistingType.Idle)]
     public sealed class EditPagePermissionsWorkflow : BaseEditPermissionsWorkflow<IPagePermissions, IPage>
     {
+        protected override EvaluatedPermissions GetEvaluatedPermissions()
+        {
+            return EvaluatedPagePermissions.GetEvaluatedPermissionsForPage(DataEntity);
+        }
+
         protected override IPagePermissions GetPermissions()
         {
             using (var data = new DataConnection())
