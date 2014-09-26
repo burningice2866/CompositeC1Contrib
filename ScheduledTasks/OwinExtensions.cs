@@ -15,11 +15,24 @@ namespace CompositeC1Contrib.ScheduledTasks
     {
         public static void UseCompositeC1ContribScheduledTasks(this IAppBuilder app)
         {
+            app.UseCompositeC1ContribScheduledTasks(null);
+        }
+
+        public static void UseCompositeC1ContribScheduledTasks(this IAppBuilder app, int? workerCount)
+        {
             app.UseHangfire(config =>
             {
-                config.UseAuthorizationFilters(new IAuthorizationFilter[] {new CompositeC1AuthorizationFilter()});
+                config.UseAuthorizationFilters(new IAuthorizationFilter[] { new CompositeC1AuthorizationFilter() });
                 config.UseCompositeC1Storage();
-                config.UseServer();
+
+                if (workerCount.HasValue)
+                {
+                    config.UseServer(workerCount.Value);
+                }
+                else
+                {
+                    config.UseServer();
+                }
             });
 
             var section = ScheduledTasksSection.GetSection();
