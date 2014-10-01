@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sorting", "Sorting\Sorting.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChangeHistory", "ChangeHistory\ChangeHistory.csproj", "{C9AAE6EE-0003-481E-96E9-8CB0484D704D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Email", "Email\Email.csproj", "{BCABD981-DB99-433C-B8D1-9DCB31AE35FF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Favorites", "Favorites\Favorites.csproj", "{1878928C-0AC2-40EB-8C8B-C69CD25F6A61}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadFoldersAsZip", "DownloadFoldersAsZip\DownloadFoldersAsZip.csproj", "{4BA9FA0F-4E1A-43D9-A383-CB54FF035A55}"
@@ -51,10 +49,6 @@ Global
 		{C9AAE6EE-0003-481E-96E9-8CB0484D704D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9AAE6EE-0003-481E-96E9-8CB0484D704D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9AAE6EE-0003-481E-96E9-8CB0484D704D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BCABD981-DB99-433C-B8D1-9DCB31AE35FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BCABD981-DB99-433C-B8D1-9DCB31AE35FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BCABD981-DB99-433C-B8D1-9DCB31AE35FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BCABD981-DB99-433C-B8D1-9DCB31AE35FF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1878928C-0AC2-40EB-8C8B-C69CD25F6A61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1878928C-0AC2-40EB-8C8B-C69CD25F6A61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1878928C-0AC2-40EB-8C8B-C69CD25F6A61}.Release|Any CPU.ActiveCfg = Release|Any CPU
