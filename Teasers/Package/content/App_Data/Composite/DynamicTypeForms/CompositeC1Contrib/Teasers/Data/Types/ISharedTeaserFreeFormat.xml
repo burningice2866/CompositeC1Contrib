@@ -15,15 +15,15 @@
     </cms:layout.label>
 
     <TabPanels>
-      <PlaceHolder Label="Opsætning">
+      <PlaceHolder Label="${CompositeC1Contrib.Teasers, Settings.Label}">
         <FieldGroup>
-          <TextBox Label="Administrativt navn" Help="" SpellCheck="true">
+          <TextBox Label="${CompositeC1Contrib.Teasers, Name.Label}" Help="${CompositeC1Contrib.Teasers, Name.Help}" SpellCheck="true">
             <TextBox.Text>
               <cms:bind source="Name" />
             </TextBox.Text>
           </TextBox>
 
-          <KeySelector Label="Teasergruppe" Help="" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
+          <KeySelector Label="${CompositeC1Contrib.Teasers, SharedFreeFormat.TeaserGroup.Label}" Help="${CompositeC1Contrib.Teasers, SharedFreeFormat.TeaserGroup.Help}" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
             <KeySelector.Selected>
               <cms:bind source="TeaserGroup"/>
             </KeySelector.Selected>
@@ -39,7 +39,7 @@
             </ff:NullCheck.CheckValue>
 
             <ff:NullCheck.WhenNotNull>
-              <KeySelector Label="Design" Help="" OptionsKeyField="Key" OptionsLabelField="Value" Required="false">
+              <KeySelector Label="${CompositeC1Contrib.Teasers, DesignName.Label}" Help="${CompositeC1Contrib.Teasers, DesignName.Help}" OptionsKeyField="Key" OptionsLabelField="Value" Required="false">
                 <KeySelector.Selected>
                   <cms:bind source="DesignName"/>
                 </KeySelector.Selected>
@@ -51,19 +51,19 @@
             </ff:NullCheck.WhenNotNull>
           </ff:NullCheck>
 
-          <DateSelector Label="Publiseringsdato" Help="">
+          <DateSelector Label="${CompositeC1Contrib.Teasers, PublishDate.Label}" Help="${CompositeC1Contrib.Teasers, PublishDate.Help}">
             <DateSelector.Date>
               <cms:bind source="PublishDate" />
             </DateSelector.Date>
           </DateSelector>
 
-          <DateSelector Label="Afpubliceringsdato" Help="">
+          <DateSelector Label="${CompositeC1Contrib.Teasers, UnpublishDate.Label}" Help="${CompositeC1Contrib.Teasers, UnpublishDate.Help}">
             <DateSelector.Date>
               <cms:bind source="UnpublishDate" />
             </DateSelector.Date>
           </DateSelector>
 
-          <CheckBox Label="Inkludér i rotationer" Help="">
+          <CheckBox Label="${CompositeC1Contrib.Teasers, SharedFreeFormat.InclInRotation.Label}" Help="${CompositeC1Contrib.Teasers, SharedFreeFormat.InclInRotation.Help}">
             <CheckBox.Checked>
               <cms:bind source="InclInRotation" />
             </CheckBox.Checked>
@@ -71,7 +71,7 @@
         </FieldGroup>
       </PlaceHolder>
 
-      <XhtmlEditor Label="Indhold" ClassConfigurationName="common">
+      <XhtmlEditor Label="${CompositeC1Contrib.Teasers, SharedFreeFormat.Content.Label}" ClassConfigurationName="common">
         <XhtmlEditor.Xhtml>
           <cms:bind source="Content" />
         </XhtmlEditor.Xhtml>

@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<strings>
+  <!-- unique for trees -->
+  <string key="SharedTeasers" value="Global teasers" />
+  <string key="SharedTeasers.ISharedTeaserGroupAdd" value="Add teaser group" />
+  <string key="SharedTeasers.ISharedTeaserGroupEdit" value="Edit teaser group" />
+  <string key="SharedTeasers.ISharedTeaserGroupDelete" value="Delete teaser group" />
+  <string key="SharedTeasers.ISharedTeaserFreeFormatAdd" value="Add teaser" />
+  <string key="SharedTeasers.ISharedTeaserFreeFormatEdit" value="Edit teaser" />
+  <string key="SharedTeasers.ISharedTeaserFreeFormatDelete" value="Delete teaser" />
+
+  <!-- unique for settings type form -->
+  <string key="Settings.HideInheritedTeasers.Label" value="Hide inherited teasers" />
+  <string key="Settings.HideInheritedTeasers.Help" value="If any of this page's ancestors has teasers marked with &quot;Show on sub pages&quot;, you can prevent these teasers from appearing on this page by checking this box." />
+
+  <!-- element provider -->
+  <string key="TeaserElementAttachingProvider.Teasers.Label" value="Teasers" />
+  <string key="TeaserElementAttachingProvider.Teasers.ToolTip" value="Teasers" />
+  <string key="TeaserElementAttachingProvider.NoLabel" value="No label" />
+  <string key="TeaserElementAttachingProvider.Edit.Label" value="Edit" />
+  <string key="TeaserElementAttachingProvider.Edit.ToolTip" value="Edit" />
+  <string key="TeaserElementAttachingProvider.DeleteItem" value="Delete: " />
+  <string key="TeaserElementAttachingProvider.Delete.Label" value="Delete" />
+  <string key="TeaserElementAttachingProvider.Delete.ToolTip" value="Delete" />
+  <string key="TeaserElementAttachingProvider.Add.Label" value="Add teaser" />
+  <string key="TeaserElementAttachingProvider.Add.ToolTip" value="Add teaser" />
+  <string key="TeaserElementAttachingProvider.SortItems" value="Sort teasers" />
+  <string key="TeaserElementAttachingProvider.Sort.Label" value="Sort teasers" />
+  <string key="TeaserElementAttachingProvider.Sort.ToolTip" value="Sort teasers" />
+
+  <!-- data type titles -->
+  <string key="IPageTeaserFreeFormat.Title" value="Free format teaser (content area)" />
+  <string key="IPageTeaserRandom.Title" value="Randomly selected teaser (rotation from group)" />
+  <string key="IPageTeaserShared.Title" value="Global teaser (reference to shared teaser)" />
+
+  <!-- unique for global teaser type form -->
+  <string key="SharedFreeFormat.TeaserGroup.Label" value="Teaser group" />
+  <string key="SharedFreeFormat.TeaserGroup.Help" value="Select a group for the teaser" />
+  <string key="SharedFreeFormat.InclInRotation.Label" value="Include in rotation" />
+  <string key="SharedFreeFormat.InclInRotation.Help" value="Check this box if you want the teaser to appear on pages that uses randomly selected teasers" />
+  <string key="SharedFreeFormat.Content.Label" value="Content" />
+
+  <!-- unique for page teaser workflow forms -->
+  <string key="PageTeaserAdd.Label" value="Add a new teaser" />
+  <string key="PageTeaserType.Label" value="Select teaser type" />
+  <string key="PageTeaserType.Help" value="Select teaser type" />
+  <string key="PageFreeFormat.Label" value="Free format teaser" />
+  <string key="PageFreeFormat.Text" value="Write the teaser content on the next tab" />
+  <string key="PageFreeFormat.Content.Label" value="Content" />
+  <string key="PageRandom.Label" value="Randomly selected teaser" />
+  <string key="PageRandom.TeaserGroup.Label" value="Select teaser group" />
+  <string key="PageRandom.TeaserGroup.Help" value="Select the group you want to select random teasers from" />
+  <string key="PageShared.Label" value="Global teaser" />
+  <string key="PageShared.Teaser.Label" value="Select teaser" />
+  <string key="PageShared.Teaser.Help" value="Select among the global teasers located below &quot;Website items&quot;" />
+
+  <!-- common for page teaser and shared teaser type forms -->
+  <string key="Settings.Label" value="Settings" />
+  <string key="BasicSetup.Label" value="Basic settings" />
+  <string key="Name.Label" value="Administrative name" />
+  <string key="Name.Help" value="The name is used in the consol and is not displayed on the home page" />
+  <string key="Position.Label" value="Position" />
+  <string key="Position.Help" value="Select position in the template" />
+  <string key="DesignName.Label" value="Design" />
+  <string key="DesignName.Help" value="Select the appearance of the teaser" />
+  <string key="AdditionalHeader.Label" value="Additional header" />
+  <string key="AdditionalHeader.Help" value="Can be used to categorize teaserne" />
+  <string key="ShowOnDescendants.Label" value="Show on sub pages" />
+  <string key="ShowOnDescendants.Help" value="Show this teaser on descendant pages" />
+  <string key="PublishDate.Label" value="Publish date" />
+  <string key="PublishDate.Help" value="The date when the teaser must be visible on the home page" />
+  <string key="UnpublishDate.Label" value="Unpublish date" />
+  <string key="UnpublishDate.Help" value="The date when the teaser must be be removed from the home page" />
+</strings>

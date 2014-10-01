@@ -90,6 +90,8 @@
     <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\SortPages.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
+    <Content Include="Package\Composite\InstalledPackages\localization\CompositeC1Contrib.Sorting.da-dk.xml" />
+    <Content Include="Package\Composite\InstalledPackages\localization\CompositeC1Contrib.Sorting.en-us.xml" />
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>

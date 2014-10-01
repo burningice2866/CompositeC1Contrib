@@ -5,9 +5,9 @@
     <cms:binding name="Name" type="System.String" />
   </cms:bindings>
 
-  <cms:layout label="Add a new page teaser">
+  <cms:layout label="${CompositeC1Contrib.Teasers, PageTeaserAdd.Label}">
     <FieldGroup>
-      <KeySelector Label="Select type" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
+      <KeySelector Label="${CompositeC1Contrib.Teasers, PageTeaserType.Label}" Help="${CompositeC1Contrib.Teasers, PageTeaserType.Help}" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
         <KeySelector.Options>
           <f:StaticMethodCall Type="CompositeC1Contrib.Teasers.C1Console.WorkFlows.AddPageTeaserWorkFlow, CompositeC1Contrib.Teasers" Method="GetPageTeaserTypes" />
         </KeySelector.Options>
@@ -17,7 +17,7 @@
         </KeySelector.Selected>
       </KeySelector>
 
-      <TextBox Label="Navn" Help="Navn på teaser, bruges i træet" SpellCheck="true">
+      <TextBox Label="${CompositeC1Contrib.Teasers, Name.Label}" Help="${CompositeC1Contrib.Teasers, Name.Help}" SpellCheck="true">
         <TextBox.Text>
           <cms:bind source="Name" />
         </TextBox.Text>

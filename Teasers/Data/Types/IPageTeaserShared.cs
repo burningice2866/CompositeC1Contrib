@@ -7,7 +7,7 @@ using CompositeC1Contrib.Teasers.C1Console.WorkFlows;
 namespace CompositeC1Contrib.Teasers.Data.Types
 {
 	[ImmutableTypeId("B685651B-A2E9-47B8-973A-5B61CB9E4A25")]
-	[Title("Page Teaser (Shared Teaser)")]
+    [Title("${CompositeC1Contrib.Teasers, IPageTeaserShared.Title}")]
     [Icon("browser")]
     [EditWorkflow(typeof(EditPageTeaserSharedWorkFlow))]
 	public interface IPageTeaserShared : IPageTeaser

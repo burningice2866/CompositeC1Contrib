@@ -130,6 +130,8 @@
       <SubType>ASPXCodeBehind</SubType>
     </Content>
     <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Teasers\teaserConsoleFunctions.js" />
+    <Content Include="Package\content\Composite\InstalledPackages\localization\CompositeC1Contrib.Teasers.da-dk.xml" />
+    <Content Include="Package\content\Composite\InstalledPackages\localization\CompositeC1Contrib.Teasers.en-us.xml" />
     <Content Include="Package\install.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -143,6 +145,7 @@
       <Name>Sorting</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>del "$(ProjectDir)Package\Bin\"

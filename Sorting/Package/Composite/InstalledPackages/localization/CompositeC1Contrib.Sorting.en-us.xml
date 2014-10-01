@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<strings>
+  <string key="Sort" value="Sort" />
+  <string key="Childpages" value=" child pages" />
+  <string key="Reorder" value="Reorder" />
+  <string key="ReorderText" value="Use mouse drag &amp; drop to change the order. Place the curser on the green arrows." />
+</strings>

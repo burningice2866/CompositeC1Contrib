@@ -90,8 +90,8 @@ namespace CompositeC1Contrib.Teasers.C1Console
             {
                 VisualData = new ElementVisualizedData
                 {
-                    Label = "Teasers",
-                    ToolTip = "Teasers",
+                    Label = StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.Teasers.Label"),
+                    ToolTip = StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.Teasers.ToolTip"),
                     HasChildren = true,
                     Icon = new ResourceHandle("Composite.Icons", "template"),
                     OpenedIcon = new ResourceHandle("Composite.Icons", "template")
@@ -150,7 +150,7 @@ namespace CompositeC1Contrib.Teasers.C1Console
                     }
                 }
 
-                var label = "No label";
+                var label = StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.NoLabel");
                 try
                 {
                     label = instance.GetLabel();
@@ -178,21 +178,21 @@ namespace CompositeC1Contrib.Teasers.C1Console
                     {
                         VisualData = new ActionVisualizedData
                         {
-                            Label = "Edit",
-                            ToolTip = "Edit",
+                            Label = StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.Edit.Label"),
+                            ToolTip = StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.Edit.ToolTip"),
                             Icon = new ResourceHandle("Composite.Icons", "generated-type-data-edit"),
                             ActionLocation = ActionLocation
                         }
                     });
                 }
 
-                var deleteActionToken = new ConfirmWorkflowActionToken("Delete: " + label, typeof(DeletePageTeaserActionToken));
+                var deleteActionToken = new ConfirmWorkflowActionToken(StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.DeleteItem") + label, typeof(DeletePageTeaserActionToken));
                 teaserElement.AddAction(new ElementAction(new ActionHandle(deleteActionToken))
                 {
                     VisualData = new ActionVisualizedData
                     {
-                        Label = "Delete",
-                        ToolTip = "Delete",
+                        Label = StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.Delete.Label"),
+                        ToolTip = StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.Delete.ToolTip"),
                         Icon = new ResourceHandle("Composite.Icons", "generated-type-data-delete"),
                         ActionLocation = ActionLocation
                     }
@@ -232,21 +232,21 @@ namespace CompositeC1Contrib.Teasers.C1Console
                 {
                     VisualData = new ActionVisualizedData
                     {
-                        Label = "Add teaser",
-                        ToolTip = "Add teaser",
+                        Label = StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.Add.Label"),
+                        ToolTip = StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.Add.ToolTip"),
                         Icon = new ResourceHandle("Composite.Icons", "generated-type-data-add"),
                         ActionLocation = ActionLocation
                     }
                 });
 
                 var url = String.Format("InstalledPackages/CompositeC1Contrib.Teasers/SortPageTeasers.aspx?pageId={0}&position={1}", page.Id, position.Item1);
-                var sortActionToken = new UrlActionToken("Sort fields", UrlUtils.ResolveAdminUrl(url), new[] { PermissionType.Add, PermissionType.Edit, PermissionType.Administrate, });
+                var sortActionToken = new UrlActionToken(StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.SortItems"), UrlUtils.ResolveAdminUrl(url), new[] { PermissionType.Add, PermissionType.Edit, PermissionType.Administrate, });
                 positionElement.AddAction(new ElementAction(new ActionHandle(sortActionToken))
                 {
                     VisualData = new ActionVisualizedData
                     {
-                        Label = "Sort teasers",
-                        ToolTip = "Sort teasers",
+                        Label = StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.Sort.Label"),
+                        ToolTip = StringResourceSystemFacade.GetString("CompositeC1Contrib.Teasers", "TeaserElementAttachingProvider.Sort.ToolTip"),
                         Icon = new ResourceHandle("Composite.Icons", "cut"),
                         ActionLocation = ActionLocation
                     }

@@ -6,24 +6,24 @@
 
 	<ElementRoot>
 		<Children>
-			<Element Label="Teasere" Id="Teasers" Icon="data">
+			<Element Label="${CompositeC1Contrib.Teasers, SharedTeasers}"  Id="Teasers" Icon="data">
 				<Actions>
-					<AddDataAction Type="CompositeC1Contrib.Teasers.Data.Types.ISharedTeaserGroup, CompositeC1Contrib.Teasers" Label="Tilføj teasergruppe" />
+					<AddDataAction Type="CompositeC1Contrib.Teasers.Data.Types.ISharedTeaserGroup, CompositeC1Contrib.Teasers" Label="${CompositeC1Contrib.Teasers, SharedTeasers.ISharedTeaserGroupAdd}" />
 				</Actions>
 
 				<Children>
 					<DataElements Type="CompositeC1Contrib.Teasers.Data.Types.ISharedTeaserGroup, CompositeC1Contrib.Teasers">
 						<Actions>
-							<AddDataAction Type="CompositeC1Contrib.Teasers.Data.Types.ISharedTeaserFreeFormat, CompositeC1Contrib.Teasers" Label="Tilføj free format teaser" />
-							<EditDataAction Label="Rediger teasergruppe" />
-							<DeleteDataAction Label="Slet teasergruppe" />
+							<AddDataAction Type="CompositeC1Contrib.Teasers.Data.Types.ISharedTeaserFreeFormat, CompositeC1Contrib.Teasers" Label="${CompositeC1Contrib.Teasers, SharedTeasers.ISharedTeaserFreeFormatAdd}" />
+							<EditDataAction Label="${CompositeC1Contrib.Teasers, SharedTeasers.ISharedTeaserGroupEdit}" />
+							<DeleteDataAction Label="${CompositeC1Contrib.Teasers, SharedTeasers.ISharedTeaserGroupDelete}" />
 						</Actions>
 
 						<Children>
 							<DataElements Type="CompositeC1Contrib.Teasers.Data.Types.ISharedTeaserFreeFormat, CompositeC1Contrib.Teasers" Icon="data">
 								<Actions>
-									<EditDataAction Label="Rediger teaser" />
-									<DeleteDataAction Label="Slet teaser" />
+									<EditDataAction Label="${CompositeC1Contrib.Teasers, SharedTeasers.ISharedTeaserFreeFormatEdit}" />
+									<DeleteDataAction Label="${CompositeC1Contrib.Teasers, SharedTeasers.ISharedTeaserFreeFormatDelete}" />
 								</Actions>
 
 								<Filters>

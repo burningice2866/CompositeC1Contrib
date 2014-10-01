@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<strings>
+  <!-- unique for trees -->
+  <string key="SharedTeasers" value="Globale teasere" />
+  <string key="SharedTeasers.ISharedTeaserGroupAdd" value="Tilføj teasergruppe" />
+  <string key="SharedTeasers.ISharedTeaserGroupEdit" value="Rediger teasergruppe" />
+  <string key="SharedTeasers.ISharedTeaserGroupDelete" value="Slet teasergruppe" />
+  <string key="SharedTeasers.ISharedTeaserFreeFormatAdd" value="Tilføj teaser" />
+  <string key="SharedTeasers.ISharedTeaserFreeFormatEdit" value="Rediger teaser" />
+  <string key="SharedTeasers.ISharedTeaserFreeFormatDelete" value="Slet teaser" />
+
+  <!-- unique for settings type form -->
+  <string key="Settings.HideInheritedTeasers.Label" value="Skjul nedarvede teasere" />
+  <string key="Settings.HideInheritedTeasers.Help" value="Hvis der på denne sides forfædre er tilføjet teasere, der er markeret med &quot;Vis på undersider&quot;, kan du forhindre disse teasere i at blive vist ved at afkrydse dette felt." />
+
+  <!-- element provider -->
+  <string key="TeaserElementAttachingProvider.Teasers.Label" value="Teasere" />
+  <string key="TeaserElementAttachingProvider.Teasers.ToolTip" value="Teasere" />
+  <string key="TeaserElementAttachingProvider.NoLabel" value="Intet navn" />
+  <string key="TeaserElementAttachingProvider.Edit.Label" value="Rediger" />
+  <string key="TeaserElementAttachingProvider.Edit.ToolTip" value="Rediger" />
+  <string key="TeaserElementAttachingProvider.DeleteItem" value="Slet: " />
+  <string key="TeaserElementAttachingProvider.Delete.Label" value="Slet" />
+  <string key="TeaserElementAttachingProvider.Delete.ToolTip" value="Slet" />
+  <string key="TeaserElementAttachingProvider.Add.Label" value="Tilføj teaser" />
+  <string key="TeaserElementAttachingProvider.Add.ToolTip" value="Tilføj teaser" />
+  <string key="TeaserElementAttachingProvider.SortItems" value="Sortér teasere" />
+  <string key="TeaserElementAttachingProvider.Sort.Label" value="Sortér teasere" />
+  <string key="TeaserElementAttachingProvider.Sort.ToolTip" value="Sortér teasere" />
+
+  <!-- data type titles -->
+  <string key="IPageTeaserFreeFormat.Title" value="Frit format teaser (indholdsområde)" />
+  <string key="IPageTeaserRandom.Title" value="Tilfældigt udvalgt teaser (rotation fra gruppe)" />
+  <string key="IPageTeaserShared.Title" value="Global teaser (reference til fælles teaser)" />
+
+  <!-- unique for global teaser type form -->
+  <string key="SharedFreeFormat.TeaserGroup.Label" value="Teasergruppe" />
+  <string key="SharedFreeFormat.TeaserGroup.Help" value="Vælg den gruppe teaseren skal placeres i" />
+  <string key="SharedFreeFormat.InclInRotation.Label" value="Inkludér i rotationer" />
+  <string key="SharedFreeFormat.InclInRotation.Help" value="Afkryds dette felt hvis du ønsker at teaseren skal vises på sider der benytter tilfældigt udvalgte teasere" />
+  <string key="SharedFreeFormat.Content.Label" value="Indhold" />
+
+  <!-- unique for page teaser workflow forms -->
+  <string key="PageTeaserAdd.Label" value="Tilføj en ny teaser" />
+  <string key="PageTeaserType.Label" value="Vælg teaser type" />
+  <string key="PageTeaserType.Help" value="Vælg teaser type" />
+  <string key="PageFreeFormat.Label" value="Fritekstteaser" />
+  <string key="PageFreeFormat.Text" value="Note: Skriv teaserens indhold på næste faneblad" />
+  <string key="PageFreeFormat.Content.Label" value="Indhold" />
+  <string key="PageRandom.Label" value="Tilfældigt udvalgt teaser" />
+  <string key="PageRandom.TeaserGroup.Label" value="Vælg teasergruppe" />
+  <string key="PageRandom.TeaserGroup.Help" value="Vælg den gruppe teaseren hentes fra" />
+  <string key="PageShared.Label" value="Global teaser" />
+  <string key="PageShared.Teaser.Label" value="Vælg teaser" />
+  <string key="PageShared.Teaser.Help" value="Vælg blandt de globale teasere der er oprettet under &quot;Hjemmeside-elementer&quot;" />
+
+  <!-- common for page teaser and shared teaser type forms -->
+  <string key="Settings.Label" value="Opsætning" />
+  <string key="BasicSetup.Label" value="Basisopsætning" />
+  <string key="Name.Label" value="Administrativt navn" />
+  <string key="Name.Help" value="Navnet benyttes kun i konsollen og vises ikke på hjemmesiden" />
+  <string key="Position.Label" value="Placering" />
+  <string key="Position.Help" value="Vælg placering i skabelonen" />
+  <string key="DesignName.Label" value="Design" />
+  <string key="DesignName.Help" value="Vælg teaserens udseende" />
+  <string key="AdditionalHeader.Label" value="Ekstra overskrift" />
+  <string key="AdditionalHeader.Help" value="Kan benyttes til at kategorisere teaserne" />
+  <string key="ShowOnDescendants.Label" value="Vis på undersider" />
+  <string key="ShowOnDescendants.Help" value="Afkryds dette felt hvis teaseren skal vises på alle underliggende sider" />
+  <string key="PublishDate.Label" value="Publiceringsdato" />
+  <string key="PublishDate.Help" value="Dato for hvornår teaseren skal blive synlig på hjemmesiden" />
+  <string key="UnpublishDate.Label" value="Afpubliceringsdato" />
+  <string key="UnpublishDate.Help" value="Dato for hvornår teaseren skal fjernes hjemmesiden" />
+</strings>

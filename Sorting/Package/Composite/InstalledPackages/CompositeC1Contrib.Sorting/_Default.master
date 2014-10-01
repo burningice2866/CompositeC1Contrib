@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 
 <%@ Master Language="C#" AutoEventWireup="true" Inherits="CompositeC1Contrib.Sorting.Web.UI.SortMasterPage" %>
+<%@ Import Namespace="Composite.Core.ResourceSystem" %>
 
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://www.w3.org/1999/xhtml" xmlns:control="http://www.composite.net/ns/uicontrol">
     <control:httpheaders runat="server" />
@@ -44,9 +45,8 @@
     </head>
     <body>
         <ui:page id="sort">
-            <h1>Reorder</h1>
-            Use mouse drag &amp; drop to change the order 
-            <br />
+            <h1><%= Server.HtmlEncode(StringResourceSystemFacade.GetString("CompositeC1Contrib.Sorting", "Reorder")) %></h1>
+            <%= Server.HtmlEncode(StringResourceSystemFacade.GetString("CompositeC1Contrib.Sorting", "ReorderText")) %><br />
             <br />
 
             <ul>        

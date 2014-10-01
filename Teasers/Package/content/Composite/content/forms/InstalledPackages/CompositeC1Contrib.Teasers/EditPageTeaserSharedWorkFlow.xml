@@ -19,8 +19,8 @@
     </cms:layout.label>
 
     <PlaceHolder>
-      <FieldGroup Label="Global teaser">
-        <KeySelector Label="Teaser" Help="" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
+      <FieldGroup Label="${CompositeC1Contrib.Teasers, PageShared.Label}">
+        <KeySelector Label="${CompositeC1Contrib.Teasers, PageShared.Teaser.Label}" Help="${CompositeC1Contrib.Teasers, PageShared.Teaser.Help}" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
           <KeySelector.Selected>
             <cms:bind source="SerializedDataSourceId"/>
           </KeySelector.Selected>
@@ -31,14 +31,14 @@
         </KeySelector>
       </FieldGroup>
 
-      <FieldGroup Label="Basisopsætning">
-        <TextBox Label="Navn" Help="Navn på teaser, bruges i træet" SpellCheck="true">
+      <FieldGroup Label="${CompositeC1Contrib.Teasers, BasicSetup.Label}">
+        <TextBox Label="${CompositeC1Contrib.Teasers, Name.Label}" Help="${CompositeC1Contrib.Teasers, Name.Help}" SpellCheck="true">
           <TextBox.Text>
             <cms:bind source="Name" />
           </TextBox.Text>
         </TextBox>
 
-        <KeySelector Label="Placering" Help="" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
+        <KeySelector Label="${CompositeC1Contrib.Teasers, Position.Label}" Help="${CompositeC1Contrib.Teasers, Position.Help}" OptionsKeyField="Key" OptionsLabelField="Value" Required="true">
           <KeySelector.Selected>
             <cms:bind source="Position"/>
           </KeySelector.Selected>
@@ -48,25 +48,25 @@
           </KeySelector.Options>
         </KeySelector>
 
-        <TextBox Label="Ekstra overskrift" Help="Bruges eksemplevis hvis der er behov for at kategorisere teaserne" SpellCheck="true">
+        <TextBox Label="${CompositeC1Contrib.Teasers, AdditionalHeader.Label}" Help="${CompositeC1Contrib.Teasers, AdditionalHeader.Help}" SpellCheck="true">
           <TextBox.Text>
             <cms:bind source="AdditionalHeader" />
           </TextBox.Text>
         </TextBox>
 
-        <CheckBox Label="Vis på undersider" Help="">
+        <CheckBox Label="${CompositeC1Contrib.Teasers, ShowOnDescendants.Label}" Help="${CompositeC1Contrib.Teasers, ShowOnDescendants.Help}">
           <CheckBox.Checked>
             <cms:bind source="ShowOnDescendants" />
           </CheckBox.Checked>
         </CheckBox>
 
-        <DateSelector Label="Publiceringsdato" Help="">
+        <DateSelector Label="${CompositeC1Contrib.Teasers, PublishDate.Label}" Help="${CompositeC1Contrib.Teasers, PublishDate.Help}">
           <DateSelector.Date>
             <cms:bind source="PublishDate" />
           </DateSelector.Date>
         </DateSelector>
 
-        <DateSelector Label="Afpubliceringsdato" Help="">
+        <DateSelector Label="${CompositeC1Contrib.Teasers, UnpublishDate.Label}" Help="${CompositeC1Contrib.Teasers, UnpublishDate.Help}">
           <DateSelector.Date>
             <cms:bind source="UnpublishDate" />
           </DateSelector.Date>

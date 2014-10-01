@@ -7,7 +7,7 @@ using CompositeC1Contrib.Teasers.C1Console.WorkFlows;
 namespace CompositeC1Contrib.Teasers.Data.Types
 {
 	[ImmutableTypeId("DA18D853-D2DD-4C6D-AE41-7D3FD91CCE48")]
-	[Title("Page Teaser (random)")]
+    [Title("${CompositeC1Contrib.Teasers, IPageTeaserRandom.Title}")]
     [Icon("refresh")]
     [EditWorkflow(typeof(EditPageTeaserRandomWorkFlow))]
 	public interface IPageTeaserRandom : IPageTeaser

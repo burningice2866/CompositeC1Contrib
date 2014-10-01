@@ -66,7 +66,7 @@ namespace CompositeC1Contrib.Sorting
             }
 
             string url = null;
-            string label = "Sort";
+            var label = StringResourceSystemFacade.GetString("CompositeC1Contrib.Sorting", "Sort");
 
             var associatedToken = entityToken as AssociatedDataElementProviderHelperEntityToken;
             if (associatedToken != null)
@@ -101,7 +101,7 @@ namespace CompositeC1Contrib.Sorting
                         if (data.Get<IPageStructure>().Count(ps => ps.ParentId == page.Id) > 1)
                         {
                             url = "SortPages.aspx?pageId=" + page.Id;
-                            label += " Childpages";
+                            label += StringResourceSystemFacade.GetString("CompositeC1Contrib.Sorting", "Childpages");
                         }
                     }
                 }
