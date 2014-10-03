@@ -31,7 +31,8 @@
                             url: '<%= Request.Url.LocalPath %>/UpdateOrder',
                             contentType: 'application/json; charset=utf-8',
                             dataType: 'json',
-                            data: "{ '<%= CustomJsonDataName %>':'<%= HttpUtility.UrlEncode(CustomJsonDataValue) %>', 'consoleId': '<%= Request.QueryString["consoleId"] %>', 'entityToken': \"<%= HttpUtility.UrlEncode(Request.QueryString["EntityToken"]) %>\", 'serializedOrder': '" + order + "' }",
+                            data: "{ '<%= CustomJsonDataName %>':'<%= HttpUtility.UrlEncode(CustomJsonDataValue) %>', consoleId: '<%= Request.QueryString["consoleId"] %>', entityToken: '<%= HttpUtility.UrlEncode(Request.QueryString["EntityToken"]) %>', serializedOrder: '"+ order +"', pageId: '<%=Request.QueryString["pageId"] %>' }",
+
                             success: function () {
                                 MessageQueue.update();
                             }
