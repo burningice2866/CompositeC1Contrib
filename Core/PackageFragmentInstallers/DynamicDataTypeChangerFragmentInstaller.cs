@@ -50,7 +50,9 @@ namespace CompositeC1Contrib.PackageFragmentInstallers
 
                 if (dataTypeDescription == null)
                 {
-                    validationSummary.Add(new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, "Invalid type id", t));
+                    var validationMessage = String.Format("Invalid type id '{0}", id);
+
+                    validationSummary.Add(new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, validationMessage, t));
 
                     continue;
                 }
@@ -61,7 +63,9 @@ namespace CompositeC1Contrib.PackageFragmentInstallers
                     var fieldId = Guid.Parse(add.Attribute("id").Value);
                     if (dataTypeDescription.Fields.Any(f => f.Id == fieldId))
                     {
-                        validationSummary.Add(new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, "Field id already exists", add));
+                        var validationMessage = String.Format("Field id '{0}' already exists", fieldId);
+
+                        validationSummary.Add(new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, validationMessage, add));
 
                         continue;
                     }
@@ -79,7 +83,9 @@ namespace CompositeC1Contrib.PackageFragmentInstallers
                     var dataFieldDescriptor = dataTypeDescription.Fields.SingleOrDefault(f => f.Id == fieldId);
                     if (dataFieldDescriptor == null)
                     {
-                        validationSummary.Add(new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, "Field id doesn't exists", remove));
+                        var validationMessage = String.Format("Field id '{0}' doesn't exist", fieldId);
+
+                        validationSummary.Add(new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, validationMessage, remove));
 
                         continue;
                     }
