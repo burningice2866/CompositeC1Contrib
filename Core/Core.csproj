@@ -53,6 +53,8 @@
     <Compile Include="FunctionProvider\FileBasedFunction.cs" />
     <Compile Include="FunctionProvider\FileBasedFunctionProvider.cs" />
     <Compile Include="FunctionProvider\ParameterWidgets.cs" />
+    <Compile Include="PackageFragmentInstallers\DynamicDataTypeChangerFragmentInstaller.cs" />
+    <Compile Include="PackageFragmentInstallers\DynamicDataTypeChangerFragmentUninstaller.cs" />
     <Compile Include="PermissionTypeExtensionMethods.cs" />
     <Compile Include="Security\FileBasedFunctionEntityToken.cs" />
     <Compile Include="Security\StandardFunctionSecurityAncestorProvider.cs" />
