@@ -79,6 +79,11 @@ namespace CompositeC1Contrib.Security
         
         public static EvaluatedPermissions EvaluatePermissions(IDataPermissions permissions)
         {
+            if (permissions == null)
+            {
+                return null;
+            }
+
             var evaluatedPermissions = new EvaluatedPermissions
             {
                 ExplicitAllowedRoles = Split(permissions.AllowedRoles).ToArray(),
