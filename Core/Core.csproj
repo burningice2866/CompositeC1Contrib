@@ -50,6 +50,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\InheritanceDataFacade.cs" />
     <Compile Include="FunctionProvider\FileBasedFunction.cs" />
     <Compile Include="FunctionProvider\FileBasedFunctionProvider.cs" />
     <Compile Include="FunctionProvider\ParameterWidgets.cs" />
