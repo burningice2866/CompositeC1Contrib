@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using Composite.Core.PackageSystem;
 using Composite.Core.PackageSystem.PackageFragmentInstallers;
@@ -11,7 +12,7 @@ namespace CompositeC1Contrib.PackageFragmentInstallers
 
         public override IEnumerable<PackageFragmentValidationResult> Validate()
         {
-            return new[] { new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, "Doesn't support uninstall") };
+            return Enumerable.Empty<PackageFragmentValidationResult>();
         }
     }
 }

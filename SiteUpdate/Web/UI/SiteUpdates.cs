@@ -6,7 +6,6 @@ using System.Web.UI.WebControls;
 
 using Composite.Core.Configuration;
 using Composite.Core.PackageSystem;
-using Composite.Core.WebClient.UiControlLib;
 
 using CompositeC1Contrib.SiteUpdate.Configuration;
 
@@ -54,6 +53,40 @@ namespace CompositeC1Contrib.SiteUpdate.Web.UI
         {
             if (!IsPostBack)
             {
+                var updateId = Request.QueryString["package"];
+
+                var cmd = Request.QueryString["cmd"];
+                if (cmd == "install")
+                {
+                    var update = _updates.Single(u => u.Id == Guid.Parse(updateId));
+
+                    using (var zip = _store.GetZipStream(update))
+                    {
+                        var installProcess = PackageManager.Install(zip, true);
+
+                        var validatationResult = installProcess.Validate();
+                        if (validatationResult.Any())
+                        {
+                            throw new Exception(validatationResult.First().Message);
+                        }
+
+                        installProcess.Install();
+                    }
+                }
+
+                if (cmd == "uninstall")
+                {
+                    var uninstallProcess = PackageManager.Uninstall(Guid.Parse(updateId));
+
+                    var validatationResult = uninstallProcess.Validate();
+                    if (validatationResult.Any())
+                    {
+                        throw new Exception(validatationResult.First().Message);
+                    }
+
+                    uninstallProcess.Uninstall();
+                }
+
                 Bind();
             }
 
@@ -66,28 +99,17 @@ namespace CompositeC1Contrib.SiteUpdate.Web.UI
             rptUpdate.DataBind();
         }
 
-        protected void btnInstall_Click(object sender, EventArgs e)
+        public bool IsInstalled(SiteUpdateInformation update)
         {
-            var btn = (ToolbarButton)sender;
-            var updateId = btn.CommandArgument;
+            var installedPackage = PackageManager.GetInstalledPackages().SingleOrDefault(p => p.Id == update.Id);
 
-            var update = _updates.Single(u => u.Id == Guid.Parse(updateId));
-
-            using (var zip = _store.GetZipStream(update))
-            {
-                var installProcess = PackageManager.Install(zip, true);
-
-                installProcess.Validate();
-                installProcess.Install();
-            }
-
-            Bind();
+            return installedPackage != null;
         }
 
         public string InstalledInformation(SiteUpdateInformation update)
         {
             var installedPackage = PackageManager.GetInstalledPackages().SingleOrDefault(p => p.Id == update.Id);
-            
+
             return installedPackage == null ? "No" : installedPackage.InstallDate.ToString("G");
         }
     }

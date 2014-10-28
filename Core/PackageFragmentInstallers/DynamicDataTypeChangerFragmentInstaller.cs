@@ -19,7 +19,7 @@ namespace CompositeC1Contrib.PackageFragmentInstallers
         {
             if (_updates == null)
             {
-                throw new InvalidOperationException("DynamicDataTypeChangerFragmentInstaller has not been validated");
+                throw new InvalidOperationException(GetType().Name + " has not been validated");
             }
 
             foreach (var kvp in _updates)

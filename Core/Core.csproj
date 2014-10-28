@@ -42,6 +42,7 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Workflow.Activities" />
@@ -54,6 +55,11 @@
     <Compile Include="FunctionProvider\FileBasedFunction.cs" />
     <Compile Include="FunctionProvider\FileBasedFunctionProvider.cs" />
     <Compile Include="FunctionProvider\ParameterWidgets.cs" />
+    <Compile Include="PackageFragmentInstallers\FileDeleteFragmentUninstaller.cs" />
+    <Compile Include="PackageFragmentInstallers\SqlFileFragmentHelper.cs" />
+    <Compile Include="PackageFragmentInstallers\FileDeleteFragmentInstaller.cs" />
+    <Compile Include="PackageFragmentInstallers\SqlFileFragmentUninstaller.cs" />
+    <Compile Include="PackageFragmentInstallers\SqlFileFragmentInstaller.cs" />
     <Compile Include="PackageFragmentInstallers\DynamicDataTypeChangerFragmentInstaller.cs" />
     <Compile Include="PackageFragmentInstallers\DynamicDataTypeChangerFragmentUninstaller.cs" />
     <Compile Include="PackageFragmentInstallers\PackageDependencyFragmentInstaller.cs" />

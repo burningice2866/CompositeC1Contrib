@@ -20,12 +20,6 @@
         data-entitytoken="<%= EntityToken %>"
         data-baseurl="<%= HttpUtility.HtmlAttributeEncode(BaseUrl) %>">
         <form runat="server" class="updateform updatezone">
-            <ui:broadcasterset>
-                <ui:broadcaster id="broadcasterHasSelection" isdisabled="true" />
-            </ui:broadcasterset>
-
-            <ui:popupset></ui:popupset>
-
             <ui:page id="mailLog" image="${icon:report}">
                 <ui:flexbox id="flexbox">
                     <ui:scrollbox id="scrollbox">
@@ -71,15 +65,8 @@
                                                 <ui:toolbar id="commands">
                                                     <ui:toolbarbody>
                                                         <ui:toolbargroup>
-                                                            <aspui:toolbarbutton 
-                                                                runat="server"
-                                                                autopostback="true" 
-                                                                text="Install"
-                                                                client_tooltip="Install"
-                                                                client_image="${icon:previous}"
-                                                                client_image-disabled="${icon:previous-disabled}"
-                                                                commandArgument="<%# Item.Id.ToString() %>"
-                                                                onclick="btnInstall_Click" />
+                                                            <a href='<%# Server.HtmlEncode("?cmd=install&package="+ Item.Id) %>' visible="<%# !IsInstalled(Item) %>" runat="server">Install</a>
+                                                            <a href='<%# Server.HtmlEncode("?cmd=uninstall&package="+ Item.Id) %>' visible="<%# IsInstalled(Item) %>" runat="server">Unintall</a>
                                                         </ui:toolbargroup>
                                                     </ui:toolbarbody>
                                                 </ui:toolbar>
@@ -93,8 +80,6 @@
                             </FooterTemplate>
                         </asp:Repeater>
                     </ui:scrollbox>
-                    
-                    <ui:cover id="cover" hidden="true" />
                 </ui:flexbox>
             </ui:page>
         </form>

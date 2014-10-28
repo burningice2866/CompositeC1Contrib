@@ -16,7 +16,7 @@ namespace CompositeC1Contrib.PackageFragmentInstallers
         {
             if (!_validated)
             {
-                throw new InvalidOperationException("PackageDependencyFragmentInstaller has not been validated");
+                throw new InvalidOperationException(GetType().Name + " has not been validated");
             }
 
             return Configuration;
@@ -37,7 +37,8 @@ namespace CompositeC1Contrib.PackageFragmentInstallers
                 {
                     var validationMessage = String.Format("Required package '{0}' not installed", id);
 
-                    validationSummary.Add(new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, validationMessage, package));
+                    validationSummary.Add(
+                        new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, validationMessage, package));
 
                     continue;
                 }
@@ -55,7 +56,8 @@ namespace CompositeC1Contrib.PackageFragmentInstallers
                                 "Package '{0}' doesn't meet required minimum version, version is '{1}' but required version is '{2}'",
                                 installedPackage.Id, installedPackage.Version, minVersion);
 
-                        validationSummary.Add(new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, validationMessage, package));
+                        validationSummary.Add(
+                            new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, validationMessage, package));
 
                         continue;
                     }
@@ -72,9 +74,8 @@ namespace CompositeC1Contrib.PackageFragmentInstallers
                                 "Package '{0}' doesn't meet required maximum version, version is '{1}' but required version is '{2}'",
                                 installedPackage.Id, installedPackage.Version, maxVersion);
 
-                        validationSummary.Add(new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, validationMessage, package));
-
-                        continue;
+                        validationSummary.Add(
+                            new PackageFragmentValidationResult(PackageFragmentValidationResultType.Fatal, validationMessage, package));
                     }
                 }
             }

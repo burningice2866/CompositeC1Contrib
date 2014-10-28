@@ -6,7 +6,7 @@ using Composite.Core.PackageSystem.PackageFragmentInstallers;
 
 namespace CompositeC1Contrib.PackageFragmentInstallers
 {
-    public class DynamicDataTypeChangerFragmentUninstaller : BasePackageFragmentUninstaller
+    public class FileDeleteFragmentUninstaller : BasePackageFragmentUninstaller
     {
         public override void Uninstall() { }
 
