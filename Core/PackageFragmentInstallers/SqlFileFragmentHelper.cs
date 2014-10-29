@@ -20,6 +20,8 @@ namespace CompositeC1Contrib.PackageFragmentInstallers
 
             using (var conn = new SqlConnection(connectionStringSettings.ConnectionString))
             {
+                conn.Open();
+
                 using (var trans = conn.BeginTransaction())
                 {
                     foreach (var path in files)

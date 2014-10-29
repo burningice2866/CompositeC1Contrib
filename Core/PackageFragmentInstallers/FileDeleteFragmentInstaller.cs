@@ -16,7 +16,7 @@ namespace CompositeC1Contrib.PackageFragmentInstallers
 
         public override IEnumerable<XElement> Install()
         {
-            if (_files == null || _directories == null)
+            if (_files == null && _directories == null)
             {
                 throw new InvalidOperationException(GetType().Name + " has not been validated");
             }
