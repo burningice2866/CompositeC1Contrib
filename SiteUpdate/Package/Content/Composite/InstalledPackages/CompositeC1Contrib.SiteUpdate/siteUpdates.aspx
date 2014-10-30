@@ -23,6 +23,8 @@
             <ui:page id="mailLog" image="${icon:report}">
                 <ui:flexbox id="flexbox">
                     <ui:scrollbox id="scrollbox">
+                        <asp:PlaceHolder ID="plcErrors" runat="server" />
+
                         <asp:Repeater ID="rptUpdate" ItemType="CompositeC1Contrib.SiteUpdate.SiteUpdateInformation" runat="server">
                             <HeaderTemplate>
                                 <table width="100%" id="logtable">
@@ -65,6 +67,7 @@
                                                 <ui:toolbar id="commands">
                                                     <ui:toolbarbody>
                                                         <ui:toolbargroup>
+                                                            <a href="details.aspx?package=<%# Item.Id %>">View details</a>
                                                             <a href='<%# Server.HtmlEncode("?cmd=install&package="+ Item.Id) %>' visible="<%# !IsInstalled(Item) %>" runat="server">Install</a>
                                                             <a href='<%# Server.HtmlEncode("?cmd=uninstall&package="+ Item.Id) %>' visible="<%# IsInstalled(Item) %>" runat="server">Unintall</a>
                                                         </ui:toolbargroup>

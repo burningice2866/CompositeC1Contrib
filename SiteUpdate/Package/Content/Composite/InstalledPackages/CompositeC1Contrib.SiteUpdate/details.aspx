@@ -35,8 +35,21 @@
     <body>
         <form runat="server">
             <ui:page id="mailView">
+                <ui:toolbar id="toolbar">
+			        <ui:toolbarbody>
+				        <ui:toolbargroup>
+					        <a href="siteUpdates.aspx">Back</a>
+				        </ui:toolbargroup>
+			        </ui:toolbarbody>
+		        </ui:toolbar>
+
                 <ui:scrollbox id="scrollbox">
-                    Name: <%: Update.Name %> <br /><br />
+                    Name: <%: Update.Name %> <br />
+                    Id: <%: Update.Id %> <br /><br />
+                    
+                    Released: <%: Update.ReleasedDate %> <br />
+                    Installed: <%: InstalledInformation(Update) %> <br /><br />
+
                     Changelog <%= Update.ChangeLog.Replace("\n", "<br />") %>
                 </ui:scrollbox>
             </ui:page>

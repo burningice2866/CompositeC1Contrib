@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -11,32 +12,13 @@ using CompositeC1Contrib.SiteUpdate.Configuration;
 
 namespace CompositeC1Contrib.SiteUpdate.Web.UI
 {
-    public class SiteUpdates : Page
+    public class SiteUpdates : BasePage
     {
         private SiteUpdateStore _store;
         private IEnumerable<SiteUpdateInformation> _updates;
 
+        protected PlaceHolder plcErrors;
         protected Repeater rptUpdate;
-
-        protected string EntityToken
-        {
-            get { return Request.QueryString["EntityToken"]; }
-        }
-
-        protected string ConsoleId
-        {
-            get { return Request.QueryString["consoleId"]; }
-        }
-
-        protected string BaseUrl
-        {
-            get
-            {
-                var qs = Request.QueryString;
-
-                return String.Format("?consoleId={0}&EntityToken={1}", ConsoleId, EntityToken);
-            }
-        }
 
         protected override void OnInit(EventArgs e)
         {
@@ -53,44 +35,69 @@ namespace CompositeC1Contrib.SiteUpdate.Web.UI
         {
             if (!IsPostBack)
             {
-                var updateId = Request.QueryString["package"];
-
-                var cmd = Request.QueryString["cmd"];
-                if (cmd == "install")
+                Guid updateId;
+                if (Guid.TryParse(Request.QueryString["package"], out updateId))
                 {
-                    var update = _updates.Single(u => u.Id == Guid.Parse(updateId));
+                    var update = _updates.Single(u => u.Id == updateId);
 
-                    using (var zip = _store.GetZipStream(update))
+                    var cmd = Request.QueryString["cmd"];
+                    if (cmd == "install")
                     {
-                        var installProcess = PackageManager.Install(zip, true);
+                        using (var zip = _store.GetZipStream(update))
+                        {
+                            var installProcess = PackageManager.Install(zip, true);
 
-                        var validatationResult = installProcess.Validate();
+                            var validatationResult = installProcess.Validate();
+                            if (validatationResult.Any())
+                            {
+                                HandleErrors(update, validatationResult);
+                            }
+                            else
+                            {
+                                installProcess.Install();
+                            }
+                        }
+                    }
+
+                    if (cmd == "uninstall")
+                    {
+                        var uninstallProcess = PackageManager.Uninstall(update.Id);
+
+                        var validatationResult = uninstallProcess.Validate();
                         if (validatationResult.Any())
                         {
-                            throw new Exception(validatationResult.First().Message);
+                            HandleErrors(update, validatationResult);
                         }
-
-                        installProcess.Install();
+                        else
+                        {
+                            uninstallProcess.Uninstall();
+                        }
                     }
-                }
-
-                if (cmd == "uninstall")
-                {
-                    var uninstallProcess = PackageManager.Uninstall(Guid.Parse(updateId));
-
-                    var validatationResult = uninstallProcess.Validate();
-                    if (validatationResult.Any())
-                    {
-                        throw new Exception(validatationResult.First().Message);
-                    }
-
-                    uninstallProcess.Uninstall();
                 }
 
                 Bind();
             }
 
             base.OnLoad(e);
+        }
+
+        private void HandleErrors(SiteUpdateInformation update, IEnumerable<PackageFragmentValidationResult> validatationResult)
+        {
+            var sb = new StringBuilder();
+
+            sb.Append("<h2>Error</h2>");
+            sb.AppendFormat("<p>There was an error processing the request for {0}</p>", update.Name);
+            sb.Append("<ul>");
+
+            foreach (var itm in validatationResult)
+            {
+                sb.AppendFormat("<li>{0}</li>", itm.Message);
+            }
+
+            sb.Append("</ul>");
+
+            plcErrors.Controls.Add(new LiteralControl(sb.ToString()));
+            plcErrors.Visible = true;
         }
 
         private void Bind()
@@ -104,13 +111,6 @@ namespace CompositeC1Contrib.SiteUpdate.Web.UI
             var installedPackage = PackageManager.GetInstalledPackages().SingleOrDefault(p => p.Id == update.Id);
 
             return installedPackage != null;
-        }
-
-        public string InstalledInformation(SiteUpdateInformation update)
-        {
-            var installedPackage = PackageManager.GetInstalledPackages().SingleOrDefault(p => p.Id == update.Id);
-
-            return installedPackage == null ? "No" : installedPackage.InstallDate.ToString("G");
         }
     }
 }

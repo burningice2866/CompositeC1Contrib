@@ -60,14 +60,18 @@
     <Compile Include="C1Console\ElementProviders\SiteUpdateElementProvider.cs" />
     <Compile Include="C1Console\ElementProviders\EntityTokens\SiteUpdateElementProviderEntityToken.cs" />
     <Compile Include="Configuration\SiteUpdateConfigurationSection.cs" />
+    <Compile Include="ISiteUpdateStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SiteUpdateLocalStore.cs" />
+    <Compile Include="SiteUpdateRemoteStore.cs" />
     <Compile Include="SiteUpdateStore.cs" />
     <Compile Include="SiteUpdateInformation.cs" />
     <Compile Include="Web\Api\Controllers\SiteUpdateController.cs" />
     <Compile Include="Web\OwinExtensions.cs" />
-    <Compile Include="Web\UI\Details.cs">
+    <Compile Include="Web\UI\BasePage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Web\UI\Details.cs" />
     <Compile Include="Web\UI\SiteUpdates.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
