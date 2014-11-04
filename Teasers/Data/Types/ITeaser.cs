@@ -16,9 +16,9 @@ namespace CompositeC1Contrib.Teasers.Data.Types
     public interface ITeaser : IData
     {
         [ImmutableFieldId("0835041c-d44c-47e4-a81f-d528f5f18f89")]
-        [StoreFieldType(PhysicalStoreFieldType.String, 64)]
+        [StoreFieldType(PhysicalStoreFieldType.String, 256)]
         [NotNullValidator]
-        [StringSizeValidator(0, 64)]
+        [StringSizeValidator(0, 256)]
         string Name { get; set; }
 
         [ImmutableFieldId("b0dffc66-5e2b-425d-8ab5-4bfba43e8c71")]
