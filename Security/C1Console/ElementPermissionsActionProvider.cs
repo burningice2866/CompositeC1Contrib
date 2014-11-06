@@ -10,12 +10,12 @@ using Composite.Core.ResourceSystem;
 using Composite.Data;
 using Composite.Data.Types;
 
-using CompositeC1Contrib.Security.Workflows;
+using CompositeC1Contrib.Security.C1Console.Workflows;
 
-namespace CompositeC1Contrib.Security
+namespace CompositeC1Contrib.Security.C1Console
 {
     [ConfigurationElementType(typeof(NonConfigurableElementActionProvider))]
-    public class PagePermissionsActionProvider : IElementActionProvider
+    public class ElementPermissionsActionProvider : IElementActionProvider
     {
         private static readonly ActionGroup ActionGroup = new ActionGroup("Default", ActionGroupPriority.PrimaryLow);
         private static readonly ActionLocation ActionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = false, ActionGroup = ActionGroup };

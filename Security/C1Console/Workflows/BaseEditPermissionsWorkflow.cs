@@ -5,7 +5,7 @@ using Composite.Data;
 using CompositeC1Contrib.Security.Data.Types;
 using CompositeC1Contrib.Workflows;
 
-namespace CompositeC1Contrib.Security.Workflows
+namespace CompositeC1Contrib.Security.C1Console.Workflows
 {
     public abstract class BaseEditPermissionsWorkflow<TPermissionType, TEntityType> : Basic1StepDialogWorkflow
         where TPermissionType : class, IDataPermissions

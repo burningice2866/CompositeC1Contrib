@@ -36,6 +36,9 @@
     <Reference Include="Composite">
       <HintPath>..\References\Composite.dll</HintPath>
     </Reference>
+    <Reference Include="CompositeC1Contrib.Email">
+      <HintPath>..\References\CompositeC1Contrib.Email.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common">
       <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
     </Reference>
@@ -51,12 +54,28 @@
     <Reference Include="System.Workflow.ComponentModel" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="C1Console\ElementProviders\Actions\ResetUserPasswordActionToken.cs" />
+    <Compile Include="C1Console\ElementProviders\Actions\UnlockUserActionToken.cs" />
+    <Compile Include="C1Console\ElementProviders\Actions\ApproveUserActionToken.cs" />
+    <Compile Include="C1Console\ElementProviders\Actions\DeleteUserActionToken.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\UserEntityToken.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\FolderEntityToken.cs" />
+    <Compile Include="C1Console\ElementProviders\EntityTokens\SecurityElementProviderEntityToken.cs" />
+    <Compile Include="C1Console\ElementProviders\SecurityElementProvider.cs" />
+    <Compile Include="C1Console\Workflows\AddUserWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="C1Console\Workflows\EditUserWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Data\Types\IMediaFolderPermissions.cs" />
     <Compile Include="Data\Types\IMembershipUser.cs" />
     <Compile Include="Data\Types\IMediaFilePermissions.cs" />
     <Compile Include="Data\Types\IDataPermissions.cs" />
     <Compile Include="Data\Types\IPagePermissions.cs" />
-    <Compile Include="PagePermissionsActionProvider.cs" />
+    <Compile Include="IProfileResolver.cs" />
+    <Compile Include="C1Console\ElementPermissionsActionProvider.cs" />
+    <Compile Include="ProfileFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EvaluatedPagePermissions.cs" />
     <Compile Include="EvaluatedPermissions.cs" />
@@ -70,16 +89,16 @@
     <Compile Include="Web\UI\InheritedPermissions.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Workflows\BaseEditPermissionsWorkflow.cs">
+    <Compile Include="C1Console\Workflows\BaseEditPermissionsWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Workflows\EditMediaFolderPermissionsWorkflow.cs">
+    <Compile Include="C1Console\Workflows\EditMediaFolderPermissionsWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Workflows\EditMediaFilePermissionsWorkflow.cs">
+    <Compile Include="C1Console\Workflows\EditMediaFilePermissionsWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Workflows\EditPagePermissionsWorkflow.cs">
+    <Compile Include="C1Console\Workflows\EditPagePermissionsWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
@@ -87,13 +106,15 @@
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{1e76e3be-f575-4e2d-a791-8a0eda53c1b2}</Project>
       <Name>Core</Name>
-      <Private>False</Private>
+      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Security\AddUserWorkflow.xml" />
     <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Security\EditPermissionsWorkflow.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Security\EditUserWorkflow.xml" />
     <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Security\InheritedPermissions.ascx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
@@ -105,6 +126,7 @@
     <None Include="Package\Config\App_Data\Composite\composite.config" />
     <None Include="Package\Config\web.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>del "$(ProjectDir)Package\Bin\"

@@ -7,7 +7,7 @@ using Composite.Data.Types;
 
 using CompositeC1Contrib.Security.Data.Types;
 
-namespace CompositeC1Contrib.Security.Workflows
+namespace CompositeC1Contrib.Security.C1Console.Workflows
 {
     [AllowPersistingWorkflow(WorkflowPersistingType.Idle)]
     public sealed class EditMediaFolderPermissionsWorkflow : BaseEditPermissionsWorkflow<IMediaFolderPermissions, IMediaFileFolder>

@@ -71,12 +71,17 @@ namespace CompositeC1Contrib.Security
                 }
 
                 var mediaPermissions = data.Get<IMediaFilePermissions>().SingleOrDefault(m => m.KeyPath == media.KeyPath);
+                if (mediaPermissions != null)
+                {
                 var mep = EvaluatePermissions(mediaPermissions);
 
                 return HasAccess(mep);
             }
         }
         
+            return true;
+        }
+
         public static EvaluatedPermissions EvaluatePermissions(IDataPermissions permissions)
         {
             if (permissions == null)

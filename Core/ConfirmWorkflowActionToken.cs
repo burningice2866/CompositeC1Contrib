@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 using Composite.C1Console.Security;
@@ -11,14 +12,16 @@ namespace CompositeC1Contrib
 {
     public class ConfirmWorkflowActionToken : WorkflowActionToken
     {
-        public ConfirmWorkflowActionToken(string confirmMessage, Type type) :
-            base(typeof(ConfirmWorkflow), new PermissionType[] { PermissionType.Administrate })
+        public ConfirmWorkflowActionToken(string confirmMessage, Type type) : this(confirmMessage, type, new[] { PermissionType.Administrate }) { }
+
+        public ConfirmWorkflowActionToken(string confirmMessage, Type type, IEnumerable<PermissionType> permmissionType) :
+            base(typeof(ConfirmWorkflow), permmissionType)
         {
             var sb = new StringBuilder();
 
             StringConversionServices.SerializeKeyValuePair(sb, "ConfirmMessage", confirmMessage);
             StringConversionServices.SerializeKeyValuePair<Type>(sb, "Type", type);
-            
+
             Payload = sb.ToString();
         }
 

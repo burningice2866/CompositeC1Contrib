@@ -7,31 +7,31 @@ using Composite.Data.Types;
 
 using CompositeC1Contrib.Security.Data.Types;
 
-namespace CompositeC1Contrib.Security.Workflows
+namespace CompositeC1Contrib.Security.C1Console.Workflows
 {
     [AllowPersistingWorkflow(WorkflowPersistingType.Idle)]
-    public sealed class EditMediaFilePermissionsWorkflow : BaseEditPermissionsWorkflow<IMediaFilePermissions, IMediaFile>
+    public sealed class EditPagePermissionsWorkflow : BaseEditPermissionsWorkflow<IPagePermissions, IPage>
     {
         protected override EvaluatedPermissions GetEvaluatedPermissions()
         {
-            return new EvaluatedPermissions();
+            return EvaluatedPagePermissions.GetEvaluatedPermissionsForPage(DataEntity);
         }
 
-        protected override IMediaFilePermissions GetPermissions()
+        protected override IPagePermissions GetPermissions()
         {
             using (var data = new DataConnection())
             {
-                return data.Get<IMediaFilePermissions>().SingleOrDefault(p => p.KeyPath == DataEntity.KeyPath);
+                return data.Get<IPagePermissions>().SingleOrDefault(p => p.PageId == DataEntity.Id);
             }
         }
 
-        protected override void SavePermissions(IMediaFilePermissions permissions)
+        protected override void SavePermissions(IPagePermissions permissions)
         {
             using (var data = new DataConnection())
             {
-                if (String.IsNullOrEmpty(permissions.KeyPath))
+                if (permissions.PageId == Guid.Empty)
                 {
-                    permissions.KeyPath = DataEntity.KeyPath;
+                    permissions.PageId = DataEntity.Id;
 
                     data.Add(permissions);
                 }
