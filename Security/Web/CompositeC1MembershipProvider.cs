@@ -4,7 +4,7 @@ using System.Configuration.Provider;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web.Security;
-
+using Composite;
 using Composite.Data;
 
 using CompositeC1Contrib.Security.Data.Types;
@@ -113,28 +113,43 @@ namespace CompositeC1Contrib.Security.Web
 
         public override MembershipUser CreateUser(string username, string password, string email, string passwordQuestion, string passwordAnswer, bool isApproved, object providerUserKey, out MembershipCreateStatus status)
         {
-            var now = DateTime.UtcNow;
-            var localTime = now.ToLocalTime();
+            Verify.ArgumentNotNullOrEmpty(username, "username");
+            Verify.ArgumentNotNullOrEmpty(email, "email");
 
             using (var data = new DataConnection())
             {
-                var user = data.CreateNew<IMembershipUser>();
+                var existingUser = data.Get<IMembershipUser>().Where(u => u.IsApproved).SingleOrDefault(UsernamePredicate(username));
+                if (existingUser != null)
+                {
+                    throw new ArgumentException(String.Format("Username '{0}' already exist", username), "email");
+                }
+
+                existingUser = data.Get<IMembershipUser>().Where(u => u.IsApproved).SingleOrDefault(EmailPredicate(email));
+                if (existingUser != null)
+                {
+                    throw new ArgumentException(String.Format("Email address '{0}' already exist", email), "email");
+                }
+
                 var id = providerUserKey == null ? Guid.NewGuid() : (Guid)providerUserKey;
 
+                existingUser = data.Get<IMembershipUser>().SingleOrDefault(u => u.Id == id);
+                if (existingUser != null)
+                {
+                    throw new ArgumentException(String.Format("Provider user key '{0}' already exist", id), "providerUserKey");
+                }
+
+                var user = data.CreateNew<IMembershipUser>();
+
                 user.Id = id;
-                user.IsApproved = false;
-                user.IsLockedOut = false;
-                user.CreationDate = localTime;
-                user.LastActivityDate = user.LastLockoutDate = user.LastLoginDate = user.LastPasswordChangedDate = null;
+                user.CreationDate = DateTime.UtcNow;
                 user.Password = PasswordHash.HashPassword(password);
-                user.PasswordQuestion = null;
                 user.ProviderName = ApplicationName;
                 user.UserName = username;
                 user.Email = email;
 
                 data.Add(user);
 
-                var membershipUser = new MembershipUser(Name, username, id, email, passwordQuestion, null, isApproved, false, localTime, DateTime.MinValue, DateTime.MinValue, DateTime.MinValue, DateTime.MinValue);
+                var membershipUser = MapUser(user);
 
                 status = MembershipCreateStatus.Success;
 
@@ -248,6 +263,7 @@ namespace CompositeC1Contrib.Security.Web
                 }
 
                 user.IsLockedOut = false;
+                user.LastActivityDate = DateTime.UtcNow;
 
                 data.Update(user);
 
@@ -257,20 +273,35 @@ namespace CompositeC1Contrib.Security.Web
 
         public override void UpdateUser(MembershipUser user)
         {
+            Verify.ArgumentNotNullOrEmpty(user.UserName, "user");
+            Verify.ArgumentNotNullOrEmpty(user.Email, "user");
+
             using (var data = new DataConnection())
             {
+                var existingUser = data.Get<IMembershipUser>().Where(u => u.IsApproved).SingleOrDefault(UsernamePredicate(user.UserName));
+                if (existingUser != null)
+                {
+                    throw new ArgumentException(String.Format("Username '{0}' already exist", user.UserName), "user");
+                }
+
+                existingUser = data.Get<IMembershipUser>().Where(u => u.IsApproved).SingleOrDefault(EmailPredicate(user.Email));
+                if (existingUser != null)
+                {
+                    throw new ArgumentException(String.Format("Email address '{0}' already exist", user.Email), "user");
+                }
+
                 var c1User = data.Get<IMembershipUser>().SingleOrDefault(u => u.Id == (Guid)user.ProviderUserKey);
                 if (c1User == null)
                 {
-                    return;
+                    throw new ArgumentException(String.Format("Provider user key '{0}' doesn't exist", user.ProviderUserKey), "user");
                 }
 
                 c1User.IsApproved = user.IsApproved;
                 c1User.IsLockedOut = user.IsLockedOut;
-                c1User.LastActivityDate = (user.LastActivityDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastActivityDate;
-                c1User.LastLockoutDate = (user.LastLockoutDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastLockoutDate;
-                c1User.LastLoginDate = (user.LastLoginDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastLoginDate;
-                c1User.LastPasswordChangedDate = (c1User.LastPasswordChangedDate == DateTime.MinValue.ToLocalTime()) ? null : c1User.LastPasswordChangedDate;
+                c1User.LastActivityDate = (user.LastActivityDate == DateTime.MinValue) ? (DateTime?)null : user.LastActivityDate.ToUniversalTime();
+                c1User.LastLockoutDate = (user.LastLockoutDate == DateTime.MinValue) ? (DateTime?)null : user.LastLockoutDate.ToUniversalTime();
+                c1User.LastLoginDate = (user.LastLoginDate == DateTime.MinValue) ? (DateTime?)null : user.LastLoginDate.ToUniversalTime();
+                c1User.LastPasswordChangedDate = (user.LastPasswordChangedDate == DateTime.MinValue) ? (DateTime?)null : user.LastPasswordChangedDate.ToUniversalTime();
                 c1User.Email = user.Email;
 
                 data.Update(c1User);
@@ -302,6 +333,7 @@ namespace CompositeC1Contrib.Security.Web
                 }
 
                 c1User.Password = PasswordHash.HashPassword(newPassword);
+                c1User.LastActivityDate = DateTime.UtcNow;
                 c1User.LastPasswordChangedDate = DateTime.UtcNow;
 
                 data.Update(c1User);
@@ -336,7 +368,20 @@ namespace CompositeC1Contrib.Security.Web
 
         private MembershipUser MapUser(IMembershipUser user)
         {
-            return new MembershipUser(Name, user.UserName, user.Id, user.Email, user.PasswordQuestion, user.Comment, user.IsApproved, user.IsLockedOut, user.CreationDate, user.LastLoginDate ?? DateTime.MinValue, user.LastActivityDate ?? DateTime.MinValue, user.LastPasswordChangedDate ?? DateTime.MinValue, user.LastLockoutDate ?? DateTime.MinValue);
+            return new MembershipUser(
+                Name,
+                user.UserName,
+                user.Id,
+                user.Email,
+                user.PasswordQuestion,
+                user.Comment,
+                user.IsApproved,
+                user.IsLockedOut,
+                user.CreationDate.ToLocalTime(),
+                user.LastLoginDate == null ? DateTime.MinValue : user.LastLoginDate.Value.ToLocalTime(),
+                user.LastActivityDate == null ? DateTime.MinValue : user.LastActivityDate.Value.ToLocalTime(),
+                user.LastPasswordChangedDate == null ? DateTime.MinValue : user.LastPasswordChangedDate.Value.ToLocalTime(),
+                user.LastLockoutDate == null ? DateTime.MinValue : user.LastLockoutDate.Value.ToLocalTime());
         }
 
         private static string GeneratePassword(int passwordLength)
