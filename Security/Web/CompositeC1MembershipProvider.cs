@@ -4,9 +4,11 @@ using System.Configuration.Provider;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web.Security;
+
 using Composite;
 using Composite.Data;
 
+using CompositeC1Contrib.Email;
 using CompositeC1Contrib.Security.Data.Types;
 
 namespace CompositeC1Contrib.Security.Web
@@ -116,18 +118,29 @@ namespace CompositeC1Contrib.Security.Web
             Verify.ArgumentNotNullOrEmpty(username, "username");
             Verify.ArgumentNotNullOrEmpty(email, "email");
 
+            if (MailsFacade.ValidateMailAddress(email))
+            {
+                status = MembershipCreateStatus.InvalidEmail;
+
+                return null;
+            }
+
             using (var data = new DataConnection())
             {
-                var existingUser = data.Get<IMembershipUser>().Where(u => u.IsApproved).SingleOrDefault(UsernamePredicate(username));
+                var existingUser = data.Get<IMembershipUser>().SingleOrDefault(UsernamePredicate(username));
                 if (existingUser != null)
                 {
-                    throw new ArgumentException(String.Format("Username '{0}' already exist", username), "email");
+                    status = MembershipCreateStatus.DuplicateUserName;
+
+                    return null;
                 }
 
-                existingUser = data.Get<IMembershipUser>().Where(u => u.IsApproved).SingleOrDefault(EmailPredicate(email));
+                existingUser = data.Get<IMembershipUser>().Where(u => u.IsApproved == isApproved).SingleOrDefault(EmailPredicate(email));
                 if (existingUser != null)
                 {
-                    throw new ArgumentException(String.Format("Email address '{0}' already exist", email), "email");
+                    status = MembershipCreateStatus.DuplicateEmail;
+
+                    return null;
                 }
 
                 var id = providerUserKey == null ? Guid.NewGuid() : (Guid)providerUserKey;
@@ -135,7 +148,9 @@ namespace CompositeC1Contrib.Security.Web
                 existingUser = data.Get<IMembershipUser>().SingleOrDefault(u => u.Id == id);
                 if (existingUser != null)
                 {
-                    throw new ArgumentException(String.Format("Provider user key '{0}' already exist", id), "providerUserKey");
+                    status = MembershipCreateStatus.DuplicateProviderUserKey;
+
+                    return null;
                 }
 
                 var user = data.CreateNew<IMembershipUser>();
@@ -145,6 +160,7 @@ namespace CompositeC1Contrib.Security.Web
                 user.Password = PasswordHash.HashPassword(password);
                 user.ProviderName = ApplicationName;
                 user.UserName = username;
+                user.IsApproved = isApproved;
                 user.Email = email;
 
                 data.Add(user);
@@ -278,30 +294,27 @@ namespace CompositeC1Contrib.Security.Web
 
             using (var data = new DataConnection())
             {
-                var existingUser = data.Get<IMembershipUser>().Where(u => u.IsApproved).SingleOrDefault(UsernamePredicate(user.UserName));
-                if (existingUser != null)
-                {
-                    throw new ArgumentException(String.Format("Username '{0}' already exist", user.UserName), "user");
-                }
-
-                existingUser = data.Get<IMembershipUser>().Where(u => u.IsApproved).SingleOrDefault(EmailPredicate(user.Email));
-                if (existingUser != null)
-                {
-                    throw new ArgumentException(String.Format("Email address '{0}' already exist", user.Email), "user");
-                }
-
                 var c1User = data.Get<IMembershipUser>().SingleOrDefault(u => u.Id == (Guid)user.ProviderUserKey);
                 if (c1User == null)
                 {
                     throw new ArgumentException(String.Format("Provider user key '{0}' doesn't exist", user.ProviderUserKey), "user");
                 }
 
+                if (!user.Email.Equals(c1User.Email, StringComparison.OrdinalIgnoreCase))
+                {
+                    var exists = data.Get<IMembershipUser>().Where(u => u.IsApproved).Any(EmailPredicate(user.Email));
+                    if (exists)
+                    {
+                        throw new ArgumentException(String.Format("Email address '{0}' already exist", user.Email), "user");
+                    }
+                }
+
                 c1User.IsApproved = user.IsApproved;
                 c1User.IsLockedOut = user.IsLockedOut;
-                c1User.LastActivityDate = (user.LastActivityDate == DateTime.MinValue) ? (DateTime?)null : user.LastActivityDate.ToUniversalTime();
-                c1User.LastLockoutDate = (user.LastLockoutDate == DateTime.MinValue) ? (DateTime?)null : user.LastLockoutDate.ToUniversalTime();
-                c1User.LastLoginDate = (user.LastLoginDate == DateTime.MinValue) ? (DateTime?)null : user.LastLoginDate.ToUniversalTime();
-                c1User.LastPasswordChangedDate = (user.LastPasswordChangedDate == DateTime.MinValue) ? (DateTime?)null : user.LastPasswordChangedDate.ToUniversalTime();
+                c1User.LastActivityDate = (user.LastActivityDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastActivityDate.ToUniversalTime();
+                c1User.LastLockoutDate = (user.LastLockoutDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastLockoutDate.ToUniversalTime();
+                c1User.LastLoginDate = (user.LastLoginDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastLoginDate.ToUniversalTime();
+                c1User.LastPasswordChangedDate = (user.LastPasswordChangedDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastPasswordChangedDate.ToUniversalTime();
                 c1User.Email = user.Email;
 
                 data.Update(c1User);
