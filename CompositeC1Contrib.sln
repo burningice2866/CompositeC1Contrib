@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduledTasks", "Scheduled
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiteUpdate", "SiteUpdate\SiteUpdate.csproj", "{BF083126-F6E9-4F2A-889F-E10632DE4273}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loggly", "Loggly\Loggly.csproj", "{3BF587A9-CF25-4295-A60C-CCAB71B1C9B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{BF083126-F6E9-4F2A-889F-E10632DE4273}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF083126-F6E9-4F2A-889F-E10632DE4273}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF083126-F6E9-4F2A-889F-E10632DE4273}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BF587A9-CF25-4295-A60C-CCAB71B1C9B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BF587A9-CF25-4295-A60C-CCAB71B1C9B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BF587A9-CF25-4295-A60C-CCAB71B1C9B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BF587A9-CF25-4295-A60C-CCAB71B1C9B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

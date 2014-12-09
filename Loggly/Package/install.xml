@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" standalone="yes"?>
+<mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
+  <mi:PackageRequirements minimumCompositeVersion="4.1.5058.34326"
+                        maximumCompositeVersion="9.9999.9999.9999" />
+
+  <mi:PackageInformation name="CompositeC1Contrib.Loggly"
+                         groupName="Contribution.CompositeC1Contrib"
+                         version="1.0.0" author="@burningice" website="http://compositec1contrib.codeplex.com"
+                         readMoreUrl="http://compositec1contrib.codeplex.com"
+                         id="3b9e6716-b70a-47cb-a487-d53b669d738a"
+                         canBeUninstalled="true"
+                         systemLocking="hard"
+                         flushOnCompletion="false">
+    <Description>Loggly support for C1.</Description>
+    <TechnicalDetails>Loggly support for C1.</TechnicalDetails>
+  </mi:PackageInformation>
+
+  <mi:PackageFragmentInstallers>
+    <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentUninstaller, Composite">
+      <Files>
+        <File sourceFilename="~\bin\CompositeC1Contrib.Loggly.dll" targetFilename="~\bin\CompositeC1Contrib.Loggly.dll" allowOverwrite="true" />
+      </Files>
+    </mi:Add>
+
+    <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentUninstaller, Composite">
+      <XmlFileMerges>
+        <XmlFileMerge changeDefinitionPath="~\config\web.config" targetFilePath="~\web.config" />
+        <XmlFileMerge changeDefinitionPath="~\config\App_Data\Composite\composite.config" targetFilePath="~\App_Data\Composite\composite.config" />
+      </XmlFileMerges>
+    </mi:Add>
+  </mi:PackageFragmentInstallers>
+</mi:PackageInstaller>
