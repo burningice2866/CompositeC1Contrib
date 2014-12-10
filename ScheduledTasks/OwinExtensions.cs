@@ -39,7 +39,16 @@ namespace CompositeC1Contrib.ScheduledTasks
             foreach (ScheduledTaskElement element in section.Tasks)
             {
                 var type = Type.GetType(element.Type);
+                if (type == null)
+                {
+                    throw new ArgumentException(String.Format("Type '{0}' doesn't exist", element.Type));
+                }
+
                 var method = type.GetMethod(element.Method);
+                if (method == null)
+                {
+                    throw new ArgumentException(String.Format("Method '{0}' doesn't exist on type {1}", element.Method, type.FullName));
+                }
 
                 var action = Expression.Lambda<Action>(Expression.Call(method));
 
