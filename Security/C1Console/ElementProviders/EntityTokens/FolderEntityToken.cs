@@ -56,7 +56,14 @@ namespace CompositeC1Contrib.Security.C1Console.ElementProviders.EntityTokens
                 yield break;
             }
 
-            yield return new SecurityElementProviderEntityToken();
+            if (token.Id == "Users")
+            {
+                yield return new SecurityElementProviderEntityToken();
+            }
+            else
+            {
+                yield return new FolderEntityToken("Users");
+            }
         }
     }
 }

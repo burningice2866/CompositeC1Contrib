@@ -8,8 +8,9 @@ using Composite.C1Console.Elements.Plugins.ElementProvider;
 using Composite.C1Console.Security;
 using Composite.C1Console.Workflow;
 using Composite.Core.ResourceSystem;
+using Composite.Core.WebClient;
 using Composite.Data;
-using CompositeC1Contrib.Security.C1Console.ElementProviders.Actions;
+
 using CompositeC1Contrib.Security.C1Console.ElementProviders.EntityTokens;
 using CompositeC1Contrib.Security.C1Console.Workflows;
 
@@ -19,6 +20,8 @@ namespace CompositeC1Contrib.Security.C1Console.ElementProviders
     {
         private static readonly ActionGroup ActionGroup = new ActionGroup(ActionGroupPriority.PrimaryHigh);
         private static readonly ActionLocation ActionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = true, ActionGroup = ActionGroup };
+
+        private const string UrlTemplate = "InstalledPackages/CompositeC1Contrib.Security/UsersList.aspx?type={0}";
 
         private ElementProviderContext _context;
         public ElementProviderContext Context
@@ -53,11 +56,13 @@ namespace CompositeC1Contrib.Security.C1Console.ElementProviders
                                 {
                                     Label = String.Format("Approved ({0})", approvedCount),
                                     ToolTip = String.Format("Approved ({0})", approvedCount),
-                                    HasChildren = approvedCount > 0,
+                                    HasChildren = false,
                                     Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
                                     OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
                                 }
                             };
+
+                            AddViewAction(approvedUsersElement, "Approved");
 
                             yield return approvedUsersElement;
 
@@ -70,35 +75,15 @@ namespace CompositeC1Contrib.Security.C1Console.ElementProviders
                                 {
                                     Label = String.Format("Not approved ({0})", notApprovedCount),
                                     ToolTip = String.Format("Not approved ({0})", notApprovedCount),
-                                    HasChildren = notApprovedCount > 0,
+                                    HasChildren = false,
                                     Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
                                     OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
                                 }
                             };
 
+                            AddViewAction(notApprovedUsersElement, "NotApproved");
+
                             yield return notApprovedUsersElement;
-                        }
-
-                        break;
-
-                    case "Approved":
-                        {
-                            int count;
-                            var users = Membership.GetAllUsers(0, int.MaxValue, out count).Cast<MembershipUser>();
-                            var approved = users.Where(u => u.IsApproved);
-
-                            foreach (var element in GenerateUsersList(approved)) yield return element;
-                        }
-
-                        break;
-
-                    case "NotApproved":
-                        {
-                            int count;
-                            var users = Membership.GetAllUsers(0, int.MaxValue, out count).Cast<MembershipUser>();
-                            var notApproved = users.Where(u => !u.IsApproved);
-
-                            foreach (var element in GenerateUsersList(notApproved)) yield return element;
                         }
 
                         break;
@@ -136,76 +121,22 @@ namespace CompositeC1Contrib.Security.C1Console.ElementProviders
             }
         }
 
-        private IEnumerable<Element> GenerateUsersList(IEnumerable<MembershipUser> users)
+        private static void AddViewAction(Element element, string type)
         {
-            foreach (var user in users.OrderBy(u => u.Email))
+            var url = String.Format(UrlTemplate, type);
+            url = UrlUtils.ResolveAdminUrl(url);
+
+            var viewUrlAction = new UrlActionToken("View users", url, new[] { PermissionType.Read });
+            element.AddAction(new ElementAction(new ActionHandle(viewUrlAction))
             {
-                var userElementHandle = _context.CreateElementHandle(new UserEntityToken(user));
-                var userElement = new Element(userElementHandle)
+                VisualData = new ActionVisualizedData
                 {
-                    VisualData = new ElementVisualizedData
-                    {
-                        Label = user.UserName,
-                        ToolTip = user.UserName,
-                        HasChildren = false,
-                        Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
-                        OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
-                    }
-                };
-
-                var editActionToken = new WorkflowActionToken(typeof(EditUserWorkflow), new[] { PermissionType.Edit, PermissionType.Administrate });
-                userElement.AddAction(new ElementAction(new ActionHandle(editActionToken))
-                {
-                    VisualData = new ActionVisualizedData
-                    {
-                        Label = "Edit",
-                        ToolTip = "Edit",
-                        Icon = new ResourceHandle("Composite.Icons", "generated-type-data-edit"),
-                        ActionLocation = ActionLocation
-                    }
-                });
-
-                var resetPasswordActionToken = new ConfirmWorkflowActionToken("Are you want to reset password", typeof(ResetUserPasswordActionToken), new[] { PermissionType.Edit, PermissionType.Administrate });
-                userElement.AddAction(new ElementAction(new ActionHandle(resetPasswordActionToken))
-                {
-                    VisualData = new ActionVisualizedData
-                    {
-                        Label = "Reset password",
-                        ToolTip = "Reset password",
-                        Icon = new ResourceHandle("Composite.Icons", "generated-type-data-edit"),
-                        ActionLocation = ActionLocation
-                    }
-                });
-
-                if (!user.IsApproved)
-                {
-                    var approveActionToken = new ConfirmWorkflowActionToken("Are you want to approve", typeof(ApproveUserActionToken), new[] { PermissionType.Edit, PermissionType.Administrate });
-                    userElement.AddAction(new ElementAction(new ActionHandle(approveActionToken))
-                    {
-                        VisualData = new ActionVisualizedData
-                        {
-                            Label = "Approve user",
-                            ToolTip = "Approve user",
-                            Icon = new ResourceHandle("Composite.Icons", "generated-type-data-edit"),
-                            ActionLocation = ActionLocation
-                        }
-                    });
+                    Label = "View users",
+                    ToolTip = "View users",
+                    Icon = new ResourceHandle("Composite.Icons", "generated-type-data-edit"),
+                    ActionLocation = ActionLocation
                 }
-
-                var deleteActionToken = new ConfirmWorkflowActionToken(String.Format("Are you want to delete {0}", user.Email), typeof(DeleteUserActionToken), new[] { PermissionType.Delete, PermissionType.Administrate });
-                userElement.AddAction(new ElementAction(new ActionHandle(deleteActionToken))
-                {
-                    VisualData = new ActionVisualizedData
-                    {
-                        Label = "Delete",
-                        ToolTip = "Delete",
-                        Icon = new ResourceHandle("Composite.Icons", "generated-type-data-delete"),
-                        ActionLocation = ActionLocation
-                    }
-                });
-
-                yield return userElement;
-            }
+            });
         }
 
         public IEnumerable<Element> GetRoots(SearchToken searchToken)

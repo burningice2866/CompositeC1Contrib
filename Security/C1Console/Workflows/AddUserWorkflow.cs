@@ -43,11 +43,14 @@ namespace CompositeC1Contrib.Security.C1Console.Workflows
                 Membership.UpdateUser(user);
             }
 
-            var workflowToken = new WorkflowActionToken(typeof(EditUserWorkflow));
-            var userEntityToken = new UserEntityToken(user);
+            var containerEntityToken = new FolderEntityToken("Users");
+            var workflowToken = new WorkflowActionToken(typeof (EditUserWorkflow))
+            {
+                Payload = userName
+            };
 
             CreateAddNewTreeRefresher(EntityToken).PostRefreshMesseges(EntityToken);
-            ExecuteAction(userEntityToken, workflowToken);
+            ExecuteAction(containerEntityToken, workflowToken);
         }
 
         public override bool Validate()

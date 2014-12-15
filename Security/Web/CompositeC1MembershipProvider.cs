@@ -307,15 +307,15 @@ namespace CompositeC1Contrib.Security.Web
                     {
                         throw new ArgumentException(String.Format("Email address '{0}' already exist", user.Email), "user");
                     }
+
+                    c1User.Email = user.Email;
                 }
 
                 c1User.IsApproved = user.IsApproved;
-                c1User.IsLockedOut = user.IsLockedOut;
                 c1User.LastActivityDate = (user.LastActivityDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastActivityDate.ToUniversalTime();
                 c1User.LastLockoutDate = (user.LastLockoutDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastLockoutDate.ToUniversalTime();
                 c1User.LastLoginDate = (user.LastLoginDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastLoginDate.ToUniversalTime();
                 c1User.LastPasswordChangedDate = (user.LastPasswordChangedDate == DateTime.MinValue.ToLocalTime()) ? (DateTime?)null : user.LastPasswordChangedDate.ToUniversalTime();
-                c1User.Email = user.Email;
 
                 data.Update(c1User);
             }
