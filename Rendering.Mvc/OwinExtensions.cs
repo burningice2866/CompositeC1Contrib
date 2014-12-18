@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Web.Mvc;
 using System.Web.Routing;
+
 using Composite;
 
 using Owin;
@@ -30,12 +30,13 @@ namespace CompositeC1Contrib.Rendering.Mvc
             var c1PageRoute = routes["c1 page route"];
 
             routes.Remove(c1PageRoute);
-            routes.MapMvcAttributeRoutes();
-
+            
             if (configuration.RouteRegistrator != null)
             {
                 configuration.RouteRegistrator(routes);
             }
+
+            routes.Add("default mvc route", new DefaultMvcPageRoute());
 
             routes.Add(c1PageRoute);
         }

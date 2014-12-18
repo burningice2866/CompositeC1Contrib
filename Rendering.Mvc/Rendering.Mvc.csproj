@@ -79,6 +79,7 @@
     <Compile Include="C1RazorTemplateViewEngine.cs" />
     <Compile Include="C1View.cs" />
     <Compile Include="DefaultCatchAllController.cs" />
+    <Compile Include="DefaultMvcPageRoute.cs" />
     <Compile Include="GlobalConfiguration.cs" />
     <Compile Include="IBootstrapperConfiguration.cs" />
     <Compile Include="MvcPageTemplateDescriptor.cs" />
