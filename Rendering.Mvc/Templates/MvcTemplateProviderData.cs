@@ -4,7 +4,7 @@ using Microsoft.Practices.EnterpriseLibrary.Common.Configuration.ObjectBuilder;
 
 using Composite.Core.PageTemplates.Plugins;
 
-namespace CompositeC1Contrib.Rendering.Mvc
+namespace CompositeC1Contrib.Rendering.Mvc.Templates
 {
     [Assembler(typeof(MvcTemplateProviderAssembler))]
     public class MvcTemplateProviderData : PageTemplateProviderData

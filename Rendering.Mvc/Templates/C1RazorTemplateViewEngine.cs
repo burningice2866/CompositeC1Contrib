@@ -1,7 +1,8 @@
 ﻿using System.IO;
+
 using System.Web.Mvc;
 
-namespace CompositeC1Contrib.Rendering.Mvc
+namespace CompositeC1Contrib.Rendering.Mvc.Templates
 {
     public class C1RazorTemplateViewEngine : RazorViewEngine
     {

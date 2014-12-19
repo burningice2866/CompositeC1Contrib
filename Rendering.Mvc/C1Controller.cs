@@ -6,6 +6,8 @@ using Composite.Core.Routing;
 using Composite.Core.Routing.Pages;
 using Composite.Core.WebClient.Renderings.Page;
 
+using CompositeC1Contrib.Rendering.Mvc.Templates;
+
 namespace CompositeC1Contrib.Rendering.Mvc
 {
     public abstract class C1Controller : Controller
@@ -27,6 +29,11 @@ namespace CompositeC1Contrib.Rendering.Mvc
         public C1View C1View(string view)
         {
             return C1View(view, null);
+        }
+
+        public C1View C1View(object model)
+        {
+            return C1View(null, model);
         }
 
         public C1View C1View(string view, object model)

@@ -8,6 +8,8 @@ using Microsoft.Practices.EnterpriseLibrary.Common.Configuration;
 using Composite.C1Console.Elements;
 using Composite.Core.PageTemplates;
 
+using CompositeC1Contrib.Rendering.Mvc.Templates;
+
 namespace CompositeC1Contrib.Rendering.Mvc
 {
     [ConfigurationElementType(typeof(MvcTemplateProviderData))]
@@ -36,7 +38,7 @@ namespace CompositeC1Contrib.Rendering.Mvc
 
         public IPageRenderer BuildPageRenderer(Guid templateId)
         {
-            throw new InvalidOperationException("This method is should not be called since its meant for WebForms rendering.");
+            return new MvcPageRenderer();
         }
 
         public void FlushTemplates()

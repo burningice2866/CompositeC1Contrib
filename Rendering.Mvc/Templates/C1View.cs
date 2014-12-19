@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Web.Mvc;
 using System.Web.UI;
@@ -9,8 +10,9 @@ using Composite.Core.Localization;
 using Composite.Core.WebClient;
 using Composite.Core.WebClient.Renderings.Page;
 using Composite.Core.Xml;
+using Composite.Functions;
 
-namespace CompositeC1Contrib.Rendering.Mvc
+namespace CompositeC1Contrib.Rendering.Mvc.Templates
 {
     public class C1View : ViewResult
     {
@@ -39,12 +41,18 @@ namespace CompositeC1Contrib.Rendering.Mvc
                 }
 
                 var viewContext = new ViewContext(context, view, ViewData, TempData, output);
+
                 view.Render(viewContext, output);
 
                 markup = markupBuilder.ToString();
                 var xml = XDocument.Parse(markup);
 
                 var functionContext = PageRenderer.GetPageRenderFunctionContextContainer();
+
+                functionContext = new FunctionContextContainer(functionContext, new Dictionary<string, object>
+                {
+                    {"viewContext", viewContext}
+                });
 
                 using (Profiler.Measure("Executing embedded functions"))
                 {
@@ -57,7 +65,7 @@ namespace CompositeC1Contrib.Rendering.Mvc
                 }
 
                 var document = new XhtmlDocument(xml);
-                
+
                 using (Profiler.Measure("Normalizing html"))
                 {
                     PageRenderer.NormalizeXhtmlDocument(document);

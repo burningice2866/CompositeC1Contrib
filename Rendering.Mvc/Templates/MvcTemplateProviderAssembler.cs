@@ -9,7 +9,7 @@ using Composite.Core.IO;
 using Composite.Core.PageTemplates;
 using Composite.Core.PageTemplates.Plugins;
 
-namespace CompositeC1Contrib.Rendering.Mvc
+namespace CompositeC1Contrib.Rendering.Mvc.Templates
 {
     public class MvcTemplateProviderAssembler : IAssembler<IPageTemplateProvider, PageTemplateProviderData>
     {

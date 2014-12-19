@@ -72,21 +72,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BootstrapperConfiguration.cs" />
-    <Compile Include="C1MvcTemplateOfT.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="C1MvcTemplate.cs" />
-    <Compile Include="C1RazorTemplateViewEngine.cs" />
-    <Compile Include="C1View.cs" />
+    <Compile Include="Functions\C1FunctionsController.cs" />
+    <Compile Include="Functions\C1FunctionsControllerOfT.cs" />
+    <Compile Include="Functions\MvcFunction.cs" />
+    <Compile Include="Functions\MvcFunctionAttribute.cs" />
+    <Compile Include="Functions\MvcFunctionEntityToken.cs" />
+    <Compile Include="Functions\MvcFunctionsProvider.cs" />
+    <Compile Include="HtmlHelperExtensions.cs" />
+    <Compile Include="Templates\C1MvcTemplateOfT.cs" />
+    <Compile Include="Templates\C1MvcTemplate.cs" />
+    <Compile Include="Templates\C1RazorTemplateViewEngine.cs" />
+    <Compile Include="Templates\C1View.cs" />
     <Compile Include="DefaultCatchAllController.cs" />
     <Compile Include="DefaultMvcPageRoute.cs" />
     <Compile Include="GlobalConfiguration.cs" />
     <Compile Include="IBootstrapperConfiguration.cs" />
-    <Compile Include="MvcPageTemplateDescriptor.cs" />
+    <Compile Include="Templates\MvcPageRenderer.cs" />
+    <Compile Include="Templates\MvcPageTemplateDescriptor.cs" />
     <Compile Include="MvcRenderingContext.cs" />
-    <Compile Include="MvcTemplateProvider.cs" />
-    <Compile Include="MvcTemplateProviderAssembler.cs" />
-    <Compile Include="MvcTemplateProviderData.cs" />
+    <Compile Include="Templates\MvcTemplateProvider.cs" />
+    <Compile Include="Templates\MvcTemplateProviderAssembler.cs" />
+    <Compile Include="Templates\MvcTemplateProviderData.cs" />
     <Compile Include="OwinExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Routing\C1PageRouteConstraint.cs" />
