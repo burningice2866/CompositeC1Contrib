@@ -133,7 +133,10 @@ namespace CompositeC1Contrib.Rendering.Mvc.Functions
             var viewContext = (ViewContext)context.GetParameterValue("viewContext", typeof(ViewContext));
             var htmlHelper = (HtmlHelper)viewContext.TempData["HtmlHelper"];
 
-            var routeValues = new Dictionary<string, object>();
+            var routeValues = new Dictionary<string, object>
+            {
+                {"PageModel", viewContext.ViewData.Model}
+            };
 
             if (_modelType != null)
             {
@@ -197,6 +200,7 @@ namespace CompositeC1Contrib.Rendering.Mvc.Functions
                         Log.LogWarning(LogTitle, exception);
                     }
                 }
+
                 if (!dictionary.ContainsKey(name))
                 {
                     dictionary.Add(name, new FunctionParameter(name, propertyType, functionParameterAttribute, widgetProvider));

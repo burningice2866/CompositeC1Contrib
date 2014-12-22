@@ -73,11 +73,12 @@
   <ItemGroup>
     <Compile Include="BootstrapperConfiguration.cs" />
     <Compile Include="Functions\C1FunctionsController.cs" />
-    <Compile Include="Functions\C1FunctionsControllerOfT.cs" />
     <Compile Include="Functions\MvcFunction.cs" />
     <Compile Include="Functions\MvcFunctionAttribute.cs" />
     <Compile Include="Functions\MvcFunctionEntityToken.cs" />
     <Compile Include="Functions\MvcFunctionsProvider.cs" />
+    <Compile Include="Functions\MvcFunctionViewOfT.cs" />
+    <Compile Include="Functions\MvcFunctionView.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
     <Compile Include="Templates\C1MvcTemplateOfT.cs" />
     <Compile Include="Templates\C1MvcTemplate.cs" />
@@ -107,7 +108,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Package\Config\App_Data\Composite\composite.config" />
+    <None Include="Package\Config\App_Data\Composite\composite.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\install.xml" />

@@ -6,9 +6,9 @@ using System.Xml.Linq;
 
 using Composite.Data;
 
-namespace CompositeC1Contrib.Rendering.Mvc.Templates
+namespace CompositeC1Contrib.Rendering.Mvc.Functions
 {
-    public abstract class C1MvcTemplate<T> : WebViewPage<T>, IDisposable
+    public abstract class MvcFunctionView : WebViewPage, IDisposable
     {
         private bool _disposed;
 
@@ -46,13 +46,6 @@ namespace CompositeC1Contrib.Rendering.Mvc.Templates
         public IHtmlString Markup(XNode xNode)
         {
             return Html.C1().Markup(xNode);
-        }
-
-        public override void ExecutePageHierarchy()
-        {
-            ViewContext.TempData["HtmlHelper"] = Html;
-
-            base.ExecutePageHierarchy();
         }
 
         public void Dispose()
