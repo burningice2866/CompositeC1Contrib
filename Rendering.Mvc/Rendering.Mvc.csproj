@@ -80,12 +80,16 @@
     <Compile Include="Functions\MvcFunctionViewOfT.cs" />
     <Compile Include="Functions\MvcFunctionView.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
+    <Compile Include="Routing\C1PathInfoRouteConstraint.cs" />
+    <Compile Include="Routing\C1RouteAttribute.cs" />
+    <Compile Include="Routing\RouteInfo.cs" />
+    <Compile Include="Routing\test.cs" />
     <Compile Include="Templates\C1MvcTemplateOfT.cs" />
     <Compile Include="Templates\C1MvcTemplate.cs" />
     <Compile Include="Templates\C1RazorTemplateViewEngine.cs" />
     <Compile Include="Templates\C1View.cs" />
     <Compile Include="DefaultCatchAllController.cs" />
-    <Compile Include="DefaultMvcPageRoute.cs" />
+    <Compile Include="DefaultCatchAllRoute.cs" />
     <Compile Include="GlobalConfiguration.cs" />
     <Compile Include="IBootstrapperConfiguration.cs" />
     <Compile Include="Templates\MvcPageRenderer.cs" />
@@ -97,9 +101,6 @@
     <Compile Include="OwinExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Routing\C1PageRouteConstraint.cs" />
-    <Compile Include="Routing\C1PageRouteAttribute.cs" />
-    <Compile Include="Routing\C1PageTemplateRouteAttribute.cs" />
-    <Compile Include="Routing\C1PageTypeRouteAttribute.cs" />
     <Compile Include="Routing\C1PageTemplateRouteConstraint.cs" />
     <Compile Include="Routing\C1PageTypeRouteConstraint.cs" />
     <Compile Include="C1HtmlHelper.cs" />

@@ -9,11 +9,11 @@ using Composite.Data;
 
 namespace CompositeC1Contrib.Rendering.Mvc
 {
-    public class DefaultMvcPageRoute : RouteBase
+    public class DefaultCatchAllRoute : RouteBase
     {
         private readonly ControllerDescriptor _controller;
 
-        public DefaultMvcPageRoute()
+        public DefaultCatchAllRoute()
         {
             _controller = new ReflectedControllerDescriptor(typeof(DefaultCatchAllController));
         }

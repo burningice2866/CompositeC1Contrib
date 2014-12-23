@@ -36,7 +36,7 @@ namespace CompositeC1Contrib.Rendering.Mvc
                 configuration.RouteRegistrator(routes);
             }
 
-            routes.Add("default mvc route", new DefaultMvcPageRoute());
+            routes.Add("default mvc route", new DefaultCatchAllRoute());
 
             routes.Add(c1PageRoute);
         }
