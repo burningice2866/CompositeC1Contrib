@@ -2,7 +2,10 @@
 
 namespace CompositeC1Contrib.Rendering.Mvc.Functions
 {
-    public abstract class C1FunctionsController : Controller { }
+    public abstract class C1FunctionsController : Controller
+    {
+        public abstract ActionResult Index();
+    }
 
     public abstract class C1FunctionsController<TFunctionModel> : C1FunctionsController
     {
@@ -25,7 +28,12 @@ namespace CompositeC1Contrib.Rendering.Mvc.Functions
     {
         public TPageModel PageModel
         {
-            get { return (TPageModel)RouteData.Values["PageModel"]; }
+            get
+            {
+                object pageModel = RouteData.Values["PageModel"];
+
+                return pageModel != null ? (TPageModel)pageModel : default(TPageModel);
+            }
         }
 
         protected override PartialViewResult PartialView(string viewName, object model)

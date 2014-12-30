@@ -6,8 +6,10 @@ using System.Web.Routing;
 
 using Composite;
 using Composite.Core.PageTemplates;
+using Composite.Core.WebClient.Renderings.Page;
 using Composite.Data;
 using Composite.Data.Types;
+using CompositeC1Contrib.Rendering.Mvc.Templates;
 
 namespace CompositeC1Contrib.Rendering.Mvc.Routing
 {
@@ -17,6 +19,7 @@ namespace CompositeC1Contrib.Rendering.Mvc.Routing
         public string PageTemplates { get; set; }
         public string PageType { get; set; }
         public string Suffix { get; set; }
+        public RenderingReason Reason { get; set; }
 
         public C1RouteAttribute() : base("{*url}") { }
 
@@ -67,6 +70,11 @@ namespace CompositeC1Contrib.Rendering.Mvc.Routing
                 if (!String.IsNullOrEmpty(Suffix))
                 {
                     constraints.Add("pathinfo", new C1PathInfoRouteConstraint(Suffix));
+                }
+
+                if (Reason != RenderingReason.Undefined)
+                {
+                    constraints.Add("reason", new C1RenderingReasonConstraint(Reason));
                 }
 
                 return constraints;

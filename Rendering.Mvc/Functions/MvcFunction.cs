@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using System.Web.Routing;
@@ -23,16 +25,19 @@ namespace CompositeC1Contrib.Rendering.Mvc.Functions
         private readonly Type _modelType;
         private readonly ControllerDescriptor _controllerDescriptor;
 
+        public string Namespace { get; private set; }
+        public string Name { get; private set; }
+        public string Description { get; private set; }
+
         public EntityToken EntityToken
         {
             get { return new MvcFunctionEntityToken(this); }
         }
 
-        public string Namespace { get; private set; }
-
-        public string Name { get; private set; }
-
-        public string Description { get; private set; }
+        public Type ReturnType
+        {
+            get { return typeof(XhtmlDocument); }
+        }
 
         public IEnumerable<ParameterProfile> ParameterProfiles
         {
@@ -51,6 +56,7 @@ namespace CompositeC1Contrib.Rendering.Mvc.Functions
                 {
                     BaseValueProvider fallbackValueProvider = new NoValueValueProvider();
                     WidgetFunctionProvider widgetFunctionProvider = null;
+
                     var name = parameter.Name;
                     var required = true;
                     var helpText = String.Empty;
@@ -97,16 +103,12 @@ namespace CompositeC1Contrib.Rendering.Mvc.Functions
             }
         }
 
-        public Type ReturnType
-        {
-            get { return typeof(XhtmlDocument); }
-        }
-
         public MvcFunction(ControllerDescriptor controllerDescriptor)
         {
             Verify.ArgumentNotNull(controllerDescriptor, "controllerDescriptor");
 
             var attribute = controllerDescriptor.GetCustomAttributes(false).OfType<MvcFunctionAttribute>().SingleOrDefault();
+
             Verify.ArgumentCondition(attribute != null, "controllerDescriptor", String.Format("Controller '{0} is missing the '{1}' attribute", controllerDescriptor.ControllerType.Name, typeof(MvcFunctionAttribute).Name));
 
             _controllerDescriptor = controllerDescriptor;
@@ -114,6 +116,7 @@ namespace CompositeC1Contrib.Rendering.Mvc.Functions
             var c1FunctionsType = typeof(C1FunctionsController);
             var baseType = _controllerDescriptor.ControllerType.BaseType;
 
+            Verify.ArgumentCondition(baseType != null, "controllerDescriptor", String.Format("Controller '{0} needs to have a basetype", controllerDescriptor.ControllerType.Name));
             Verify.ArgumentCondition(c1FunctionsType.IsAssignableFrom(baseType), "controllerDescriptor", String.Format("Controller '{0} needs to inherit from '{1}'", controllerDescriptor.ControllerType.Name, c1FunctionsType.Name));
 
             if (baseType.IsGenericType)
@@ -130,13 +133,17 @@ namespace CompositeC1Contrib.Rendering.Mvc.Functions
 
         public object Execute(ParameterList parameters, FunctionContextContainer context)
         {
-            var viewContext = (ViewContext)context.GetParameterValue("viewContext", typeof(ViewContext));
-            var htmlHelper = (HtmlHelper)viewContext.TempData["HtmlHelper"];
+            /* viewContext is set by returning C1View... if this function is called without using a C1View
+             * it will fallback to a normal route-based execution instead of a ChildAction */
 
-            var routeValues = new Dictionary<string, object>
+            ViewContext viewContext = null;
+            try
             {
-                {"PageModel", viewContext.ViewData.Model}
-            };
+                viewContext = (ViewContext)context.GetParameterValue("viewContext", typeof(ViewContext));
+            }
+            catch { }
+
+            var routeValues = new Dictionary<string, object>();
 
             if (_modelType != null)
             {
@@ -153,9 +160,54 @@ namespace CompositeC1Contrib.Rendering.Mvc.Functions
                 routeValues.Add("FunctionModel", model);
             }
 
-            var functionaParameters = new RouteValueDictionary(routeValues);
+            return viewContext != null ? ExecuteChildAction(routeValues, viewContext) : ExecuteDirectRoute(routeValues);
+        }
 
-            var html = htmlHelper.Action("Index", _controllerDescriptor.ControllerName, functionaParameters);
+        private object ExecuteDirectRoute(Dictionary<string, object> routeValues)
+        {
+            var routeData = new RouteData
+            {
+                RouteHandler = new MvcRouteHandler()
+            };
+
+            routeData.Values["action"] = "Index";
+            routeData.Values["controller"] = _controllerDescriptor.ControllerName;
+
+            foreach (var routeValue in routeValues)
+            {
+                routeData.Values.Add(routeValue.Key, routeValue.Value);
+            }
+
+            string html;
+
+            using (var writer = new StringWriter())
+            {
+                var httpResponse = new HttpResponse(writer);
+                var httpContext = new HttpContext(HttpContext.Current.Request, httpResponse);
+                var requestContext = new RequestContext(new HttpContextWrapper(httpContext), routeData);
+
+                var handler = routeData.RouteHandler.GetHttpHandler(requestContext);
+                if (handler == null)
+                {
+                    throw new InvalidOperationException(String.Format("No handler found for the function '{0}'", Namespace + "." + Name));
+                }
+
+                handler.ProcessRequest(httpContext);
+
+                html = writer.ToString();
+            }
+
+            return XhtmlDocument.Parse(html);
+        }
+
+        private object ExecuteChildAction(Dictionary<string, object> routeValues, ViewContext viewContext)
+        {
+            routeValues.Add("PageModel", viewContext.ViewData.Model);
+
+            var htmlHelper = (viewContext.TempData["HtmlHelper"] as HtmlHelper) ?? new HtmlHelper(viewContext, new ViewPage());
+
+            var functionParameters = new RouteValueDictionary(routeValues);
+            var html = htmlHelper.Action("Index", _controllerDescriptor.ControllerName, functionParameters);
 
             return XhtmlDocument.Parse(html.ToString());
         }

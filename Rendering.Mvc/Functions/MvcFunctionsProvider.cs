@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Web.Mvc;
+﻿using System.Collections.Generic;
 
 using Composite.Functions;
 using Composite.Functions.Plugins.FunctionProvider;
@@ -11,7 +7,7 @@ namespace CompositeC1Contrib.Rendering.Mvc.Functions
 {
     public class MvcFunctionsProvider : IFunctionProvider
     {
-        private FunctionNotifier _functionNotifier;
+        private static FunctionNotifier _functionNotifier;
 
         public FunctionNotifier FunctionNotifier
         {
@@ -20,43 +16,12 @@ namespace CompositeC1Contrib.Rendering.Mvc.Functions
 
         public IEnumerable<IFunction> Functions
         {
-            get
-            {
-                var list = new List<MvcFunction>();
+            get { return GlobalConfiguration.Current.Functions; }
+        }
 
-                try
-                {
-                    var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                    foreach (var assembly in assemblies)
-                    {
-                        try
-                        {
-                            var types = assembly.GetTypes();
-                            foreach (var type in types)
-                            {
-                                try
-                                {
-                                    var attribute = type.GetCustomAttributes<MvcFunctionAttribute>(false).SingleOrDefault();
-                                    if (attribute == null)
-                                    {
-                                        continue;
-                                    }
-
-                                    var controllerDescriptor = new ReflectedControllerDescriptor(type);
-                                    var function = new MvcFunction(controllerDescriptor);
-
-                                    list.Add(function);
-                                }
-                                catch { }
-                            }
-                        }
-                        catch { }
-                    }
-                }
-                catch { }
-
-                return list;
-            }
+        public static void Reload()
+        {
+            _functionNotifier.FunctionsUpdated();
         }
     }
 }

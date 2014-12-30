@@ -5,7 +5,7 @@ namespace CompositeC1Contrib.Rendering.Mvc
 {
     public interface IBootstrapperConfiguration
     {
-        void UseTemplates(params MvcPageTemplateDescriptor[] templates);
+        void UseTemplates(params Type[] templateTypes);
         void RegisterRoutes(Action<RouteCollection> action);
     }
 }

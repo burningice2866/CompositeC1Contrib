@@ -6,12 +6,12 @@ namespace CompositeC1Contrib.Rendering.Mvc
 {
     public class BootstrapperConfiguration : IBootstrapperConfiguration
     {
-        public IEnumerable<MvcPageTemplateDescriptor> Templates { get; private set; }
+        public IEnumerable<Type> TemplateTypes { get; private set; }
         public Action<RouteCollection> RouteRegistrator { get; private set; }
 
-        public void UseTemplates(params MvcPageTemplateDescriptor[] templates)
+        public void UseTemplates(params Type[] templateTypes)
         {
-            Templates = templates;
+            TemplateTypes = templateTypes;
         }
 
         public void RegisterRoutes(Action<RouteCollection> action)

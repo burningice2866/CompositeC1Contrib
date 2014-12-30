@@ -7,6 +7,8 @@ using Composite.Core.PageTemplates;
 using Composite.Core.Routing;
 using Composite.Data;
 
+using CompositeC1Contrib.Rendering.Mvc.Templates;
+
 namespace CompositeC1Contrib.Rendering.Mvc
 {
     public class DefaultCatchAllRoute : RouteBase
