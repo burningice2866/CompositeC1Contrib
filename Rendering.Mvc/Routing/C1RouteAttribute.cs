@@ -9,6 +9,7 @@ using Composite.Core.PageTemplates;
 using Composite.Core.WebClient.Renderings.Page;
 using Composite.Data;
 using Composite.Data.Types;
+
 using CompositeC1Contrib.Rendering.Mvc.Templates;
 
 namespace CompositeC1Contrib.Rendering.Mvc.Routing
@@ -83,29 +84,35 @@ namespace CompositeC1Contrib.Rendering.Mvc.Routing
 
         private static Guid? ResolveType(string type)
         {
+            IList<IPageType> pageTypes;
+
+            using (var data = new DataConnection())
+            {
+                pageTypes = data.Get<IPageType>().ToList();
+            }
+
             Guid typeId;
-            if (Guid.TryParse(type, out typeId))
+            if (Guid.TryParse(type, out typeId) && pageTypes.Any(t => t.Id == typeId))
             {
                 return typeId;
             }
 
-            using (var data = new DataConnection())
-            {
-                var pageType = data.Get<IPageType>().FirstOrDefault(p => p.Name.Equals(type, StringComparison.OrdinalIgnoreCase));
+            var pageType = pageTypes.FirstOrDefault(p => p.Name.Equals(type, StringComparison.OrdinalIgnoreCase));
 
-                return pageType == null ? (Guid?)null : pageType.Id;
-            }
+            return pageType == null ? (Guid?)null : pageType.Id;
         }
 
         private static Guid? ResolveTemplate(string template)
         {
+            var templates = PageTemplateFacade.GetPageTemplates().OfType<MvcPageTemplateDescriptor>().ToList();
+
             Guid templateId;
-            if (Guid.TryParse(template, out templateId))
+            if (Guid.TryParse(template, out templateId) && templates.Any(t => t.Id == templateId))
             {
                 return templateId;
             }
 
-            var c1Template = PageTemplateFacade.GetPageTemplates().OfType<MvcPageTemplateDescriptor>().FirstOrDefault(t => t.Title == template);
+            var c1Template = templates.FirstOrDefault(t => t.Title == template);
 
             return c1Template == null ? (Guid?)null : c1Template.Id;
         }

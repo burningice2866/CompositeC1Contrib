@@ -80,7 +80,13 @@
     <Compile Include="Functions\MvcFunctionViewOfT.cs" />
     <Compile Include="Functions\MvcFunctionView.cs" />
     <Compile Include="HtmlHelperExtensions.cs" />
+    <Compile Include="Routing\C1ActionAttribute.cs" />
     <Compile Include="Routing\C1PathInfoRouteConstraint.cs" />
+    <Compile Include="Routing\C1RenderingC1ConsoleBrowserPageViewAttribute.cs" />
+    <Compile Include="Routing\C1RenderingScreenshotGenerationAttribute.cs" />
+    <Compile Include="Routing\C1RenderingPreviewUnsavedChangesAttribute.cs" />
+    <Compile Include="Routing\C1RenderingPageViewAttribute.cs" />
+    <Compile Include="Routing\C1RenderingReasonAttribute.cs" />
     <Compile Include="Routing\C1RenderingReasonConstraint.cs" />
     <Compile Include="Routing\C1RouteAttribute.cs" />
     <Compile Include="Routing\RouteInfo.cs" />
