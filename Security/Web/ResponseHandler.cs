@@ -39,7 +39,7 @@ namespace CompositeC1Contrib.Security.Web
         private static void HandlePageRequest(RenderingResponseHandlerResult result, IPage page, HttpContext ctx)
         {
             var isSecureConnection = ctx.Request.IsSecureConnection;
-            var isLoginPage = PermissionsFacade.LoginSiteMapNode.Key == page.Id.ToString();
+            var isLoginPage = PermissionsFacade.LoginSiteMapNode != null && PermissionsFacade.LoginSiteMapNode.Key == page.Id.ToString();
 
             if (isLoginPage)
             {
