@@ -18,6 +18,7 @@ namespace CompositeC1Contrib.Rendering.Mvc
 {
     public abstract class C1Controller : Controller
     {
+        private MvcPageTemplateDescriptor _template;
         private MvcRenderingContext _mvcContext;
 
         protected override void ExecuteCore()
@@ -25,6 +26,47 @@ namespace CompositeC1Contrib.Rendering.Mvc
             base.ExecuteCore();
 
             _mvcContext.Dispose();
+        }
+
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            var pageUrlData = PageUrls.ParseUrl(HttpContext.Request.Path);
+            if (pageUrlData == null)
+            {
+                return;
+            }
+
+            C1PageRoute.PageUrlData = pageUrlData;
+
+            _mvcContext = new MvcRenderingContext(ControllerContext);
+
+            var page = PageRenderer.CurrentPage;
+
+            ViewData.Add("C1PreviewContent", HttpContext.Items["C1PreviewContent"]);
+
+            _template = PageTemplateFacade.GetPageTemplate(page.TemplateId) as MvcPageTemplateDescriptor;
+            if (_template == null)
+            {
+                throw new InvalidOperationException(String.Format("The pagetemplate '{0}' is not a valid mvc template", page.TemplateId));
+            }
+
+            var templateModel = Activator.CreateInstance(_template.TypeInfo.Item1);
+
+            if (_template.PlaceholderDescriptions != null && _template.PlaceholderDescriptions.Any())
+            {
+                foreach (var placeholder in _template.PlaceholderDescriptions)
+                {
+                    var name = placeholder.Id;
+                    var prop = _template.TypeInfo.Item2[name];
+                    var content = GetPlaceholderContent(name);
+
+                    BindPlaceholder(templateModel, prop, content);
+                }
+            }
+
+            ViewData.Add("TemplateModel", templateModel);
+
+            base.OnActionExecuting(filterContext);
         }
 
         public C1View C1View()
@@ -44,42 +86,16 @@ namespace CompositeC1Contrib.Rendering.Mvc
 
         public C1View C1View(string view, object model)
         {
-            var pageUrlData = PageUrls.ParseUrl(HttpContext.Request.Path);
-
-            C1PageRoute.PageUrlData = pageUrlData;
-
-            _mvcContext = new MvcRenderingContext(ControllerContext);
-
-            var page = PageRenderer.CurrentPage;
+            if (_mvcContext == null)
+            {
+                throw new InvalidOperationException("MvcContext has not been set, make sure the action matches a C1 page.");
+            }
 
             ViewData.Model = model;
-            ViewData.Add("C1PreviewContent", HttpContext.Items["C1PreviewContent"]);
-
-            var template = PageTemplateFacade.GetPageTemplate(page.TemplateId) as MvcPageTemplateDescriptor;
-            if (template == null)
-            {
-                throw new InvalidOperationException(String.Format("The pagetemplate '{0}' is not a valid mvc template", page.TemplateId));
-            }
-
-            if (template.PlaceholderDescriptions != null && template.PlaceholderDescriptions.Any())
-            {
-                var templateModel = Activator.CreateInstance(template.TypeInfo.Item1);
-
-                foreach (var placeholder in template.PlaceholderDescriptions)
-                {
-                    var name = placeholder.Id;
-                    var prop = template.TypeInfo.Item2[name];
-                    var content = GetPlaceholderContent(name);
-
-                    BindPlaceholder(templateModel, prop, content);
-                }
-
-                ViewData.Add("TemplateModel", templateModel);
-            }
 
             if (String.IsNullOrEmpty(view))
             {
-                view = template.ViewName;
+                view = _template.ViewName;
             }
 
             return new C1View(_mvcContext)
@@ -123,6 +139,14 @@ namespace CompositeC1Contrib.Rendering.Mvc
             }
 
             property.SetValue(templateModel, rootDocument);
+        }
+    }
+
+    public abstract class C1Controller<T> : C1Controller
+    {
+        public T TemplateModel
+        {
+            get { return (T)ViewData["TemplateModel"]; }
         }
     }
 }

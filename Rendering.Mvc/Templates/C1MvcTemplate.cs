@@ -8,7 +8,7 @@ using Composite.Data;
 
 namespace CompositeC1Contrib.Rendering.Mvc.Templates
 {
-    public abstract class C1MvcTemplate : WebViewPage, IDisposable
+    public abstract class C1MvcTemplate<TTemplateModel> : WebViewPage, IC1MvcTemplate<TTemplateModel>
     {
         private bool _disposed;
 
@@ -36,6 +36,11 @@ namespace CompositeC1Contrib.Rendering.Mvc.Templates
         public string Lang
         {
             get { return Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName; }
+        }
+
+        public TTemplateModel TemplateModel
+        {
+            get { return (TTemplateModel)ViewData["TemplateModel"]; }
         }
 
         public IHtmlString PageTemplateFeature(string featureName)

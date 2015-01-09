@@ -98,6 +98,7 @@
     <Compile Include="DefaultCatchAllRoute.cs" />
     <Compile Include="GlobalConfiguration.cs" />
     <Compile Include="IBootstrapperConfiguration.cs" />
+    <Compile Include="Templates\IC1MvcTemplate.cs" />
     <Compile Include="Templates\MvcPageRenderer.cs" />
     <Compile Include="Templates\MvcPageTemplateDescriptor.cs" />
     <Compile Include="MvcRenderingContext.cs" />
