@@ -61,8 +61,7 @@ namespace CompositeC1Contrib.Security
         {
             using (var data = new DataConnection())
             {
-                var folder = data.Get<IMediaFileFolder>().Single(f => f.StoreId == media.StoreId && f.Path == media.FolderPath);
-                var folderPermission = data.Get<IMediaFolderPermissions>().SingleOrDefault(f => f.KeyPath == folder.KeyPath);
+                var folderPermission = GetMediaFolderPermissions(media, data);
                 if (folderPermission != null)
                 {
                     var fep = EvaluatePermissions(folderPermission);
@@ -73,13 +72,25 @@ namespace CompositeC1Contrib.Security
                 var mediaPermissions = data.Get<IMediaFilePermissions>().SingleOrDefault(m => m.KeyPath == media.KeyPath);
                 if (mediaPermissions != null)
                 {
-                var mep = EvaluatePermissions(mediaPermissions);
+                    var mep = EvaluatePermissions(mediaPermissions);
 
-                return HasAccess(mep);
+                    return HasAccess(mep);
+                }
             }
-        }
-        
+
             return true;
+        }
+
+        private static IMediaFolderPermissions GetMediaFolderPermissions(IMediaFile media, DataConnection data)
+        {
+            if (media.FolderPath.Equals("/", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            var folder = data.Get<IMediaFileFolder>().Single(f => f.StoreId == media.StoreId && f.Path == media.FolderPath);
+
+            return data.Get<IMediaFolderPermissions>().SingleOrDefault(f => f.KeyPath == folder.KeyPath);
         }
 
         public static EvaluatedPermissions EvaluatePermissions(IDataPermissions permissions)
