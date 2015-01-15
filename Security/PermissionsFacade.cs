@@ -54,43 +54,12 @@ namespace CompositeC1Contrib.Security
 
         public static bool HasAccess(IPage page)
         {
-            return EvaluatedPagePermissions.HasAccess(page);
+            return SecurityEvaluatorFactory.GetEvaluatorFor<IPage>().HasAccess(page);
         }
 
         public static bool HasAccess(IMediaFile media)
         {
-            using (var data = new DataConnection())
-            {
-                var folderPermission = GetMediaFolderPermissions(media, data);
-                if (folderPermission != null)
-                {
-                    var fep = EvaluatePermissions(folderPermission);
-
-                    return HasAccess(fep);
-                }
-
-                var mediaPermissions = data.Get<IMediaFilePermissions>().SingleOrDefault(m => m.KeyPath == media.KeyPath);
-                if (mediaPermissions != null)
-                {
-                    var mep = EvaluatePermissions(mediaPermissions);
-
-                    return HasAccess(mep);
-                }
-            }
-
-            return true;
-        }
-
-        private static IMediaFolderPermissions GetMediaFolderPermissions(IMediaFile media, DataConnection data)
-        {
-            if (media.FolderPath.Equals("/", StringComparison.OrdinalIgnoreCase))
-            {
-                return null;
-            }
-
-            var folder = data.Get<IMediaFileFolder>().Single(f => f.StoreId == media.StoreId && f.Path == media.FolderPath);
-
-            return data.Get<IMediaFolderPermissions>().SingleOrDefault(f => f.KeyPath == folder.KeyPath);
+            return SecurityEvaluatorFactory.GetEvaluatorFor<IMediaFile>().HasAccess(media);
         }
 
         public static EvaluatedPermissions EvaluatePermissions(IDataPermissions permissions)

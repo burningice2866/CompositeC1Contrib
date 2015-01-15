@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,16 +36,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Composite">
-      <HintPath>..\References\Composite.dll</HintPath>
+      <HintPath>..\packages\CompositeC1.Core.4.2.1\lib\net45\Composite.dll</HintPath>
     </Reference>
     <Reference Include="CompositeC1Contrib.Email">
       <HintPath>..\References\CompositeC1Contrib.Email.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common">
-      <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
+      <HintPath>..\packages\CompositeC1.Core.4.2.1\lib\net45\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation">
-      <HintPath>..\References\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
+      <HintPath>..\packages\CompositeC1.Core.4.2.1\lib\net45\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -76,15 +78,18 @@
     <Compile Include="Data\Types\IMediaFilePermissions.cs" />
     <Compile Include="Data\Types\IDataPermissions.cs" />
     <Compile Include="Data\Types\IPagePermissions.cs" />
+    <Compile Include="EvaluatedPagePermissions.cs" />
     <Compile Include="IEditProfileHandler.cs" />
     <Compile Include="IProfileResolver.cs" />
     <Compile Include="C1Console\ElementPermissionsActionProvider.cs" />
+    <Compile Include="ISecurityEvaluator.cs" />
     <Compile Include="ProfileFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="EvaluatedPagePermissions.cs" />
+    <Compile Include="EvaluatedMediaPermissions.cs" />
     <Compile Include="EvaluatedPermissions.cs" />
     <Compile Include="PasswordHash.cs" />
     <Compile Include="PermissionsFacade.cs" />
+    <Compile Include="SecurityEvaluatorFactory.cs" />
     <Compile Include="StartupHandler.cs" />
     <Compile Include="Web\C1ConsoleHttpsEnforcer.cs" />
     <Compile Include="Web\ResponseHandler.cs" />
@@ -137,6 +142,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Package\Config\App_Data\Composite\composite.config" />
     <None Include="Package\Config\web.config" />
   </ItemGroup>
@@ -152,6 +158,13 @@ del "$(ProjectDir)\Package\package.zip"
 
 "$(ProjectDir)..\References\7z.exe" a "$(ProjectDir)\Package\package.zip" -tzip -r "$(ProjectDir)\Package\*"</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

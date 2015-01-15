@@ -14,7 +14,7 @@ namespace CompositeC1Contrib.Security.C1Console.Workflows
     {
         protected override EvaluatedPermissions GetEvaluatedPermissions()
         {
-            return EvaluatedPagePermissions.GetEvaluatedPermissionsForPage(DataEntity);
+            return SecurityEvaluatorFactory.GetEvaluatorFor<IPage>().GetEvaluatedPermissions(DataEntity);
         }
 
         protected override IPagePermissions GetPermissions()

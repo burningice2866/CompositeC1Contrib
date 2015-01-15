@@ -10,7 +10,7 @@ using CompositeC1Contrib.Security.Data.Types;
 
 namespace CompositeC1Contrib.Security
 {
-    public class EvaluatedPagePermissions
+    public class EvaluatedPagePermissions: ISecurityEvaluator<IPage>
     {
         private static readonly ConcurrentDictionary<Guid, EvaluatedPermissions> Cache = new ConcurrentDictionary<Guid, EvaluatedPermissions>();
         private static IDictionary<Guid, IPagePermissions> _permissionsCache;
@@ -39,26 +39,25 @@ namespace CompositeC1Contrib.Security
             }
         }
 
-        public static bool HasAccess(IPage page)
+        public bool HasAccess(IPage page)
         {
-            var e = GetEvaluatedPermissionsForPage(page);
+            var e = GetEvaluatedPermissions(page);
 
             return PermissionsFacade.HasAccess(e);
         }
 
-        public static EvaluatedPermissions GetEvaluatedPermissionsForPage(IPage page)
+        public EvaluatedPermissions GetEvaluatedPermissions(IPage page)
         {
             return Cache.GetOrAdd(page.Id, g =>
             {
                 IPagePermissions permission;
-
                 _permissionsCache.TryGetValue(page.Id, out permission);
 
-                return EvaluatePagePermissions(page.Id, permission);
+                return EvaluatePermissions(page.Id, permission);
             });
         }
 
-        public static EvaluatedPermissions EvaluatePagePermissions(Guid pageId, IPagePermissions permissions)
+        public static EvaluatedPermissions EvaluatePermissions(Guid pageId, IPagePermissions permissions)
         {
             var allowedRoles = permissions == null ? null : permissions.AllowedRoles;
             var deniedRoles = permissions == null ? null : permissions.DeniedRoles;

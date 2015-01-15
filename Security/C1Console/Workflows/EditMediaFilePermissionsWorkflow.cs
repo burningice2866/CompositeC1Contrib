@@ -14,7 +14,7 @@ namespace CompositeC1Contrib.Security.C1Console.Workflows
     {
         protected override EvaluatedPermissions GetEvaluatedPermissions()
         {
-            return new EvaluatedPermissions();
+            return SecurityEvaluatorFactory.GetEvaluatorFor<IMediaFile>().GetEvaluatedPermissions(DataEntity);
         }
 
         protected override IMediaFilePermissions GetPermissions()
