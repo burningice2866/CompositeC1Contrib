@@ -11,14 +11,14 @@ using CompositeC1Contrib.Security.Data.Types;
 
 namespace CompositeC1Contrib.Security
 {
-    public class EvaluatedMediaPermissions : ISecurityEvaluator<IMediaFile>, ISecurityEvaluator<IMediaFileFolder>
+    public class MediaSecurityEvaluator : SecurityEvaluator, ISecurityEvaluatorFor<IMediaFile>, ISecurityEvaluatorFor<IMediaFileFolder>
     {
         private static readonly ConcurrentDictionary<string, EvaluatedPermissions> Cache = new ConcurrentDictionary<string, EvaluatedPermissions>();
 
         private static IDictionary<string, IMediaFilePermissions> _filePermissionsCache;
         private static IDictionary<string, IMediaFolderPermissions> _folderPermissionsCache;
 
-        static EvaluatedMediaPermissions()
+        static MediaSecurityEvaluator()
         {
             DataEvents<IMediaFolderPermissions>.OnAfterAdd += Flush;
             DataEvents<IMediaFolderPermissions>.OnAfterUpdate += Flush;
@@ -82,26 +82,7 @@ namespace CompositeC1Contrib.Security
                 return EvaluatePermissions(permission, p => EvaluateInheritedPermissions(file, p));
             });
         }
-
-        public static EvaluatedPermissions EvaluatePermissions(IDataPermissions permissions, Action<EvaluatedPermissions> evaluateMethod)
-        {
-            var allowedRoles = permissions == null ? null : permissions.AllowedRoles;
-            var deniedRoles = permissions == null ? null : permissions.DeniedRoles;
-
-            var evaluatedPermissions = new EvaluatedPermissions
-            {
-                ExplicitAllowedRoles = PermissionsFacade.Split(allowedRoles).ToArray(),
-                ExplicitDeniedRoled = PermissionsFacade.Split(deniedRoles).ToArray()
-            };
-
-            if (permissions == null || !permissions.DisableInheritance)
-            {
-                evaluateMethod(evaluatedPermissions);
-            }
-
-            return evaluatedPermissions;
-        }
-
+        
         private static void EvaluateInheritedPermissions(IMediaFile file, EvaluatedPermissions evaluatedPermissions)
         {
             var parentFolder = GetParent(file);

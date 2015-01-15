@@ -10,12 +10,12 @@ using CompositeC1Contrib.Security.Data.Types;
 
 namespace CompositeC1Contrib.Security
 {
-    public class EvaluatedPagePermissions: ISecurityEvaluator<IPage>
+    public class PageSecurityEvaluator : SecurityEvaluator, ISecurityEvaluatorFor<IPage>
     {
         private static readonly ConcurrentDictionary<Guid, EvaluatedPermissions> Cache = new ConcurrentDictionary<Guid, EvaluatedPermissions>();
         private static IDictionary<Guid, IPagePermissions> _permissionsCache;
 
-        static EvaluatedPagePermissions()
+        static PageSecurityEvaluator()
         {
             DataEvents<IPagePermissions>.OnAfterAdd += Flush;
             DataEvents<IPagePermissions>.OnAfterUpdate += Flush;
@@ -53,27 +53,8 @@ namespace CompositeC1Contrib.Security
                 IPagePermissions permission;
                 _permissionsCache.TryGetValue(page.Id, out permission);
 
-                return EvaluatePermissions(page.Id, permission);
+                return EvaluatePermissions(permission, p => EvaluateInheritedPermissions(page.Id, p));
             });
-        }
-
-        public static EvaluatedPermissions EvaluatePermissions(Guid pageId, IPagePermissions permissions)
-        {
-            var allowedRoles = permissions == null ? null : permissions.AllowedRoles;
-            var deniedRoles = permissions == null ? null : permissions.DeniedRoles;
-
-            var evaluatedPermissions = new EvaluatedPermissions
-            {
-                ExplicitAllowedRoles = PermissionsFacade.Split(allowedRoles).ToArray(),
-                ExplicitDeniedRoled = PermissionsFacade.Split(deniedRoles).ToArray()
-            };
-
-            if (permissions == null || !permissions.DisableInheritance)
-            {
-                EvaluateInheritedPermissions(pageId, evaluatedPermissions);
-            }
-
-            return evaluatedPermissions;
         }
 
         private static void EvaluateInheritedPermissions(Guid current, EvaluatedPermissions evaluatedPermissions)

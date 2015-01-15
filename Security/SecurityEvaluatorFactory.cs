@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Composite.Data;
 using Composite.Data.Types;
@@ -7,24 +8,29 @@ namespace CompositeC1Contrib.Security
 {
     public class SecurityEvaluatorFactory
     {
-        public static ISecurityEvaluator<T> GetEvaluatorFor<T>() where T : IData
+        private static readonly IDictionary<Type, object> Evaluators = new Dictionary<Type, object>()
         {
-            if (typeof (T) == typeof (IPage))
+            { typeof (IPage), new PageSecurityEvaluator() },
+            { typeof (IMediaFile), new MediaSecurityEvaluator() },
+            { typeof (IMediaFileFolder), new MediaSecurityEvaluator() }
+        };
+
+        public static ISecurityEvaluatorFor<T> GetEvaluatorFor<T>() where T : IData
+        {
+            var type = typeof(T);
+
+            return (ISecurityEvaluatorFor<T>)GetEvaluatorFor(type);
+        }
+
+        public static object GetEvaluatorFor(Type type)
+        {
+            object evaluator;
+            if (!Evaluators.TryGetValue(type, out evaluator))
             {
-                return new EvaluatedPagePermissions() as ISecurityEvaluator<T>;
+                throw new InvalidOperationException("No security evaluator found");
             }
 
-            if (typeof(T) == typeof(IMediaFile))
-            {
-                return new EvaluatedMediaPermissions() as ISecurityEvaluator<T>;
-            }
-
-            if (typeof(T) == typeof(IMediaFileFolder))
-            {
-                return new EvaluatedMediaPermissions() as ISecurityEvaluator<T>;
-            }
-
-            throw new InvalidOperationException("No security evaluator found");
+            return evaluator;
         }
     }
 }
