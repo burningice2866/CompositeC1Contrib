@@ -68,7 +68,7 @@ namespace CompositeC1Contrib.Security
                 IMediaFolderPermissions permission;
                 _folderPermissionsCache.TryGetValue(folder.KeyPath, out permission);
 
-                return EvaluatePermissions(permission, p => EvaluateInheritedPermissions(folder, p));
+                return EvaluatePermissions(permission, p => EvaluateInheritedPermissions(GetParent(folder), p));
             });
         }
 
@@ -79,15 +79,8 @@ namespace CompositeC1Contrib.Security
                 IMediaFilePermissions permission;
                 _filePermissionsCache.TryGetValue(file.KeyPath, out permission);
 
-                return EvaluatePermissions(permission, p => EvaluateInheritedPermissions(file, p));
+                return EvaluatePermissions(permission, p => EvaluateInheritedPermissions(GetParent(file), p));
             });
-        }
-        
-        private static void EvaluateInheritedPermissions(IMediaFile file, EvaluatedPermissions evaluatedPermissions)
-        {
-            var parentFolder = GetParent(file);
-
-            EvaluateInheritedPermissions(parentFolder, evaluatedPermissions);
         }
 
         private static void EvaluateInheritedPermissions(IMediaFileFolder folder, EvaluatedPermissions evaluatedPermissions)

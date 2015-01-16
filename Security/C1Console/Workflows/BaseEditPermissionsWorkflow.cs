@@ -50,7 +50,7 @@ namespace CompositeC1Contrib.Security.C1Console.Workflows
 
             SavePermissions(permissions);
 
-            var treeRefresher = CreateSpecificTreeRefresher();
+            var treeRefresher = CreateParentTreeRefresher();
             treeRefresher.PostRefreshMesseges(EntityToken);
 
             SetSaveStatus(true);
