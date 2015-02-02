@@ -5,7 +5,7 @@
 
   <mi:PackageInformation name="CompositeC1Contrib.ScheduledTasks"
                          groupName="Contribution.CompositeC1Contrib"
-                         version="0.1.1" author="@burningice" website="http://compositec1contrib.codeplex.com"
+                         version="0.2.0" author="@burningice" website="http://compositec1contrib.codeplex.com"
                          readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="4eec6c4d-33d7-4916-99f3-d9225928f038"
                          canBeUninstalled="true"
