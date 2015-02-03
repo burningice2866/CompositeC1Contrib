@@ -6,6 +6,7 @@ using CompositeC1Contrib.ScheduledTasks.Configuration;
 using Hangfire;
 using Hangfire.CompositeC1;
 using Hangfire.Dashboard;
+using Hangfire.Logging;
 
 using Owin;
 
@@ -20,6 +21,8 @@ namespace CompositeC1Contrib.ScheduledTasks
 
         public static void UseCompositeC1ContribScheduledTasks(this IAppBuilder app, int? workerCount)
         {
+            LogProvider.SetCurrentLogProvider(new C1LogProvider());
+
             app.UseHangfire(config =>
             {
                 config.UseAuthorizationFilters(new IAuthorizationFilter[] { new CompositeC1AuthorizationFilter() });

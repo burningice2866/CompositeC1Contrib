@@ -65,6 +65,8 @@
     <Compile Include="C1Console\ElementProviders\EntityTokens\FolderEntityToken.cs" />
     <Compile Include="C1Console\ElementProviders\EntityTokens\ScheduledTasksElementProviderEntityToken.cs" />
     <Compile Include="C1Console\ElementProviders\ScheduledTasksElementProvider.cs" />
+    <Compile Include="C1Logger.cs" />
+    <Compile Include="C1LogProvider.cs" />
     <Compile Include="CompositeC1AuthorizationFilter.cs" />
     <Compile Include="OwinExtensions.cs" />
     <Compile Include="Configuration\ScheduledTaskCollection.cs" />
@@ -79,7 +81,9 @@
     <None Include="Package\Config\App_Data\Composite\composite.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Package\Config\web.config" />
+    <None Include="Package\Config\web.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\install.xml">
