@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Web;
 using System.Web.Services;
 
@@ -12,6 +13,8 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 {
     public class SortData : BaseSortPage
     {
+        private static readonly MethodInfo SelectMethod = StaticReflection.GetGenericMethodInfo(() => Select<IGenericSortable>(null, null, null));
+
         [WebMethod]
         public static void UpdateOrder(string type, string consoleId, string entityToken, string serializedOrder)
         {
@@ -59,38 +62,54 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 
             using (new DataScope(DataScopeIdentifier.Administrated))
             {
-                var instances = DataFacade.GetData(type).Cast<IGenericSortable>();
+                var data = DataFacade.GetData(type);
 
                 if (typeof(IPageFolderData).IsAssignableFrom(type))
                 {
                     var pageId = Guid.Parse(sPageId);
 
-                    instances = instances.Cast<IPageFolderData>().Where(f => f.PageId == pageId).Cast<IGenericSortable>();
+                    data = data.OfType<IPageFolderData>().Where(f => f.PageId == pageId);
                 }
-
-                instances = instances.OrderBy(g => g.LocalOrdering);
 
                 if (String.IsNullOrEmpty(sFilter))
                 {
-                    return instances;
+                    return GetInstancesWithoutFilter(data);
                 }
 
                 var filterParts = sFilter.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
                 if (filterParts.Length != 2)
                 {
-                    return instances;
+                    return GetInstancesWithoutFilter(data);
                 }
 
-                var param = Expression.Parameter(type);
-                var prop = Expression.Property(param, filterParts[0]);
-                var value = Expression.Constant(filterParts[1]);
-                var equal = Expression.Equal(prop, value);
-                var lambda = Expression.Lambda<Func<IGenericSortable, bool>>(equal, param);
-
-                instances = instances.Where(lambda);
-
-                return instances;
+                return GetInstancesWithFilter(data, type, filterParts[0], filterParts[1]);
             }
+        }
+
+        private static IEnumerable<IGenericSortable> GetInstancesWithoutFilter(IQueryable data)
+        {
+            return data.OfType<IGenericSortable>().OrderBy(g => g.LocalOrdering);
+        }
+
+        private static IEnumerable<IGenericSortable> GetInstancesWithFilter(IQueryable data, Type type, string field, object value)
+        {
+            var generic = SelectMethod.MakeGenericMethod(type);
+
+            return (IQueryable<IGenericSortable>)generic.Invoke(null, new[] { data, field, value });
+        }
+
+        private static IQueryable<T> Select<T>(IQueryable<T> data, string field, object value) where T : class, IGenericSortable
+        {
+            data = data.OrderBy(g => g.LocalOrdering);
+
+            var paramExpr = Expression.Parameter(typeof(T));
+            var propExpr = Expression.Property(paramExpr, field);
+            var valueExpr = Expression.Constant(value);
+            var equalExpr = Expression.Equal(propExpr, valueExpr);
+
+            var lambda = Expression.Lambda<Func<T, bool>>(equalExpr, paramExpr);
+
+            return data.Where(lambda);
         }
 
         private static void UpdateOrder(Type type, string serializedOrder)
@@ -101,7 +120,7 @@ namespace CompositeC1Contrib.Sorting.Web.UI
             {
                 using (new DataScope(dataScope))
                 {
-                    var instances = DataFacade.GetData(type).Cast<IGenericSortable>().ToList();
+                    var instances = DataFacade.GetData(type).OfType<IGenericSortable>().ToList();
 
                     foreach (var instance in instances)
                     {
