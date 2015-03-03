@@ -104,9 +104,12 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 
             var paramExpr = Expression.Parameter(typeof(T));
             var propExpr = Expression.Property(paramExpr, field);
+            var propType = ((PropertyInfo)propExpr.Member).PropertyType;
+
+            value = ValueTypeConverter.Convert(value, propType);
+
             var valueExpr = Expression.Constant(value);
             var equalExpr = Expression.Equal(propExpr, valueExpr);
-
             var lambda = Expression.Lambda<Func<T, bool>>(equalExpr, paramExpr);
 
             return data.Where(lambda);
