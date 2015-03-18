@@ -14,7 +14,7 @@ namespace CompositeC1Contrib.Teasers.C1Console.EntityTokens
         {
             get { return String.Empty; }
         }
-        
+
         private readonly string _source;
         public override string Source
         {
@@ -58,7 +58,7 @@ namespace CompositeC1Contrib.Teasers.C1Console.EntityTokens
 
             var page = PageManager.GetPageById(new Guid(source));
 
-            return new PageTeaserPositionFolderEntityToken(page, id);
+            return page == null ? null : new PageTeaserPositionFolderEntityToken(page, id);
         }
     }
 

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Text;
 using Composite.C1Console.Elements;
 using Composite.C1Console.Elements.Plugins.ElementAttachingProvider;
 using Composite.C1Console.Security;
@@ -23,7 +23,7 @@ namespace CompositeC1Contrib.Teasers.C1Console
     public class TeaserElementAttachingProvider : IElementAttachingProvider
     {
         private static readonly ActionGroup ActionGroup = new ActionGroup(ActionGroupPriority.PrimaryHigh);
-        
+
         public static readonly IDictionary<Guid, IList<Tuple<string, string>>> TemplateTeaserPositions;
         public static readonly ActionLocation ActionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = true, ActionGroup = ActionGroup };
 
@@ -64,6 +64,10 @@ namespace CompositeC1Contrib.Teasers.C1Console
             }
 
             var page = (IPage)dataToken.Data;
+            if (page == null)
+            {
+                return null;
+            }
 
             if (!TemplateTeaserPositions.ContainsKey(page.TemplateId))
             {
@@ -173,7 +177,7 @@ namespace CompositeC1Contrib.Teasers.C1Console
                 var editWorkflowAttribute = attributes.OfType<EditWorkflowAttribute>().FirstOrDefault();
                 if (editWorkflowAttribute != null)
                 {
-                    var editActionToken = new WorkflowActionToken(editWorkflowAttribute.EditWorkflowType);
+                    var editActionToken = new WorkflowActionToken(editWorkflowAttribute.EditWorkflowType, new[] { PermissionType.Edit });
                     teaserElement.AddAction(new ElementAction(new ActionHandle(editActionToken))
                     {
                         VisualData = new ActionVisualizedData
@@ -206,7 +210,7 @@ namespace CompositeC1Contrib.Teasers.C1Console
         {
             var page = PageManager.GetPageById(new Guid(entityToken.Source));
             IList<Tuple<string, string>> positions;
-            
+
             if (!TemplateTeaserPositions.TryGetValue(page.TemplateId, out positions))
             {
                 return;
@@ -227,7 +231,7 @@ namespace CompositeC1Contrib.Teasers.C1Console
                     }
                 };
 
-                var addActionToken = new WorkflowActionToken(typeof(AddPageTeaserWorkFlow));
+                var addActionToken = new WorkflowActionToken(typeof(AddPageTeaserWorkFlow), new[] { PermissionType.Add });
                 positionElement.AddAction(new ElementAction(new ActionHandle(addActionToken))
                 {
                     VisualData = new ActionVisualizedData

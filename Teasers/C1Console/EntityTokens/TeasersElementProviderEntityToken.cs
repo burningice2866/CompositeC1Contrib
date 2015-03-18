@@ -56,7 +56,7 @@ namespace CompositeC1Contrib.Teasers.C1Console.EntityTokens
 
             var page = PageManager.GetPageById(new Guid(source));
 
-            return new TeasersElementProviderEntityToken(page);
+            return page == null ? null : new TeasersElementProviderEntityToken(page);
         }
     }
 

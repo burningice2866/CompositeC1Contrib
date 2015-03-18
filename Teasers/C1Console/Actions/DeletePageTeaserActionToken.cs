@@ -12,7 +12,7 @@ namespace CompositeC1Contrib.Teasers.C1Console.Actions
     [ActionExecutor(typeof(DeletePageTeaserActionExecutor))]
     public class DeletePageTeaserActionToken : ActionToken
     {
-        private static readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Delete, PermissionType.Edit, PermissionType.Administrate };
+        private static readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Delete };
 
         public override IEnumerable<PermissionType> PermissionTypes
         {

@@ -12,7 +12,7 @@ namespace CompositeC1Contrib
 {
     public class ConfirmWorkflowActionToken : WorkflowActionToken
     {
-        public ConfirmWorkflowActionToken(string confirmMessage, Type type) : this(confirmMessage, type, new[] { PermissionType.Administrate }) { }
+        public ConfirmWorkflowActionToken(string confirmMessage, Type type) : this(confirmMessage, type, ResolvePermission(type)) { }
 
         public ConfirmWorkflowActionToken(string confirmMessage, Type type, IEnumerable<PermissionType> permmissionType) :
             base(typeof(ConfirmWorkflow), permmissionType)
@@ -28,6 +28,17 @@ namespace CompositeC1Contrib
         public new static ActionToken Deserialize(string serialiedWorkflowActionToken)
         {
             return WorkflowActionToken.Deserialize(serialiedWorkflowActionToken);
+        }
+
+        private static IEnumerable<PermissionType> ResolvePermission(Type type)
+        {
+            var obj = Activator.CreateInstance(type) as ActionToken;
+            if (obj == null)
+            {
+                throw new ArgumentException("Type was not an actiontoken");
+            }
+
+            return obj.PermissionTypes;
         }
     }
 }
