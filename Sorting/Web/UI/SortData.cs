@@ -102,9 +102,13 @@ namespace CompositeC1Contrib.Sorting.Web.UI
         {
             data = data.OrderBy(g => g.LocalOrdering);
 
-            var paramExpr = Expression.Parameter(typeof(T));
-            var propExpr = Expression.Property(paramExpr, field);
-            var propType = ((PropertyInfo)propExpr.Member).PropertyType;
+            var dataType = typeof(T);
+
+            var propInfo = dataType.GetPropertiesRecursively(p => p.Name == field).Single();
+            var propType = propInfo.PropertyType;
+
+            var paramExpr = Expression.Parameter(dataType);
+            var propExpr = Expression.Property(paramExpr, propInfo);
 
             value = ValueTypeConverter.Convert(value, propType);
 
