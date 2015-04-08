@@ -47,14 +47,21 @@ namespace CompositeC1Contrib.SiteUpdate.Web.UI
                         {
                             var installProcess = PackageManager.Install(zip, true);
 
-                            var validatationResult = installProcess.Validate();
-                            if (validatationResult.Any())
+                            if (installProcess.PreInstallValidationResult.Any())
                             {
-                                HandleErrors(update, validatationResult);
+                                HandleErrors(update, installProcess.PreInstallValidationResult);
                             }
                             else
                             {
-                                installProcess.Install();
+                                var validatationResult = installProcess.Validate();
+                                if (validatationResult.Any())
+                                {
+                                    HandleErrors(update, validatationResult);
+                                }
+                                else
+                                {
+                                    installProcess.Install();
+                                }
                             }
                         }
                     }
@@ -63,14 +70,21 @@ namespace CompositeC1Contrib.SiteUpdate.Web.UI
                     {
                         var uninstallProcess = PackageManager.Uninstall(update.Id);
 
-                        var validatationResult = uninstallProcess.Validate();
-                        if (validatationResult.Any())
+                        if (uninstallProcess.PreUninstallValidationResult.Any())
                         {
-                            HandleErrors(update, validatationResult);
+                            HandleErrors(update, uninstallProcess.PreUninstallValidationResult);
                         }
                         else
                         {
-                            uninstallProcess.Uninstall();
+                            var validatationResult = uninstallProcess.Validate();
+                            if (validatationResult.Any())
+                            {
+                                HandleErrors(update, validatationResult);
+                            }
+                            else
+                            {
+                                uninstallProcess.Uninstall();
+                            }
                         }
                     }
                 }
