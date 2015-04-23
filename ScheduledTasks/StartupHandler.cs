@@ -13,6 +13,7 @@ namespace CompositeC1Contrib.ScheduledTasks
         public static void OnInitialized()
         {
             DynamicTypeManager.EnsureCreateStore(typeof(ICounter));
+            DynamicTypeManager.EnsureCreateStore(typeof(IAggregatedCounter));
             DynamicTypeManager.EnsureCreateStore(typeof(IHash));
             DynamicTypeManager.EnsureCreateStore(typeof(IJob));
             DynamicTypeManager.EnsureCreateStore(typeof(IJobParameter));

@@ -5,7 +5,6 @@ using CompositeC1Contrib.ScheduledTasks.Configuration;
 
 using Hangfire;
 using Hangfire.CompositeC1;
-using Hangfire.Dashboard;
 using Hangfire.Logging;
 
 using Owin;
@@ -23,19 +22,22 @@ namespace CompositeC1Contrib.ScheduledTasks
         {
             LogProvider.SetCurrentLogProvider(new C1LogProvider());
 
-            app.UseHangfire(config =>
-            {
-                config.UseAuthorizationFilters(new IAuthorizationFilter[] { new CompositeC1AuthorizationFilter() });
-                config.UseCompositeC1Storage();
+            var configuration = GlobalConfiguration.Configuration;
 
-                if (workerCount.HasValue)
-                {
-                    config.UseServer(workerCount.Value);
-                }
-                else
-                {
-                    config.UseServer();
-                }
+            configuration.UseStorage(new CompositeC1Storage());
+
+            var options = new BackgroundJobServerOptions();
+
+            if (workerCount.HasValue)
+            {
+                options.WorkerCount = workerCount.Value;
+            }
+
+            app.UseHangfireServer(options);
+
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                AuthorizationFilters = new[] { new CompositeC1AuthorizationFilter() }
             });
 
             var section = ScheduledTasksSection.GetSection();
