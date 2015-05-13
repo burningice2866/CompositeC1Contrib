@@ -206,7 +206,7 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders
 
             switch (type)
             {
-                case TaskType.Scheduled: url += "/scheduled"; break;
+                case TaskType.Scheduled: url += "/jobs/scheduled"; break;
                 case TaskType.Recurring: url += "/recurring"; break;
             }
 
