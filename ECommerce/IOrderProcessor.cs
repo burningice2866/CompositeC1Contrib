@@ -1,10 +1,13 @@
-﻿using CompositeC1Contrib.ECommerce.Data.Types;
+﻿using System.Net.Http;
+using System.Web.Http;
+
+using CompositeC1Contrib.ECommerce.Data.Types;
 
 namespace CompositeC1Contrib.ECommerce
 {
     public interface IOrderProcessor
     {
-        void HandleHandlerContinue(IShopOrder order);
+        IHttpActionResult HandleHandlerContinue(IShopOrder order, HttpRequestMessage request, HttpResponseMessage response);
         void PostProcessOrder(IShopOrder order);
     }
 }

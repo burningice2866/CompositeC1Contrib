@@ -5,7 +5,7 @@
 
   <mi:PackageInformation name="CompositeC1Contrib.ECommerce"
                          groupName="Contribution.CompositeC1Contrib"
-                         version="0.2.1" author="@burningice" website="http://compositec1contrib.codeplex.com"
+                         version="0.3.0" author="@burningice" website="http://compositec1contrib.codeplex.com"
                          readMoreUrl="http://compositec1contrib.codeplex.com"
                          id="ae333251-499a-498a-8ef2-bf717f08a3a2"
                          canBeUninstalled="true"

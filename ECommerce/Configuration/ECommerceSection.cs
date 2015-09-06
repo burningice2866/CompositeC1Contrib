@@ -13,6 +13,13 @@ namespace CompositeC1Contrib.ECommerce.Configuration
             set { this["defaultProvider"] = value; }
         }
 
+        [ConfigurationProperty("baseUrl", IsRequired = false)]
+        public string BaseUrl
+        {
+            get { return (string)this["baseUrl"]; }
+            set { this["baseUrl"] = value; }
+        }
+
         [ConfigurationProperty("mainPageId", IsRequired = false)]
         public string MainPageId
         {

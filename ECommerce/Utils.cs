@@ -54,20 +54,17 @@ namespace CompositeC1Contrib.ECommerce
             }
         }
 
-        public static void PostProcessOrder(IShopOrder order, IOrderProcessor processor)
+        public static void PostProcessOrder(IShopOrder order, IOrderProcessor processor, DataConnection data)
         {
             WriteLog(order, "Postprocessing order");
 
             try
             {
                 processor.PostProcessOrder(order);
-
+                
                 order.PostProcessed = true;
-
-                using (var data = new DataConnection())
-                {
-                    data.Update(order);
-                }
+                
+                data.Update(order);
 
                 WriteLog(order, "Order postprocessed");
             }

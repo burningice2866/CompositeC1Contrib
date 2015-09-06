@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 using Composite.Data;
 
@@ -13,12 +16,33 @@ namespace CompositeC1Contrib.ECommerce
 {
     public class QuickpayProvider : PaymentProvider
     {
-        const string StatusOk = "000";
+        private const string currency = "DKK";
+        private const string protocol = "4";
+        private const string msgtype = "authorize";
+        private const string StatusOk = "000";
+
+        public string MD5Secret { get; protected set; }
+
+        public override void Initialize(string name, NameValueCollection config)
+        {
+            if (config == null)
+            {
+                throw new ArgumentNullException("config");
+            }
+
+            MD5Secret = config["md5Secret"];
+            if (String.IsNullOrEmpty(MD5Secret))
+            {
+                throw new ConfigurationErrorsException("md5Secret");
+            }
+
+            config.Remove("md5Secret");
+
+            base.Initialize(name, config);
+        }
 
         public override string GeneratePaymentWindow(IShopOrder order, Uri currentUri)
         {
-            var schemeAndServer = currentUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
-
             /*  Documentation. Request data fields
             Name	Regular expression	Description
             *protocol	/^4$/	Defines the version of the protocol. 4 is the latest
@@ -43,37 +67,34 @@ namespace CompositeC1Contrib.ECommerce
 
             var cultureInfo = CultureInfo.CurrentCulture;
 
-            const string protocol = "4";
-            const string msgtype = "authorize";
-            string merchant = MerchantId;
-            string language = cultureInfo.TwoLetterISOLanguageName;
-            string ordernumber = order.Id;
-            string amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture); //NOTE: Primary store should be changed to DKK, if you do not have internatinal agreement with pbs and quickpay. Otherwise you need to do currency conversion here.
-            const string currency = "DKK";
-            string continueurl = schemeAndServer + ContinueUrl + "?orderid=" + order.Id;
-            string cancelurl = schemeAndServer + CancelUrl;
+            var merchant = MerchantId;
+            var language = cultureInfo.TwoLetterISOLanguageName;
+            var ordernumber = order.Id;
+            var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture); //NOTE: Primary store should be changed to DKK, if you do not have internatinal agreement with pbs and quickpay. Otherwise you need to do currency conversion here.
+            var continueurl = ParseUrl(ContinueUrl + "?orderid=" + order.Id, currentUri);
+            var cancelurl = ParseUrl(CancelUrl, currentUri);
 
             // optional parameters
-            string callbackurl = schemeAndServer + CallbackUrl;
-            string autocapture = String.Empty;
-            string autofee = String.Empty;
-            string cardtypelock = String.Empty;
-            string description = String.Empty;
-            string group = String.Empty;
-            string testmode = IsTestMode ? "1" : String.Empty;
-            string splitpayment = String.Empty;
+            var callbackurl = ParseUrl(CallbackUrl, currentUri);
+            var autocapture = String.Empty;
+            var autofee = String.Empty;
+            var cardtypelock = String.Empty;
+            var description = String.Empty;
+            var group = String.Empty;
+            var testmode = IsTestMode ? "1" : String.Empty;
+            var splitpayment = String.Empty;
             // optional end
 
-            string md5Secret = MD5Secret;
+            var md5Secret = MD5Secret;
 
-            string stringToMd5 = String.Concat(
+            var stringToMd5 = String.Concat(
                 protocol, msgtype, merchant, language, ordernumber, amount, currency, continueurl, cancelurl,
                 callbackurl, autocapture, autofee, cardtypelock, description, group, testmode, splitpayment,
                 md5Secret);
 
-            string md5Check = GetMD5(stringToMd5);
+            var md5Check = GetMD5(stringToMd5);
 
-            var data = new NameValueCollection
+            var param = new NameValueCollection
             {
                 {"protocol", protocol},
                 {"msgtype", msgtype},
@@ -95,12 +116,10 @@ namespace CompositeC1Contrib.ECommerce
                 {"md5check", md5Check}
             };
 
-            Utils.WriteLog(order, "Quickpay window generated with the following data " + OrderDataToXml(data));
-
-            return GetFormPost("QuickPay", "https://secure.quickpay.dk/form/", data);
+            return GetFormPost("QuickPay", "https://secure.quickpay.dk/form/", order, param);
         }
 
-        public override void HandleCallback(NameValueCollection form)
+        public override async Task<IShopOrder> HandleCallbackAsync(HttpRequestMessage request)
         {
             /*  Documentation.  Response data fields
             msgtype	/^[a-z]$/	Defines which action was performed - Each message type is described in detail later
@@ -151,52 +170,50 @@ namespace CompositeC1Contrib.ECommerce
             008 	Error in request data.
             */
 
-            string ordernumber = GetFormString("ordernumber", form);
+            var form = await request.Content.ReadAsFormDataAsync();
+
+            var ordernumber = GetFormString("ordernumber", form);
 
             using (var data = new DataConnection())
             {
-                var order = data.Get<IShopOrder>().Single(f => f.Id == ordernumber);
+                var order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == ordernumber);
                 if (order == null)
                 {
                     Utils.WriteLog(null, "Error, no order with number " + ordernumber);
 
-                    return;
+                    return order;
                 }
 
-                order.AuthorizationXml = OrderDataToXml(form); ;
-
-                data.Update(order);
-
-                string qpstat = GetFormString("qpstat", form);
+                var qpstat = GetFormString("qpstat", form);
                 if (qpstat != StatusOk)
                 {
                     Utils.WriteLog(order, "Error in status, values is " + qpstat + " but " + StatusOk + " was expected");
 
-                    return;
+                    return order;
                 }
 
-                string msgtype = GetFormString("msgtype", form);
-                string amount = GetFormString("amount", form);
-                string currency = GetFormString("currency", form);
-                string time = GetFormString("time", form);
-                string state = GetFormString("state", form);
-                string qpstatmsg = GetFormString("qpstatmsg", form);
-                string chstat = GetFormString("chstat", form);
-                string chstatmsg = GetFormString("chstatmsg", form);
-                string merchant = GetFormString("merchant", form);
-                string merchantemail = GetFormString("merchantemail", form);
-                string transactionId = GetFormString("transaction", form);
-                string cardtype = GetFormString("cardtype", form);
-                string cardnumber = GetFormString("cardnumber", form);
-                string cardexpire = GetFormString("cardexpire", form);
-                string splitpayment = GetFormString("splitpayment", form);
-                string fraudprobability = GetFormString("fraudprobability", form);
-                string fraudremarks = GetFormString("fraudremarks", form);
-                string fraudreport = GetFormString("fraudreport", form);
-                string fee = GetFormString("fee", form);
-                string md5Check = GetFormString("md5check", form);
+                var msgtype = GetFormString("msgtype", form);
+                var amount = GetFormString("amount", form);
+                var currency = GetFormString("currency", form);
+                var time = GetFormString("time", form);
+                var state = GetFormString("state", form);
+                var qpstatmsg = GetFormString("qpstatmsg", form);
+                var chstat = GetFormString("chstat", form);
+                var chstatmsg = GetFormString("chstatmsg", form);
+                var merchant = GetFormString("merchant", form);
+                var merchantemail = GetFormString("merchantemail", form);
+                var transactionId = GetFormString("transaction", form);
+                var cardtype = GetFormString("cardtype", form);
+                var cardnumber = GetFormString("cardnumber", form);
+                var cardexpire = GetFormString("cardexpire", form);
+                var splitpayment = GetFormString("splitpayment", form);
+                var fraudprobability = GetFormString("fraudprobability", form);
+                var fraudremarks = GetFormString("fraudremarks", form);
+                var fraudreport = GetFormString("fraudreport", form);
+                var fee = GetFormString("fee", form);
+                var md5Check = GetFormString("md5check", form);
 
-                string serverMd5Check = GetMD5(String.Concat(
+                var serverMd5Check = GetMD5(String.Concat(
                     msgtype, ordernumber, amount, currency, time, state, qpstat, qpstatmsg, chstat, chstatmsg,
                     merchant, merchantemail, transactionId, cardtype, cardnumber, cardexpire, splitpayment,
                     fraudprobability, fraudremarks, fraudreport, fee, MD5Secret
@@ -206,15 +223,16 @@ namespace CompositeC1Contrib.ECommerce
                 {
                     Utils.WriteLog(order, "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
 
-                    return;
+                    return order;
                 }
 
+                order.AuthorizationXml = OrderDataToXml(form); ;
                 order.AuthorizationTransactionId = transactionId;
                 order.PaymentStatus = (int)PaymentStatus.Authorized;
 
                 data.Update(order);
 
-                Utils.WriteLog(order, "Authorized with the following transactionid " + order.AuthorizationTransactionId);
+                return order;
             }
         }
 
@@ -225,7 +243,7 @@ namespace CompositeC1Contrib.ECommerce
             using (var md5 = new MD5CryptoServiceProvider())
             {
                 var hash = md5.ComputeHash(textBytes);
-                string ret = "";
+                var ret = String.Empty;
 
                 foreach (byte a in hash)
                 {

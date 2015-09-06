@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 using Composite.Data;
 
@@ -21,44 +23,31 @@ namespace CompositeC1Contrib.ECommerce
         private const string Uniqueoid = "yes";
 
         public string GatewayUrl { get; private set; }
+        public string MD5Secret { get; protected set; }
         public string MD5Secret2 { get; private set; }
 
         public override void Initialize(string name, NameValueCollection config)
         {
-            if (config == null)
-            {
-                throw new ArgumentNullException("config");
-            }
-
-            GatewayUrl = config["gatewayUrl"];
-            config.Remove("gatewayUrl");
-
-            MD5Secret2 = config["md5Secret2"];
-            if (String.IsNullOrEmpty(MD5Secret2))
-            {
-                throw new ConfigurationErrorsException("md5Secret2");
-            }
-
-            config.Remove("md5Secret2");
+            MD5Secret = ExtractConfigurationValue(config, "md5Secret", true);
+            MD5Secret2 = ExtractConfigurationValue(config, "md5Secret2", true);
+            GatewayUrl = ExtractConfigurationValue(config, "gatewayUrl", false);
 
             base.Initialize(name, config);
         }
 
         public override string GeneratePaymentWindow(IShopOrder order, Uri currentUri)
         {
-            var schemeAndServer = currentUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
-
-            //http://tech.dibs.dk/integration_methods/flexwin/parameters/
+            // http://tech.dibs.dk/integration_methods/flexwin/parameters/
 
             var merchant = MerchantId;
             var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture);
-            var accepturl = schemeAndServer + ContinueUrl;
+            var accepturl = ParseUrl(ContinueUrl, currentUri);
 
             // optional parameters
             var test = IsTestMode ? "yes" : String.Empty;
             var md5key = CalcMD5Key(merchant, order.Id, amount);
-            var cancelurl = schemeAndServer + CancelUrl;
-            var callbackurl = schemeAndServer + CallbackUrl;
+            var cancelurl = ParseUrl(CancelUrl, currentUri);
+            var callbackurl = ParseUrl(CallbackUrl, currentUri);
 
             var data = new NameValueCollection
             {
@@ -76,58 +65,56 @@ namespace CompositeC1Contrib.ECommerce
                 {"paytype", Paytype}
             };
 
-            Utils.WriteLog(order, "FlexWin window generated with the following data " + OrderDataToXml(data));
-
-            return GetFormPost("FlexWin", "https://payment.architrade.com/paymentweb/start.action", data);
+            return GetFormPost("FlexWin", "https://payment.architrade.com/paymentweb/start.action", order, data);
         }
 
-        public override void HandleCallback(NameValueCollection form)
+        public override async Task<IShopOrder> HandleCallbackAsync(HttpRequestMessage request)
         {
-            //http://tech.dibs.dk/integration_methods/flexwin/return_pages/
+            // http://tech.dibs.dk/integration_methods/flexwin/return_pages/
+
+            var form = await request.Content.ReadAsFormDataAsync();
 
             var orderid = GetFormString("orderid", form);
+            var creditCardType = GetFormString("paytype", form);
+            var transact = GetFormString("transact", form);
 
             using (var data = new DataConnection())
             {
-                var order = data.Get<IShopOrder>().Single(f => f.Id == orderid);
+                var order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderid);
                 if (order == null)
                 {
                     Utils.WriteLog(null, "Error, no order with number " + orderid);
 
-                    return;
+                    return order;
                 }
-
-                order.AuthorizationXml = OrderDataToXml(form);
-
-                data.Update(order);
 
                 var statuscode = GetFormString("statuscode", form);
                 if (statuscode != StatusOk)
                 {
                     Utils.WriteLog(order, "Error in status, values is " + statuscode + " but " + StatusOk + " was expected");
 
-                    return;
+                    return order;
                 }
 
                 var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture);
                 var authkey = GetFormString("authkey", form);
-                var transact = GetFormString("transact", form);
 
                 var isValid = authkey == CalcAuthKey(transact, amount);
                 if (!isValid)
                 {
                     Utils.WriteLog(order, "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
 
-                    return;
+                    return order;
                 }
 
-                order.CreditCardType = GetFormString("paytype", form); ;
+                order.AuthorizationXml = OrderDataToXml(form);
+                order.CreditCardType = creditCardType;
                 order.AuthorizationTransactionId = transact;
                 order.PaymentStatus = (int)PaymentStatus.Authorized;
 
                 data.Update(order);
 
-                Utils.WriteLog(order, "Authorized with the following transactionid " + order.AuthorizationTransactionId);
+                return order;
             }
         }
 
@@ -191,7 +178,7 @@ namespace CompositeC1Contrib.ECommerce
             return sb.ToString();
         }
 
-        public override bool IsAuthorizedRequest(NameValueCollection qs)
+        public override bool IsAuthorizedRequest(IDictionary<string, string> qs)
         {
             var authkey = qs["authkey"];
 

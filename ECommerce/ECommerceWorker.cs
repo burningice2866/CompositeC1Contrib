@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
+using System.Web.Configuration;
 
 using Composite.C1Console.Events;
 using Composite.Core.Threading;
@@ -41,7 +44,7 @@ namespace CompositeC1Contrib.ECommerce
 
             Instance._running = true;
 
-            Utils.WriteLog(null, "Worker is starting, orderprocessor is "+ orderProcessor.GetType().FullName);
+            Utils.WriteLog(null, "Worker is starting, orderprocessor is " + orderProcessor.GetType().FullName);
 
             Instance._thread.Start();
         }
@@ -55,10 +58,14 @@ namespace CompositeC1Contrib.ECommerce
         {
             _running = false;
             _processOrdersNow = false;
+
+            _thread.Join(TimeSpan.FromSeconds(5));
         }
 
         private void Run()
         {
+            SetCultureFromWebConfig();
+
             var ticker = 60;
 
             try
@@ -108,20 +115,41 @@ namespace CompositeC1Contrib.ECommerce
 
             using (var data = new DataConnection())
             {
-                orders =
-                    data.Get<IShopOrder>()
-                        .Where(s => s.PaymentStatus == (int)PaymentStatus.Authorized && !s.PostProcessed)
-                        .ToList();
-            }
+                orders = (from s in data.Get<IShopOrder>()
+                          where s.PaymentStatus == (int)PaymentStatus.Authorized && !s.PostProcessed
+                          select s)
+                         .ToList();
 
-            foreach (var order in orders)
-            {
-                if (!_running)
+                foreach (var order in orders)
                 {
-                    return;
+                    if (!_running)
+                    {
+                        return;
+                    }
+
+                    Utils.PostProcessOrder(order, ECommerce.OrderProcessor, data);
+                }
+            }
+        }
+
+        private static void SetCultureFromWebConfig()
+        {
+            var globalization = ConfigurationManager.GetSection("system.web/globalization") as GlobalizationSection;
+            if (globalization != null)
+            {
+                if (!String.IsNullOrEmpty(globalization.Culture))
+                {
+                    var culture = new CultureInfo(globalization.Culture);
+
+                    Thread.CurrentThread.CurrentCulture = culture;
                 }
 
-                Utils.PostProcessOrder(order, ECommerce.OrderProcessor);
+                if (!String.IsNullOrEmpty(globalization.UICulture))
+                {
+                    var culture = new CultureInfo(globalization.UICulture);
+
+                    Thread.CurrentThread.CurrentUICulture = culture;
+                }
             }
         }
     }
