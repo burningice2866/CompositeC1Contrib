@@ -7,39 +7,20 @@ using CompositeC1Contrib.ECommerce.Data.Types;
 
 namespace CompositeC1Contrib.ECommerce
 {
-    public class Utils
+    public static class Utils
     {
-        public static void WriteLog(string message, Exception exc)
-        {
-            WriteLog(null, message, exc);
-        }
+        static readonly string LogFile = Path.Combine(ECommerce.RootPath, "log.txt");
 
         public static void WriteLog(string message)
         {
-            WriteLog(null, message);
+            WriteLog(message, null);
         }
 
-        public static void WriteLog(IShopOrder order, string message)
+        public static void WriteLog(string message, Exception exc)
         {
-            WriteLog(order, message, null);
-        }
-
-        public static void WriteLog(IShopOrder order, string message, Exception exc)
-        {
-            string logFile;
-
-            if (order == null)
-            {
-                logFile = Path.Combine(ECommerce.RootPath, "log.txt");
-            }
-            else
-            {
-                logFile = Path.Combine(ECommerce.RootPath, String.Format("log.{0}.txt", order.Id));
-            }
-
             lock (FileUtils.SyncRoot)
             {
-                using (var writer = FileUtils.GetOrCreateFile(logFile))
+                using (var writer = FileUtils.GetOrCreateFile(LogFile))
                 {
                     if (exc != null)
                     {
@@ -54,23 +35,44 @@ namespace CompositeC1Contrib.ECommerce
             }
         }
 
+        public static IShopOrderLog WriteLog(IShopOrder order, string logTitle)
+        {
+            return WriteLog(order, logTitle, null);
+        }
+
+        public static IShopOrderLog WriteLog(IShopOrder order, string logTitle, string logData)
+        {
+            using (var data = new DataConnection())
+            {
+                var entry = data.CreateNew<IShopOrderLog>();
+
+                entry.Id = Guid.NewGuid();
+                entry.ShopOrderId = order.Id;
+                entry.Timestamp = DateTime.UtcNow;
+                entry.Title = logTitle;
+                entry.Data = logData;
+
+                return data.Add(entry);
+            }
+        }
+
         public static void PostProcessOrder(IShopOrder order, IOrderProcessor processor, DataConnection data)
         {
-            WriteLog(order, "Postprocessing order");
+            WriteLog(order, "postprocessing");
 
             try
             {
                 processor.PostProcessOrder(order);
-                
+
                 order.PostProcessed = true;
-                
+
                 data.Update(order);
 
-                WriteLog(order, "Order postprocessed");
+                WriteLog(order, "postprocessed");
             }
             catch (Exception ex)
             {
-                WriteLog(order, "Unhandled error when postprocessing order", ex);
+                WriteLog(order, "postprocessing error", ex.ToString());
             }
         }
     }

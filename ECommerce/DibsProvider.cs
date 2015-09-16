@@ -85,15 +85,22 @@ namespace CompositeC1Contrib.ECommerce
                 var order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderid);
                 if (order == null)
                 {
-                    Utils.WriteLog(null, "Error, no order with number " + orderid);
+                    Utils.WriteLog("Error, no order with number " + orderid);
 
                     return null;
+                }
+
+                if (order.PaymentStatus == (int)PaymentStatus.Authorized)
+                {
+                    Utils.WriteLog(order, "debug", "Payment is already authorized");
+
+                    return order;
                 }
 
                 var statuscode = GetFormString("statuscode", form);
                 if (statuscode != StatusOk)
                 {
-                    Utils.WriteLog(order, "Error in status, values is " + statuscode + " but " + StatusOk + " was expected");
+                    Utils.WriteLog(order, "debug", "Error in status, values is " + statuscode + " but " + StatusOk + " was expected");
 
                     return order;
                 }
@@ -104,7 +111,7 @@ namespace CompositeC1Contrib.ECommerce
                 var isValid = authkey == CalcAuthKey(transact, amount);
                 if (!isValid)
                 {
-                    Utils.WriteLog(order, "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
+                    Utils.WriteLog(order, "debug", "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
 
                     return order;
                 }
@@ -115,6 +122,8 @@ namespace CompositeC1Contrib.ECommerce
                 order.PaymentStatus = (int)PaymentStatus.Authorized;
 
                 data.Update(order);
+
+                Utils.WriteLog(order, "authorized");
 
                 return order;
             }

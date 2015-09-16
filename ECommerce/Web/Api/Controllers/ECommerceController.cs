@@ -24,26 +24,26 @@ namespace CompositeC1Contrib.ECommerce.Web.Api.Controllers
         [HttpGet]
         public IHttpActionResult Default([FromUri]string orderId)
         {
-            Utils.WriteLog(null, "Default request recieved on orderid " + orderId);
+            Utils.WriteLog("Default request recieved on orderid " + orderId);
 
             using (var data = new DataConnection())
             {
                 var order = data.Get<IShopOrder>().SingleOrDefault(o => o.Id == orderId);
                 if (order == null)
                 {
-                    Utils.WriteLog(null, "No order with id " + orderId);
+                    Utils.WriteLog("No order with id " + orderId);
 
                     return NotFound();
                 }
 
+                Utils.WriteLog(order, "paymentwindow requested");
+
                 if (order.PaymentStatus == (int)PaymentStatus.Authorized)
                 {
-                    Utils.WriteLog(order, "Order has already been authorized");
+                    Utils.WriteLog(order, "debug", "Order has already been authorized");
 
                     return BadRequest();
                 }
-
-                Utils.WriteLog(order, "Generating payment window");
 
                 var window = Provider.GeneratePaymentWindow(order, Request.RequestUri);
 
@@ -55,7 +55,7 @@ namespace CompositeC1Contrib.ECommerce.Web.Api.Controllers
         [ActionName("cancel")]
         public IHttpActionResult Cancel()
         {
-            Utils.WriteLog(null, "Cancel request recieved, redirecting to main page");
+            Utils.WriteLog("Cancel request recieved, redirecting to main page");
 
             var pageUrl = GetPageUrl(Config.MainPageId) + "?reason=cancel";
 
@@ -66,17 +66,17 @@ namespace CompositeC1Contrib.ECommerce.Web.Api.Controllers
         [ActionName("callback")]
         public async Task<IHttpActionResult> Callback()
         {
-            Utils.WriteLog(null, "Callback request recieved");
+            Utils.WriteLog("Callback request recieved");
 
             var order = await Provider.HandleCallbackAsync(Request);
             if (order == null)
             {
-                Utils.WriteLog(null, "Callback failed");
+                Utils.WriteLog("Callback failed");
 
                 return BadRequest();
             }
 
-            Utils.WriteLog(order, "Authorized with the following transactionid " + order.AuthorizationTransactionId);
+            Utils.WriteLog(order, "callback succeeded");
 
             ECommerceWorker.ProcessOrdersNow();
 
@@ -90,21 +90,24 @@ namespace CompositeC1Contrib.ECommerce.Web.Api.Controllers
             var qs = GetQueryString();
             var orderId = qs["orderid"];
 
-            Utils.WriteLog(null, "Continue request recieved on orderid " + orderId);
+            Utils.WriteLog("Continue request recieved on orderid " + orderId);
 
             using (var data = new DataConnection())
             {
                 var order = data.Get<IShopOrder>().SingleOrDefault(o => o.Id == orderId);
                 if (order == null)
                 {
-                    Utils.WriteLog(null, "No order with id " + orderId);
+                    Utils.WriteLog("No order with id " + orderId);
 
                     return NotFound();
                 }
 
-                if (order.PostProcessed)
+                Utils.WriteLog(order, "continue requested");
+
+                var hasContinued = data.Get<IShopOrderLog>().Any(l => l.Title == "continue succeeded");
+                if (hasContinued)
                 {
-                    Utils.WriteLog(order, "Order has already been post processed");
+                    Utils.WriteLog(order, "debug", "Continue has already succeeded");
 
                     return BadRequest();
                 }
@@ -112,12 +115,16 @@ namespace CompositeC1Contrib.ECommerce.Web.Api.Controllers
                 var isAuthorized = await Provider.IsPaymentAuthorizedAsync(order);
                 if (!isAuthorized)
                 {
-                    Utils.WriteLog(order, "Payment isn't authorized");
+                    Utils.WriteLog(order, "debug", "Payment isn't authorized");
 
                     return BadRequest();
                 }
 
-                return Receipt(order);
+                var result = Receipt(order);
+
+                Utils.WriteLog(order, "continue succeeded");
+
+                return result;
             }
         }
 

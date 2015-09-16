@@ -43,9 +43,12 @@ namespace CompositeC1Contrib.ECommerce
         static ECommerce()
         {
             var settings = Section.Providers.Cast<ProviderSettings>().Single(p => p.Name == Section.DefaultProvider);
-            var type = Type.GetType(settings.Type);
 
-            DefaultProvider = (PaymentProvider)ProvidersHelper.InstantiateProvider(settings, type);
+            var type = Type.GetType(settings.Type);
+            if (type != null)
+            {
+                DefaultProvider = (PaymentProvider)ProvidersHelper.InstantiateProvider(settings, type);
+            }
 
             OrderProcessor = ResolveOrderProcessor();
         }
@@ -69,13 +72,13 @@ namespace CompositeC1Contrib.ECommerce
                 var order = data.CreateNew<IShopOrder>();
 
                 order.Id = orderId;
-                order.CreatedOn = DateTime.Now;
+                order.CreatedOn = DateTime.UtcNow;
                 order.OrderTotal = totalAmount;
                 order.CustomData = customData;
 
-                data.Add(order);
+                order = data.Add(order);
 
-                Utils.WriteLog(order, "New order created");
+                Utils.WriteLog(order, "created");
 
                 return order;
             }

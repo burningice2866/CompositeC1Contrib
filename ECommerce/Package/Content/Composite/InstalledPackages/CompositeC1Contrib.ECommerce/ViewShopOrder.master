@@ -5,49 +5,50 @@
 <%@ Import Namespace="CompositeC1Contrib.ECommerce" %>
 
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://www.w3.org/1999/xhtml" xmlns:control="http://www.composite.net/ns/uicontrol">
-<control:httpheaders runat="server" />
-<head runat="server">
-    <title>Order view</title>
+    <control:httpheaders runat="server" />
 
-    <control:styleloader runat="server" />
-    <control:scriptloader type="sub" runat="server" />
+    <head runat="server">
+        <title>Order view</title>
 
-    <script type="text/javascript">
-        DocumentManager.isDocumentSelectable = true;
-    </script>
-</head>
+        <control:styleloader runat="server" />
+        <control:scriptloader type="sub" runat="server" />
 
-<body>
-    <form id="form1" runat="server">
-        <ui:page id="mailView">
-            <ui:toolbar id="toolbar">
-                <ui:toolbarbody>
-                    <ui:toolbargroup>
-                        <aspui:toolbarbutton autopostback="true" text="Back" imageurl="${icon:back}" runat="server" onclick="OnBack" />
-                        <aspui:toolbarbutton autopostback="true" text="View log" imageurl="${icon:log}" runat="server" onclick="OnViewLog" />
-                    </ui:toolbargroup>
-                </ui:toolbarbody>
-            </ui:toolbar>
+        <script type="text/javascript">
+            DocumentManager.isDocumentSelectable = true;
+        </script>
+    </head>
 
-            <ui:scrollbox id="scrollbox">
-                <div>
-                    Id: <%= ShopOrder.Id %>
-                    <br />
-                    Created on: <%= ShopOrder.CreatedOn %>
-                    <br />
-                    Total: <%= ShopOrder.OrderTotal %>
-                    <br />
-                    Status: <%= (PaymentStatus)ShopOrder.PaymentStatus %>
-                    <br />
-                    Authorization id: <%= ShopOrder.AuthorizationTransactionId %>
-                    <br />
-                </div>
+    <body>
+        <form runat="server">
+            <ui:page id="shopOrderView">
+                <ui:toolbar id="toolbar">
+                    <ui:toolbarbody>
+                        <ui:toolbargroup>
+                            <aspui:toolbarbutton autopostback="true" text="Back" imageurl="${icon:back}" runat="server" onclick="OnBack" />
+                            <aspui:toolbarbutton autopostback="true" text="View log" imageurl="${icon:log}" runat="server" onclick="OnViewLog" />
+                        </ui:toolbargroup>
+                    </ui:toolbarbody>
+                </ui:toolbar>
 
-                <div>
-                    <asp:ContentPlaceHolder ID="CustomData" runat="server" />
-                </div>
-            </ui:scrollbox>
-        </ui:page>
-    </form>
-</body>
+                <ui:scrollbox id="scrollbox">
+                    <div>
+                        Id: <%= ShopOrder.Id %>
+                        <br />
+                        Created on: <%= ShopOrder.CreatedOn %>
+                        <br />
+                        Total: <%= ShopOrder.OrderTotal %>
+                        <br />
+                        Status: <%= (PaymentStatus)ShopOrder.PaymentStatus %>
+                        <br />
+                        Authorization id: <%= ShopOrder.AuthorizationTransactionId %>
+                        <br />
+                    </div>
+
+                    <div>
+                        <asp:ContentPlaceHolder ID="CustomData" runat="server" />
+                    </div>
+                </ui:scrollbox>
+            </ui:page>
+        </form>
+    </body>
 </html>

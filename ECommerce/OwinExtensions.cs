@@ -15,6 +15,7 @@ namespace CompositeC1Contrib.ECommerce
             config.Routes.MapHttpRoute("ECommerce", "ecommerce/{action}", new { controller = "ecommerce", action = "default" });
 
             DynamicTypeManager.EnsureCreateStore(typeof(IShopOrder));
+            DynamicTypeManager.EnsureCreateStore(typeof(IShopOrderLog));
 
             ECommerceWorker.Initialize();
         }

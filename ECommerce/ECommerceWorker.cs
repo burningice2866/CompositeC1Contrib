@@ -65,7 +65,7 @@ namespace CompositeC1Contrib.ECommerce
         {
             SetCultureFromWebConfig();
 
-            Utils.WriteLog(null, "Worker is starting, orderprocessor is " + ECommerce.OrderProcessor.GetType().FullName);
+            Utils.WriteLog("Worker is starting, orderprocessor is " + ECommerce.OrderProcessor.GetType().FullName);
 
             var ticker = 60;
 

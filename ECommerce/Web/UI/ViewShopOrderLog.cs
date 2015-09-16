@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -13,7 +11,7 @@ namespace CompositeC1Contrib.ECommerce.Web.UI
 {
     public class ViewShopOrderLog : Page
     {
-        protected Literal lit;
+        protected Repeater rpt;
 
         protected IShopOrder ShopOrder;
 
@@ -22,18 +20,11 @@ namespace CompositeC1Contrib.ECommerce.Web.UI
             using (var data = new DataConnection())
             {
                 ShopOrder = data.Get<IShopOrder>().Single(o => o.Id == Request.QueryString["id"]);
-            }
 
-            var logFile = Path.Combine(ECommerce.RootPath, String.Format("log.{0}.txt", ShopOrder.Id));
-            if (!File.Exists(logFile))
-            {
-                lit.Text = "No logfile found for selected order";
-            }
-            else
-            {
-                var lines = File.ReadAllLines(logFile).Select(HttpUtility.HtmlEncode);
+                var logEntries = data.Get<IShopOrderLog>().Where(l => l.ShopOrderId == ShopOrder.Id).OrderBy(l => l.Timestamp).ToList();
 
-                lit.Text = String.Join("<br />", lines);
+                rpt.DataSource = logEntries;
+                rpt.DataBind();
             }
 
             base.OnInit(e);

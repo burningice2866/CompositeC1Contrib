@@ -71,6 +71,7 @@
     <Compile Include="C1Console\ElementProviders\EntityTokens\AuthorizedOrdersEntityToken.cs" />
     <Compile Include="C1Console\ElementProviders\EntityTokens\PendingOrdersEntityToken.cs" />
     <Compile Include="Configuration\ECommerceSection.cs" />
+    <Compile Include="Data\Types\IShopOrderLog.cs" />
     <Compile Include="ECommerce.cs" />
     <Compile Include="FileUtils.cs" />
     <Compile Include="IOrderProcessor.cs" />

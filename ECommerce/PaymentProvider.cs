@@ -4,9 +4,7 @@ using System.Configuration;
 using System.Configuration.Provider;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using System.Xml.Linq;
 
 using CompositeC1Contrib.ECommerce.Configuration;
@@ -51,25 +49,34 @@ namespace CompositeC1Contrib.ECommerce
 
         protected string GetFormPost(IShopOrder order, NameValueCollection param)
         {
-            var sb = new StringBuilder();
             var formName = GetType().Name;
 
-            sb.Append("<html><head></head>");
-            sb.AppendFormat("<body onload=\"document.{0}.submit()\">", formName);
-            sb.AppendFormat("<form name=\"{0}\" method=\"post\" action=\"{1}\">", formName, PaymentWindowEndpoint);
+            var form = new XElement("form",
+                new XAttribute("name", formName),
+                new XAttribute("method", "post"),
+                new XAttribute("action", PaymentWindowEndpoint));
 
             foreach (string name in param.Keys)
             {
                 var value = param[name];
 
-                sb.AppendFormat("<input name=\"{0}\" type=\"hidden\" value=\"{1}\" />", HttpUtility.HtmlAttributeEncode(name), HttpUtility.HtmlAttributeEncode(value));
+                form.Add(new XElement("input",
+                    new XAttribute("name", name),
+                    new XAttribute("type", "hidden"),
+                    new XAttribute("value", value)
+                    ));
             }
 
-            sb.Append("</form></body></html>");
+            var html = new XElement("html",
+                new XElement("head",
+                    new XElement("title", "Payment window")),
+                new XElement("body",
+                    new XAttribute("onload", String.Format("document.{0}.submit()", formName)),
+                    form));
 
-            Utils.WriteLog(order, "Payment window generated with the following data " + OrderDataToXml(param));
+            Utils.WriteLog(order, "paymentwindow generated", form.ToString());
 
-            return sb.ToString();
+            return html.ToString();
         }
 
         protected static string OrderDataToXml(NameValueCollection values)
@@ -89,20 +96,6 @@ namespace CompositeC1Contrib.ECommerce
             }
 
             return orderXml.ToString();
-        }
-
-        protected NameValueCollection OrderXmlToData(string xml)
-        {
-            var orderData = new NameValueCollection();
-            var orderXml = XElement.Parse(xml);
-            var dataElements = orderXml.Elements().Where(item => item.Attribute("name") != null && item.Attribute("value") != null);
-
-            foreach (var item in dataElements)
-            {
-                orderData.Add((item.Attribute("name")).Value, item.Attribute("value").Value);
-            }
-
-            return orderData;
         }
 
         protected static string ExtractConfigurationValue(NameValueCollection config, string key, bool required)

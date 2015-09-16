@@ -128,7 +128,7 @@ namespace CompositeC1Contrib.ECommerce
             var checkSum = request.Headers.GetValues("Quickpay-Checksum-Sha256").First();
             if (checkSum != Sign(input, _privateKey))
             {
-                Utils.WriteLog(null, "Error validating the checksum");
+                Utils.WriteLog("Error validating the checksum");
 
                 return null;
             }
@@ -148,20 +148,22 @@ namespace CompositeC1Contrib.ECommerce
                 order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderId);
                 if (order == null)
                 {
-                    Utils.WriteLog(null, "Invalid orderid " + orderId);
+                    Utils.WriteLog("Invalid orderid " + orderId);
 
                     return false;
                 }
 
                 if (order.PaymentStatus == (int)PaymentStatus.Authorized)
                 {
+                    Utils.WriteLog(order, "debug", "Payment is already authorized");
+
                     return true;
                 }
 
                 var accepted = json["accepted"].Value<bool>();
                 if (!accepted)
                 {
-                    Utils.WriteLog(order, "Payment wasn't accepted");
+                    Utils.WriteLog(order, "debug", "Payment wasn't accepted");
 
                     return false;
                 }
@@ -169,7 +171,7 @@ namespace CompositeC1Contrib.ECommerce
                 var testMode = json["test_mode"].Value<bool>();
                 if (testMode && !IsTestMode)
                 {
-                    Utils.WriteLog(order, "Payment was made with a test card but we're not in testmode");
+                    Utils.WriteLog(order, "debug", "Payment was made with a test card but we're not in testmode");
 
                     return false;
                 }
@@ -181,6 +183,8 @@ namespace CompositeC1Contrib.ECommerce
                 order.PaymentStatus = (int)PaymentStatus.Authorized;
 
                 data.Update(order);
+
+                Utils.WriteLog(order, "authorized");
 
                 return true;
             }
