@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -14,19 +13,17 @@ using Composite.Data;
 using CompositeC1Contrib.ECommerce.Configuration;
 using CompositeC1Contrib.ECommerce.Data.Types;
 
-namespace CompositeC1Contrib.ECommerce.Web
+namespace CompositeC1Contrib.ECommerce.Web.Api.Controllers
 {
     public class ECommerceController : ApiController
     {
         private static readonly ECommerceSection Config = ECommerceSection.GetSection();
         private static readonly PaymentProvider Provider = ECommerce.DefaultProvider;
+        private static readonly IOrderProcessor OrderProcessor = ECommerce.OrderProcessor;
 
         [HttpGet]
-        public IHttpActionResult Default()
+        public IHttpActionResult Default([FromUri]string orderId)
         {
-            var qs = GetQueryString();
-            var orderId = qs["orderid"];
-
             Utils.WriteLog(null, "Default request recieved on orderid " + orderId);
 
             using (var data = new DataConnection())
@@ -34,27 +31,16 @@ namespace CompositeC1Contrib.ECommerce.Web
                 var order = data.Get<IShopOrder>().SingleOrDefault(o => o.Id == orderId);
                 if (order == null)
                 {
-                    Utils.WriteLog(null, "No order with number " + orderId);
+                    Utils.WriteLog(null, "No order with id " + orderId);
 
                     return NotFound();
                 }
 
-                if (Provider.IsAuthorizedRequest(qs))
+                if (order.PaymentStatus == (int)PaymentStatus.Authorized)
                 {
-                    Utils.WriteLog(order, "Request is authorized, redirecting to reciept page");
+                    Utils.WriteLog(order, "Order has already been authorized");
 
-                    var recieptResult = Reciept(order);
-                    if (recieptResult != null)
-                    {
-                        return recieptResult;
-                    }
-                }
-
-                if (!String.IsNullOrEmpty(order.AuthorizationXml))
-                {
-                    Utils.WriteLog(order, "Order has already been handled by payment gateway");
-
-                    return StatusCode(HttpStatusCode.BadRequest);
+                    return BadRequest();
                 }
 
                 Utils.WriteLog(order, "Generating payment window");
@@ -71,18 +57,9 @@ namespace CompositeC1Contrib.ECommerce.Web
         {
             Utils.WriteLog(null, "Cancel request recieved, redirecting to main page");
 
-            var confirmUrl = GetPageUrl(Config.MainPageId);
-            if (!String.IsNullOrEmpty(confirmUrl))
-            {
-                if (Config.UseIFrame)
-                {
-                    return HtmlContent("<script>parent.location.href = '" + confirmUrl + "';</script>");
-                }
+            var pageUrl = GetPageUrl(Config.MainPageId) + "?reason=cancel";
 
-                return Redirect(confirmUrl);
-            }
-
-            return StatusCode(HttpStatusCode.BadRequest);
+            return RedirectOrIFrame(pageUrl);
         }
 
         [HttpPost]
@@ -91,9 +68,17 @@ namespace CompositeC1Contrib.ECommerce.Web
         {
             Utils.WriteLog(null, "Callback request recieved");
 
-            var order = await Provider.HandleCallbackAsync(ActionContext.Request);
+            var order = await Provider.HandleCallbackAsync(Request);
+            if (order == null)
+            {
+                Utils.WriteLog(null, "Callback failed");
+
+                return BadRequest();
+            }
 
             Utils.WriteLog(order, "Authorized with the following transactionid " + order.AuthorizationTransactionId);
+
+            ECommerceWorker.ProcessOrdersNow();
 
             return Ok();
         }
@@ -107,88 +92,81 @@ namespace CompositeC1Contrib.ECommerce.Web
 
             Utils.WriteLog(null, "Continue request recieved on orderid " + orderId);
 
-            var order = await GetAuthorizedOrder(orderId);
-            if (order == null)
+            using (var data = new DataConnection())
             {
-                Utils.WriteLog(null, "No authorized order with number " + orderId);
+                var order = data.Get<IShopOrder>().SingleOrDefault(o => o.Id == orderId);
+                if (order == null)
+                {
+                    Utils.WriteLog(null, "No order with id " + orderId);
 
-                return NotFound();
+                    return NotFound();
+                }
+
+                if (order.PostProcessed)
+                {
+                    Utils.WriteLog(order, "Order has already been post processed");
+
+                    return BadRequest();
+                }
+
+                var isAuthorized = await Provider.IsPaymentAuthorizedAsync(order);
+                if (!isAuthorized)
+                {
+                    Utils.WriteLog(order, "Payment isn't authorized");
+
+                    return BadRequest();
+                }
+
+                return Receipt(order);
+            }
+        }
+
+        private IHttpActionResult Receipt(IShopOrder order)
+        {
+            if (OrderProcessor != null)
+            {
+                var receipt = OrderProcessor.Receipt(order, Request);
+                if (receipt != null)
+                {
+                    return receipt;
+                }
             }
 
-            IHttpActionResult orderProcessorResult = null;
-
-            var orderProcessor = ECommerce.OrderProcessor;
-            if (orderProcessor != null)
+            var pageUrl = GetPageUrl(Config.ReceiptPageId);
+            if (String.IsNullOrEmpty(pageUrl))
             {
-                orderProcessorResult = orderProcessor.HandleHandlerContinue(order, ActionContext.Request, ActionContext.Response);
+                pageUrl = GetPageUrl(Config.MainPageId);
+                if (String.IsNullOrEmpty(pageUrl))
+                {
+                    pageUrl = "/";
+                }
             }
 
-            ECommerceWorker.ProcessOrdersNow();
+            pageUrl = pageUrl + "?orderid=" + order.Id;
 
-            if (orderProcessorResult != null)
+            return RedirectOrIFrame(pageUrl);
+        }
+
+        private IHttpActionResult RedirectOrIFrame(string pageUrl)
+        {
+            var uri = new Uri(pageUrl, UriKind.Relative);
+
+            return Config.UseIFrame ? HtmlContent("<script>parent.location.href = '" + uri + "';</script>") : Redirect(uri);
+        }
+
+        private IHttpActionResult HtmlContent(string content)
+        {
+            var message = new HttpResponseMessage(HttpStatusCode.OK)
             {
-                return orderProcessorResult;
-            }
+                Content = new StringContent(content, Encoding.UTF8, "text/html")
+            };
 
-            var recieptResult = Reciept(order);
-            if (recieptResult != null)
-            {
-                return recieptResult;
-            }
-
-            return StatusCode(HttpStatusCode.BadRequest);
+            return ResponseMessage(message);
         }
 
         private IDictionary<string, string> GetQueryString()
         {
             return Request.GetQueryNameValuePairs().ToDictionary(el => el.Key, el => el.Value);
-        }
-
-        private IHttpActionResult HtmlContent(string content)
-        {
-            var message = new HttpResponseMessage(HttpStatusCode.OK);
-            message.Content = new StringContent(content, Encoding.UTF8, "text/html");
-
-            return ResponseMessage(message);
-        }
-
-        private IHttpActionResult Reciept(IShopOrder order)
-        {
-            var recieptUrl = GetPageUrl(Config.RecieptPageId);
-            if (String.IsNullOrEmpty(recieptUrl))
-            {
-                return null;
-            }
-
-            recieptUrl = recieptUrl + "?orderid=" + order.Id;
-
-            if (Config.UseIFrame)
-            {
-                return HtmlContent("<script>parent.location.href = '" + recieptUrl + "';</script>");
-            }
-
-            return Redirect(recieptUrl);
-        }
-
-        private Task<IShopOrder> GetAuthorizedOrder(string orderId)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                using (var data = new DataConnection())
-                {
-                    IShopOrder order = null;
-                    var start = DateTime.UtcNow;
-
-                    while (order == null && ((DateTime.UtcNow - start) < TimeSpan.FromSeconds(2)))
-                    {
-                        Thread.Sleep(100);
-
-                        order = data.Get<IShopOrder>().SingleOrDefault(o => o.Id == orderId && o.PaymentStatus == (int)PaymentStatus.Authorized);
-                    }
-
-                    return order;
-                }
-            });
         }
 
         private static string GetPageUrl(string id)

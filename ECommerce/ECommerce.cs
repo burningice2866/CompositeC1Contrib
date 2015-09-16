@@ -22,6 +22,9 @@ namespace CompositeC1Contrib.ECommerce
 
         private static readonly ECommerceSection Section = ECommerceSection.GetSection();
 
+        public static PaymentProvider DefaultProvider { get; private set; }
+        public static IOrderProcessor OrderProcessor { get; private set; }
+
         public static int MinimumOrderNumberLength
         {
             get { return Section.MinimumOrderNumberLength; }
@@ -37,34 +40,14 @@ namespace CompositeC1Contrib.ECommerce
             get { return Section.TestMode; }
         }
 
-        public static PaymentProvider DefaultProvider
+        static ECommerce()
         {
-            get
-            {
-                var settings = Section.Providers.Cast<ProviderSettings>().Single(p => p.Name == Section.DefaultProvider);
-                var type = Type.GetType(settings.Type);
+            var settings = Section.Providers.Cast<ProviderSettings>().Single(p => p.Name == Section.DefaultProvider);
+            var type = Type.GetType(settings.Type);
 
-                return (PaymentProvider)ProvidersHelper.InstantiateProvider(settings, type);
-            }
-        }
+            DefaultProvider = (PaymentProvider)ProvidersHelper.InstantiateProvider(settings, type);
 
-        public static IOrderProcessor OrderProcessor
-        {
-            get
-            {
-                if (String.IsNullOrEmpty(Section.OrderProcessor))
-                {
-                    return null;
-                }
-
-                var type = Type.GetType(Section.OrderProcessor);
-                if (type == null)
-                {
-                    return null;
-                }
-
-                return Activator.CreateInstance(type) as IOrderProcessor;
-            }
+            OrderProcessor = ResolveOrderProcessor();
         }
 
         public static IShopOrder CreateNewOrder(decimal totalAmount)
@@ -137,10 +120,10 @@ namespace CompositeC1Contrib.ECommerce
                     hashMachineName = hashMachineName.Remove(0, 1);
                 }
 
-                var maxHashineNameLength = 20 - sOrderId.Length - 4;
-                if (hashMachineName.Length > maxHashineNameLength)
+                var maxMashineNameLength = 20 - sOrderId.Length - 4;
+                if (hashMachineName.Length > maxMashineNameLength)
                 {
-                    hashMachineName = hashMachineName.Substring(0, maxHashineNameLength);
+                    hashMachineName = hashMachineName.Substring(0, maxMashineNameLength);
                 }
 
                 sOrderId = String.Format("TEST{0}{1}", hashMachineName, sOrderId);
@@ -149,6 +132,22 @@ namespace CompositeC1Contrib.ECommerce
             sOrderId = sOrderId.Trim();
 
             return sOrderId;
+        }
+
+        private static IOrderProcessor ResolveOrderProcessor()
+        {
+            if (String.IsNullOrEmpty(Section.OrderProcessor))
+            {
+                return null;
+            }
+
+            var type = Type.GetType(Section.OrderProcessor);
+            if (type == null)
+            {
+                return null;
+            }
+
+            return Activator.CreateInstance(type) as IOrderProcessor;
         }
     }
 }

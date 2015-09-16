@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,47 +19,104 @@ namespace CompositeC1Contrib.ECommerce
 {
     public class QuickpayV10Provider : PaymentProvider
     {
-        public string AgreementId;
-        public string ApiKey;
-        public string GoogleTrackingId;
+        private string _agreementId;
+        private string _privateKey;
+        private string _paymentUserApiKey;
+        private string _googleTrackingId;
+
+        private Uri _apiEndpoint;
+        private string _apiUserApiKey;
+
+        protected override string PaymentWindowEndpoint
+        {
+            get { return "https://payment.quickpay.net"; }
+        }
 
         public override void Initialize(string name, NameValueCollection config)
         {
-            AgreementId = ExtractConfigurationValue(config, "agreementId", true);
-            ApiKey = ExtractConfigurationValue(config, "apiKey", true);
-            GoogleTrackingId = ExtractConfigurationValue(config, "googleTrackingId", false);
+            _agreementId = ExtractConfigurationValue(config, "agreementId", true);
+            _privateKey = ExtractConfigurationValue(config, "privateKey", true);
+            _paymentUserApiKey = ExtractConfigurationValue(config, "paymentUserApiKey", true);
+            _googleTrackingId = ExtractConfigurationValue(config, "googleTrackingId", false);
+
+            var apiEndpoint = ExtractConfigurationValue(config, "apiEndpoint", false);
+            if (String.IsNullOrEmpty(apiEndpoint))
+            {
+                apiEndpoint = "https://api.quickpay.net";
+            }
+
+            _apiEndpoint = new Uri(apiEndpoint);
+
+            _apiUserApiKey = ExtractConfigurationValue(config, "apiUserApiKey", true);
 
             base.Initialize(name, config);
         }
 
         public override string GeneratePaymentWindow(IShopOrder order, Uri currentUri)
         {
-            var continueurl = ParseUrl(ContinueUrl + "?orderid=" + order.Id, currentUri);
-            var cancelurl = ParseUrl(CancelUrl, currentUri);
-            var callbackurl = ParseUrl(CallbackUrl, currentUri);
+            var continueUrl = ParseContinueUrl(order, currentUri);
+            var cancelUrl = ParseUrl(CancelUrl, currentUri);
+            var callbackUrl = ParseUrl(CallbackUrl, currentUri);
 
-            var param = new NameValueCollection();
-            param.Add("version", "v10");
-            param.Add("merchant_id", MerchantId);
-            param.Add("agreement_id", AgreementId);
-            param.Add("order_id", order.Id);
-            param.Add("amount", (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture));
-            param.Add("currency", "DKK");
-            param.Add("continueurl", continueurl);
-            param.Add("cancelurl", cancelurl);
-            param.Add("callbackurl", callbackurl);
-            param.Add("language", "da");
-
-            if (!IsTestMode && !String.IsNullOrEmpty(GoogleTrackingId))
+            var param = new NameValueCollection
             {
-                param.Add("google_analytics_tracking_id", GoogleTrackingId);
+                {"version", "v10"},
+                {"merchant_id", MerchantId},
+                {"agreement_id", _agreementId},
+                {"order_id", order.Id},
+                {"amount", (order.OrderTotal*100).ToString("0", CultureInfo.InvariantCulture)},
+                {"currency", "DKK"},
+                {"continueurl", continueUrl},
+                {"cancelurl", cancelUrl},
+                {"callbackurl", callbackUrl},
+                {"language", "da"}
+            };
+
+            if (!IsTestMode && !String.IsNullOrEmpty(_googleTrackingId))
+            {
+                param.Add("google_analytics_tracking_id", _googleTrackingId);
             }
 
-            var checksum = Sign(param, ApiKey);
+            var checksum = Sign(param);
 
             param.Add("checksum", checksum);
 
-            return GetFormPost("quickpayv10", "https://payment.quickpay.net", order, param);
+            return GetFormPost(order, param);
+        }
+
+        public override async Task<bool> IsPaymentAuthorizedAsync(IShopOrder order)
+        {
+            var isAuthorized = await base.IsPaymentAuthorizedAsync(order);
+            if (isAuthorized)
+            {
+                return true;
+            }
+
+            using (var client = new HttpClient())
+            {
+                var url = new Uri(_apiEndpoint, "/payments?order_id=" + order.Id);
+
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+                var byteArray = Encoding.ASCII.GetBytes(":" + _apiUserApiKey);
+                var base64 = Convert.ToBase64String(byteArray);
+
+                request.Headers.Add("Accept-Version", "v10");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Basic", base64);
+
+                var response = await client.SendAsync(request);
+                var input = await response.Content.ReadAsStringAsync();
+
+                var json = (JArray)JsonConvert.DeserializeObject(input);
+                if (json.Count != 1)
+                {
+                    return false;
+                }
+
+                var obj = (JObject)json[0];
+
+                return TryAuthorizeOrder(obj, out order);
+            }
         }
 
         public override async Task<IShopOrder> HandleCallbackAsync(HttpRequestMessage request)
@@ -66,26 +124,54 @@ namespace CompositeC1Contrib.ECommerce
             //http://tech.quickpay.net/api/callback/
 
             var input = await request.Content.ReadAsStringAsync();
+
+            var checkSum = request.Headers.GetValues("Quickpay-Checksum-Sha256").First();
+            if (checkSum != Sign(input, _privateKey))
+            {
+                Utils.WriteLog(null, "Error validating the checksum");
+
+                return null;
+            }
+
             var json = (JObject)JsonConvert.DeserializeObject(input);
 
+            IShopOrder order;
+            return TryAuthorizeOrder(json, out order) ? order : null;
+        }
+
+        private bool TryAuthorizeOrder(JObject json, out IShopOrder order)
+        {
             var orderId = json["order_id"].Value<string>();
 
             using (var data = new DataConnection())
             {
-                var order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderId);
+                order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderId);
                 if (order == null)
                 {
-                    Utils.WriteLog(null, "Error, no order with number " + orderId);
+                    Utils.WriteLog(null, "Invalid orderid " + orderId);
 
-                    return order;
+                    return false;
+                }
+
+                if (order.PaymentStatus == (int)PaymentStatus.Authorized)
+                {
+                    return true;
                 }
 
                 var accepted = json["accepted"].Value<bool>();
                 if (!accepted)
                 {
-                    Utils.WriteLog(order, "Request wasn't accepted");
+                    Utils.WriteLog(order, "Payment wasn't accepted");
 
-                    return order;
+                    return false;
+                }
+
+                var testMode = json["test_mode"].Value<bool>();
+                if (testMode && !IsTestMode)
+                {
+                    Utils.WriteLog(order, "Payment was made with a test card but we're not in testmode");
+
+                    return false;
                 }
 
                 var transactionId = json["id"].Value<int>();
@@ -96,23 +182,29 @@ namespace CompositeC1Contrib.ECommerce
 
                 data.Update(order);
 
-                return order;
+                return true;
             }
         }
 
-        private string Sign(NameValueCollection param, string apiKey)
+        private string Sign(NameValueCollection param)
+        {
+            var data = String.Join(" ", param.AllKeys.OrderBy(k => k).Select(k => param[k]).ToArray());
+
+            return Sign(data, _paymentUserApiKey);
+        }
+
+        private string Sign(string data, string key)
         {
             var encoding = Encoding.UTF8;
-            var hmac = new HMACSHA256(encoding.GetBytes(apiKey));
+            var hmac = new HMACSHA256(encoding.GetBytes(key));
 
-            var result = String.Join(" ", param.AllKeys.OrderBy(k => k).Select(k => param[k]).ToArray());
-            var bytes = hmac.ComputeHash(encoding.GetBytes(result));
+            var bytes = hmac.ComputeHash(encoding.GetBytes(data));
 
             var s = new StringBuilder();
 
-            for (int i = 0; i < bytes.Length; i++)
+            foreach (var b in bytes)
             {
-                s.Append(bytes[i].ToString("x2"));
+                s.Append(b.ToString("x2"));
             }
 
             return s.ToString();

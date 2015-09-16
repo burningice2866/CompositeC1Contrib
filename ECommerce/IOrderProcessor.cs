@@ -7,7 +7,7 @@ namespace CompositeC1Contrib.ECommerce
 {
     public interface IOrderProcessor
     {
-        IHttpActionResult HandleHandlerContinue(IShopOrder order, HttpRequestMessage request, HttpResponseMessage response);
+        IHttpActionResult Receipt(IShopOrder order, HttpRequestMessage request);
         void PostProcessOrder(IShopOrder order);
     }
 }

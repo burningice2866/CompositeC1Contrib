@@ -84,7 +84,7 @@
     <Compile Include="QuickpayV10Provider.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Web\Api\Controllers\ECommerceController.cs" />
-    <Compile Include="Web\OwinExtensions.cs" />
+    <Compile Include="OwinExtensions.cs" />
     <Compile Include="Web\UI\ListShopOrders.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>

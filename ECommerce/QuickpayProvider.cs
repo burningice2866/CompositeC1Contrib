@@ -16,12 +16,17 @@ namespace CompositeC1Contrib.ECommerce
 {
     public class QuickpayProvider : PaymentProvider
     {
-        private const string currency = "DKK";
-        private const string protocol = "4";
-        private const string msgtype = "authorize";
+        private const string Currency = "DKK";
+        private const string Protocol = "4";
+        private const string Msgtype = "authorize";
         private const string StatusOk = "000";
 
-        public string MD5Secret { get; protected set; }
+        private string _md5Secret;
+
+        protected override string PaymentWindowEndpoint
+        {
+            get { return "https://secure.quickpay.dk/form/"; }
+        }
 
         public override void Initialize(string name, NameValueCollection config)
         {
@@ -30,8 +35,8 @@ namespace CompositeC1Contrib.ECommerce
                 throw new ArgumentNullException("config");
             }
 
-            MD5Secret = config["md5Secret"];
-            if (String.IsNullOrEmpty(MD5Secret))
+            _md5Secret = config["md5Secret"];
+            if (String.IsNullOrEmpty(_md5Secret))
             {
                 throw new ConfigurationErrorsException("md5Secret");
             }
@@ -71,8 +76,8 @@ namespace CompositeC1Contrib.ECommerce
             var language = cultureInfo.TwoLetterISOLanguageName;
             var ordernumber = order.Id;
             var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture); //NOTE: Primary store should be changed to DKK, if you do not have internatinal agreement with pbs and quickpay. Otherwise you need to do currency conversion here.
-            var continueurl = ParseUrl(ContinueUrl + "?orderid=" + order.Id, currentUri);
-            var cancelurl = ParseUrl(CancelUrl, currentUri);
+            var continueUrl = ParseContinueUrl(order, currentUri);
+            var cancelUrl = ParseUrl(CancelUrl, currentUri);
 
             // optional parameters
             var callbackurl = ParseUrl(CallbackUrl, currentUri);
@@ -85,38 +90,38 @@ namespace CompositeC1Contrib.ECommerce
             var splitpayment = String.Empty;
             // optional end
 
-            var md5Secret = MD5Secret;
+            var md5Secret = _md5Secret;
 
             var stringToMd5 = String.Concat(
-                protocol, msgtype, merchant, language, ordernumber, amount, currency, continueurl, cancelurl,
+                Protocol, Msgtype, merchant, language, ordernumber, amount, Currency, continueUrl, cancelUrl,
                 callbackurl, autocapture, autofee, cardtypelock, description, group, testmode, splitpayment,
                 md5Secret);
 
-            var md5Check = GetMD5(stringToMd5);
+            var md5Check = GetMd5(stringToMd5);
 
             var param = new NameValueCollection
             {
-                {"protocol", protocol},
-                {"msgtype", msgtype},
+                {"protocol", Protocol},
+                {"msgtype", Msgtype},
                 {"merchant", merchant},
                 {"language", language},
                 {"ordernumber", ordernumber},
                 {"amount", amount},
-                {"currency", currency},
-                {"continueurl", continueurl},
-                {"cancelurl", cancelurl},
+                {"currency", Currency},
+                {"continueurl", continueUrl},
+                {"cancelurl", cancelUrl},
                 {"callbackurl", callbackurl},
                 {"autocapture", autocapture},
                 {"autofee", autofee},
                 {"cardtypelock", cardtypelock},
                 {"description", description},
-                {"group", @group},
+                {"group", group},
                 {"testmode", testmode},
                 {"splitpayment", splitpayment},
                 {"md5check", md5Check}
             };
 
-            return GetFormPost("QuickPay", "https://secure.quickpay.dk/form/", order, param);
+            return GetFormPost(order, param);
         }
 
         public override async Task<IShopOrder> HandleCallbackAsync(HttpRequestMessage request)
@@ -181,7 +186,7 @@ namespace CompositeC1Contrib.ECommerce
                 {
                     Utils.WriteLog(null, "Error, no order with number " + ordernumber);
 
-                    return order;
+                    return null;
                 }
 
                 var qpstat = GetFormString("qpstat", form);
@@ -213,10 +218,10 @@ namespace CompositeC1Contrib.ECommerce
                 var fee = GetFormString("fee", form);
                 var md5Check = GetFormString("md5check", form);
 
-                var serverMd5Check = GetMD5(String.Concat(
+                var serverMd5Check = GetMd5(String.Concat(
                     msgtype, ordernumber, amount, currency, time, state, qpstat, qpstatmsg, chstat, chstatmsg,
                     merchant, merchantemail, transactionId, cardtype, cardnumber, cardexpire, splitpayment,
-                    fraudprobability, fraudremarks, fraudreport, fee, MD5Secret
+                    fraudprobability, fraudremarks, fraudreport, fee, _md5Secret
                 ));
 
                 if (md5Check != serverMd5Check)
@@ -226,7 +231,7 @@ namespace CompositeC1Contrib.ECommerce
                     return order;
                 }
 
-                order.AuthorizationXml = OrderDataToXml(form); ;
+                order.AuthorizationXml = OrderDataToXml(form);
                 order.AuthorizationTransactionId = transactionId;
                 order.PaymentStatus = (int)PaymentStatus.Authorized;
 
@@ -236,7 +241,7 @@ namespace CompositeC1Contrib.ECommerce
             }
         }
 
-        private static string GetMD5(string inputStr)
+        private static string GetMd5(string inputStr)
         {
             var textBytes = Encoding.Default.GetBytes(inputStr);
 
@@ -245,7 +250,7 @@ namespace CompositeC1Contrib.ECommerce
                 var hash = md5.ComputeHash(textBytes);
                 var ret = String.Empty;
 
-                foreach (byte a in hash)
+                foreach (var a in hash)
                 {
                     if (a < 16)
                     {

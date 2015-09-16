@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Configuration.Provider;
@@ -17,17 +16,19 @@ namespace CompositeC1Contrib.ECommerce
 {
     public abstract class PaymentProvider : ProviderBase
     {
-        private ECommerceSection config = ECommerceSection.GetSection();
+        protected const string ContinueUrl = "/ecommerce/continue";
+        protected const string CancelUrl = "/ecommerce/cancel";
+        protected const string CallbackUrl = "/ecommerce/callback";
 
-        protected string ContinueUrl = "/ecommerce/continue";
-        protected string CancelUrl = "/ecommerce/cancel";
-        protected string CallbackUrl = "/ecommerce/callback";
+        private readonly ECommerceSection _config = ECommerceSection.GetSection();
 
-        public string MerchantId { get; protected set; }
+        protected abstract string PaymentWindowEndpoint { get; }
 
-        public bool IsTestMode
+        protected string MerchantId { get; private set; }
+
+        protected bool IsTestMode
         {
-            get { return config.TestMode; }
+            get { return _config.TestMode; }
         }
 
         public override void Initialize(string name, NameValueCollection config)
@@ -37,9 +38,9 @@ namespace CompositeC1Contrib.ECommerce
             base.Initialize(name, config);
         }
 
-        protected string GetFormString(string name, NameValueCollection form)
+        protected static string GetFormString(string name, NameValueCollection form)
         {
-            string result = String.Empty;
+            var result = String.Empty;
             if (form[name] != null)
             {
                 result = form[name];
@@ -48,17 +49,20 @@ namespace CompositeC1Contrib.ECommerce
             return result;
         }
 
-        protected string GetFormPost(string formName, string action, IShopOrder order, NameValueCollection param)
+        protected string GetFormPost(IShopOrder order, NameValueCollection param)
         {
             var sb = new StringBuilder();
+            var formName = GetType().Name;
 
             sb.Append("<html><head></head>");
             sb.AppendFormat("<body onload=\"document.{0}.submit()\">", formName);
-            sb.AppendFormat("<form name=\"{0}\" method=\"post\" action=\"{1}\">", formName, action);
+            sb.AppendFormat("<form name=\"{0}\" method=\"post\" action=\"{1}\">", formName, PaymentWindowEndpoint);
 
             foreach (string name in param.Keys)
             {
-                sb.AppendFormat("<input name=\"{0}\" type=\"hidden\" value=\"{1}\" />", HttpUtility.HtmlEncode(name), HttpUtility.HtmlEncode(param[name]));
+                var value = param[name];
+
+                sb.AppendFormat("<input name=\"{0}\" type=\"hidden\" value=\"{1}\" />", HttpUtility.HtmlAttributeEncode(name), HttpUtility.HtmlAttributeEncode(value));
             }
 
             sb.Append("</form></body></html>");
@@ -68,7 +72,7 @@ namespace CompositeC1Contrib.ECommerce
             return sb.ToString();
         }
 
-        protected string OrderDataToXml(NameValueCollection values)
+        protected static string OrderDataToXml(NameValueCollection values)
         {
             var orderXml = new XElement("data");
 
@@ -101,7 +105,7 @@ namespace CompositeC1Contrib.ECommerce
             return orderData;
         }
 
-        protected string ExtractConfigurationValue(NameValueCollection config, string key, bool required)
+        protected static string ExtractConfigurationValue(NameValueCollection config, string key, bool required)
         {
             if (config == null)
             {
@@ -110,12 +114,9 @@ namespace CompositeC1Contrib.ECommerce
 
             var value = config[key];
 
-            if (required)
+            if (String.IsNullOrEmpty(value) && required)
             {
-                if (String.IsNullOrEmpty(value))
-                {
-                    throw new ConfigurationErrorsException(key);
-                }
+                throw new ConfigurationErrorsException(key);
             }
 
             config.Remove(key);
@@ -123,19 +124,24 @@ namespace CompositeC1Contrib.ECommerce
             return value;
         }
 
-        public virtual bool IsAuthorizedRequest(IDictionary<string, string> qs)
+        protected string ParseContinueUrl(IShopOrder order, Uri currentUri)
         {
-            return false;
+            return ParseUrl(ContinueUrl + "?orderid=" + order.Id, currentUri);
         }
 
         protected string ParseUrl(string url, Uri currentUri)
         {
-            if (!String.IsNullOrEmpty(config.BaseUrl))
+            if (!String.IsNullOrEmpty(_config.BaseUrl))
             {
-                return config.BaseUrl + url;
+                return _config.BaseUrl + url;
             }
 
             return new Uri(currentUri, url).ToString();
+        }
+
+        public virtual Task<bool> IsPaymentAuthorizedAsync(IShopOrder order)
+        {
+            return Task.FromResult(order.PaymentStatus == (int)PaymentStatus.Authorized);
         }
 
         public abstract string GeneratePaymentWindow(IShopOrder order, Uri currentUri);

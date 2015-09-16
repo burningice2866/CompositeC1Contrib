@@ -27,11 +27,11 @@ namespace CompositeC1Contrib.ECommerce.Configuration
             set { this["mainPageId"] = value; }
         }
 
-        [ConfigurationProperty("recieptPageId", IsRequired = false)]
-        public string RecieptPageId
+        [ConfigurationProperty("receiptPageId", IsRequired = false)]
+        public string ReceiptPageId
         {
-            get { return (string)this["recieptPageId"]; }
-            set { this["recieptPageId"] = value; }
+            get { return (string)this["receiptPageId"]; }
+            set { this["receiptPageId"] = value; }
         }
 
         [ConfigurationProperty("testMode", DefaultValue = false)]

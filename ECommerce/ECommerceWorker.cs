@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
@@ -34,17 +33,17 @@ namespace CompositeC1Contrib.ECommerce
 
         public static void Initialize()
         {
-            var orderProcessor = ECommerce.OrderProcessor;
-            if (orderProcessor == null)
+            if (Instance._running)
             {
-                Utils.WriteLog(null, "No orderprocessor defined, worker is stopping");
+                return;
+            }
 
+            if (ECommerce.OrderProcessor == null)
+            {
                 return;
             }
 
             Instance._running = true;
-
-            Utils.WriteLog(null, "Worker is starting, orderprocessor is " + orderProcessor.GetType().FullName);
 
             Instance._thread.Start();
         }
@@ -65,6 +64,8 @@ namespace CompositeC1Contrib.ECommerce
         private void Run()
         {
             SetCultureFromWebConfig();
+
+            Utils.WriteLog(null, "Worker is starting, orderprocessor is " + ECommerce.OrderProcessor.GetType().FullName);
 
             var ticker = 60;
 
@@ -111,15 +112,9 @@ namespace CompositeC1Contrib.ECommerce
 
         private void PostProcessPendingOrders()
         {
-            IList<IShopOrder> orders;
-
             using (var data = new DataConnection())
             {
-                orders = (from s in data.Get<IShopOrder>()
-                          where s.PaymentStatus == (int)PaymentStatus.Authorized && !s.PostProcessed
-                          select s)
-                         .ToList();
-
+                var orders = data.Get<IShopOrder>().Where(s => s.PaymentStatus == (int)PaymentStatus.Authorized && !s.PostProcessed).ToList();
                 foreach (var order in orders)
                 {
                     if (!_running)
@@ -135,21 +130,19 @@ namespace CompositeC1Contrib.ECommerce
         private static void SetCultureFromWebConfig()
         {
             var globalization = ConfigurationManager.GetSection("system.web/globalization") as GlobalizationSection;
-            if (globalization != null)
+            if (globalization == null)
             {
-                if (!String.IsNullOrEmpty(globalization.Culture))
-                {
-                    var culture = new CultureInfo(globalization.Culture);
+                return;
+            }
 
-                    Thread.CurrentThread.CurrentCulture = culture;
-                }
+            if (!String.IsNullOrEmpty(globalization.Culture))
+            {
+                Thread.CurrentThread.CurrentCulture = new CultureInfo(globalization.Culture);
+            }
 
-                if (!String.IsNullOrEmpty(globalization.UICulture))
-                {
-                    var culture = new CultureInfo(globalization.UICulture);
-
-                    Thread.CurrentThread.CurrentUICulture = culture;
-                }
+            if (!String.IsNullOrEmpty(globalization.UICulture))
+            {
+                Thread.CurrentThread.CurrentUICulture = new CultureInfo(globalization.UICulture);
             }
         }
     }

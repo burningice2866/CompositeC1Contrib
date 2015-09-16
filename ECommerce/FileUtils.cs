@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using Composite.Core.IO;
 
 namespace CompositeC1Contrib.ECommerce
 {
@@ -8,32 +8,32 @@ namespace CompositeC1Contrib.ECommerce
 
         public static void CreateDirectoryIfNotExists(string path)
         {
-            if (!Directory.Exists(path))
+            if (!C1Directory.Exists(path))
             {
                 lock (SyncRoot)
                 {
-                    if (!Directory.Exists(path))
+                    if (!C1Directory.Exists(path))
                     {
-                        Directory.CreateDirectory(path);
+                        C1Directory.CreateDirectory(path);
                     }
                 }
             }
         }
 
-        public static StreamWriter GetOrCreateFile(string path)
+        public static C1StreamWriter GetOrCreateFile(string path)
         {
-            if (!File.Exists(path))
+            if (!C1File.Exists(path))
             {
                 lock (SyncRoot)
                 {
-                    if (!File.Exists(path))
+                    if (!C1File.Exists(path))
                     {
-                        return File.CreateText(path);
+                        return C1File.CreateText(path);
                     }
                 }
             }
 
-            return File.AppendText(path);
+            return C1File.AppendText(path);
         }
     }
 }

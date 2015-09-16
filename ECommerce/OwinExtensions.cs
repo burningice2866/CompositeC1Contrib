@@ -6,7 +6,7 @@ using CompositeC1Contrib.ECommerce.Data.Types;
 
 using Owin;
 
-namespace CompositeC1Contrib.ECommerce.Web
+namespace CompositeC1Contrib.ECommerce
 {
     public static class OwinExtensions
     {
