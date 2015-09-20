@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using Composite.Data;
-
 using CompositeC1Contrib.ECommerce.Data.Types;
 
 namespace CompositeC1Contrib.ECommerce
@@ -53,6 +54,14 @@ namespace CompositeC1Contrib.ECommerce
                 entry.Data = logData;
 
                 return data.Add(entry);
+            }
+        }
+
+        public static IEnumerable<IShopOrderLog> GetLog(IShopOrder order)
+        {
+            using (var data = new DataConnection())
+            {
+                return data.Get<IShopOrderLog>().Where(l => l.ShopOrderId == order.Id).ToList();
             }
         }
 

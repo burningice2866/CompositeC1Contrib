@@ -104,7 +104,7 @@ namespace CompositeC1Contrib.ECommerce.Web.Api.Controllers
 
                 Utils.WriteLog(order, "continue requested");
 
-                var hasContinued = data.Get<IShopOrderLog>().Any(l => l.Title == "continue succeeded");
+                var hasContinued = Utils.GetLog(order).Any(l => l.Title == "continue succeeded");
                 if (hasContinued)
                 {
                     Utils.WriteLog(order, "debug", "Continue has already succeeded");
