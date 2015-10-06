@@ -17,12 +17,12 @@ namespace CompositeC1Contrib.ECommerce
     {
         private const string StatusOk = "2";
         private const string Currency = "208";
-        private const string Paytype = "DK";
         private const string Lang = "da";
         private const string Uniqueoid = "yes";
 
         private string _md5Secret;
         private string _md5Secret2;
+        private string _payType;
 
         protected override string PaymentWindowEndpoint
         {
@@ -33,6 +33,7 @@ namespace CompositeC1Contrib.ECommerce
         {
             _md5Secret = ExtractConfigurationValue(config, "md5Secret", true);
             _md5Secret2 = ExtractConfigurationValue(config, "md5Secret2", true);
+            _payType = ExtractConfigurationValue(config, "payType", false);
 
             base.Initialize(name, config);
         }
@@ -44,6 +45,7 @@ namespace CompositeC1Contrib.ECommerce
             var merchant = MerchantId;
             var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture);
             var acceptUrl = ParseUrl(ContinueUrl, currentUri);
+            var paytype = string.IsNullOrEmpty(_payType) ? "DK" : _payType;
 
             // optional parameters
             var test = IsTestMode ? "yes" : String.Empty;
@@ -64,7 +66,7 @@ namespace CompositeC1Contrib.ECommerce
                 {"lang", Lang},
                 {"cancelurl", cancelUrl},
                 {"callbackurl", callbackUrl},
-                {"paytype", Paytype}
+                {"paytype", paytype}
             };
 
             return GetFormPost(order, data);
