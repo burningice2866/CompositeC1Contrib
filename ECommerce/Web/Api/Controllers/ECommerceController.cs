@@ -52,6 +52,7 @@ namespace CompositeC1Contrib.ECommerce.Web.Api.Controllers
         }
 
         [HttpGet]
+        [HttpPost]
         [ActionName("cancel")]
         public IHttpActionResult Cancel()
         {
