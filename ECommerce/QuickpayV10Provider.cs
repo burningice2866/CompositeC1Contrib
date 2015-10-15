@@ -22,6 +22,7 @@ namespace CompositeC1Contrib.ECommerce
         private string _agreementId;
         private string _privateKey;
         private string _paymentUserApiKey;
+        private string _paymentMethods;
         private string _googleTrackingId;
 
         private Uri _apiEndpoint;
@@ -37,6 +38,7 @@ namespace CompositeC1Contrib.ECommerce
             _agreementId = ExtractConfigurationValue(config, "agreementId", true);
             _privateKey = ExtractConfigurationValue(config, "privateKey", true);
             _paymentUserApiKey = ExtractConfigurationValue(config, "paymentUserApiKey", true);
+            _paymentMethods = ExtractConfigurationValue(config, "paymentMethods", false);
             _googleTrackingId = ExtractConfigurationValue(config, "googleTrackingId", false);
 
             var apiEndpoint = ExtractConfigurationValue(config, "apiEndpoint", false);
@@ -71,6 +73,11 @@ namespace CompositeC1Contrib.ECommerce
                 {"callbackurl", callbackUrl},
                 {"language", "da"}
             };
+
+            if (!String.IsNullOrEmpty(_paymentMethods))
+            {
+                param.Add("payment_methods", _paymentMethods);
+            }
 
             if (!IsTestMode && !String.IsNullOrEmpty(_googleTrackingId))
             {
