@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq.Expressions;
 
 using CompositeC1Contrib.ScheduledTasks.Configuration;
 
 using Hangfire;
-using Hangfire.CompositeC1;
-using Hangfire.Logging;
 
 using Owin;
 
@@ -13,52 +10,38 @@ namespace CompositeC1Contrib.ScheduledTasks
 {
     public static class OwinExtensions
     {
-        public static void UseCompositeC1ContribScheduledTasks(this IAppBuilder app)
+        public static void UseCompositeC1ContribScheduledTasks(this IAppBuilder app, Action<ScheduledTasksConfiguration> configurationCallback)
         {
-            app.UseCompositeC1ContribScheduledTasks(null);
-        }
+            var options = new ScheduledTasksConfiguration();
 
-        public static void UseCompositeC1ContribScheduledTasks(this IAppBuilder app, int? workerCount)
-        {
-            LogProvider.SetCurrentLogProvider(new C1LogProvider());
+            if (configurationCallback != null)
+            {
+                configurationCallback(options);
+            }
 
             var configuration = GlobalConfiguration.Configuration;
 
-            configuration.UseStorage(new CompositeC1Storage());
+            configuration.UseLogProvider(new C1LogProvider());
+            configuration.UseStorage(options.JobStorage);
 
-            var options = new BackgroundJobServerOptions();
+            var backgroundProcesses = options.GetBackgroundProcesses();
 
-            if (workerCount.HasValue)
+            if (options.ServerOptions != null)
             {
-                options.WorkerCount = workerCount.Value;
+                app.UseHangfireServer(options.ServerOptions, backgroundProcesses);
             }
-
-            app.UseHangfireServer(options);
+            else
+            {
+                app.UseHangfireServer(backgroundProcesses);
+            }
 
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {
+                AppPath = null,
                 AuthorizationFilters = new[] { new CompositeC1AuthorizationFilter() }
             });
 
-            var section = ScheduledTasksSection.GetSection();
-            foreach (ScheduledTaskElement element in section.Tasks)
-            {
-                var type = Type.GetType(element.Type);
-                if (type == null)
-                {
-                    throw new ArgumentException(String.Format("Type '{0}' doesn't exist", element.Type));
-                }
-
-                var method = type.GetMethod(element.Method);
-                if (method == null)
-                {
-                    throw new ArgumentException(String.Format("Method '{0}' doesn't exist on type {1}", element.Method, type.FullName));
-                }
-
-                var action = Expression.Lambda<Action>(Expression.Call(method));
-
-                RecurringJob.AddOrUpdate(element.Name, action, element.CronExpression);
-            }
+            ScheduledTasksSection.EnsureJobsFromConfig();
         }
     }
 }

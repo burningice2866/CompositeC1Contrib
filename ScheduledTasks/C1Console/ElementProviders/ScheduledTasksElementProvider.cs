@@ -151,7 +151,7 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders
 
                 if (statistics.Recurring > 0)
                 {
-                    recurringTasksElement.VisualData.Label += " (" + statistics.Recurring + " )";
+                    recurringTasksElement.VisualData.Label += " (" + statistics.Recurring + ")";
                 }
 
                 AddViewAction(TaskType.Recurring, recurringTasksElement);
@@ -237,7 +237,7 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders
             }
             try
             {
-                var args = job.Arguments.ToArray<object>();
+                var args = job.Args.ToArray();
 
                 return String.Format(attribute.DisplayName, args);
             }
@@ -261,7 +261,5 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders
 
             return dictionary;
         }
-
-
     }
 }
