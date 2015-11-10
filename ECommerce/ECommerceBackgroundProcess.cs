@@ -5,75 +5,40 @@ using System.Linq;
 using System.Threading;
 using System.Web.Configuration;
 
-using Composite.C1Console.Events;
 using Composite.Core.Threading;
 using Composite.Data;
 
 using CompositeC1Contrib.ECommerce.Data.Types;
 
+using Hangfire.Server;
+
 namespace CompositeC1Contrib.ECommerce
 {
-    public class ECommerceWorker
+    public class ECommerceBackgroundProcess : IBackgroundProcess
     {
-        private static readonly ECommerceWorker Instance = new ECommerceWorker();
         private static readonly TimeSpan OneSecond = TimeSpan.FromSeconds(1);
+        private const int NumberOfRecordsInSinglePass = 10;
 
-        private volatile bool _running;
-        private volatile bool _processOrdersNow;
-        private readonly Thread _thread;
-
-        private ECommerceWorker()
-        {
-            GlobalEventSystemFacade.SubscribeToPrepareForShutDownEvent(PrepareForShutDown);
-
-            var threadStart = new ThreadStart(Run);
-
-            _thread = new Thread(threadStart);
-        }
-
-        public static void Initialize()
-        {
-            if (Instance._running)
-            {
-                return;
-            }
-
-            if (ECommerce.OrderProcessor == null)
-            {
-                return;
-            }
-
-            Instance._running = true;
-
-            Instance._thread.Start();
-        }
+        private static volatile bool _processOrdersNow;
 
         public static void ProcessOrdersNow()
         {
-            Instance._processOrdersNow = true;
+            _processOrdersNow = true;
         }
 
-        private void PrepareForShutDown(PrepareForShutDownEventArgs e)
+        public void Execute(BackgroundProcessContext context)
         {
-            _running = false;
-            _processOrdersNow = false;
-
-            _thread.Join(TimeSpan.FromSeconds(5));
-        }
-
-        private void Run()
-        {
-            SetCultureFromWebConfig();
-
-            Utils.WriteLog("Worker is starting, orderprocessor is " + ECommerce.OrderProcessor.GetType().FullName);
-
-            var ticker = 60;
-
             try
             {
+                SetCultureFromWebConfig();
+
+                Utils.WriteLog("Worker is starting, orderprocessor is " + ECommerce.OrderProcessor.GetType().FullName);
+
+                var ticker = 60;
+
                 using (ThreadDataManager.EnsureInitialize())
                 {
-                    while (_running)
+                    while (!context.IsShutdownRequested)
                     {
                         try
                         {
@@ -84,7 +49,7 @@ namespace CompositeC1Contrib.ECommerce
 
                             _processOrdersNow = false;
 
-                            PostProcessPendingOrders();
+                            PostProcessPendingOrders(context);
                         }
                         catch (Exception ex)
                         {
@@ -99,30 +64,32 @@ namespace CompositeC1Contrib.ECommerce
 
                             ticker = ticker + 1;
 
-                            Thread.Sleep(OneSecond);
+                            context.CancellationToken.WaitHandle.WaitOne(OneSecond);
+                            context.CancellationToken.ThrowIfCancellationRequested();
                         }
                     }
                 }
             }
+            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
                 Utils.WriteLog("Unhandled error in ThreadDataManager, worker is stopping", ex);
             }
         }
 
-        private void PostProcessPendingOrders()
+        private static void PostProcessPendingOrders(BackgroundProcessContext context)
         {
             using (var data = new DataConnection())
             {
-                var orders = data.Get<IShopOrder>().Where(s => s.PaymentStatus == (int)PaymentStatus.Authorized && !s.PostProcessed).ToList();
+                var orders = data.Get<IShopOrder>()
+                    .Where(s => s.PaymentStatus == (int)PaymentStatus.Authorized && !s.PostProcessed)
+                    .Take(NumberOfRecordsInSinglePass).ToList();
+
                 foreach (var order in orders)
                 {
-                    if (!_running)
-                    {
-                        return;
-                    }
-
                     Utils.PostProcessOrder(order, ECommerce.OrderProcessor, data);
+
+                    context.CancellationToken.ThrowIfCancellationRequested();
                 }
             }
         }

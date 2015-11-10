@@ -79,7 +79,7 @@ namespace CompositeC1Contrib.ECommerce.Web.Api.Controllers
 
             Utils.WriteLog(order, "callback succeeded");
 
-            ECommerceWorker.ProcessOrdersNow();
+            ECommerceBackgroundProcess.ProcessOrdersNow();
 
             return Ok();
         }
