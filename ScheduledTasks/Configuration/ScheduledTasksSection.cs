@@ -45,34 +45,77 @@ namespace CompositeC1Contrib.ScheduledTasks.Configuration
                     throw new ArgumentException(String.Format("Method '{0}' doesn't exist on type {1}", element.Method, type.FullName));
                 }
 
-                var methodToCall = FindMethodToCall(methods);
+                var arguments = element.Arguments.Cast<ScheduledTaskMethodArgumentElement>().ToDictionary(a => a.Name, a => a.Value);
+
+                var methodToCall = FindMethodToCall(methods, arguments);
                 if (methodToCall == null)
                 {
                     throw new ArgumentException(String.Format("Method '{0}' doesn't have a valid signature. It needs to be parameterless or take a 'IJobCancellationToken'", element.Method));
                 }
 
-                Expression<Action> action;
-                if (methodToCall.GetParameters().Any())
-                {
-                    var argument = Expression.Constant(JobCancellationToken.Null, typeof(IJobCancellationToken));
-
-                    action = Expression.Lambda<Action>(Expression.Call(methodToCall, argument));
-                }
-                else
-                {
-                    action = Expression.Lambda<Action>(Expression.Call(methodToCall));
-                }
+                var action = GetMethodExpression(methodToCall, arguments);
 
                 RecurringJob.AddOrUpdate(element.Name, action, element.CronExpression);
             }
         }
 
-        private static MethodInfo FindMethodToCall(IEnumerable<MethodInfo> methods)
+        private static Expression<Action> GetMethodExpression(MethodInfo methodToCall, IDictionary<string, string> arguments)
+        {
+            var parameters = methodToCall.GetParameters();
+
+            if (!parameters.Any())
+            {
+                return Expression.Lambda<Action>(Expression.Call(methodToCall));
+            }
+
+            var argumentExpressions = new List<ConstantExpression>();
+
+            foreach (var param in parameters)
+            {
+                object value;
+
+                if (!arguments.ContainsKey(param.Name) && param.ParameterType == typeof(IJobCancellationToken))
+                {
+                    value = JobCancellationToken.Null;
+                }
+                else
+                {
+                    var valueAsString = arguments[param.Name];
+
+                    if (param.ParameterType.IsEnum)
+                    {
+                        value = Enum.Parse(param.ParameterType, valueAsString);
+                    }
+                    else
+                    {
+                        value = Convert.ChangeType(valueAsString, param.ParameterType);
+                    }
+                }
+
+                argumentExpressions.Add(Expression.Constant(value, param.ParameterType));
+            }
+
+            return Expression.Lambda<Action>(Expression.Call(methodToCall, argumentExpressions));
+        }
+
+        private static MethodInfo FindMethodToCall(IEnumerable<MethodInfo> methods, IDictionary<string, string> arguments)
         {
             foreach (var method in methods)
             {
                 var parameters = method.GetParameters();
-                if (parameters.Length == 1 && parameters[0].ParameterType == typeof (IJobCancellationToken))
+                var parameterNames = parameters.Select(p => p.Name);
+                var argumentNames = arguments.Keys.ToList();
+
+                if (parameters.Length == (arguments.Count + 1)
+                    && argumentNames.All(n => parameterNames.Contains(n))
+                    && parameters.Any(p => p.ParameterType == typeof(IJobCancellationToken))
+                    )
+                {
+                    return method;
+                }
+
+                if (parameters.Length == arguments.Count
+                    && argumentNames.All(n => parameterNames.Contains(n)))
                 {
                     return method;
                 }

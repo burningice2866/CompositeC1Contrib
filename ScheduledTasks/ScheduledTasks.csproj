@@ -63,6 +63,8 @@
     <Compile Include="C1Logger.cs" />
     <Compile Include="C1LogProvider.cs" />
     <Compile Include="CompositeC1AuthorizationFilter.cs" />
+    <Compile Include="Configuration\ScheduledTaskMethodArgumentElement.cs" />
+    <Compile Include="Configuration\ScheduledTaskMethodArgumentCollection.cs" />
     <Compile Include="OwinExtensions.cs" />
     <Compile Include="Configuration\ScheduledTaskCollection.cs" />
     <Compile Include="Configuration\ScheduledTaskElement.cs" />

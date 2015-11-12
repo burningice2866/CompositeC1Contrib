@@ -32,5 +32,11 @@ namespace CompositeC1Contrib.ScheduledTasks.Configuration
             set { this["cronExpression"] = value; }
         }
 
+        [ConfigurationProperty("arguments", IsDefaultCollection = false, IsRequired = false)]
+        public ScheduledTaskMethodArgumentCollection Arguments
+        {
+            get { return (ScheduledTaskMethodArgumentCollection)this["arguments"]; }
+            set { this["arguments"] = value; }
+        }
     }
 }
