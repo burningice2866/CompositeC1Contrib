@@ -1,8 +1,9 @@
-﻿using System.Web.Http;
+﻿using System.Web.Routing;
 
 using Composite.Data.DynamicTypes;
 
 using CompositeC1Contrib.ECommerce.Data.Types;
+using CompositeC1Contrib.ECommerce.Web;
 using CompositeC1Contrib.ScheduledTasks;
 
 using Owin;
@@ -11,9 +12,9 @@ namespace CompositeC1Contrib.ECommerce
 {
     public static class OwinExtensions
     {
-        public static void UseCompositeC1ContribECommerce(this IAppBuilder app, HttpConfiguration httpConfig, ScheduledTasksConfiguration scheduledTasksConfig)
+        public static void UseCompositeC1ContribECommerce(this IAppBuilder app, ScheduledTasksConfiguration scheduledTasksConfig)
         {
-            httpConfig.Routes.MapHttpRoute("ECommerce", "ecommerce/{action}", new { controller = "ecommerce", action = "default" });
+            RouteTable.Routes.Add(new Route("ecommerce/{*pathInfo}", new GenericRouteHandler<ECommerceHttpHandler>()));
 
             scheduledTasksConfig.AddBackgroundProcess(new ECommerceBackgroundProcess());
 

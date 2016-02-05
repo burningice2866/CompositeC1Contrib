@@ -2,9 +2,10 @@
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Configuration.Provider;
-using System.Linq;
-using System.Net.Http;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Xml.Linq;
 
 using CompositeC1Contrib.ECommerce.Configuration;
@@ -18,7 +19,7 @@ namespace CompositeC1Contrib.ECommerce
         protected const string CancelUrl = "/ecommerce/cancel";
         protected const string CallbackUrl = "/ecommerce/callback";
 
-        private readonly ECommerceSection _config = ECommerceSection.GetSection();
+        private static readonly ECommerceSection Config = ECommerceSection.GetSection();
 
         protected abstract string PaymentWindowEndpoint { get; }
 
@@ -26,7 +27,7 @@ namespace CompositeC1Contrib.ECommerce
 
         protected bool IsTestMode
         {
-            get { return _config.TestMode; }
+            get { return Config.TestMode; }
         }
 
         public override void Initialize(string name, NameValueCollection config)
@@ -117,19 +118,30 @@ namespace CompositeC1Contrib.ECommerce
             return value;
         }
 
-        protected string ParseContinueUrl(IShopOrder order, Uri currentUri)
+        protected static string ParseContinueUrl(IShopOrder order, Uri currentUri)
         {
             return ParseUrl(ContinueUrl + "?orderid=" + order.Id, currentUri);
         }
 
-        protected string ParseUrl(string url, Uri currentUri)
+        protected static string ParseUrl(string url, Uri currentUri)
         {
-            if (!String.IsNullOrEmpty(_config.BaseUrl))
+            if (!String.IsNullOrEmpty(Config.BaseUrl))
             {
-                return _config.BaseUrl + url;
+                return Config.BaseUrl + url;
             }
 
             return new Uri(currentUri, url).ToString();
+        }
+
+        protected static async Task<string> GetRequestContentsAsync(HttpRequestBase request)
+        {
+            using (var receiveStream = request.InputStream)
+            {
+                using (var readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                {
+                    return await readStream.ReadToEndAsync();
+                }
+            }
         }
 
         public virtual Task<bool> IsPaymentAuthorizedAsync(IShopOrder order)
@@ -138,6 +150,6 @@ namespace CompositeC1Contrib.ECommerce
         }
 
         public abstract string GeneratePaymentWindow(IShopOrder order, Uri currentUri);
-        public abstract Task<IShopOrder> HandleCallbackAsync(HttpRequestMessage request);
+        public abstract Task<IShopOrder> HandleCallbackAsync(HttpContextBase context);
     }
 }

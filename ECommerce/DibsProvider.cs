@@ -2,10 +2,10 @@
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 using Composite.Data;
 
@@ -72,63 +72,68 @@ namespace CompositeC1Contrib.ECommerce
             return GetFormPost(order, data);
         }
 
-        public override async Task<IShopOrder> HandleCallbackAsync(HttpRequestMessage request)
+        public override async Task<IShopOrder> HandleCallbackAsync(HttpContextBase context)
         {
-            // http://tech.dibs.dk/integration_methods/flexwin/return_pages/
-
-            var form = await request.Content.ReadAsFormDataAsync();
-
-            var orderid = GetFormString("orderid", form);
-            var creditCardType = GetFormString("paytype", form);
-            var transact = GetFormString("transact", form);
-
-            using (var data = new DataConnection())
+            return await Task.Run(() =>
             {
-                var order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderid);
-                if (order == null)
-                {
-                    Utils.WriteLog("Error, no order with number " + orderid);
+                // http://tech.dibs.dk/integration_methods/flexwin/return_pages/
 
-                    return null;
-                }
+                var form = context.Request.Form;
 
-                if (order.PaymentStatus == (int)PaymentStatus.Authorized)
+                var orderid = GetFormString("orderid", form);
+                var creditCardType = GetFormString("paytype", form);
+                var transact = GetFormString("transact", form);
+
+                using (var data = new DataConnection())
                 {
-                    Utils.WriteLog(order, "debug", "Payment is already authorized");
+                    var order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderid);
+                    if (order == null)
+                    {
+                        Utils.WriteLog("Error, no order with number " + orderid);
+
+                        return null;
+                    }
+
+                    if (order.PaymentStatus == (int)PaymentStatus.Authorized)
+                    {
+                        Utils.WriteLog(order, "debug", "Payment is already authorized");
+
+                        return order;
+                    }
+
+                    var statuscode = GetFormString("statuscode", form);
+                    if (statuscode != StatusOk)
+                    {
+                        Utils.WriteLog(order, "debug",
+                            "Error in status, values is " + statuscode + " but " + StatusOk + " was expected");
+
+                        return order;
+                    }
+
+                    var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture);
+                    var authkey = GetFormString("authkey", form);
+
+                    var isValid = authkey == CalcAuthKey(transact, amount);
+                    if (!isValid)
+                    {
+                        Utils.WriteLog(order, "debug",
+                            "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
+
+                        return order;
+                    }
+
+                    order.AuthorizationXml = OrderDataToXml(form);
+                    order.CreditCardType = creditCardType;
+                    order.AuthorizationTransactionId = transact;
+                    order.PaymentStatus = (int)PaymentStatus.Authorized;
+
+                    data.Update(order);
+
+                    Utils.WriteLog(order, "authorized");
 
                     return order;
                 }
-
-                var statuscode = GetFormString("statuscode", form);
-                if (statuscode != StatusOk)
-                {
-                    Utils.WriteLog(order, "debug", "Error in status, values is " + statuscode + " but " + StatusOk + " was expected");
-
-                    return order;
-                }
-
-                var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture);
-                var authkey = GetFormString("authkey", form);
-
-                var isValid = authkey == CalcAuthKey(transact, amount);
-                if (!isValid)
-                {
-                    Utils.WriteLog(order, "debug", "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
-
-                    return order;
-                }
-
-                order.AuthorizationXml = OrderDataToXml(form);
-                order.CreditCardType = creditCardType;
-                order.AuthorizationTransactionId = transact;
-                order.PaymentStatus = (int)PaymentStatus.Authorized;
-
-                data.Update(order);
-
-                Utils.WriteLog(order, "authorized");
-
-                return order;
-            }
+            });
         }
 
         private string CalcMd5Key(string merchantId, string orderId, string amount)

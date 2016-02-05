@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 using Composite.Data;
 
@@ -126,13 +127,13 @@ namespace CompositeC1Contrib.ECommerce
             }
         }
 
-        public override async Task<IShopOrder> HandleCallbackAsync(HttpRequestMessage request)
+        public override async Task<IShopOrder> HandleCallbackAsync(HttpContextBase context)
         {
             //http://tech.quickpay.net/api/callback/
 
-            var input = await request.Content.ReadAsStringAsync();
+            var input = await GetRequestContentsAsync(context.Request);
 
-            var checkSum = request.Headers.GetValues("Quickpay-Checksum-Sha256").First();
+            var checkSum = context.Request.Headers.Get("Quickpay-Checksum-Sha256");
             if (checkSum != Sign(input, _privateKey))
             {
                 Utils.WriteLog("Error validating the checksum");
