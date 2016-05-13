@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Web.UI;
 
 using Composite.C1Console.Events;
@@ -19,7 +20,22 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 
         protected static string HashId(IData data)
         {
-            return data.DataSourceId.GetKeyValue().GetHashCode().ToString(CultureInfo.InvariantCulture).Replace("-", String.Empty);
+            var keyValue = data.DataSourceId.GetKeyValue().ToString();
+            var inputBytes = Encoding.UTF8.GetBytes(keyValue);
+
+            using (var md5 = MD5.Create())
+            {
+                var hash = md5.ComputeHash(inputBytes);
+
+                var sb = new StringBuilder();
+
+                for (int i = 0; i < hash.Length; i++)
+                {
+                    sb.Append(i.ToString("X2"));
+                }
+
+                return sb.ToString();
+            }
         }
 
         protected static void UpdateParents(string seralizedEntityToken, string consoleId)
