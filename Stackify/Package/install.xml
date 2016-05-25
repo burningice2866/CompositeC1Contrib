@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" standalone="yes"?>
+<mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
+  <mi:PackageRequirements minimumCompositeVersion="4.3.5555.25838"
+                          maximumCompositeVersion="9.9999.9999.9999" />
+
+  <mi:PackageInformation name="CompositeC1Contrib.Stackify"
+                         groupName="Logging"
+                         version="1.0.0" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib"
+                         readMoreUrl="https://github.com/burningice2866/CompositeC1Contrib"
+                         id="7044a5f4-2dda-4cf6-a130-a2ff09bb97b3"
+                         canBeUninstalled="true"
+                         systemLocking="hard"
+                         flushOnCompletion="false">
+    <Description>Stackify support for C1.</Description>
+    <TechnicalDetails>Stackify support for C1.</TechnicalDetails>
+  </mi:PackageInformation>
+
+  <mi:PackageFragmentInstallers>
+    <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentUninstaller, Composite">
+      <Files>
+        <File sourceFilename="~\bin\CompositeC1Contrib.Stackify.dll" targetFilename="~\bin\CompositeC1Contrib.Stackify.dll" allowOverwrite="true" />
+      </Files>
+    </mi:Add>
+
+    <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentUninstaller, Composite">
+      <XmlFileMerges>
+        <XmlFileMerge changeDefinitionPath="~\config\web.config" targetFilePath="~\web.config" />
+        <XmlFileMerge changeDefinitionPath="~\config\App_Data\Composite\composite.config" targetFilePath="~\App_Data\Composite\composite.config" />
+      </XmlFileMerges>
+    </mi:Add>
+  </mi:PackageFragmentInstallers>
+</mi:PackageInstaller>
