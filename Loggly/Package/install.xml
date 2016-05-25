@@ -4,9 +4,9 @@
                           maximumCompositeVersion="9.9999.9999.9999" />
 
   <mi:PackageInformation name="CompositeC1Contrib.Loggly"
-                         groupName="Contribution.CompositeC1Contrib"
-                         version="1.0.0" author="@burningice" website="http://compositec1contrib.codeplex.com"
-                         readMoreUrl="http://compositec1contrib.codeplex.com"
+                         groupName="Logging"
+                         version="1.0.1" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib"
+                         readMoreUrl="https://github.com/burningice2866/CompositeC1Contrib"
                          id="3b9e6716-b70a-47cb-a487-d53b669d738a"
                          canBeUninstalled="true"
                          systemLocking="hard"

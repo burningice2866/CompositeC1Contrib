@@ -18,20 +18,26 @@ namespace CompositeC1Contrib.Loggly
         {
             var entry = (LogEntry)((ICloneable)data).Clone();
 
+            entry.Title = SanatizeTitle(entry.Title);
+
+            var logglyEvent = Translate(eventType, entry);
+
+            LogglyFacade.Log(logglyEvent);
+        }
+
+        private static LogglyEvent Translate(TraceEventType eventType, LogEntry entry)
+        {
             var logglyEvent = new LogglyEvent
             {
                 Syslog =
                 {
-                    MessageId = id,
                     Level = MapLevel(eventType)
                 }
             };
 
-            entry.Title = SanatizeTitle(entry.Title);
-
             logglyEvent.Data.Add("C1_Logmessage", entry);
 
-            LogglyFacade.Log(logglyEvent);
+            return logglyEvent;
         }
 
         private static string SanatizeTitle(string title)

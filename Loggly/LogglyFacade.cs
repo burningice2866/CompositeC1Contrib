@@ -20,14 +20,14 @@ namespace CompositeC1Contrib.Loggly
                 instance.ApplicationName = GlobalSettingsFacade.ApplicationName;
             }
 
-            var complexTags = instance.Tags.ComplexTags;
+            var tags = instance.TagConfig.Tags;
 
-            complexTags.Add(new ApplicationNameTag
+            tags.Add(new ApplicationNameTag
             {
                 Formatter = "application-{0}"
             });
 
-            complexTags.Add(new InstallationIdTag
+            tags.Add(new InstallationIdTag
             {
                 Formatter = "installation-{0}"
             });
