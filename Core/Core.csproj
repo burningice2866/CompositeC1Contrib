@@ -56,6 +56,7 @@
     <Compile Include="Composition\CompositionContainerFacade.cs" />
     <Compile Include="Composition\SafeDirectoryCatalog.cs" />
     <Compile Include="Data\InheritanceDataFacade.cs" />
+    <Compile Include="FunctionContextContainerExtensions.cs" />
     <Compile Include="FunctionProvider\FileBasedFunction.cs" />
     <Compile Include="FunctionProvider\FileBasedFunctionProvider.cs" />
     <Compile Include="FunctionProvider\ParameterWidgets.cs" />
@@ -80,8 +81,10 @@
     <Compile Include="UrlActionToken.cs" />
     <Compile Include="Web\BaseResponseFilter.cs" />
     <Compile Include="Web\ContentFilterFacade.cs" />
+    <Compile Include="Web\GenericRouteHandler.cs" />
     <Compile Include="Web\IContentFilter.cs" />
     <Compile Include="Web\GlobalizationModule.cs" />
+    <Compile Include="Web\RouteCollectionExtensions.cs" />
     <Compile Include="Web\UI\PageRendererHelper.cs" />
     <Compile Include="Web\RequestInfo.cs" />
     <Compile Include="Web\Security\CompositeC1MembershipProvider.cs" />
