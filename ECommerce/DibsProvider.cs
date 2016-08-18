@@ -16,9 +16,8 @@ namespace CompositeC1Contrib.ECommerce
     public class DibsProvider : PaymentProvider
     {
         private const string StatusOk = "2";
-        private const string Currency = "208";
         private const string Lang = "da";
-        private const string Uniqueoid = "yes";
+        private const string UniqueOID = "yes";
 
         private string _md5Secret;
         private string _md5Secret2;
@@ -42,25 +41,25 @@ namespace CompositeC1Contrib.ECommerce
         {
             // http://tech.dibs.dk/integration_methods/flexwin/parameters/
 
-            var merchant = MerchantId;
-            var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture);
+            var currency = ResolveCurrency(order);
+            var amount = GetMinorCurrencyUnit(order.OrderTotal, currency).ToString("0", CultureInfo.InvariantCulture);
             var acceptUrl = ParseUrl(ContinueUrl, currentUri);
-            var paytype = string.IsNullOrEmpty(_payType) ? "DK" : _payType;
+            var paytype = String.IsNullOrEmpty(_payType) ? "DK" : _payType;
 
             // optional parameters
             var test = IsTestMode ? "yes" : String.Empty;
-            var md5Key = CalcMd5Key(merchant, order.Id, amount);
+            var md5Key = CalcMd5Key(MerchantId, order.Id, currency, amount);
             var cancelUrl = ParseUrl(CancelUrl, currentUri);
             var callbackUrl = ParseUrl(CallbackUrl, currentUri);
 
             var data = new NameValueCollection
             {
-                {"merchant", merchant},
+                {"merchant", MerchantId},
                 {"amount", amount},
                 {"accepturl", acceptUrl},
                 {"orderid", order.Id},
-                {"currency", Currency},
-                {"uniqueoid", Uniqueoid},
+                {"currency", ((int)currency).ToString()},
+                {"uniqueoid", UniqueOID},
                 {"test", test},
                 {"md5key", md5Key},
                 {"lang", Lang},
@@ -110,10 +109,11 @@ namespace CompositeC1Contrib.ECommerce
                         return order;
                     }
 
-                    var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture);
+                    var currency = ResolveCurrency(order);
+                    var amount = GetMinorCurrencyUnit(order.OrderTotal, currency).ToString("0", CultureInfo.InvariantCulture);
                     var authkey = GetFormString("authkey", form);
 
-                    var isValid = authkey == CalcAuthKey(transact, amount);
+                    var isValid = authkey == CalcAuthKey(transact, currency, amount);
                     if (!isValid)
                     {
                         Utils.WriteLog(order, "debug",
@@ -136,13 +136,13 @@ namespace CompositeC1Contrib.ECommerce
             });
         }
 
-        private string CalcMd5Key(string merchantId, string orderId, string amount)
+        private string CalcMd5Key(string merchantId, string orderId, Currency currency, string amount)
         {
             var sb = new StringBuilder();
 
             using (var md5 = MD5.Create())
             {
-                var s = _md5Secret + String.Format("merchant={0}&orderid={1}&currency={2}&amount={3}", merchantId, orderId, Currency, amount);
+                var s = _md5Secret + String.Format("merchant={0}&orderid={1}&currency={2}&amount={3}", merchantId, orderId, (int)currency, amount);
                 var bytes = Encoding.ASCII.GetBytes(s);
                 var hash = md5.ComputeHash(bytes);
 
@@ -166,13 +166,13 @@ namespace CompositeC1Contrib.ECommerce
             return sb.ToString();
         }
 
-        private string CalcAuthKey(string transact, string amount)
+        private string CalcAuthKey(string transact, Currency currency, string amount)
         {
             var sb = new StringBuilder();
 
             using (var md5 = MD5.Create())
             {
-                var s = _md5Secret + String.Format("transact={0}&amount={1}&currency={2}", transact, amount, Currency);
+                var s = _md5Secret + String.Format("transact={0}&amount={1}&currency={2}", transact, amount, (int)currency);
                 var bytes = Encoding.ASCII.GetBytes(s);
                 var hash = md5.ComputeHash(bytes);
 

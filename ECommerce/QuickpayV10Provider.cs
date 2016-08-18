@@ -57,6 +57,9 @@ namespace CompositeC1Contrib.ECommerce
 
         public override string GeneratePaymentWindow(IShopOrder order, Uri currentUri)
         {
+            var currency = ResolveCurrency(order);
+            var amount = GetMinorCurrencyUnit(order.OrderTotal, currency).ToString("0", CultureInfo.InvariantCulture);
+
             var continueUrl = ParseContinueUrl(order, currentUri);
             var cancelUrl = ParseUrl(CancelUrl, currentUri);
             var callbackUrl = ParseUrl(CallbackUrl, currentUri);
@@ -67,8 +70,8 @@ namespace CompositeC1Contrib.ECommerce
                 {"merchant_id", MerchantId},
                 {"agreement_id", _agreementId},
                 {"order_id", order.Id},
-                {"amount", (order.OrderTotal*100).ToString("0", CultureInfo.InvariantCulture)},
-                {"currency", "DKK"},
+                {"amount", amount},
+                {"currency", currency.ToString()},
                 {"continueurl", continueUrl},
                 {"cancelurl", cancelUrl},
                 {"callbackurl", callbackUrl},

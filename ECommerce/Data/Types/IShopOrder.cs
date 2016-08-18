@@ -32,6 +32,10 @@ namespace CompositeC1Contrib.ECommerce.Data.Types
         [ImmutableFieldId("a24298c5-9f03-4b2c-9038-3ae84bd1ac44")]
         decimal OrderTotal { get; set; }
 
+        [StoreFieldType(PhysicalStoreFieldType.String, 3, IsNullable = true)]
+        [ImmutableFieldId("bf876a7f-26ae-48b5-a4fe-edcbcfc97c2d")]
+        string Currency { get; set; }
+
         [StoreFieldType(PhysicalStoreFieldType.LargeString, IsNullable = true)]
         [ImmutableFieldId("e8863c6c-afdd-4d24-b562-c93f2735ee11")]
         string AuthorizationXml { get; set; }

@@ -16,7 +16,6 @@ namespace CompositeC1Contrib.ECommerce
 {
     public class QuickpayProvider : PaymentProvider
     {
-        private const string Currency = "DKK";
         private const string Protocol = "4";
         private const string Msgtype = "authorize";
         private const string StatusOk = "000";
@@ -72,10 +71,10 @@ namespace CompositeC1Contrib.ECommerce
 
             var cultureInfo = CultureInfo.CurrentCulture;
 
-            var merchant = MerchantId;
             var language = cultureInfo.TwoLetterISOLanguageName;
             var ordernumber = order.Id;
-            var amount = (order.OrderTotal * 100).ToString("0", CultureInfo.InvariantCulture); //NOTE: Primary store should be changed to DKK, if you do not have internatinal agreement with pbs and quickpay. Otherwise you need to do currency conversion here.
+            var currency = ResolveCurrency(order);
+            var amount = GetMinorCurrencyUnit(order.OrderTotal, currency).ToString("0", CultureInfo.InvariantCulture);
             var continueUrl = ParseContinueUrl(order, currentUri);
             var cancelUrl = ParseUrl(CancelUrl, currentUri);
 
@@ -93,7 +92,7 @@ namespace CompositeC1Contrib.ECommerce
             var md5Secret = _md5Secret;
 
             var stringToMd5 = String.Concat(
-                Protocol, Msgtype, merchant, language, ordernumber, amount, Currency, continueUrl, cancelUrl,
+                Protocol, Msgtype, MerchantId, language, ordernumber, amount, currency, continueUrl, cancelUrl,
                 callbackurl, autocapture, autofee, cardtypelock, description, group, testmode, splitpayment,
                 md5Secret);
 
@@ -103,11 +102,11 @@ namespace CompositeC1Contrib.ECommerce
             {
                 {"protocol", Protocol},
                 {"msgtype", Msgtype},
-                {"merchant", merchant},
+                {"merchant", MerchantId},
                 {"language", language},
                 {"ordernumber", ordernumber},
                 {"amount", amount},
-                {"currency", Currency},
+                {"currency", currency.ToString()},
                 {"continueurl", continueUrl},
                 {"cancelurl", cancelUrl},
                 {"callbackurl", callbackurl},

@@ -55,6 +55,13 @@ namespace CompositeC1Contrib.ECommerce.Configuration
             set { this["orderProcessor"] = value; }
         }
 
+        [ConfigurationProperty("defaultCurrency", IsRequired = false, DefaultValue = Currency.DKK)]
+        public Currency DefaultCurrency
+        {
+            get { return (Currency)this["defaultCurrency"]; }
+            set { this["defaultCurrency"] = value; }
+        }
+
         [ConfigurationProperty("minimumOrderNumberLength", IsRequired = false, DefaultValue = -1)]
         public int MinimumOrderNumberLength
         {

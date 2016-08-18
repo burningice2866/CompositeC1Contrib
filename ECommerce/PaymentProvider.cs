@@ -37,6 +37,25 @@ namespace CompositeC1Contrib.ECommerce
             base.Initialize(name, config);
         }
 
+        protected Currency ResolveCurrency(IShopOrder order)
+        {
+            var currency = Config.DefaultCurrency;
+            if (Enum.TryParse<Currency>(order.Currency, out currency))
+            {
+                return currency;
+            }
+
+            return Config.DefaultCurrency;
+        }
+
+        protected decimal GetMinorCurrencyUnit(decimal amount, Currency currency)
+        {
+            switch (currency)
+            {
+                default: return amount * 100;
+            }
+        }
+
         protected static string GetFormString(string name, NameValueCollection form)
         {
             var result = String.Empty;

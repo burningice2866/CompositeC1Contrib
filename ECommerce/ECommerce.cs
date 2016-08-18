@@ -55,17 +55,32 @@ namespace CompositeC1Contrib.ECommerce
 
         public static IShopOrder CreateNewOrder(decimal totalAmount)
         {
-            return CreateNewOrder(totalAmount, null);
+            return CreateNewOrder(totalAmount, Section.DefaultCurrency, null);
+        }
+
+        public static IShopOrder CreateNewOrder(decimal totalAmount, Currency currency)
+        {
+            return CreateNewOrder(totalAmount, currency, null);
         }
 
         public static IShopOrder CreateNewOrder(decimal totalAmount, string customData)
         {
+            return CreateNewOrder(totalAmount, Section.DefaultCurrency, customData);
+        }
+
+        public static IShopOrder CreateNewOrder(decimal totalAmount, Currency currency, string customData)
+        {
             var id = GenerateNextOrderNumber();
 
-            return CreateNewOrder(id, totalAmount, customData);
+            return CreateNewOrder(id, totalAmount, currency, customData);
         }
 
         public static IShopOrder CreateNewOrder(string orderId, decimal totalAmount, string customData)
+        {
+            return CreateNewOrder(orderId, totalAmount, Section.DefaultCurrency, customData);
+        }
+
+        public static IShopOrder CreateNewOrder(string orderId, decimal totalAmount, Currency currency, string customData)
         {
             using (var data = new DataConnection())
             {
@@ -74,6 +89,7 @@ namespace CompositeC1Contrib.ECommerce
                 order.Id = orderId;
                 order.CreatedOn = DateTime.UtcNow;
                 order.OrderTotal = totalAmount;
+                order.Currency = currency.ToString();
                 order.CustomData = customData;
 
                 order = data.Add(order);
