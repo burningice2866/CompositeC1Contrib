@@ -31,7 +31,7 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 
                 for (int i = 0; i < hash.Length; i++)
                 {
-                    sb.Append(i.ToString("X2"));
+                    sb.Append(hash[i].ToString("X2"));
                 }
 
                 return sb.ToString();
