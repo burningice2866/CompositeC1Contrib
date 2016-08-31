@@ -59,6 +59,7 @@ namespace CompositeC1Contrib.ECommerce
                         paymentRequest.ShopOrderId = order.Id;
                     }
 
+                    paymentRequest.ProviderName = ECommerceSection.GetSection().DefaultProvider;
                     paymentRequest.AuthorizationData = order.AuthorizationXml;
                     paymentRequest.AuthorizationTransactionId = order.AuthorizationTransactionId;
                     paymentRequest.PaymentMethod = order.CreditCardType;

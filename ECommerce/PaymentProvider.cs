@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Configuration.Provider;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,8 +35,13 @@ namespace CompositeC1Contrib.ECommerce
 
         public override void Initialize(string name, NameValueCollection config)
         {
+            Language = ExtractConfigurationValue(config, "language", false);
+            if (String.IsNullOrEmpty(Language))
+            {
+                Language = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+            }
+
             MerchantId = ExtractConfigurationValue(config, "merchantId", true);
-            Language = ExtractConfigurationValue(config, "language", true);
             PaymentMethods = ExtractConfigurationValue(config, "paymentMethods", false);
 
             config.Remove("inherits");

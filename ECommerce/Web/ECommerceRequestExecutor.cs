@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace CompositeC1Contrib.ECommerce.Web
     {
         private static readonly ECommerceSection Config = ECommerceSection.GetSection();
         private static readonly IOrderProcessor OrderProcessor = ECommerce.OrderProcessor;
+        private static readonly IReadOnlyDictionary<string, PaymentProvider> Providers = ECommerce.Providers;
 
         private readonly HttpContextBase _context;
 
@@ -126,8 +128,14 @@ namespace CompositeC1Contrib.ECommerce.Web
                     return;
                 }
 
-                var provider = ResolvePaymentProvider(order.Id);
-                var isAuthorized = await provider.IsPaymentAuthorizedAsync(order);
+                var isAuthorized = (PaymentStatus)order.PaymentStatus == PaymentStatus.Authorized;
+                if (!isAuthorized)
+                {
+                    var provider = ResolvePaymentProvider(order.Id);
+
+                    isAuthorized = await provider.IsPaymentAuthorizedAsync(order);
+                }
+
                 if (!isAuthorized)
                 {
                     order.WriteLog("debug", "Payment isn't authorized");
@@ -145,7 +153,7 @@ namespace CompositeC1Contrib.ECommerce.Web
 
         private async Task<string> ResolveOrderIdFromRequestAsync(HttpRequestBase request)
         {
-            foreach (var provider in ECommerce.Providers.Values)
+            foreach (var provider in Providers.Values)
             {
                 var orderId = await provider.ResolveOrderIdFromRequestAsync(request);
                 if (!String.IsNullOrEmpty(orderId))
