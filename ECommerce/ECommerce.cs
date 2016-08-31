@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Web.Configuration;
 using System.Web.Hosting;
 
+using Composite.Core.IO;
 using Composite.Data;
 
 using CompositeC1Contrib.ECommerce.Configuration;
@@ -22,8 +23,54 @@ namespace CompositeC1Contrib.ECommerce
 
         private static readonly ECommerceSection Section = ECommerceSection.GetSection();
 
-        public static PaymentProvider DefaultProvider { get; private set; }
-        public static IOrderProcessor OrderProcessor { get; private set; }
+        private static IOrderProcessor _orderProcessor;
+        public static IOrderProcessor OrderProcessor
+        {
+            get
+            {
+                if (_orderProcessor == null)
+                {
+                    lock (Lock)
+                    {
+                        if (_orderProcessor == null)
+                        {
+                            if (String.IsNullOrEmpty(Section.OrderProcessor))
+                            {
+                                return null;
+                            }
+
+                            var type = Type.GetType(Section.OrderProcessor);
+                            if (type == null)
+                            {
+                                return null;
+                            }
+
+                            try
+                            {
+                                _orderProcessor = Activator.CreateInstance(type) as IOrderProcessor;
+                            }
+                            catch (Exception e)
+                            {
+                                ECommerceLog.WriteLog("Error instantiating orderprocessor", e);
+                            }
+                        }
+                    }
+                }
+
+                return _orderProcessor;
+            }
+        }
+
+        public static IReadOnlyDictionary<string, PaymentProvider> Providers
+        {
+            get
+            {
+                return Section.Providers.Cast<ProviderSettings>()
+                    .Select(p => Section.GetProviderInstance(p.Name))
+                    .Where(p => p != null)
+                    .ToDictionary(p => p.Name);
+            }
+        }
 
         public static int MinimumOrderNumberLength
         {
@@ -38,19 +85,6 @@ namespace CompositeC1Contrib.ECommerce
         public static bool IsTestMode
         {
             get { return Section.TestMode; }
-        }
-
-        static ECommerce()
-        {
-            var settings = Section.Providers.Cast<ProviderSettings>().Single(p => p.Name == Section.DefaultProvider);
-
-            var type = Type.GetType(settings.Type);
-            if (type != null)
-            {
-                DefaultProvider = (PaymentProvider)ProvidersHelper.InstantiateProvider(settings, type);
-            }
-
-            OrderProcessor = ResolveOrderProcessor();
         }
 
         public static IShopOrder CreateNewOrder(decimal totalAmount)
@@ -94,7 +128,7 @@ namespace CompositeC1Contrib.ECommerce
 
                 order = data.Add(order);
 
-                Utils.WriteLog(order, "created");
+                order.WriteLog("created");
 
                 return order;
             }
@@ -106,12 +140,12 @@ namespace CompositeC1Contrib.ECommerce
 
             lock (Lock)
             {
-                var content = File.ReadAllText(LastUsedOrderIdFile);
+                var content = C1File.ReadAllText(LastUsedOrderIdFile);
                 int.TryParse(content, out orderId);
 
                 orderId = orderId + 1;
 
-                File.WriteAllText(LastUsedOrderIdFile, orderId.ToString(CultureInfo.InvariantCulture));
+                C1File.WriteAllText(LastUsedOrderIdFile, orderId.ToString(CultureInfo.InvariantCulture));
             }
 
             string sOrderId;
@@ -151,22 +185,6 @@ namespace CompositeC1Contrib.ECommerce
             sOrderId = sOrderId.Trim();
 
             return sOrderId;
-        }
-
-        private static IOrderProcessor ResolveOrderProcessor()
-        {
-            if (String.IsNullOrEmpty(Section.OrderProcessor))
-            {
-                return null;
-            }
-
-            var type = Type.GetType(Section.OrderProcessor);
-            if (type == null)
-            {
-                return null;
-            }
-
-            return Activator.CreateInstance(type) as IOrderProcessor;
         }
     }
 }

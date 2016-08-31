@@ -68,10 +68,10 @@
     <Compile Include="C1Console\ElementProviders\EntityTokens\PendingOrdersEntityToken.cs" />
     <Compile Include="Configuration\ECommerceSection.cs" />
     <Compile Include="Currency.cs" />
+    <Compile Include="Data\Types\IPaymentRequest.cs" />
     <Compile Include="Data\Types\IShopOrderLog.cs" />
     <Compile Include="ECommerce.cs" />
     <Compile Include="ECommerceBackgroundProcess.cs" />
-    <Compile Include="FileUtils.cs" />
     <Compile Include="IOrderProcessor.cs" />
     <Compile Include="PaymentProvider.cs" />
     <Compile Include="DibsProvider.cs" />
@@ -80,11 +80,11 @@
     <Compile Include="PaymentStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuickpayV10Provider.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="ShopOrderExtensions.cs" />
+    <Compile Include="ECommerceLog.cs" />
     <Compile Include="Web\ECommerceRequestExecutor.cs" />
     <Compile Include="Web\ECommerceHttpHandler.cs" />
     <Compile Include="OwinExtensions.cs" />
-    <Compile Include="Web\GenericRouteHandler.cs" />
     <Compile Include="Web\UI\ListShopOrders.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>

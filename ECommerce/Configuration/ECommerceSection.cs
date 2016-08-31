@@ -1,10 +1,15 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Configuration;
+using System.Web.Configuration;
 
 namespace CompositeC1Contrib.ECommerce.Configuration
 {
     public class ECommerceSection : ConfigurationSection
     {
         private const string ConfigPath = "compositeC1Contrib/eCommerce";
+
+        private static ConcurrentDictionary<string, PaymentProvider> _providers = new ConcurrentDictionary<string, PaymentProvider>();
 
         [ConfigurationProperty("defaultProvider")]
         public string DefaultProvider
@@ -80,6 +85,31 @@ namespace CompositeC1Contrib.ECommerce.Configuration
         public ProviderSettingsCollection Providers
         {
             get { return (ProviderSettingsCollection)base["providers"]; }
+        }
+
+        public PaymentProvider GetProviderInstance(string name)
+        {
+            return _providers.GetOrAdd(name, s =>
+            {
+                var settings = Providers[name];
+
+                var type = Type.GetType(settings.Type);
+                if (type == null)
+                {
+                    return null;
+                }
+
+                try
+                {
+                    return (PaymentProvider)ProvidersHelper.InstantiateProvider(settings, type);
+                }
+                catch (Exception e)
+                {
+                    ECommerceLog.WriteLog("Error instantiating provider", e);
+
+                    return null;
+                }
+            });
         }
 
         public static ECommerceSection GetSection()

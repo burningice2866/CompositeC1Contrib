@@ -9,6 +9,7 @@ using CompositeC1Contrib.ECommerce.Configuration;
 using CompositeC1Contrib.ECommerce.Data.Types;
 using CompositeC1Contrib.ECommerce.Web;
 using CompositeC1Contrib.ScheduledTasks;
+using CompositeC1Contrib.Web;
 
 using Owin;
 
@@ -18,12 +19,13 @@ namespace CompositeC1Contrib.ECommerce
     {
         public static void UseCompositeC1ContribECommerce(this IAppBuilder app, ScheduledTasksConfiguration scheduledTasksConfig)
         {
-            RouteTable.Routes.Add(new Route("ecommerce/{*pathInfo}", new GenericRouteHandler<ECommerceHttpHandler>()));
+            RouteTable.Routes.AddGenericHandler<ECommerceHttpHandler>("ecommerce/{*pathInfo}");
 
             scheduledTasksConfig.AddBackgroundProcess(new ECommerceBackgroundProcess());
 
             DynamicTypeManager.EnsureCreateStore(typeof(IShopOrder));
             DynamicTypeManager.EnsureCreateStore(typeof(IShopOrderLog));
+            DynamicTypeManager.EnsureCreateStore(typeof(IPaymentRequest));
 
             Upgrade();
         }
@@ -40,6 +42,40 @@ namespace CompositeC1Contrib.ECommerce
                 foreach (var order in orders)
                 {
                     order.Currency = defaultCurrency.ToString();
+
+                    update.Add(order);
+                }
+
+                data.Update<IShopOrder>(update);
+
+                orders = data.Get<IShopOrder>().Where(o => o.AuthorizationXml != null || o.AuthorizationTransactionId != null || o.CreditCardType != null).ToList();
+                foreach (var order in orders)
+                {
+                    var paymentRequest = data.Get<IPaymentRequest>().SingleOrDefault(p => p.ShopOrderId == order.Id);
+                    if (paymentRequest == null)
+                    {
+                        paymentRequest = data.CreateNew<IPaymentRequest>();
+
+                        paymentRequest.ShopOrderId = order.Id;
+                    }
+
+                    paymentRequest.AuthorizationData = order.AuthorizationXml;
+                    paymentRequest.AuthorizationTransactionId = order.AuthorizationTransactionId;
+                    paymentRequest.PaymentMethod = order.CreditCardType;
+                    paymentRequest.Accepted = (PaymentStatus)order.PaymentStatus == PaymentStatus.Authorized;
+
+                    if (paymentRequest.DataSourceId.ExistsInStore)
+                    {
+                        data.Update(paymentRequest);
+                    }
+                    else
+                    {
+                        data.Add(paymentRequest);
+                    }
+
+                    order.AuthorizationXml = null;
+                    order.AuthorizationTransactionId = null;
+                    order.CreditCardType = null;
 
                     update.Add(order);
                 }

@@ -5,8 +5,8 @@
 
   <mi:PackageInformation name="CompositeC1Contrib.ECommerce"
                          groupName="Contribution.CompositeC1Contrib"
-                         version="0.4.1" author="@burningice" website="http://compositec1contrib.codeplex.com"
-                         readMoreUrl="http://compositec1contrib.codeplex.com"
+                         version="0.5.0" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/ECommerce"
+                         readMoreUrl="https://github.com/burningice2866/CompositeC1Contrib/tree/master/ECommerce"
                          id="ae333251-499a-498a-8ef2-bf717f08a3a2"
                          canBeUninstalled="true"
                          systemLocking="hard"
@@ -18,7 +18,7 @@
   <mi:PackageFragmentInstallers>
     <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentUninstaller, Composite">
       <Files>
-        <File sourceFilename="~\bin\CompositeC1Contrib.Teasers.dll" targetFilename="~\bin\CompositeC1Contrib.Teasers.dll" allowOverwrite="true" />
+        <File sourceFilename="~\bin\CompositeC1Contrib.ECommerce.dll" targetFilename="~\bin\CompositeC1Contrib.ECommerce.dll" allowOverwrite="true" />
       </Files>
 
       <Directories>

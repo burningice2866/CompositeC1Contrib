@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
@@ -20,7 +19,7 @@ namespace CompositeC1Contrib.ECommerce
         private const string Msgtype = "authorize";
         private const string StatusOk = "000";
 
-        private string _md5Secret;
+        protected string Md5Secret { get; private set; }
 
         protected override string PaymentWindowEndpoint
         {
@@ -29,19 +28,8 @@ namespace CompositeC1Contrib.ECommerce
 
         public override void Initialize(string name, NameValueCollection config)
         {
-            if (config == null)
-            {
-                throw new ArgumentNullException("config");
-            }
-
-            _md5Secret = config["md5Secret"];
-            if (String.IsNullOrEmpty(_md5Secret))
-            {
-                throw new ConfigurationErrorsException("md5Secret");
-            }
-
-            config.Remove("md5Secret");
-
+            Md5Secret = ExtractConfigurationValue(config, "md5Secret", true);
+            
             base.Initialize(name, config);
         }
 
@@ -69,9 +57,6 @@ namespace CompositeC1Contrib.ECommerce
             *md5check	/^[a-z0-9]{32}$/	A MD5 checksum to ensure data integrity. See http://quickpay.net/faq/md5check/ for more information.
             */
 
-            var cultureInfo = CultureInfo.CurrentCulture;
-
-            var language = cultureInfo.TwoLetterISOLanguageName;
             var ordernumber = order.Id;
             var currency = ResolveCurrency(order);
             var amount = GetMinorCurrencyUnit(order.OrderTotal, currency).ToString("0", CultureInfo.InvariantCulture);
@@ -82,19 +67,17 @@ namespace CompositeC1Contrib.ECommerce
             var callbackurl = ParseUrl(CallbackUrl, currentUri);
             var autocapture = String.Empty;
             var autofee = String.Empty;
-            var cardtypelock = String.Empty;
+            var cardtypelock = PaymentMethods ?? String.Empty;
             var description = String.Empty;
             var group = String.Empty;
             var testmode = IsTestMode ? "1" : String.Empty;
             var splitpayment = String.Empty;
             // optional end
 
-            var md5Secret = _md5Secret;
-
             var stringToMd5 = String.Concat(
-                Protocol, Msgtype, MerchantId, language, ordernumber, amount, currency, continueUrl, cancelUrl,
+                Protocol, Msgtype, MerchantId, Language, ordernumber, amount, currency, continueUrl, cancelUrl,
                 callbackurl, autocapture, autofee, cardtypelock, description, group, testmode, splitpayment,
-                md5Secret);
+                Md5Secret);
 
             var md5Check = GetMd5(stringToMd5);
 
@@ -103,7 +86,7 @@ namespace CompositeC1Contrib.ECommerce
                 {"protocol", Protocol},
                 {"msgtype", Msgtype},
                 {"merchant", MerchantId},
-                {"language", language},
+                {"language", Language},
                 {"ordernumber", ordernumber},
                 {"amount", amount},
                 {"currency", currency.ToString()},
@@ -123,133 +106,147 @@ namespace CompositeC1Contrib.ECommerce
             return GetFormPost(order, param);
         }
 
-        public override async Task<IShopOrder> HandleCallbackAsync(HttpContextBase context)
+        public override async Task<string> ResolveOrderIdFromRequestAsync(HttpRequestBase request)
         {
             return await Task.Run(() =>
             {
-                /*  Documentation.  Response data fields
-                msgtype	/^[a-z]$/	Defines which action was performed - Each message type is described in detail later
-                ordernumber	/^[a-zA-Z0-9]{4,20}$/	A value specified by merchant in the initial request.
-                amount	/^[0-9]{1,10}$/	The amount defined in the request in its smallest unit. In example, 1 EUR is written 100.
-                currency	/^[A-Z]{3}$/	The transaction currency as the 3-letter ISO 4217 alphabetical code.
-                time	/^[0-9]{12}$/	The time of which the message was handled. Format is YYMMDDHHIISS.
-                state	/^[1-9]{1,2}$/	The current state of the transaction. See http://quickpay.net/faq/transaction-states/
-                qpstat	/^[0-9]{3}$/	Return code from QuickPay. See http://quickpay.net/faq/status-codes/
-                qpstatmsg	/^[\w -.]{1,}$/	A message detailing errors and warnings if any.
-                chstat	/^[0-9]{3}$/	Return code from the clearing house. Please refer to the clearing house documentation.
-                chstatmsg	/^[\w -.]{1,}$/	A message from the clearing house detailing errors and warnings if any.
-                merchant	/^[\w -.]{1,100}$/	The QuickPay merchant name
-                merchantemail	/^[\w_-.\@]{6,}$/	The QuickPay merchant email/username
-                transaction	/^[0-9]{1,32}$/	The id assigned to the current transaction.
-                cardtype	/^[\w-]{1,32}$/	The card type used to authorize the transaction.
-                cardnumber	/^[\w\s]{,32}$/	A truncated version of the card number - eg. 'XXXX XXXX XXXX 1234'. Note: This field will be empty for other message types than 'authorize' and 'subscribe'.
-                cardexpire	/^[\w\s]{,4}$/	Expire date on the card used in a 'subscribe'. Notation is 'yymm'. Note: This field will be empty for other message types than 'subscribe'.
-                splitpayment	/^[0|1]$/	Spitpayment enabled on transaction. See http://quickpay.net/features/split-payment/ for more information. (API v4 only)
-                fraudprobability	/^[low|medium|high]?$/	Fraud probability if fraudcheck was performed. (API v4 only)
-                fraudremarks	/^.*?$/	Fraud remarks if fraudcheck was performed. (API v4 only)
-                fraudreport	/^.*?$/	Fraud report if given. (API v4 only)
-                fee	/^[0-9]{,10}$/	Will contain the calculated fee, if autofee was activated in request. See http://quickpay.net/features/transaction-fees/ for more information.
-                md5check	/^[a-z0-9]{32}$/	A MD5 checksum to ensure data integrity. See http://quickpay.net/faq/md5check/ for more information.
-                *  TESTNUMBERS
-                *  I testmode kan man fremprovokere fejlrespons ved, at sende kortoplysninger der indeholder et bogstav, f.eks:
+                var form = request.Form;
 
-                *  Cart that WILL FAIL
-                Korntnr: 4571123412341234, Udløbsdato: 09/12 og cvd: 12a.
+                return GetFormString("ordernumber", form);
+            });
+        }
 
-                Så bliver kortet afvist, selv om der køres i testmode.
+        public override async Task<IShopOrder> HandleCallbackAsync(HttpContextBase context)
+        {
+            /*  Documentation.  Response data fields
+            msgtype	/^[a-z]$/	Defines which action was performed - Each message type is described in detail later
+            ordernumber	/^[a-zA-Z0-9]{4,20}$/	A value specified by merchant in the initial request.
+            amount	/^[0-9]{1,10}$/	The amount defined in the request in its smallest unit. In example, 1 EUR is written 100.
+            currency	/^[A-Z]{3}$/	The transaction currency as the 3-letter ISO 4217 alphabetical code.
+            time	/^[0-9]{12}$/	The time of which the message was handled. Format is YYMMDDHHIISS.
+            state	/^[1-9]{1,2}$/	The current state of the transaction. See http://quickpay.net/faq/transaction-states/
+            qpstat	/^[0-9]{3}$/	Return code from QuickPay. See http://quickpay.net/faq/status-codes/
+            qpstatmsg	/^[\w -.]{1,}$/	A message detailing errors and warnings if any.
+            chstat	/^[0-9]{3}$/	Return code from the clearing house. Please refer to the clearing house documentation.
+            chstatmsg	/^[\w -.]{1,}$/	A message from the clearing house detailing errors and warnings if any.
+            merchant	/^[\w -.]{1,100}$/	The QuickPay merchant name
+            merchantemail	/^[\w_-.\@]{6,}$/	The QuickPay merchant email/username
+            transaction	/^[0-9]{1,32}$/	The id assigned to the current transaction.
+            cardtype	/^[\w-]{1,32}$/	The card type used to authorize the transaction.
+            cardnumber	/^[\w\s]{,32}$/	A truncated version of the card number - eg. 'XXXX XXXX XXXX 1234'. Note: This field will be empty for other message types than 'authorize' and 'subscribe'.
+            cardexpire	/^[\w\s]{,4}$/	Expire date on the card used in a 'subscribe'. Notation is 'yymm'. Note: This field will be empty for other message types than 'subscribe'.
+            splitpayment	/^[0|1]$/	Spitpayment enabled on transaction. See http://quickpay.net/features/split-payment/ for more information. (API v4 only)
+            fraudprobability	/^[low|medium|high]?$/	Fraud probability if fraudcheck was performed. (API v4 only)
+            fraudremarks	/^.*?$/	Fraud remarks if fraudcheck was performed. (API v4 only)
+            fraudreport	/^.*?$/	Fraud report if given. (API v4 only)
+            fee	/^[0-9]{,10}$/	Will contain the calculated fee, if autofee was activated in request. See http://quickpay.net/features/transaction-fees/ for more information.
+            md5check	/^[a-z0-9]{32}$/	A MD5 checksum to ensure data integrity. See http://quickpay.net/faq/md5check/ for more information.
+            *  TESTNUMBERS
+            *  I testmode kan man fremprovokere fejlrespons ved, at sende kortoplysninger der indeholder et bogstav, f.eks:
 
-                *  Cart that WILL SUCEED
-                En succesrespons kan opnåes ved at bruge f.eks.:
+            *  Cart that WILL FAIL
+            Korntnr: 4571123412341234, Udløbsdato: 09/12 og cvd: 12a.
 
-                Kortnr: 4571123412341234, Udløbsdato: 09/12 og cvd: 123.
+            Så bliver kortet afvist, selv om der køres i testmode.
 
-                *  Possible status codes
-                Code 	Description
-                000 	Approved.
-                001 	Rejected by clearing house. See field 'chstat' and 'chstatmsg' for further explanation.
-                002 	Communication error.
-                003 	Card expired.
-                004 	Transition is not allowed for transaction current state.
-                005 	Authorization is expired.
-                006 	Error reported by clearing house.
-                007 	Error reported by QuickPay.
-                008 	Error in request data.
-                */
+            *  Cart that WILL SUCEED
+            En succesrespons kan opnåes ved at bruge f.eks.:
 
-                var form = context.Request.Form;
+            Kortnr: 4571123412341234, Udløbsdato: 09/12 og cvd: 123.
 
-                var ordernumber = GetFormString("ordernumber", form);
+            *  Possible status codes
+            Code 	Description
+            000 	Approved.
+            001 	Rejected by clearing house. See field 'chstat' and 'chstatmsg' for further explanation.
+            002 	Communication error.
+            003 	Card expired.
+            004 	Transition is not allowed for transaction current state.
+            005 	Authorization is expired.
+            006 	Error reported by clearing house.
+            007 	Error reported by QuickPay.
+            008 	Error in request data.
+            */
 
-                using (var data = new DataConnection())
+            var orderId = await ResolveOrderIdFromRequestAsync(context.Request);
+
+            using (var data = new DataConnection())
+            {
+                var order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderId);
+                if (order == null)
                 {
-                    var order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == ordernumber);
-                    if (order == null)
-                    {
-                        Utils.WriteLog("Error, no order with number " + ordernumber);
+                    ECommerceLog.WriteLog("Error, no order with number " + orderId);
 
-                        return null;
-                    }
+                    return null;
+                }
 
-                    if (order.PaymentStatus == (int)PaymentStatus.Authorized)
-                    {
-                        Utils.WriteLog(order, "debug", "Payment is already authorized");
-
-                        return order;
-                    }
-
-                    var qpstat = GetFormString("qpstat", form);
-                    if (qpstat != StatusOk)
-                    {
-                        Utils.WriteLog(order, "debug", "Error in status, values is " + qpstat + " but " + StatusOk + " was expected");
-
-                        return order;
-                    }
-
-                    var msgtype = GetFormString("msgtype", form);
-                    var amount = GetFormString("amount", form);
-                    var currency = GetFormString("currency", form);
-                    var time = GetFormString("time", form);
-                    var state = GetFormString("state", form);
-                    var qpstatmsg = GetFormString("qpstatmsg", form);
-                    var chstat = GetFormString("chstat", form);
-                    var chstatmsg = GetFormString("chstatmsg", form);
-                    var merchant = GetFormString("merchant", form);
-                    var merchantemail = GetFormString("merchantemail", form);
-                    var transactionId = GetFormString("transaction", form);
-                    var cardtype = GetFormString("cardtype", form);
-                    var cardnumber = GetFormString("cardnumber", form);
-                    var cardexpire = GetFormString("cardexpire", form);
-                    var splitpayment = GetFormString("splitpayment", form);
-                    var fraudprobability = GetFormString("fraudprobability", form);
-                    var fraudremarks = GetFormString("fraudremarks", form);
-                    var fraudreport = GetFormString("fraudreport", form);
-                    var fee = GetFormString("fee", form);
-                    var md5Check = GetFormString("md5check", form);
-
-                    var serverMd5Check = GetMd5(String.Concat(
-                        msgtype, ordernumber, amount, currency, time, state, qpstat, qpstatmsg, chstat, chstatmsg,
-                        merchant, merchantemail, transactionId, cardtype, cardnumber, cardexpire, splitpayment,
-                        fraudprobability, fraudremarks, fraudreport, fee, _md5Secret
-                        ));
-
-                    if (md5Check != serverMd5Check)
-                    {
-                        Utils.WriteLog(order, "debug", "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
-
-                        return order;
-                    }
-
-                    order.AuthorizationXml = OrderDataToXml(form);
-                    order.AuthorizationTransactionId = transactionId;
-                    order.PaymentStatus = (int)PaymentStatus.Authorized;
-
-                    data.Update(order);
-
-                    Utils.WriteLog(order, "authorized");
+                if (order.PaymentStatus == (int)PaymentStatus.Authorized)
+                {
+                    order.WriteLog("debug", "Payment is already authorized");
 
                     return order;
                 }
-            });
+
+                var form = context.Request.Form;
+
+                var qpstat = GetFormString("qpstat", form);
+                if (qpstat != StatusOk)
+                {
+                    order.WriteLog("debug", "Error in status, values is " + qpstat + " but " + StatusOk + " was expected");
+
+                    return order;
+                }
+
+                var msgtype = GetFormString("msgtype", form);
+                var amount = GetFormString("amount", form);
+                var currency = GetFormString("currency", form);
+                var time = GetFormString("time", form);
+                var state = GetFormString("state", form);
+                var qpstatmsg = GetFormString("qpstatmsg", form);
+                var chstat = GetFormString("chstat", form);
+                var chstatmsg = GetFormString("chstatmsg", form);
+                var merchant = GetFormString("merchant", form);
+                var merchantemail = GetFormString("merchantemail", form);
+                var transactionId = GetFormString("transaction", form);
+                var cardtype = GetFormString("cardtype", form);
+                var cardnumber = GetFormString("cardnumber", form);
+                var cardexpire = GetFormString("cardexpire", form);
+                var splitpayment = GetFormString("splitpayment", form);
+                var fraudprobability = GetFormString("fraudprobability", form);
+                var fraudremarks = GetFormString("fraudremarks", form);
+                var fraudreport = GetFormString("fraudreport", form);
+                var fee = GetFormString("fee", form);
+                var md5Check = GetFormString("md5check", form);
+
+                var serverMd5Check = GetMd5(String.Concat(
+                    msgtype, orderId, amount, currency, time, state, qpstat, qpstatmsg, chstat, chstatmsg,
+                    merchant, merchantemail, transactionId, cardtype, cardnumber, cardexpire, splitpayment,
+                    fraudprobability, fraudremarks, fraudreport, fee, Md5Secret
+                    ));
+
+                if (md5Check != serverMd5Check)
+                {
+                    order.WriteLog("debug", "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
+
+                    return order;
+                }
+
+                var paymentRequest = data.Get<IPaymentRequest>().Single(r => r.ShopOrderId == order.Id);
+
+                paymentRequest.Accepted = true;
+                paymentRequest.AuthorizationData = OrderDataToXml(form);
+                paymentRequest.AuthorizationTransactionId = transactionId;
+                paymentRequest.PaymentMethod = cardtype;
+
+                data.Update(paymentRequest);
+
+                order.PaymentStatus = (int)PaymentStatus.Authorized;
+
+                data.Update(order);
+
+                order.WriteLog("authorized");
+
+                return order;
+            }
         }
 
         private static string GetMd5(string inputStr)

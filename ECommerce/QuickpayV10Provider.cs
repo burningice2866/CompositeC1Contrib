@@ -20,14 +20,13 @@ namespace CompositeC1Contrib.ECommerce
 {
     public class QuickpayV10Provider : PaymentProvider
     {
-        private string _agreementId;
-        private string _privateKey;
-        private string _paymentUserApiKey;
-        private string _paymentMethods;
-        private string _googleTrackingId;
+        protected string AgreementId { get; private set; }
+        protected string PrivateKey { get; private set; }
+        protected string PaymentUserApiKey { get; private set; }
+        protected string GoogleTrackingId { get; private set; }
 
-        private Uri _apiEndpoint;
-        private string _apiUserApiKey;
+        protected Uri ApiEndpoint { get; private set; }
+        protected string ApiUserApiKey { get; private set; }
 
         protected override string PaymentWindowEndpoint
         {
@@ -36,11 +35,10 @@ namespace CompositeC1Contrib.ECommerce
 
         public override void Initialize(string name, NameValueCollection config)
         {
-            _agreementId = ExtractConfigurationValue(config, "agreementId", true);
-            _privateKey = ExtractConfigurationValue(config, "privateKey", true);
-            _paymentUserApiKey = ExtractConfigurationValue(config, "paymentUserApiKey", true);
-            _paymentMethods = ExtractConfigurationValue(config, "paymentMethods", false);
-            _googleTrackingId = ExtractConfigurationValue(config, "googleTrackingId", false);
+            AgreementId = ExtractConfigurationValue(config, "agreementId", true);
+            PrivateKey = ExtractConfigurationValue(config, "privateKey", true);
+            PaymentUserApiKey = ExtractConfigurationValue(config, "paymentUserApiKey", true);
+            GoogleTrackingId = ExtractConfigurationValue(config, "googleTrackingId", false);
 
             var apiEndpoint = ExtractConfigurationValue(config, "apiEndpoint", false);
             if (String.IsNullOrEmpty(apiEndpoint))
@@ -48,10 +46,10 @@ namespace CompositeC1Contrib.ECommerce
                 apiEndpoint = "https://api.quickpay.net";
             }
 
-            _apiEndpoint = new Uri(apiEndpoint);
+            ApiEndpoint = new Uri(apiEndpoint);
 
-            _apiUserApiKey = ExtractConfigurationValue(config, "apiUserApiKey", true);
-
+            ApiUserApiKey = ExtractConfigurationValue(config, "apiUserApiKey", true);
+            
             base.Initialize(name, config);
         }
 
@@ -68,24 +66,24 @@ namespace CompositeC1Contrib.ECommerce
             {
                 {"version", "v10"},
                 {"merchant_id", MerchantId},
-                {"agreement_id", _agreementId},
+                {"agreement_id", AgreementId},
                 {"order_id", order.Id},
                 {"amount", amount},
                 {"currency", currency.ToString()},
                 {"continueurl", continueUrl},
                 {"cancelurl", cancelUrl},
                 {"callbackurl", callbackUrl},
-                {"language", "da"}
+                {"language", Language}
             };
 
-            if (!String.IsNullOrEmpty(_paymentMethods))
+            if (!String.IsNullOrEmpty(PaymentMethods))
             {
-                param.Add("payment_methods", _paymentMethods);
+                param.Add("payment_methods", PaymentMethods);
             }
 
-            if (!IsTestMode && !String.IsNullOrEmpty(_googleTrackingId))
+            if (!IsTestMode && !String.IsNullOrEmpty(GoogleTrackingId))
             {
-                param.Add("google_analytics_tracking_id", _googleTrackingId);
+                param.Add("google_analytics_tracking_id", GoogleTrackingId);
             }
 
             var checksum = Sign(param);
@@ -105,11 +103,11 @@ namespace CompositeC1Contrib.ECommerce
 
             using (var client = new HttpClient())
             {
-                var url = new Uri(_apiEndpoint, "/payments?order_id=" + order.Id);
+                var url = new Uri(ApiEndpoint, "/payments?order_id=" + order.Id);
 
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-                var byteArray = Encoding.ASCII.GetBytes(":" + _apiUserApiKey);
+                var byteArray = Encoding.ASCII.GetBytes(":" + ApiUserApiKey);
                 var base64 = Convert.ToBase64String(byteArray);
 
                 request.Headers.Add("Accept-Version", "v10");
@@ -130,6 +128,16 @@ namespace CompositeC1Contrib.ECommerce
             }
         }
 
+        public override async Task<string> ResolveOrderIdFromRequestAsync(HttpRequestBase request)
+        {
+            var input = await GetRequestContentsAsync(request);
+
+            var json = (JObject)JsonConvert.DeserializeObject(input);
+            var orderId = json["order_id"].Value<string>();
+
+            return orderId;
+        }
+
         public override async Task<IShopOrder> HandleCallbackAsync(HttpContextBase context)
         {
             //http://tech.quickpay.net/api/callback/
@@ -137,9 +145,9 @@ namespace CompositeC1Contrib.ECommerce
             var input = await GetRequestContentsAsync(context.Request);
 
             var checkSum = context.Request.Headers.Get("Quickpay-Checksum-Sha256");
-            if (checkSum != Sign(input, _privateKey))
+            if (checkSum != Sign(input, PrivateKey))
             {
-                Utils.WriteLog("Error validating the checksum");
+                ECommerceLog.WriteLog("Error validating the checksum");
 
                 return null;
             }
@@ -159,14 +167,14 @@ namespace CompositeC1Contrib.ECommerce
                 order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderId);
                 if (order == null)
                 {
-                    Utils.WriteLog("Invalid orderid " + orderId);
+                    ECommerceLog.WriteLog("Invalid orderid " + orderId);
 
                     return false;
                 }
 
                 if (order.PaymentStatus == (int)PaymentStatus.Authorized)
                 {
-                    Utils.WriteLog(order, "debug", "Payment is already authorized");
+                    order.WriteLog("debug", "Payment is already authorized");
 
                     return true;
                 }
@@ -174,7 +182,7 @@ namespace CompositeC1Contrib.ECommerce
                 var accepted = json["accepted"].Value<bool>();
                 if (!accepted)
                 {
-                    Utils.WriteLog(order, "debug", "Payment wasn't accepted");
+                    order.WriteLog("debug", "Payment wasn't accepted");
 
                     return false;
                 }
@@ -182,20 +190,25 @@ namespace CompositeC1Contrib.ECommerce
                 var testMode = json["test_mode"].Value<bool>();
                 if (testMode && !IsTestMode)
                 {
-                    Utils.WriteLog(order, "debug", "Payment was made with a test card but we're not in testmode");
+                    order.WriteLog("debug", "Payment was made with a test card but we're not in testmode");
 
                     return false;
                 }
 
-                var transactionId = json["id"].Value<int>();
+                var paymentRequest = data.Get<IPaymentRequest>().Single(r => r.ShopOrderId == orderId);
 
-                order.AuthorizationXml = json.ToString();
-                order.AuthorizationTransactionId = transactionId.ToString();
+                paymentRequest.Accepted = true;
+                paymentRequest.AuthorizationData = json.ToString();
+                paymentRequest.AuthorizationTransactionId = json["id"].Value<int>().ToString();
+                paymentRequest.PaymentMethod = json["metadata"]["type"].Value<string>();
+
+                data.Update(paymentRequest);
+
                 order.PaymentStatus = (int)PaymentStatus.Authorized;
 
                 data.Update(order);
 
-                Utils.WriteLog(order, "authorized");
+                order.WriteLog("authorized");
 
                 return true;
             }
@@ -205,7 +218,7 @@ namespace CompositeC1Contrib.ECommerce
         {
             var data = String.Join(" ", param.AllKeys.OrderBy(k => k).Select(k => param[k]).ToArray());
 
-            return Sign(data, _paymentUserApiKey);
+            return Sign(data, PaymentUserApiKey);
         }
 
         private string Sign(string data, string key)

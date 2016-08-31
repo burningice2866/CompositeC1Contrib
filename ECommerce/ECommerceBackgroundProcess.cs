@@ -32,7 +32,7 @@ namespace CompositeC1Contrib.ECommerce
             {
                 SetCultureFromWebConfig();
 
-                Utils.WriteLog("Worker is starting, orderprocessor is " + ECommerce.OrderProcessor.GetType().FullName);
+                ECommerceLog.WriteLog("Worker is starting, orderprocessor is " + ECommerce.OrderProcessor.GetType().FullName);
 
                 var ticker = 60;
 
@@ -53,7 +53,7 @@ namespace CompositeC1Contrib.ECommerce
                         }
                         catch (Exception ex)
                         {
-                            Utils.WriteLog("Unhandled error when postprocessing orders", ex);
+                            ECommerceLog.WriteLog("Unhandled error when postprocessing orders", ex);
                         }
                         finally
                         {
@@ -73,7 +73,7 @@ namespace CompositeC1Contrib.ECommerce
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                Utils.WriteLog("Unhandled error in ThreadDataManager, worker is stopping", ex);
+                ECommerceLog.WriteLog("Unhandled error in ThreadDataManager, worker is stopping", ex);
             }
         }
 
@@ -87,7 +87,7 @@ namespace CompositeC1Contrib.ECommerce
 
                 foreach (var order in orders)
                 {
-                    Utils.PostProcessOrder(order, ECommerce.OrderProcessor, data);
+                    PostProcessOrder(order, data);
 
                     context.CancellationToken.ThrowIfCancellationRequested();
                 }
@@ -110,6 +110,26 @@ namespace CompositeC1Contrib.ECommerce
             if (!String.IsNullOrEmpty(globalization.UICulture))
             {
                 Thread.CurrentThread.CurrentUICulture = new CultureInfo(globalization.UICulture);
+            }
+        }
+
+        private static void PostProcessOrder(IShopOrder order, DataConnection data)
+        {
+            order.WriteLog("postprocessing");
+
+            try
+            {
+                ECommerce.OrderProcessor.PostProcessOrder(order);
+
+                order.PostProcessed = true;
+
+                data.Update(order);
+
+                order.WriteLog("postprocessed");
+            }
+            catch (Exception ex)
+            {
+                order.WriteLog("postprocessing error", ex.ToString());
             }
         }
     }

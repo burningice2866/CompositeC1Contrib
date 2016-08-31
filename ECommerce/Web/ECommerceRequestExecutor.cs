@@ -14,7 +14,6 @@ namespace CompositeC1Contrib.ECommerce.Web
     public class ECommerceRequestExecutor
     {
         private static readonly ECommerceSection Config = ECommerceSection.GetSection();
-        private static readonly PaymentProvider Provider = ECommerce.DefaultProvider;
         private static readonly IOrderProcessor OrderProcessor = ECommerce.OrderProcessor;
 
         private readonly HttpContextBase _context;
@@ -30,32 +29,33 @@ namespace CompositeC1Contrib.ECommerce.Web
             {
                 var orderId = _context.Request.QueryString["orderid"];
 
-                Utils.WriteLog("Default request recieved on orderid " + orderId);
+                ECommerceLog.WriteLog("Default request recieved on orderid " + orderId);
 
                 using (var data = new DataConnection())
                 {
                     var order = data.Get<IShopOrder>().SingleOrDefault(o => o.Id == orderId);
                     if (order == null)
                     {
-                        Utils.WriteLog("No order with id " + orderId);
+                        ECommerceLog.WriteLog("No order with id " + orderId);
 
                         _context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
                         return;
                     }
 
-                    Utils.WriteLog(order, "paymentwindow requested");
+                    order.WriteLog("paymentwindow requested");
 
                     if (order.PaymentStatus == (int)PaymentStatus.Authorized)
                     {
-                        Utils.WriteLog(order, "debug", "Order has already been authorized");
+                        order.WriteLog("debug", "Order has already been authorized");
 
                         _context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
                         return;
                     }
 
-                    var window = Provider.GeneratePaymentWindow(order, _context.Request.Url);
+                    var provider = ResolvePaymentProvider(order.Id);
+                    var window = provider.GeneratePaymentWindow(order, _context.Request.Url);
 
                     HtmlContent(window);
                 }
@@ -66,7 +66,7 @@ namespace CompositeC1Contrib.ECommerce.Web
         {
             return SyncAction(() =>
             {
-                Utils.WriteLog("Cancel request recieved, redirecting to main page");
+                ECommerceLog.WriteLog("Cancel request recieved, redirecting to main page");
 
                 var pageUrl = GetPageUrl(Config.MainPageId) + "?reason=cancel";
 
@@ -76,19 +76,22 @@ namespace CompositeC1Contrib.ECommerce.Web
 
         public async Task HandleCallback()
         {
-            Utils.WriteLog("Callback request recieved");
+            ECommerceLog.WriteLog("Callback request recieved");
 
-            var order = await Provider.HandleCallbackAsync(_context);
+            var orderId = await ResolveOrderIdFromRequestAsync(_context.Request);
+            var provider = ResolvePaymentProvider(orderId);
+
+            var order = await provider.HandleCallbackAsync(_context);
             if (order == null)
             {
-                Utils.WriteLog("Callback failed");
+                ECommerceLog.WriteLog("Callback failed");
 
                 _context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
                 return;
             }
 
-            Utils.WriteLog(order, "callback succeeded");
+            order.WriteLog("callback succeeded");
 
             ECommerceBackgroundProcess.ProcessOrdersNow();
         }
@@ -97,36 +100,37 @@ namespace CompositeC1Contrib.ECommerce.Web
         {
             var orderId = _context.Request.QueryString["orderid"];
 
-            Utils.WriteLog("Continue request recieved on orderid " + orderId);
+            ECommerceLog.WriteLog("Continue request recieved on orderid " + orderId);
 
             using (var data = new DataConnection())
             {
                 var order = data.Get<IShopOrder>().SingleOrDefault(o => o.Id == orderId);
                 if (order == null)
                 {
-                    Utils.WriteLog("No order with id " + orderId);
+                    ECommerceLog.WriteLog("No order with id " + orderId);
 
                     _context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
                     return;
                 }
 
-                Utils.WriteLog(order, "continue requested");
+                order.WriteLog("continue requested");
 
-                var hasContinued = Utils.GetLog(order).Any(l => l.Title == "continue succeeded");
+                var hasContinued = order.GetLog().Any(l => l.Title == "continue succeeded");
                 if (hasContinued)
                 {
-                    Utils.WriteLog(order, "debug", "Continue has already succeeded");
+                    order.WriteLog("debug", "Continue has already succeeded");
 
                     _context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
                     return;
                 }
 
-                var isAuthorized = await Provider.IsPaymentAuthorizedAsync(order);
+                var provider = ResolvePaymentProvider(order.Id);
+                var isAuthorized = await provider.IsPaymentAuthorizedAsync(order);
                 if (!isAuthorized)
                 {
-                    Utils.WriteLog(order, "debug", "Payment isn't authorized");
+                    order.WriteLog("debug", "Payment isn't authorized");
 
                     _context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
@@ -135,7 +139,35 @@ namespace CompositeC1Contrib.ECommerce.Web
 
                 Receipt(order);
 
-                Utils.WriteLog(order, "continue succeeded");
+                order.WriteLog("continue succeeded");
+            }
+        }
+
+        private async Task<string> ResolveOrderIdFromRequestAsync(HttpRequestBase request)
+        {
+            foreach (var provider in ECommerce.Providers.Values)
+            {
+                var orderId = await provider.ResolveOrderIdFromRequestAsync(request);
+                if (!String.IsNullOrEmpty(orderId))
+                {
+                    return orderId;
+                }
+            }
+
+            throw new InvalidOperationException("OrderId couldn't be resolved");
+        }
+
+        private PaymentProvider ResolvePaymentProvider(string orderId)
+        {
+            using (var data = new DataConnection())
+            {
+                var paymentRequest = data.Get<IPaymentRequest>().SingleOrDefault(r => r.ShopOrderId == orderId);
+                if (paymentRequest == null)
+                {
+                    throw new InvalidOperationException(String.Format("There is no payment request for order '{0}'", orderId));
+                }
+
+                return ECommerce.Providers[paymentRequest.ProviderName];
             }
         }
 

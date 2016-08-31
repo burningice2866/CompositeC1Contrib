@@ -38,10 +38,12 @@ namespace CompositeC1Contrib.ECommerce.Data.Types
 
         [StoreFieldType(PhysicalStoreFieldType.LargeString, IsNullable = true)]
         [ImmutableFieldId("e8863c6c-afdd-4d24-b562-c93f2735ee11")]
+        [Obsolete]
         string AuthorizationXml { get; set; }
 
         [StoreFieldType(PhysicalStoreFieldType.String, 32, IsNullable = true)]
         [ImmutableFieldId("e4f2bdd9-bf66-4572-92ae-ca51bef02f43")]
+        [Obsolete]
         string AuthorizationTransactionId { get; set; }
 
         [StoreFieldType(PhysicalStoreFieldType.Integer)]
@@ -50,6 +52,7 @@ namespace CompositeC1Contrib.ECommerce.Data.Types
 
         [StoreFieldType(PhysicalStoreFieldType.String, 10, IsNullable = true)]
         [ImmutableFieldId("a0097cad-cf19-4592-851c-d54805cc1962")]
+        [Obsolete]
         string CreditCardType { get; set; }
 
         [StoreFieldType(PhysicalStoreFieldType.Boolean)]

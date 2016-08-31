@@ -24,6 +24,8 @@ namespace CompositeC1Contrib.ECommerce
         protected abstract string PaymentWindowEndpoint { get; }
 
         protected string MerchantId { get; private set; }
+        protected string Language { get; private set; }
+        protected string PaymentMethods { get; private set; }
 
         protected bool IsTestMode
         {
@@ -33,8 +35,17 @@ namespace CompositeC1Contrib.ECommerce
         public override void Initialize(string name, NameValueCollection config)
         {
             MerchantId = ExtractConfigurationValue(config, "merchantId", true);
+            Language = ExtractConfigurationValue(config, "language", true);
+            PaymentMethods = ExtractConfigurationValue(config, "paymentMethods", false);
+
+            config.Remove("inherits");
 
             base.Initialize(name, config);
+        }
+
+        public virtual Task<bool> IsPaymentAuthorizedAsync(IShopOrder order)
+        {
+            return Task.FromResult(order.PaymentStatus == (int)PaymentStatus.Authorized);
         }
 
         protected Currency ResolveCurrency(IShopOrder order)
@@ -94,7 +105,7 @@ namespace CompositeC1Contrib.ECommerce
                     new XAttribute("onload", String.Format("document.{0}.submit()", formName)),
                     form));
 
-            Utils.WriteLog(order, "paymentwindow generated", form.ToString());
+            order.WriteLog("paymentwindow generated", form.ToString());
 
             return html.ToString();
         }
@@ -118,7 +129,7 @@ namespace CompositeC1Contrib.ECommerce
             return orderXml.ToString();
         }
 
-        protected static string ExtractConfigurationValue(NameValueCollection config, string key, bool required)
+        protected string ExtractConfigurationValue(NameValueCollection config, string key, bool required)
         {
             if (config == null)
             {
@@ -126,6 +137,18 @@ namespace CompositeC1Contrib.ECommerce
             }
 
             var value = config[key];
+            if (value == null)
+            {
+                var inherits = config["inherits"];
+
+                if (!String.IsNullOrEmpty(inherits))
+                {
+                    var parameters = Config.Providers[inherits].Parameters;
+                    var copy = new NameValueCollection(parameters);
+
+                    return ExtractConfigurationValue(copy, key, required);
+                }
+            }
 
             if (String.IsNullOrEmpty(value) && required)
             {
@@ -163,12 +186,8 @@ namespace CompositeC1Contrib.ECommerce
             }
         }
 
-        public virtual Task<bool> IsPaymentAuthorizedAsync(IShopOrder order)
-        {
-            return Task.FromResult(order.PaymentStatus == (int)PaymentStatus.Authorized);
-        }
-
         public abstract string GeneratePaymentWindow(IShopOrder order, Uri currentUri);
+        public abstract Task<string> ResolveOrderIdFromRequestAsync(HttpRequestBase request);
         public abstract Task<IShopOrder> HandleCallbackAsync(HttpContextBase context);
     }
 }
