@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<cms:formdefinition xmlns="http://www.composite.net/ns/management/bindingforms/std.ui.controls.lib/1.0" xmlns:f="http://www.composite.net/ns/management/bindingforms/std.function.lib/1.0" xmlns:cms="http://www.composite.net/ns/management/bindingforms/1.0">
+  <cms:bindings>
+    <cms:binding name="Key" type="System.String" />
+    <cms:binding name="Type" type="System.String" />
+  </cms:bindings>
+
+  <cms:layout>
+    <cms:layout.label>
+      <cms:read source="Key" />
+    </cms:layout.label>
+
+    <PlaceHolder>
+      <FieldGroup Label="Settings">
+        <TextBox Label="Key" SpellCheck="false">
+          <TextBox.Text>
+            <cms:bind source="Key" />
+          </TextBox.Text>
+        </TextBox>
+
+        <KeySelector Label="Type" OptionsKeyField="Key" OptionsLabelField="Value">
+          <KeySelector.Options>
+            <f:StaticMethodCall Type="CompositeC1Contrib.Localization.C1Console.FormUtils" Method="GetResourceKeyTypes" />
+          </KeySelector.Options>
+
+          <KeySelector.Selected>
+            <cms:bind source="Type" />
+          </KeySelector.Selected>
+        </KeySelector>
+      </FieldGroup>
+    </PlaceHolder>
+  </cms:layout>
+</cms:formdefinition>

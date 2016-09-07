@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cms:formdefinition xmlns:cms="http://www.composite.net/ns/management/bindingforms/1.0" xmlns="http://www.composite.net/ns/management/bindingforms/std.ui.controls.lib/1.0" xmlns:ff="http://www.composite.net/ns/management/bindingforms/std.function.lib/1.0" xmlns:f="http://www.composite.net/ns/function/1.0">
+  <cms:bindings>
+    <cms:binding name="Namespace" type="System.String" />
+    <cms:binding name="Languages" type="System.Collections.Generic.List`1[System.String]" />
+    <cms:binding name="ResourceSets" type="System.Collections.Generic.List`1[System.String]" />
+  </cms:bindings>
+
+  <cms:layout label="Export">
+    <FieldGroup Label="Export">
+      <MultiKeySelector Label="Languages" Help="Which languages to export" OptionsKeyField="Key" OptionsLabelField="Value" Required="true" CompactMode="false">
+        <MultiKeySelector.Selected>
+          <cms:bind source="Languages" />
+        </MultiKeySelector.Selected>
+
+        <MultiKeySelector.Options>
+          <ff:StaticMethodCall Type="CompositeC1Contrib.Localization.C1Console.Workflows.ExportWorkflow, CompositeC1Contrib.Localization" Method="GetLanguages" />
+        </MultiKeySelector.Options>
+      </MultiKeySelector>
+
+      <MultiKeySelector Label="Resource sets" OptionsKeyField="Key" OptionsLabelField="Value" Required="true" CompactMode="false">
+        <MultiKeySelector.Selected>
+          <cms:bind source="ResourceSets" />
+        </MultiKeySelector.Selected>
+
+        <MultiKeySelector.Options>
+          <ff:StaticMethodCall Type="CompositeC1Contrib.Localization.C1Console.Workflows.ExportWorkflow, CompositeC1Contrib.Localization" Method="GetResourceSets" />
+        </MultiKeySelector.Options>
+      </MultiKeySelector>
+    </FieldGroup>
+  </cms:layout>
+</cms:formdefinition>
