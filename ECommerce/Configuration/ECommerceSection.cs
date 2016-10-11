@@ -53,7 +53,7 @@ namespace CompositeC1Contrib.ECommerce.Configuration
             set { this["useIFrame"] = value; }
         }
 
-        [ConfigurationProperty("orderProcessor", IsRequired = false)]
+        [ConfigurationProperty("orderProcessor", IsRequired = false, DefaultValue = "CompositeC1Contrib.ECommerce.DefaultOrderProcessor, ECommerce")]
         public string OrderProcessor
         {
             get { return (string)this["orderProcessor"]; }
@@ -67,18 +67,18 @@ namespace CompositeC1Contrib.ECommerce.Configuration
             set { this["defaultCurrency"] = value; }
         }
 
-        [ConfigurationProperty("minimumOrderNumberLength", IsRequired = false, DefaultValue = -1)]
-        public int MinimumOrderNumberLength
+        [ConfigurationProperty("minimumOrderIdLength", IsRequired = false, DefaultValue = -1)]
+        public int MinimumOrderIdLength
         {
-            get { return (int)this["minimumOrderNumberLength"]; }
-            set { this["minimumOrderNumberLength"] = value; }
+            get { return (int)this["minimumOrderIdLength"]; }
+            set { this["minimumOrderIdLength"] = value; }
         }
 
-        [ConfigurationProperty("orderNumberPrefix", IsRequired = false)]
-        public string OrderNumberPrefix
+        [ConfigurationProperty("orderIdPrefix", IsRequired = false)]
+        public string OrderIdPrefix
         {
-            get { return (string)this["orderNumberPrefix"]; }
-            set { this["orderNumberPrefix"] = value; }
+            get { return (string)this["orderIdPrefix"]; }
+            set { this["orderIdPrefix"] = value; }
         }
 
         [ConfigurationProperty("providers")]

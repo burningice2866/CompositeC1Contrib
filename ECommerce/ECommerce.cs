@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Web.Hosting;
 
-using Composite.Core.IO;
 using Composite.Data;
 
 using CompositeC1Contrib.ECommerce.Configuration;
@@ -19,7 +16,6 @@ namespace CompositeC1Contrib.ECommerce
         private static readonly object Lock = new object();
 
         public static readonly string RootPath = HostingEnvironment.MapPath("~/App_Data/ECommerce");
-        private static readonly string LastUsedOrderIdFile = Path.Combine(RootPath, "LastUsedOrderId.txt");
 
         private static readonly ECommerceSection Section = ECommerceSection.GetSection();
 
@@ -72,16 +68,6 @@ namespace CompositeC1Contrib.ECommerce
             }
         }
 
-        public static int MinimumOrderNumberLength
-        {
-            get { return Section.MinimumOrderNumberLength; }
-        }
-
-        public static string OrderNumberPrefix
-        {
-            get { return Section.OrderNumberPrefix; }
-        }
-
         public static bool IsTestMode
         {
             get { return Section.TestMode; }
@@ -89,42 +75,58 @@ namespace CompositeC1Contrib.ECommerce
 
         public static IShopOrder CreateNewOrder(decimal totalAmount)
         {
-            return CreateNewOrder(totalAmount, Section.DefaultCurrency, null);
+            return CreateNewOrder(new OrderCreationSettings
+            {
+                TotalAmount = totalAmount
+            });
         }
 
         public static IShopOrder CreateNewOrder(decimal totalAmount, Currency currency)
         {
-            return CreateNewOrder(totalAmount, currency, null);
-        }
-
-        public static IShopOrder CreateNewOrder(decimal totalAmount, string customData)
-        {
-            return CreateNewOrder(totalAmount, Section.DefaultCurrency, customData);
+            return CreateNewOrder(new OrderCreationSettings
+            {
+                TotalAmount = totalAmount,
+                Currency = currency
+            });
         }
 
         public static IShopOrder CreateNewOrder(decimal totalAmount, Currency currency, string customData)
         {
-            var id = GenerateNextOrderNumber();
-
-            return CreateNewOrder(id, totalAmount, currency, customData);
+            return CreateNewOrder(new OrderCreationSettings
+            {
+                TotalAmount = totalAmount,
+                Currency = currency,
+                CustomData = customData
+            });
         }
 
-        public static IShopOrder CreateNewOrder(string orderId, decimal totalAmount, string customData)
+        public static IShopOrder CreateNewOrder(decimal totalAmount, string customData)
         {
-            return CreateNewOrder(orderId, totalAmount, Section.DefaultCurrency, customData);
+            return CreateNewOrder(new OrderCreationSettings
+            {
+                TotalAmount = totalAmount,
+                CustomData = customData
+            });
         }
 
-        public static IShopOrder CreateNewOrder(string orderId, decimal totalAmount, Currency currency, string customData)
+        public static IShopOrder CreateNewOrder(OrderCreationSettings settings)
         {
+            if (OrderProcessor == null)
+            {
+                throw new InvalidOperationException("No order processor present, can't generate a new orderid");
+            }
+
+            var orderId = OrderProcessor.GenerateNextOrderId(settings);
+
             using (var data = new DataConnection())
             {
                 var order = data.CreateNew<IShopOrder>();
 
                 order.Id = orderId;
                 order.CreatedOn = DateTime.UtcNow;
-                order.OrderTotal = totalAmount;
-                order.Currency = currency.ToString();
-                order.CustomData = customData;
+                order.OrderTotal = settings.TotalAmount;
+                order.Currency = settings.Currency.ToString();
+                order.CustomData = settings.CustomData;
 
                 order = data.Add(order);
 
@@ -132,59 +134,6 @@ namespace CompositeC1Contrib.ECommerce
 
                 return order;
             }
-        }
-
-        public static string GenerateNextOrderNumber()
-        {
-            int orderId;
-
-            lock (Lock)
-            {
-                var content = C1File.ReadAllText(LastUsedOrderIdFile);
-                int.TryParse(content, out orderId);
-
-                orderId = orderId + 1;
-
-                C1File.WriteAllText(LastUsedOrderIdFile, orderId.ToString(CultureInfo.InvariantCulture));
-            }
-
-            string sOrderId;
-            if (MinimumOrderNumberLength > 0)
-            {
-                var format = "D" + MinimumOrderNumberLength;
-
-                sOrderId = orderId.ToString(format, CultureInfo.InvariantCulture);
-            }
-            else
-            {
-                sOrderId = orderId.ToString(CultureInfo.InvariantCulture);
-            }
-
-            if (!String.IsNullOrEmpty(OrderNumberPrefix))
-            {
-                sOrderId = OrderNumberPrefix + sOrderId;
-            }
-
-            if (IsTestMode)
-            {
-                var hashMachineName = Environment.MachineName.GetHashCode().ToString(CultureInfo.InvariantCulture);
-                if (hashMachineName.StartsWith("-"))
-                {
-                    hashMachineName = hashMachineName.Remove(0, 1);
-                }
-
-                var maxMashineNameLength = 20 - sOrderId.Length - 4;
-                if (hashMachineName.Length > maxMashineNameLength)
-                {
-                    hashMachineName = hashMachineName.Substring(0, maxMashineNameLength);
-                }
-
-                sOrderId = String.Format("TEST{0}{1}", hashMachineName, sOrderId);
-            }
-
-            sOrderId = sOrderId.Trim();
-
-            return sOrderId;
         }
     }
 }

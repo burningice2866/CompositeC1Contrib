@@ -70,10 +70,12 @@
     <Compile Include="Currency.cs" />
     <Compile Include="Data\Types\IPaymentRequest.cs" />
     <Compile Include="Data\Types\IShopOrderLog.cs" />
+    <Compile Include="DefaultOrderProcessor.cs" />
     <Compile Include="DummyPaymentProvider.cs" />
     <Compile Include="ECommerce.cs" />
     <Compile Include="ECommerceBackgroundProcess.cs" />
     <Compile Include="IOrderProcessor.cs" />
+    <Compile Include="OrderCreationSettings.cs" />
     <Compile Include="PaymentProvider.cs" />
     <Compile Include="DibsProvider.cs" />
     <Compile Include="QuickpayProvider.cs" />
