@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
@@ -14,6 +15,7 @@ using Hangfire.Server;
 
 namespace CompositeC1Contrib.ECommerce
 {
+    [Export(typeof(IBackgroundProcess))]
     public class ECommerceBackgroundProcess : IBackgroundProcess
     {
         private static readonly TimeSpan OneSecond = TimeSpan.FromSeconds(1);

@@ -54,6 +54,7 @@
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
@@ -102,10 +103,6 @@
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{1e76e3be-f575-4e2d-a791-8a0eda53c1b2}</Project>
       <Name>Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj">
-      <Project>{5c53b39f-c44a-4d64-84a6-97e3e31e7119}</Project>
-      <Name>ScheduledTasks</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

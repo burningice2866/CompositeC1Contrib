@@ -8,7 +8,6 @@ using Composite.Data.DynamicTypes;
 using CompositeC1Contrib.ECommerce.Configuration;
 using CompositeC1Contrib.ECommerce.Data.Types;
 using CompositeC1Contrib.ECommerce.Web;
-using CompositeC1Contrib.ScheduledTasks;
 using CompositeC1Contrib.Web;
 
 using Owin;
@@ -17,11 +16,9 @@ namespace CompositeC1Contrib.ECommerce
 {
     public static class OwinExtensions
     {
-        public static void UseCompositeC1ContribECommerce(this IAppBuilder app, ScheduledTasksConfiguration scheduledTasksConfig)
+        public static void UseCompositeC1ContribECommerce(this IAppBuilder app)
         {
             RouteTable.Routes.AddGenericHandler<ECommerceHttpHandler>("ecommerce/{*pathInfo}");
-
-            scheduledTasksConfig.AddBackgroundProcess(new ECommerceBackgroundProcess());
 
             DynamicTypeManager.EnsureCreateStore(typeof(IShopOrder));
             DynamicTypeManager.EnsureCreateStore(typeof(IShopOrderLog));
