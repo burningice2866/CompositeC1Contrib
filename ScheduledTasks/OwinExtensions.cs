@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
 
+using CompositeC1Contrib.Composition;
 using CompositeC1Contrib.ScheduledTasks.Configuration;
 
 using Hangfire;
+using Hangfire.Server;
 
 using Owin;
 
@@ -24,7 +27,7 @@ namespace CompositeC1Contrib.ScheduledTasks
             configuration.UseLogProvider(new C1LogProvider());
             configuration.UseStorage(options.JobStorage);
 
-            var backgroundProcesses = options.GetBackgroundProcesses();
+            var backgroundProcesses = CompositionContainerFacade.GetExportedValues<IBackgroundProcess>().ToArray();
 
             if (options.ServerOptions != null)
             {
@@ -38,7 +41,7 @@ namespace CompositeC1Contrib.ScheduledTasks
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {
                 AppPath = null,
-                AuthorizationFilters = new[] { new CompositeC1AuthorizationFilter() }
+                Authorization = new[] { new CompositeC1AuthorizationFilter() }
             });
 
             ScheduledTasksSection.EnsureJobsFromConfig();

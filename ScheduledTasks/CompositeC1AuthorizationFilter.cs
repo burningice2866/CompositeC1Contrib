@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-
-using Composite.C1Console.Security;
+﻿using Composite.C1Console.Security;
 
 using Hangfire.Dashboard;
 
 namespace CompositeC1Contrib.ScheduledTasks
 {
-    public class CompositeC1AuthorizationFilter : IAuthorizationFilter
+    public class CompositeC1AuthorizationFilter : IDashboardAuthorizationFilter
     {
-        public bool Authorize(IDictionary<string, object> owinEnvironment)
+        public bool Authorize(DashboardContext context)
         {
             return UserValidationFacade.IsLoggedIn();
         }
