@@ -27,53 +27,51 @@ namespace CompositeC1Contrib.ECommerce.Web
 
         public Task HandleDefault()
         {
-            return SyncAction(() =>
+            var orderId = _context.Request.QueryString["orderid"];
+
+            ECommerceLog.WriteLog("Default request recieved on orderid " + orderId);
+
+            using (var data = new DataConnection())
             {
-                var orderId = _context.Request.QueryString["orderid"];
-
-                ECommerceLog.WriteLog("Default request recieved on orderid " + orderId);
-
-                using (var data = new DataConnection())
+                var order = data.Get<IShopOrder>().SingleOrDefault(o => o.Id == orderId);
+                if (order == null)
                 {
-                    var order = data.Get<IShopOrder>().SingleOrDefault(o => o.Id == orderId);
-                    if (order == null)
-                    {
-                        ECommerceLog.WriteLog("No order with id " + orderId);
+                    ECommerceLog.WriteLog("No order with id " + orderId);
 
-                        _context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    _context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
-                        return;
-                    }
-
-                    order.WriteLog("paymentwindow requested");
-
-                    if (order.PaymentStatus == (int)PaymentStatus.Authorized)
-                    {
-                        order.WriteLog("debug", "Order has already been authorized");
-
-                        _context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-
-                        return;
-                    }
-
-                    var provider = ResolvePaymentProvider(order.Id);
-                    var window = provider.GeneratePaymentWindow(order, _context.Request.Url);
-
-                    HtmlContent(window);
+                    return Task.FromResult(0);
                 }
-            });
+
+                order.WriteLog("paymentwindow requested");
+
+                if (order.PaymentStatus == (int)PaymentStatus.Authorized)
+                {
+                    order.WriteLog("debug", "Order has already been authorized");
+
+                    _context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+                    return Task.FromResult(0);
+                }
+
+                var provider = ResolvePaymentProvider(order.Id);
+                var window = provider.GeneratePaymentWindow(order, _context.Request.Url);
+
+                HtmlContent(window);
+            }
+
+            return Task.FromResult(0);
         }
 
         public Task HandleCancel()
         {
-            return SyncAction(() =>
-            {
-                ECommerceLog.WriteLog("Cancel request recieved, redirecting to main page");
+            ECommerceLog.WriteLog("Cancel request recieved, redirecting to main page");
 
-                var pageUrl = GetPageUrl(Config.MainPageId) + "?reason=cancel";
+            var pageUrl = GetPageUrl(Config.MainPageId) + "?reason=cancel";
 
-                RedirectOrIFrame(pageUrl);
-            });
+            RedirectOrIFrame(pageUrl);
+
+            return Task.FromResult(0);
         }
 
         public async Task HandleCallback()
@@ -258,15 +256,6 @@ namespace CompositeC1Contrib.ECommerce.Web
             }
 
             return url;
-        }
-
-        private static Task SyncAction(Action action)
-        {
-            var task = new Task(action, TaskCreationOptions.HideScheduler);
-
-            task.RunSynchronously();
-
-            return task;
         }
     }
 }
