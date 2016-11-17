@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 
-using Composite.C1Console.Actions;
 using Composite.C1Console.Security;
+using Composite.C1Console.Actions;
 
 namespace CompositeC1Contrib.DownloadFoldersAsZip
 {
     [ActionExecutor(typeof(DownloadActionExecutor))]
-    public class DownloadArchiveActionToken : ActionToken
+    public class DownloadActionToken : ActionToken
     {
-        public string ArchiveId { get; private set; }
+        public string Type { get; private set; }
+        public string Path { get; private set; }
 
         public override IEnumerable<PermissionType> PermissionTypes
         {
@@ -20,19 +21,22 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
             get { return false; }
         }
 
-        public DownloadArchiveActionToken(string archiveId)
+        public DownloadActionToken(string type, string path)
         {
-            ArchiveId = archiveId;
+            Type = type;
+            Path = path;
         }
 
         public override string Serialize()
         {
-            return ArchiveId;
+            return Type + "·" + Path + "·";
         }
 
-        public static ActionToken Deserialize(string serialiedWorkflowActionToken)
+        public static ActionToken Deserialize(string serializedData)
         {
-            return new DownloadArchiveActionToken(serialiedWorkflowActionToken);
+            var s = serializedData.Split('·');
+
+            return new DownloadActionToken(s[0], s[1]);
         }
     }
 }

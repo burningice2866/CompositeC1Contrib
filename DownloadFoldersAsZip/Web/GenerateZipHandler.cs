@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Web;
 
-using ICSharpCode.SharpZipLib.Zip;
-
+using Composite.Core.IO;
 using Composite.Data;
 using Composite.Data.Types;
 
@@ -20,7 +20,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
 
         public void ProcessRequest(HttpContext ctx)
         {
-            Action<ZipOutputStream> compress = null;
+            Action<ZipArchive> compress = null;
 
             var fileName = String.Empty;
             var mode = ctx.Request.QueryString["mode"];
@@ -36,7 +36,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
                 return;
             }
 
-            using (var zipStream = new ZipOutputStream(ctx.Response.OutputStream))
+            using (var ms = new MemoryStream())
             {
                 var response = ctx.Response;
 
@@ -45,19 +45,24 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
                 response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
                 response.AddHeader("Content-Type", "application/zip");
 
-                zipStream.SetLevel(3);
+                using (var zipArchive = new ZipArchive(ms, ZipArchiveMode.Create, true))
+                {
+                    compress(zipArchive);
+                }
 
-                compress(zipStream);
+                ms.Seek(0, SeekOrigin.Begin);
+                ms.CopyTo(response.OutputStream);
 
                 response.Flush();
             }
         }
 
-        private static Action<ZipOutputStream> HandleCompressFile(HttpContext ctx, out string fileName)
+        private static Action<ZipArchive> HandleCompressFile(HttpContext ctx, out string fileName)
         {
-            var path = HttpUtility.UrlDecode(ctx.Request.QueryString["folder"]);
+            var relativePath = HttpUtility.UrlDecode(ctx.Request.QueryString["folder"]);
+            var absolutePath = ctx.Server.MapPath("~" + relativePath);
 
-            var folderName = Path.GetFileName(path);
+            var folderName = Path.GetFileName(relativePath);
             if (folderName == String.Empty)
             {
                 folderName = "root";
@@ -65,12 +70,12 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
 
             fileName = "files_" + folderName + ".zip";
 
-            int folderOffset = ctx.Server.MapPath("~").Length;
+            var folderOffset = (absolutePath.Length - relativePath.Length) + 1;
 
-            return s => CompressFolder(path, s, folderOffset);
+            return s => CompressFolder(absolutePath, s, folderOffset);
         }
 
-        private static Action<ZipOutputStream> HandleCompressMedia(HttpContext ctx, out string fileName)
+        private static Action<ZipArchive> HandleCompressMedia(HttpContext ctx, out string fileName)
         {
             var keyPath = ctx.Request.QueryString["keypath"];
             var archive = ctx.Request.QueryString["archive"];
@@ -101,9 +106,9 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
             return s => CompressMediaFiles(files, s);
         }
 
-        private static void CompressFolder(string path, ZipOutputStream zipStream, int folderOffset)
+        private static void CompressFolder(string absolutePath, ZipArchive zipArchive, int folderOffset)
         {
-            var files = Directory.GetFiles(path);
+            var files = C1Directory.GetFiles(absolutePath);
             foreach (string filename in files)
             {
                 try
@@ -112,99 +117,47 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
                     {
                         var fi = new FileInfo(filename);
 
-                        var entryName = filename.Substring(folderOffset);
-                        entryName = ZipEntry.CleanName(entryName);
+                        var entryName = filename.Remove(0, folderOffset);
+                        var zipEntry = zipArchive.CreateEntry(entryName, CompressionLevel.Fastest);
 
-                        var newEntry = new ZipEntry(entryName)
+                        zipEntry.LastWriteTime = fi.LastWriteTime;
+
+                        using (var stream = zipEntry.Open())
                         {
-                            DateTime = fi.LastWriteTime,
-                            Size = fi.Length
-                        };
-
-                        zipStream.PutNextEntry(newEntry);
-
-                        streamReader.CopyTo(zipStream, 4096);
-
-                        zipStream.CloseEntry();
+                            streamReader.CopyTo(stream, 4096);
+                        }
                     }
                 }
                 catch (IOException) { }
             }
 
-            var folders = Directory.GetDirectories(path);
+            var folders = C1Directory.GetDirectories(absolutePath);
             foreach (string folder in folders)
             {
-                CompressFolder(folder, zipStream, folderOffset);
+                CompressFolder(folder, zipArchive, folderOffset);
             }
         }
 
-        private static void CompressMediaFiles(IEnumerable<IMediaFile> files, ZipOutputStream zipStream)
+        private static void CompressMediaFiles(IEnumerable<IMediaFile> files, ZipArchive zipArchive)
         {
             foreach (var file in files)
             {
-                string entryName = Path.Combine(file.FolderPath, file.FileName);
-                entryName = ZipEntry.CleanName(entryName);
+                var entryName = Path.Combine(file.FolderPath, file.FileName).Remove(0, 1);
+                var zipEntry = zipArchive.CreateEntry(entryName, CompressionLevel.Fastest);
 
-                var newEntry = new ZipEntry(entryName)
-                {
-                    DateTime = file.LastWriteTime.Value,
-                };
+                zipEntry.LastWriteTime = file.LastWriteTime.Value;
 
-                Stream readStream = null;
                 try
                 {
-                    readStream = file.GetReadStream();
-
-                    if (file.Length == null)
+                    using (var readStream = file.GetReadStream())
                     {
-                        try
+                        using (var stream = zipEntry.Open())
                         {
-                            newEntry.Size = readStream.Length;
-                        }
-                        catch
-                        {
-                            Stream ms = null;
-                            try
-                            {
-                                ms = new MemoryStream();
-
-                                using (readStream)
-                                {
-                                    readStream.CopyTo(ms, 4096);
-                                    newEntry.Size = ms.Length;
-                                }
-
-                                ms.Seek(0, SeekOrigin.Begin);
-                                readStream = ms;
-                            }
-                            catch
-                            {
-                                if (ms != null)
-                                {
-                                    ms.Dispose();
-                                }
-
-                                throw;
-                            }
+                            readStream.CopyTo(stream, 4096);
                         }
                     }
-                    else
-                    {
-                        newEntry.Size = file.Length.Value;
-                    }
-
-                    zipStream.PutNextEntry(newEntry);
-                    readStream.CopyTo(zipStream, 4096);
                 }
-                finally
-                {
-                    if (readStream != null)
-                    {
-                        readStream.Dispose();
-                    }
-                }
-
-                zipStream.CloseEntry();
+                catch (FileNotFoundException) { }
             }
         }
     }

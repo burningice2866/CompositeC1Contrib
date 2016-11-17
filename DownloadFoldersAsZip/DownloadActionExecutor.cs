@@ -1,6 +1,4 @@
-﻿using System.Web;
-
-using Composite.C1Console.Actions;
+﻿using Composite.C1Console.Actions;
 using Composite.C1Console.Events;
 using Composite.C1Console.Security;
 using Composite.Core.WebClient;
@@ -11,26 +9,15 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
     {
         public FlowToken Execute(EntityToken entityToken, ActionToken actionToken, FlowControllerServicesContainer flowControllerServicesContainer)
         {
-            string url = "InstalledPackages/CompositeC1Contrib.DownloadFoldersAsZip/generateZip.ashx?";
+            var url = StartupHandler.Url + "?";
 
-            var downloadMediaFolderActionToken = actionToken as DownloadMediaFolderActionToken;
-            if (downloadMediaFolderActionToken != null)
-            {
-                var folder = downloadMediaFolderActionToken.MediaFileFolder;
-                url += "mode=media&keypath=" + folder.KeyPath;
-            }
+            var downloadActionToken = (DownloadActionToken)actionToken;
 
-            var downloadArchiveActionToken = actionToken as DownloadArchiveActionToken;
-            if (downloadArchiveActionToken != null)
+            switch (downloadActionToken.Type)
             {
-                var archive = downloadArchiveActionToken.ArchiveId;
-                url += "mode=media&archive=" + archive;
-            }
-
-            var downloadFileFolderActionToken = actionToken as DownloadFileFolderActionToken;
-            if (downloadFileFolderActionToken != null)
-            {
-                url += "mode=file&folder=" + HttpUtility.UrlEncode(downloadFileFolderActionToken.Path);
+                case "MediaArchive": url += "mode=media&archive=" + downloadActionToken.Path; break;
+                case "MediaFolder": url += "mode=media&keypath=" + downloadActionToken.Path; break;
+                case "File": url += "mode=file&folder=" + downloadActionToken.Path; break;
             }
 
             var currentConsoleId = flowControllerServicesContainer.GetService<IManagementConsoleMessageService>().CurrentConsoleId;

@@ -5,7 +5,7 @@
 
   <mi:PackageInformation name="CompositeC1Contrib.DownloadFoldersAsZip"
                          groupName="CompositeC1Contrib"
-                         version="1.1.3" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/DownloadFoldersAsZip"
+                         version="1.2.0" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/DownloadFoldersAsZip"
                          readMoreUrl="https://github.com/burningice2866/CompositeC1Contrib/tree/master/DownloadFoldersAsZip"
                          id="b7bb2faa-8833-4e6e-9b15-c7e74406eff8"
                          canBeUninstalled="true"
@@ -20,16 +20,6 @@
       <Files>
         <File sourceFilename="~\Bin\CompositeC1Contrib.DownloadFoldersAsZip.dll" targetFilename="~\Bin\CompositeC1Contrib.DownloadFoldersAsZip.dll" allowOverwrite="true" />
       </Files>
-
-      <Directories>
-        <Directory sourceDirectory="~\Content\Composite\InstalledPackages\CompositeC1Contrib.DownloadFoldersAsZip\" targetDirectory="~\Composite\InstalledPackages\CompositeC1Contrib.DownloadFoldersAsZip" allowOverwrite="true" deleteTargetDirectory="true" />
-      </Directories>
-    </mi:Add>
-
-    <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentUninstaller, Composite">
-      <XmlFileMerges>
-        <XmlFileMerge changeDefinitionPath="~\Config\App_Data\Composite\composite.config" targetFilePath="~\App_Data\Composite\composite.config" />
-      </XmlFileMerges>
     </mi:Add>
   </mi:PackageFragmentInstallers>
 </mi:PackageInstaller>
