@@ -51,7 +51,17 @@ namespace CompositeC1Contrib.Composition
             return GetExportedValues<T>(GlobalContainer);
         }
 
+        public static IEnumerable<T> GetExportedValues<T>(string contract)
+        {
+            return GetExportedValues<T>(GlobalContainer, contract);
+        }
+
         public static IEnumerable<T> GetExportedValues<T>(Action<RegistrationBuilder> action)
+        {
+            return GetExportedValues<T>(action, String.Empty);
+        }
+
+        public static IEnumerable<T> GetExportedValues<T>(Action<RegistrationBuilder> action, string contract)
         {
             var builder = new RegistrationBuilder();
 
@@ -59,12 +69,17 @@ namespace CompositeC1Contrib.Composition
 
             var container = BuildContainer(builder);
 
-            return GetExportedValues<T>(container);
+            return GetExportedValues<T>(container, contract);
         }
 
         private static IEnumerable<T> GetExportedValues<T>(ExportProvider container)
         {
-            return container.GetExportedValues<T>();
+            return GetExportedValues<T>(container, null);
+        }
+
+        private static IEnumerable<T> GetExportedValues<T>(ExportProvider container, string contract)
+        {
+            return String.IsNullOrEmpty(contract) ? container.GetExportedValues<T>() : container.GetExportedValues<T>(contract);
         }
 
         private static CompositionContainer BuildContainer(ReflectionContext builder = null)

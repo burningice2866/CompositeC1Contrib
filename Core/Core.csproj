@@ -53,6 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Composition\CompositionContainerFacade.cs" />
+    <Compile Include="Composition\IElementActionProviderFor.cs" />
+    <Compile Include="Composition\IElementProviderFor.cs" />
+    <Compile Include="Composition\IProviderFor.cs" />
+    <Compile Include="Composition\ProviderContainer.cs" />
     <Compile Include="Composition\SafeDirectoryCatalog.cs" />
     <Compile Include="Data\InheritanceDataFacade.cs" />
     <Compile Include="FunctionContextContainerExtensions.cs" />
@@ -75,6 +79,7 @@
     <Compile Include="FunctionProvider\FunctionParameterAttribute.cs" />
     <Compile Include="FunctionProvider\FunctionParameterHolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="GenericActionProvider.cs" />
     <Compile Include="StaticReflection.cs" />
     <Compile Include="ToggleSuperInterfaceActionToken.cs" />
     <Compile Include="UrlActionToken.cs" />
