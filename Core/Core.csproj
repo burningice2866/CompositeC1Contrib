@@ -46,7 +46,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Reflection.Context" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Workflow.Activities" />
     <Reference Include="System.Workflow.ComponentModel" />
     <Reference Include="System.XML" />
@@ -87,11 +86,6 @@
     <Compile Include="Web\RouteCollectionExtensions.cs" />
     <Compile Include="Web\UI\PageRendererHelper.cs" />
     <Compile Include="Web\RequestInfo.cs" />
-    <Compile Include="Web\Security\CompositeC1MembershipProvider.cs" />
-    <Compile Include="Web\Security\CompositeC1MembershipUser.cs" />
-    <Compile Include="Web\Security\IMembershipUser.cs" />
-    <Compile Include="Web\Security\LoginProviderHelper.cs" />
-    <Compile Include="Web\UrlUtils.cs" />
     <Compile Include="Workflows\Basic1StepDialogWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
