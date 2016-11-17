@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("CompositeC1Contrib.Sorting")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Acto A/S")]
+[assembly: AssemblyCompany("BurningIce")]
 [assembly: AssemblyProduct("CompositeC1Contrib.Sorting")]
-[assembly: AssemblyCopyright("Copyright © Acto A/S 2014")]
+[assembly: AssemblyCopyright("Copyright © BurnngIce A/S 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("bc3b3227-aa8d-42d1-a96d-1079322a4649")]
+[assembly: Guid("65490285-878b-4284-b3ec-db9d2ef7f4fa")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.5.0")]
-[assembly: AssemblyFileVersion("1.5.0")]
+[assembly: AssemblyVersion("1.6.0")]
+[assembly: AssemblyFileVersion("1.6.0")]

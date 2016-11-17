@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" standalone="yes"?>
 <mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
-  <mi:PackageRequirements minimumCompositeVersion="4.3.5555.25838" 
+  <mi:PackageRequirements minimumCompositeVersion="4.2.5249.32246"
                           maximumCompositeVersion="9.9999.9999.9999" />
-  
-  <mi:PackageInformation name="CompositeC1Contrib.Sorting" 
-                         groupName="Contribution.CompositeC1Contrib" 
-                         version="1.5.0" author="@burningice" website="http://compositec1contrib.codeplex.com" 
-                         readMoreUrl="http://compositec1contrib.codeplex.com"
-                         id="65490285-878b-4284-b3ec-db9d2ef7f4fa" 
-                         canBeUninstalled="true" 
-                         systemLocking="hard" 
+
+  <mi:PackageInformation name="CompositeC1Contrib.Sorting"
+                         groupName="Contribution.CompositeC1Contrib"
+                         version="1.6.0" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/Sorting"
+                         readMoreUrl="https://github.com/burningice2866/CompositeC1Contrib/tree/master/Sorting"
+                         id="65490285-878b-4284-b3ec-db9d2ef7f4fa"
+                         canBeUninstalled="true"
+                         systemLocking="hard"
                          flushOnCompletion="false">
     <Description>Adds drag'n drop sorting to pages and datatypes</Description>
     <TechnicalDetails>Adds drag'n drop sorting to pages and datatypes</TechnicalDetails>
   </mi:PackageInformation>
-  
+
   <mi:PackageFragmentInstallers>
     <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentUninstaller, Composite">
       <Files>
@@ -24,12 +24,6 @@
       <Directories>
         <Directory sourceDirectory="~\Composite\InstalledPackages\CompositeC1Contrib.Sorting\" targetDirectory="~\Composite\InstalledPackages\CompositeC1Contrib.Sorting" allowOverwrite="true" deleteTargetDirectory="true" />
       </Directories>
-    </mi:Add>
-
-    <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentUninstaller, Composite">
-      <XmlFileMerges>
-        <XmlFileMerge changeDefinitionPath="~\config\App_Data\Composite\composite.config" targetFilePath="~\App_Data\Composite\composite.config" />
-      </XmlFileMerges>
     </mi:Add>
   </mi:PackageFragmentInstallers>
 </mi:PackageInstaller>
