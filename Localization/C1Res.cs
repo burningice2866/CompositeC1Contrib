@@ -8,16 +8,32 @@ namespace CompositeC1Contrib.Localization
 {
     public class C1Res
     {
-        private static ConcurrentDictionary<string, ResourceManager> _managers = new ConcurrentDictionary<string, ResourceManager>();
+        private static readonly ConcurrentDictionary<string, ResourceManager> Managers = new ConcurrentDictionary<string, ResourceManager>();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns>The localized string or 'key' if it doesn't exist</returns>
         public static IHtmlString THtml(string key)
         {
-            return new HtmlString(T(key));
+            var value = T(key);
+
+            return new HtmlString(value);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="key"></param>
+        /// <param name="args"></param>
+        /// <returns>The localized string or 'key' if it doesn't exist</returns>
         public static string TFormat(string format, string key, params object[] args)
         {
-            return String.Format(T(key), args);
+            var value = T(key);
+
+            return String.Format(value, args);
         }
 
         public static string T(string key)
@@ -25,43 +41,45 @@ namespace CompositeC1Contrib.Localization
             return T(key, String.Empty);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="resourceSet"></param>
+        /// <returns>The localized string or 'key' if it doesn't exist</returns>
         public static string T(string key, string resourceSet)
         {
             return T(key, resourceSet, CultureInfo.CurrentUICulture);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="culture"></param>
+        /// <returns>The localized string or 'key' if it doesn't exist</returns>
         public static string T(string key, CultureInfo culture)
         {
             return T(key, String.Empty, culture);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="resourceSet"></param>
+        /// <param name="culture"></param>
+        /// <returns>The localized string or 'key' if it doesn't exist</returns>
         public static string T(string key, string resourceSet, CultureInfo culture)
         {
-            var result = GetResourceManager(resourceSet).GetObject(key, culture) as string;
-            if (result == null)
-            {
-                return key;
-            }
+            var value = GetResourceManager(resourceSet).GetObject(key, culture) as string;
 
-            return result;
-        }
-
-        public static void AddResource(string key, string value)
-        {
-            var culture = CultureInfo.CurrentUICulture;
-
-            using (var writer = new C1ResourceWriter(culture))
-            {
-                writer.AddResource(key, value);
-            }
+            return value ?? key;
         }
 
         public static ResourceManager GetResourceManager(string resourceSet)
         {
-            return _managers.GetOrAdd(resourceSet, _ =>
-            {
-                return new C1ResourceManager(_);
-            });
+            return Managers.GetOrAdd(resourceSet, _ => new C1ResourceManager(_));
         }
 
         public static ResourceSet GetResourceSet(string resourceSet)

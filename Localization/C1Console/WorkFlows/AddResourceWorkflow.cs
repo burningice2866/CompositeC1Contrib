@@ -19,9 +19,10 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
                 return;
             }
 
-            if (EntityToken is NamespaceFolderEntityToken)
+            var namespaceToken = EntityToken as NamespaceFolderEntityToken;
+            if (namespaceToken != null)
             {
-                var ns = ((NamespaceFolderEntityToken)EntityToken).Namespace;
+                var ns = namespaceToken.Namespace;
 
                 Bindings.Add("Key", ns + ".");
             }
@@ -36,6 +37,13 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
         public override bool Validate()
         {
             var key = GetBinding<string>("Key");
+
+            if (key.IndexOf(".", StringComparison.Ordinal) == -1)
+            {
+                ShowFieldMessage("ResourceKey", "Resource must contain at least one . seperator");
+
+                return false;
+            }
 
             using (var data = new DataConnection())
             {

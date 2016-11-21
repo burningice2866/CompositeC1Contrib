@@ -50,14 +50,13 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
 
     public class DownloadExportedResourcesActionExecutor : IActionExecutor
     {
-        private static string LocalPath = "InstalledPackages/CompositeC1Contrib.Localization/Export.cshtml";
 
         public FlowToken Execute(EntityToken entityToken, ActionToken actionToken, FlowControllerServicesContainer flowControllerServicesContainer)
         {
             var token = (DownloadExportedResourcesActionToken)actionToken;
             var currentConsoleId = flowControllerServicesContainer.GetService<IManagementConsoleMessageService>().CurrentConsoleId;
 
-            var url = UrlUtils.ResolveAdminUrl(LocalPath + "?languages=" + String.Join(",", token.Languages) + "&resourceSets=" + String.Join(",", token.ResourceSets) + "&ns=" + token.Namespace);
+            var url = UrlUtils.ResolveAdminUrl(StartupHandler.Url + "?languages=" + String.Join(",", token.Languages) + "&resourceSets=" + String.Join(",", token.ResourceSets) + "&ns=" + token.Namespace);
 
             var downloadQueueItem = new DownloadFileMessageQueueItem(url);
 

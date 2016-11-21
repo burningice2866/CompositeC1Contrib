@@ -8,12 +8,16 @@ namespace CompositeC1Contrib.Localization
 {
     public class C1ResourceWriter : IResourceWriter
     {
+        private string _resourceSet;
         private CultureInfo _culture;
 
         private IDictionary resourceList = new Hashtable();
 
-        public C1ResourceWriter(CultureInfo culture)
+        public C1ResourceWriter(CultureInfo culture) : this(null, culture) { }
+
+        public C1ResourceWriter(string resourceSet, CultureInfo culture)
         {
+            _resourceSet = resourceSet;
             _culture = culture;
         }
 
@@ -38,7 +42,7 @@ namespace CompositeC1Contrib.Localization
         {
             var dataManager = C1ResourceDataManager.Instance;
 
-            dataManager.GenerateResources(resourceList, _culture);
+            dataManager.GenerateResources(resourceList, _resourceSet, _culture);
         }
 
         public void Close()

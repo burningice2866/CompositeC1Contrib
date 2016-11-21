@@ -10,7 +10,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
     [ActionExecutor(typeof(DeleteResourceActionExecutor))]
     public class DeleteResourceActionToken : ActionToken
     {
-        static private readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Administrate };
+        static private readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Delete };
 
         public override IEnumerable<PermissionType> PermissionTypes
         {

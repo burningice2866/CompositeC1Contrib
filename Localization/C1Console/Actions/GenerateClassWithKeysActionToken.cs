@@ -50,7 +50,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
         {
             var ns = ((GenerateClassWithKeysActionToken)actionToken).Namespace;
 
-            var resourceKeys = LocalizationElementProvider.GetResourceKeys(String.Empty).Select(k => k.Key);
+            var resourceKeys = LocalizationsFacade.GetResourceKeys(String.Empty).Select(k => k.Key);
             var generator = new ClassKeysGenerator(resourceKeys, ns);
 
             var content = generator.Generate();

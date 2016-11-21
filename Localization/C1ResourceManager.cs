@@ -11,8 +11,6 @@ namespace CompositeC1Contrib.Localization
     {
         ConcurrentDictionary<CultureInfo, ResourceSet> _resourceSets = new ConcurrentDictionary<CultureInfo, ResourceSet>();
 
-        private static object AddSyncLock = new object();
-
         public override Type ResourceSetType
         {
             get { return typeof(C1ResourceSet); }

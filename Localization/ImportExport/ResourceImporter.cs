@@ -12,10 +12,10 @@ namespace CompositeC1Contrib.Localization.ImportExport
     {
         private readonly ImportExportModel _model;
 
-        private IList<IResourceKey> keysToAdd = new List<IResourceKey>();
+        private IList<IResourceKey> _keysToAdd = new List<IResourceKey>();
 
-        private IList<IResourceValue> valuesToAdd = new List<IResourceValue>();
-        private IList<IResourceValue> valuesToUpdate = new List<IResourceValue>();
+        private IList<IResourceValue> _valuesToAdd = new List<IResourceValue>();
+        private IList<IResourceValue> _valuesToUpdate = new List<IResourceValue>();
 
         public ResourceImporter(ImportExportModel model)
         {
@@ -24,9 +24,9 @@ namespace CompositeC1Contrib.Localization.ImportExport
 
         public ImportResult Import()
         {
-            keysToAdd.Clear();
-            valuesToAdd.Clear();
-            valuesToUpdate.Clear();
+            _keysToAdd.Clear();
+            _valuesToAdd.Clear();
+            _valuesToUpdate.Clear();
 
             var result = new ImportResult
             {
@@ -38,22 +38,25 @@ namespace CompositeC1Contrib.Localization.ImportExport
             {
                 using (var data = new DataConnection())
                 {
+                    var existingKeys = data.Get<IResourceKey>().ToDictionary(k => k.Key);
+                    var existingValues = data.Get<IResourceValue>().ToDictionary(v => Tuple.Create(v.KeyId, v.Culture));
+
                     foreach (var language in _model.Languages.Values)
                     {
                         foreach (var resourceSet in language.ResourceSets)
                         {
-                            EvaluateAddOrUpdates(language.Culture, resourceSet, data, result);
+                            EvaluateAddOrUpdates(language.Culture, resourceSet, data, result, existingKeys, existingValues);
                         }
                     }
 
-                    result.KeysAdded = keysToAdd.Count;
-                    result.ValuesAdded = valuesToAdd.Count;
-                    result.ValuesUpdated = valuesToUpdate.Count;
+                    result.KeysAdded = _keysToAdd.Count;
+                    result.ValuesAdded = _valuesToAdd.Count;
+                    result.ValuesUpdated = _valuesToUpdate.Count;
 
-                    data.Add<IResourceKey>(keysToAdd);
+                    data.Add<IResourceKey>(_keysToAdd);
 
-                    data.Add<IResourceValue>(valuesToAdd);
-                    data.Update<IResourceValue>(valuesToUpdate);
+                    data.Add<IResourceValue>(_valuesToAdd);
+                    data.Update<IResourceValue>(_valuesToUpdate);
                 }
 
                 transaction.Complete();
@@ -62,18 +65,22 @@ namespace CompositeC1Contrib.Localization.ImportExport
             return result;
         }
 
-        private void EvaluateAddOrUpdates(CultureInfo ci, ImportExportModelResourceSet resourceSet, DataConnection data, ImportResult result)
+        private void EvaluateAddOrUpdates(CultureInfo ci,
+            ImportExportModelResourceSet resourceSet,
+            DataConnection data,
+            ImportResult result,
+            IDictionary<string, IResourceKey> existingKeys,
+            IDictionary<Tuple<Guid, string>, IResourceValue> existingValues)
         {
-            var existingKeys = data.Get<IResourceKey>().Where(k => k.ResourceSet == resourceSet.Name).ToDictionary(k => k.Key);
-            var existingValues = data.Get<IResourceValue>().Where(v => v.Culture == ci.Name).ToDictionary(v => v.KeyId);
-
             foreach (var resource in resourceSet.Resources.Values)
             {
                 IResourceKey existingKey;
                 if (existingKeys.TryGetValue(resource.Key, out existingKey))
                 {
+                    var valueKey = Tuple.Create(existingKey.Id, ci.Name);
+
                     IResourceValue existingValue;
-                    if (existingValues.TryGetValue(existingKey.Id, out existingValue))
+                    if (existingValues.TryGetValue(valueKey, out existingValue))
                     {
                         if (existingValue.Value == resource.Value)
                         {
@@ -83,7 +90,10 @@ namespace CompositeC1Contrib.Localization.ImportExport
                         {
                             existingValue.Value = resource.Value;
 
-                            valuesToUpdate.Add(existingValue);
+                            if (existingValue.DataSourceId.ExistsInStore)
+                            {
+                                _valuesToUpdate.Add(existingValue);
+                            }
                         }
                     }
                     else
@@ -95,7 +105,8 @@ namespace CompositeC1Contrib.Localization.ImportExport
                         value.Culture = ci.Name;
                         value.Value = resource.Value;
 
-                        valuesToAdd.Add(value);
+                        existingValues.Add(valueKey, value);
+                        _valuesToAdd.Add(value);
                     }
                 }
                 else
@@ -107,7 +118,8 @@ namespace CompositeC1Contrib.Localization.ImportExport
                     key.ResourceSet = resourceSet.Name;
                     key.Type = resource.Type.ToString();
 
-                    keysToAdd.Add(key);
+                    existingKeys.Add(resource.Key, key);
+                    _keysToAdd.Add(key);
 
                     var value = data.CreateNew<IResourceValue>();
 
@@ -116,7 +128,8 @@ namespace CompositeC1Contrib.Localization.ImportExport
                     value.Culture = ci.Name;
                     value.Value = resource.Value;
 
-                    valuesToAdd.Add(value);
+                    existingValues.Add(Tuple.Create(value.Id, ci.Name), value);
+                    _valuesToAdd.Add(value);
                 }
             }
         }

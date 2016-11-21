@@ -136,7 +136,7 @@ namespace CompositeC1Contrib.Localization
             }
         }
 
-        public void GenerateResources(IDictionary resourceList, CultureInfo culture)
+        public void GenerateResources(IDictionary resourceList, string resourceSet, CultureInfo culture)
         {
             using (var transaction = TransactionsFacade.CreateNewScope())
             {
@@ -144,7 +144,7 @@ namespace CompositeC1Contrib.Localization
                 {
                     if (entry.Value != null)
                     {
-                        UpdateOrAddResource(entry.Key.ToString(), entry.Value, null, culture);
+                        UpdateOrAddResource(entry.Key.ToString(), entry.Value, resourceSet, culture);
                     }
                 }
 

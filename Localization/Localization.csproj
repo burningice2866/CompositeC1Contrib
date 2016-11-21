@@ -30,23 +30,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Composite, Version=4.3.5562.29799, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CompositeC1.Core.4.3\lib\net45\Composite.dll</HintPath>
+    <Reference Include="Composite, Version=4.2.5249.32246, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CompositeC1.Core.4.2\lib\net45\Composite.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Composite.Workflows, Version=4.3.5562.29802, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CompositeC1.Core.4.3\lib\net45\Composite.Workflows.dll</HintPath>
+    <Reference Include="Composite.Workflows, Version=4.2.5249.32251, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CompositeC1.Core.4.2\lib\net45\Composite.Workflows.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\CompositeC1.Core.4.3\lib\net45\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
+      <HintPath>..\packages\CompositeC1.Core.4.2\lib\net45\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\CompositeC1.Core.4.3\lib\net45\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
+      <HintPath>..\packages\CompositeC1.Core.4.2\lib\net45\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.Composition.Registration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
@@ -65,7 +67,10 @@
     <Compile Include="C1Console\Actions\DownloadExportedResourcesActionToken.cs" />
     <Compile Include="C1Console\Actions\GenerateClassWithKeysActionToken.cs" />
     <Compile Include="C1Console\Actions\DeleteResourceActionToken.cs" />
+    <Compile Include="C1Console\ElementProvider\Actions.cs" />
+    <Compile Include="C1Console\ElementProvider\EntityTokens\ResourceSetFolderEntityToken.cs" />
     <Compile Include="C1Console\ElementProvider\LocalizationElementProvider.cs" />
+    <Compile Include="C1Console\ElementProvider\NamespaceFolderEntityTokenHandler.cs" />
     <Compile Include="C1Console\FormUtils.cs" />
     <Compile Include="C1Console\WorkFlows\ImportWorkflow.cs">
       <SubType>Component</SubType>
@@ -74,9 +79,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="C1Console\WorkFlows\ExportWorkflow.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="C1Console\WorkFlows\RenameNamespaceWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="C1Console\WorkFlows\AddResourceWorkflow.cs">
@@ -99,7 +101,9 @@
     <Compile Include="ImportExport\ResourceExporter.cs" />
     <Compile Include="ClassKeysGenerator.cs" />
     <Compile Include="IResourceKey.cs" />
+    <Compile Include="LocalizationsFacade.cs" />
     <Compile Include="ResourceType.cs" />
+    <Compile Include="StartupHandler.cs" />
     <Compile Include="Web\C1ResourceProvider.cs" />
     <Compile Include="Web\C1ResourceProviderFactory.cs" />
     <Compile Include="C1ResourceReader.cs" />
@@ -107,11 +111,12 @@
     <Compile Include="C1ResourceWriter.cs" />
     <Compile Include="IResourceValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Web\ExportPage.cs" />
+    <Compile Include="Web\ExportHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Package\content\Composite\CompositeC1Contrib.Localization\Export.cshtml" />
+    <None Include="Package\config\App_Data\Composite\composite.config" />
+    <None Include="Package\config\web.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
@@ -121,11 +126,11 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Localization\RenameNamespace.xml" />
     <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Localization\AddResource.xml" />
     <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Localization\EditResource.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Package\install.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

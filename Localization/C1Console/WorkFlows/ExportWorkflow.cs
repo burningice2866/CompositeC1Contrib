@@ -7,12 +7,29 @@ using Composite.C1Console.Users;
 using Composite.Data;
 
 using CompositeC1Contrib.Localization.C1Console.Actions;
+using CompositeC1Contrib.Localization.C1Console.ElementProvider.EntityTokens;
 using CompositeC1Contrib.Workflows;
 
 namespace CompositeC1Contrib.Localization.C1Console.Workflows
 {
     public sealed class ExportWorkflow : Basic1StepDialogWorkflow
     {
+        private string Namespace
+        {
+            get
+            {
+                var ns = String.Empty;
+
+                var nsToken = EntityToken as NamespaceFolderEntityToken;
+                if (nsToken != null)
+                {
+                    ns = nsToken.Namespace;
+                }
+
+                return ns;
+            }
+        }
+
         public ExportWorkflow() : base("\\InstalledPackages\\CompositeC1Contrib.Localization\\Export.xml") { }
 
         public static IDictionary<string, string> GetLanguages()
@@ -60,11 +77,12 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
 
         public override void OnInitialize(object sender, EventArgs e)
         {
-            if (BindingExist("Languages"))
+            if (BindingExist("Namespace"))
             {
                 return;
             }
 
+            Bindings.Add("Namespace", Namespace);
             Bindings.Add("Languages", GetLanguages().Keys.ToList());
             Bindings.Add("ResourceSets", GetResourceSets().Keys.ToList());
         }
@@ -74,7 +92,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
             var languages = GetBinding<List<string>>("Languages");
             var resourceSets = GetBinding<List<string>>("ResourceSets");
 
-            var actionToken = new DownloadExportedResourcesActionToken(languages.ToArray(), resourceSets.ToArray(), String.Empty);
+            var actionToken = new DownloadExportedResourcesActionToken(languages.ToArray(), resourceSets.ToArray(), Namespace);
 
             ExecuteAction(EntityToken, actionToken);
         }

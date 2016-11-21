@@ -150,7 +150,6 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
             var bindingsXElement = formDocument.Root.Element(Namespaces.BindingForms10 + FormKeyTagNames.Bindings);
 
             var resourceType = (ResourceType)Enum.Parse(typeof(ResourceType), ResourceKey.Type);
-
             if (resourceType == ResourceType.Xhtml)
             {
                 placeHolderXElement.Name = Namespaces.BindingFormsStdUiControls10 + "TabPanels";
