@@ -12,6 +12,8 @@ using Composite.C1Console.Workflow;
 using Composite.Core.Xml;
 using Composite.Data;
 using Composite.Data.Transactions;
+using Composite.Data.Types;
+using Composite.Plugins.Elements.ElementProviders.MediaFileProviderElementProvider;
 
 using CompositeC1Contrib.Localization.C1Console.ElementProvider.EntityTokens;
 using CompositeC1Contrib.Workflows;
@@ -221,9 +223,32 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
                                     new XElement(Namespaces.BindingForms10 + "bind", new XAttribute("source", key)
                             ))));
                     }
+
+                case ResourceType.Page:
+                    {
+                        return new XElement(Namespaces.BindingFormsStdUiControls10 + "FieldGroup", new XAttribute("Label", culture.DisplayName),
+                            new XElement(Namespaces.BindingFormsStdUiControls10 + "DataReferenceTreeSelector", new XAttribute("Label", "Value"), new XAttribute("NullValueAllowed", false),
+                                new XAttribute("Handle", "Composite.Management.PageIdSelectorDialog"),
+                                new XAttribute("DataType", typeof(IPage).AssemblyQualifiedName),
+                                new XElement(Namespaces.BindingFormsStdUiControls10 + "DataReferenceTreeSelector.Selected",
+                                    new XElement(Namespaces.BindingForms10 + "bind", new XAttribute("source", key)
+                            ))));
+                    }
+
+                case ResourceType.Media:
+                    {
+                        return new XElement(Namespaces.BindingFormsStdUiControls10 + "FieldGroup", new XAttribute("Label", culture.DisplayName),
+                            new XElement(Namespaces.BindingFormsStdUiControls10 + "DataReferenceTreeSelector", new XAttribute("Label", "Value"), new XAttribute("NullValueAllowed", false),
+                                new XAttribute("Handle", "Composite.Management.EmbeddableMediaSelectorDialog"),
+                                new XAttribute("SearchToken", typeof(MediaFileSearchToken).AssemblyQualifiedName + "|MimeTypes=null, Extensions=null, Folder=null, HideSubfolders='False', Keyword=null"),
+                                new XAttribute("DataType", typeof(IMediaFile).AssemblyQualifiedName),
+                                new XElement(Namespaces.BindingFormsStdUiControls10 + "DataReferenceTreeSelector.Selected",
+                                    new XElement(Namespaces.BindingForms10 + "bind", new XAttribute("source", key)
+                            ))));
+                    }
             }
 
-            throw new NotSupportedException();
+            throw new ArgumentOutOfRangeException("type", String.Format("Specified Resource Type is not supported '{0}'", type));
         }
 
         private static XElement CreateReadOnlyResourceValueElement(CultureInfo culture, string key)
