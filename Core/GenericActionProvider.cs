@@ -18,7 +18,10 @@ namespace CompositeC1Contrib
 
         public IEnumerable<ElementAction> GetActions(EntityToken entityToken)
         {
-            return _providerContainer.GetProvidersFor(entityToken).SelectMany(p => p.Provide(entityToken));
+            var providers = _providerContainer.GetProvidersFor(entityToken);
+            var actions = providers.SelectMany(p => p.Provide(entityToken));
+
+            return actions.ToList();
         }
     }
 }

@@ -8,5 +8,7 @@ namespace CompositeC1Contrib.Composition
     public interface IElementActionProviderFor : IProviderFor
     {
         IEnumerable<ElementAction> Provide(EntityToken entityToken);
+
+        void AddActions(Element element);
     }
 }

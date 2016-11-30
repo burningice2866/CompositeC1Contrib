@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Composition\CompositionContainerFacade.cs" />
+    <Compile Include="Composition\HooklessElementProvider.cs" />
     <Compile Include="Composition\IElementActionProviderFor.cs" />
     <Compile Include="Composition\IElementProviderFor.cs" />
     <Compile Include="Composition\IProviderFor.cs" />

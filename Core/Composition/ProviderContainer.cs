@@ -8,13 +8,24 @@ namespace CompositeC1Contrib.Composition
 {
     public class ProviderContainer<T> where T : IProviderFor
     {
-        private static IDictionary<Type, IList<T>> ElementActionProviders = new Dictionary<Type, IList<T>>();
+        private readonly IDictionary<Type, IList<T>> _providers = new Dictionary<Type, IList<T>>();
 
         public ProviderContainer() : this(null) { }
 
         public ProviderContainer(string contract)
         {
-            var providers = CompositionContainerFacade.GetExportedValues<T>(contract).ToList();
+            var exports = CompositionContainerFacade.BuildContainer().GetExports<T, IDictionary<string, object>>(contract).OrderBy(e =>
+            {
+                object order;
+                if (e.Metadata.TryGetValue("Order", out order))
+                {
+                    return (int)order;
+                }
+
+                return -1;
+            });
+
+            var providers = exports.Select(e => e.Value);
 
             foreach (var provider in providers)
             {
@@ -22,11 +33,11 @@ namespace CompositeC1Contrib.Composition
                 {
                     IList<T> list;
 
-                    if (!ElementActionProviders.TryGetValue(t, out list))
+                    if (!_providers.TryGetValue(t, out list))
                     {
                         list = new List<T>();
 
-                        ElementActionProviders.Add(t, list);
+                        _providers.Add(t, list);
                     }
 
                     list.Add(provider);
@@ -37,7 +48,7 @@ namespace CompositeC1Contrib.Composition
         public IEnumerable<T> GetProvidersFor(EntityToken entityToken)
         {
             IList<T> providers;
-            if (ElementActionProviders.TryGetValue(entityToken.GetType(), out providers))
+            if (_providers.TryGetValue(entityToken.GetType(), out providers))
             {
                 return providers;
             }

@@ -82,7 +82,7 @@ namespace CompositeC1Contrib.Composition
             return String.IsNullOrEmpty(contract) ? container.GetExportedValues<T>() : container.GetExportedValues<T>(contract);
         }
 
-        private static CompositionContainer BuildContainer(ReflectionContext builder = null)
+        public static CompositionContainer BuildContainer(ReflectionContext builder = null)
         {
             var batch = new CompositionBatch();
             var catalog = new SafeDirectoryCatalog(BinDir, builder);
