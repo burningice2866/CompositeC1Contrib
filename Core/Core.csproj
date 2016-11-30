@@ -64,6 +64,7 @@
     <Compile Include="FunctionProvider\FileBasedFunction.cs" />
     <Compile Include="FunctionProvider\FileBasedFunctionProvider.cs" />
     <Compile Include="FunctionProvider\ParameterWidgets.cs" />
+    <Compile Include="MailAddressValidator.cs" />
     <Compile Include="PackageFragmentInstallers\FileDeleteFragmentUninstaller.cs" />
     <Compile Include="PackageFragmentInstallers\SqlFileFragmentHelper.cs" />
     <Compile Include="PackageFragmentInstallers\FileDeleteFragmentInstaller.cs" />
