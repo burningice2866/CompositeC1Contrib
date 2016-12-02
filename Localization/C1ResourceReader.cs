@@ -6,8 +6,8 @@ namespace CompositeC1Contrib.Localization
 {
     public class C1ResourceReader : IResourceReader
     {
-        private string _resourceSet;
-        private CultureInfo _culture;
+        private readonly string _resourceSet;
+        private readonly CultureInfo _culture;
 
         public C1ResourceReader(string resourceSet, CultureInfo culture)
         {
@@ -17,9 +17,9 @@ namespace CompositeC1Contrib.Localization
 
         public IDictionaryEnumerator GetEnumerator()
         {
-            var dataManager = C1ResourceDataManager.Instance;
+            var dataManager = new C1ResourceDataManager(_resourceSet, _culture);
 
-            return dataManager.GetResourceSet(_resourceSet, _culture).GetEnumerator();
+            return dataManager.GetResourceSet().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
+using Composite;
 using Composite.Data;
 using Composite.Data.Transactions;
 
@@ -11,26 +12,41 @@ namespace CompositeC1Contrib.Localization
 {
     public class C1ResourceDataManager
     {
-        public static C1ResourceDataManager Instance = new C1ResourceDataManager();
+        private readonly string _resourceSet;
+        private readonly CultureInfo _culture;
+        private readonly string _cultureName = String.Empty;
 
-        public string GetResourceObject(string key, string resourceSet, CultureInfo culture)
+        public C1ResourceDataManager(string resourceSet, CultureInfo culture)
         {
-            var cultureName = GetCultureName(culture);
+            Verify.ArgumentNotNull(culture, nameof(culture));
 
-            if (resourceSet == String.Empty)
+            _resourceSet = resourceSet;
+            _culture = culture;
+
+            if (_resourceSet == String.Empty)
             {
-                resourceSet = null;
+                _resourceSet = null;
             }
+
+            if (!culture.IsNeutralCulture)
+            {
+                _cultureName = culture.Name;
+            }
+        }
+
+        public string GetResourceObject(string key)
+        {
+            Verify.ArgumentNotNullOrEmpty(key, nameof(key));
 
             using (var data = new DataConnection())
             {
-                var resourceKey = data.Get<IResourceKey>().SingleOrDefault(r => r.ResourceSet == resourceSet && r.Key == key);
+                var resourceKey = data.Get<IResourceKey>().SingleOrDefault(r => r.ResourceSet == _resourceSet && r.Key == key);
                 if (resourceKey == null)
                 {
                     return null;
                 }
 
-                var resource = data.Get<IResourceValue>().SingleOrDefault(r => r.KeyId == resourceKey.Id && r.Culture == cultureName);
+                var resource = data.Get<IResourceValue>().SingleOrDefault(r => r.KeyId == resourceKey.Id && r.Culture == _cultureName);
                 if (resource == null)
                 {
                     return null;
@@ -40,21 +56,16 @@ namespace CompositeC1Contrib.Localization
             }
         }
 
-        public IDictionary GetResourceSet(string resourceSet, CultureInfo culture)
+        public IDictionary GetResourceSet()
         {
-            if (resourceSet == String.Empty)
-            {
-                resourceSet = null;
-            }
-
             var dictionary = new Dictionary<string, string>();
 
             using (var data = new DataConnection())
             {
                 var query = from rv in data.Get<IResourceValue>()
                             join r in data.Get<IResourceKey>() on rv.KeyId equals r.Id
-                            where r.ResourceSet == resourceSet
-                            where rv.Culture == culture.Name
+                            where r.ResourceSet == _resourceSet
+                            where rv.Culture == _culture.Name
                             select new { r.Key, rv.Value };
 
                 foreach (var itm in query)
@@ -69,30 +80,23 @@ namespace CompositeC1Contrib.Localization
             return dictionary;
         }
 
-        public void AddResource(string key, object value, CultureInfo culture)
+        public void AddResource(string key, object value)
         {
-            AddResource(key, value, null, culture);
-        }
-
-        public void AddResource(string key, object value, string resourceSet, CultureInfo culture)
-        {
-            if (resourceSet == String.Empty)
-            {
-                resourceSet = null;
-            }
+            Verify.ArgumentNotNullOrEmpty(key, nameof(key));
+            Verify.ArgumentNotNull(value, nameof(value));
 
             using (var transaction = TransactionsFacade.CreateNewScope())
             {
                 using (var data = new DataConnection())
                 {
-                    var resourceKey = data.Get<IResourceKey>().SingleOrDefault(k => k.ResourceSet == resourceSet && k.Key == key);
+                    var resourceKey = data.Get<IResourceKey>().SingleOrDefault(k => k.ResourceSet == _resourceSet && k.Key == key);
                     if (resourceKey == null)
                     {
                         resourceKey = data.CreateNew<IResourceKey>();
 
                         resourceKey.Id = Guid.NewGuid();
                         resourceKey.Key = key;
-                        resourceKey.ResourceSet = resourceSet;
+                        resourceKey.ResourceSet = _resourceSet;
 
                         data.Add(resourceKey);
                     }
@@ -101,7 +105,7 @@ namespace CompositeC1Contrib.Localization
 
                     resourceValue.Id = Guid.NewGuid();
                     resourceValue.KeyId = resourceKey.Id;
-                    resourceValue.Culture = GetCultureName(culture);
+                    resourceValue.Culture = _cultureName;
                     resourceValue.Value = value.ToString();
 
                     data.Add(resourceValue);
@@ -111,24 +115,15 @@ namespace CompositeC1Contrib.Localization
             }
         }
 
-        public void UpdateResource(string key, object value, CultureInfo culture)
+        public void UpdateResource(string key, object value)
         {
-            UpdateResource(key, value, null, culture);
-        }
-
-        public void UpdateResource(string key, object value, string resourceSet, CultureInfo culture)
-        {
-            var cultureName = GetCultureName(culture);
-
-            if (resourceSet == String.Empty)
-            {
-                resourceSet = null;
-            }
+            Verify.ArgumentNotNullOrEmpty(key, nameof(key));
+            Verify.ArgumentNotNull(value, nameof(value));
 
             using (var data = new DataConnection())
             {
-                var resourceKey = data.Get<IResourceKey>().Single(r => r.ResourceSet == resourceSet && r.Key == key);
-                var resourceValue = data.Get<IResourceValue>().Single(r => r.KeyId == resourceKey.Id && r.Culture == cultureName);
+                var resourceKey = data.Get<IResourceKey>().Single(r => r.ResourceSet == _resourceSet && r.Key == key);
+                var resourceValue = data.Get<IResourceValue>().Single(r => r.KeyId == resourceKey.Id && r.Culture == _cultureName);
 
                 resourceValue.Value = value.ToString();
 
@@ -136,15 +131,24 @@ namespace CompositeC1Contrib.Localization
             }
         }
 
-        public void GenerateResources(IDictionary resourceList, string resourceSet, CultureInfo culture)
+        public void GenerateResources(IDictionary resourceList)
         {
+            Verify.ArgumentNotNull(resourceList, nameof(resourceList));
+
             using (var transaction = TransactionsFacade.CreateNewScope())
             {
                 foreach (DictionaryEntry entry in resourceList)
                 {
-                    if (entry.Value != null)
+                    var key = entry.Key.ToString();
+
+                    if (entry.Value == null)
                     {
-                        UpdateOrAddResource(entry.Key.ToString(), entry.Value, resourceSet, culture);
+                        DeleteResource(key);
+
+                    }
+                    else
+                    {
+                        UpdateOrAddResource(key, entry.Value);
                     }
                 }
 
@@ -152,73 +156,48 @@ namespace CompositeC1Contrib.Localization
             }
         }
 
-        public void UpdateOrAddResource(string key, object value, CultureInfo culture)
+        public void UpdateOrAddResource(string key, object value)
         {
-            UpdateOrAddResource(key, value, null, culture);
-        }
+            Verify.ArgumentNotNullOrEmpty(key, nameof(key));
+            Verify.ArgumentNotNull(value, nameof(value));
 
-        public void UpdateOrAddResource(string key, object value, string resourceSet, CultureInfo culture)
-        {
-            var exists = GetResourceObject(key, resourceSet, culture) != null;
+            var exists = GetResourceObject(key) != null;
             if (exists)
             {
-                UpdateResource(key, value, resourceSet, culture);
+                UpdateResource(key, value);
             }
             else
             {
-                AddResource(key, value, resourceSet, culture);
+                AddResource(key, value);
             }
         }
 
-        public void DeleteResource(string key, CultureInfo culture)
+        public void DeleteResource(string key)
         {
-            DeleteResource(key, null, culture);
-        }
-
-        public void DeleteResource(string key, string resourceSet, CultureInfo culture)
-        {
-            var cultureName = GetCultureName(culture);
-
-            if (resourceSet == String.Empty)
-            {
-                resourceSet = null;
-            }
+            Verify.ArgumentNotNullOrEmpty(key, nameof(key));
 
             using (var transaction = TransactionsFacade.CreateNewScope())
             {
                 using (var data = new DataConnection())
                 {
-                    var resourceKey = data.Get<IResourceKey>().SingleOrDefault(r => r.ResourceSet == resourceSet && r.Key == key);
-                    if (resourceKey == null)
+                    var resourceKey = data.Get<IResourceKey>().SingleOrDefault(r => r.ResourceSet == _resourceSet && r.Key == key);
+                    if (resourceKey != null)
                     {
-                        return;
-                    }
+                        var resourceValue = data.Get<IResourceValue>().SingleOrDefault(r => r.KeyId == resourceKey.Id && r.Culture == _cultureName);
+                        if (resourceValue != null)
+                        {
+                            data.Delete(resourceValue);
+                        }
 
-                    var resourceValue = data.Get<IResourceValue>().SingleOrDefault(r => r.KeyId == resourceKey.Id && r.Culture == cultureName);
-                    if (resourceValue != null)
-                    {
-                        data.Delete(resourceValue);
-                    }
-
-                    if (!data.Get<IResourceValue>().Any(v => v.KeyId == resourceKey.Id))
-                    {
-                        data.Delete(resourceKey);
+                        if (!data.Get<IResourceValue>().Any(v => v.KeyId == resourceKey.Id))
+                        {
+                            data.Delete(resourceKey);
+                        }
                     }
                 }
 
                 transaction.Complete();
             }
-        }
-
-        private static string GetCultureName(CultureInfo culture)
-        {
-            var cultureName = String.Empty;
-            if (culture != null && !culture.IsNeutralCulture)
-            {
-                cultureName = culture.Name;
-            }
-
-            return cultureName;
         }
     }
 }

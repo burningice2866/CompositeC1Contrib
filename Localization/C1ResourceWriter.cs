@@ -8,10 +8,10 @@ namespace CompositeC1Contrib.Localization
 {
     public class C1ResourceWriter : IResourceWriter
     {
-        private string _resourceSet;
-        private CultureInfo _culture;
+        private readonly string _resourceSet;
+        private readonly CultureInfo _culture;
 
-        private IDictionary resourceList = new Hashtable();
+        private readonly IDictionary _resourceList = new Hashtable();
 
         public C1ResourceWriter(CultureInfo culture) : this(null, culture) { }
 
@@ -35,14 +35,14 @@ namespace CompositeC1Contrib.Localization
         {
             Verify.ArgumentNotNull(name, "name");
 
-            resourceList[name] = value;
+            _resourceList[name] = value;
         }
 
         public void Generate()
         {
-            var dataManager = C1ResourceDataManager.Instance;
+            var dataManager = new C1ResourceDataManager(_resourceSet, _culture);
 
-            dataManager.GenerateResources(resourceList, _resourceSet, _culture);
+            dataManager.GenerateResources(_resourceList);
         }
 
         public void Close()
