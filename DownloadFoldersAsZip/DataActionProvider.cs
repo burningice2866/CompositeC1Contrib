@@ -14,9 +14,13 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
     [Export(typeof(IElementActionProviderFor))]
     public class DataActionProvider : IElementActionProviderFor
     {
-        public IEnumerable<Type> ProviderFor
+        public IEnumerable<Type> ProviderFor => new[] { typeof(DataEntityToken) };
+
+        public void AddActions(Element element)
         {
-            get { return new[] { typeof(DataEntityToken) }; }
+            var actions = Provide(element.ElementHandle.EntityToken);
+
+            element.AddAction(actions);
         }
 
         public IEnumerable<ElementAction> Provide(EntityToken entityToken)

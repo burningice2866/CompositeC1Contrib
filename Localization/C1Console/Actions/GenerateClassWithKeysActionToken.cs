@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Web.Hosting;
 
 using Composite.C1Console.Actions;
 using Composite.C1Console.Events;
@@ -10,21 +9,16 @@ using Composite.C1Console.Security;
 using Composite.Core.IO;
 using Composite.Core.WebClient;
 
-using CompositeC1Contrib.Localization.C1Console.ElementProvider;
-
 namespace CompositeC1Contrib.Localization.C1Console.Actions
 {
     [ActionExecutor(typeof(GenerateClassWithKeysActionExecutor))]
     public class GenerateClassWithKeysActionToken : ActionToken
     {
-        static private readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Read };
+        private static readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Read };
 
-        public override IEnumerable<PermissionType> PermissionTypes
-        {
-            get { return _permissionTypes; }
-        }
+        public override IEnumerable<PermissionType> PermissionTypes => _permissionTypes;
 
-        public string Namespace { get; private set; }
+        public string Namespace { get; }
 
         public GenerateClassWithKeysActionToken(string ns)
         {
@@ -55,7 +49,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
 
             var content = generator.Generate();
 
-            var dir = HostingEnvironment.MapPath("~/" + UrlUtils.AdminRootPath + "/" + LocalPath);
+            var dir = PathUtil.Resolve("~/" + UrlUtils.AdminRootPath + "/" + LocalPath);
             if (!C1Directory.Exists(dir))
             {
                 C1Directory.CreateDirectory(dir);

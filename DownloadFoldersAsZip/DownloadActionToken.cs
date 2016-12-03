@@ -8,18 +8,12 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
     [ActionExecutor(typeof(DownloadActionExecutor))]
     public class DownloadActionToken : ActionToken
     {
-        public string Type { get; private set; }
-        public string Path { get; private set; }
+        public string Type { get; }
+        public string Path { get; }
 
-        public override IEnumerable<PermissionType> PermissionTypes
-        {
-            get { return new[] { PermissionType.Edit, PermissionType.Administrate }; }
-        }
+        public override IEnumerable<PermissionType> PermissionTypes => new[] { PermissionType.Edit, PermissionType.Administrate };
 
-        public override bool IgnoreEntityTokenLocking
-        {
-            get { return false; }
-        }
+        public override bool IgnoreEntityTokenLocking => false;
 
         public DownloadActionToken(string type, string path)
         {

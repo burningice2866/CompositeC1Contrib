@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Web.Hosting;
 
+using Composite.Core.IO;
 using Composite.Core.PackageSystem;
 
 namespace CompositeC1Contrib.SiteUpdate
@@ -18,7 +18,7 @@ namespace CompositeC1Contrib.SiteUpdate
 
         public IEnumerable<SiteUpdateInformation> GetUpdateSummaries(Guid installationId)
         {
-            var basePath = HostingEnvironment.MapPath(_location);
+            var basePath = PathUtil.Resolve(_location);
             var folder = Path.Combine(basePath, installationId.ToString());
 
             var list = new List<SiteUpdateInformation>();
@@ -28,12 +28,12 @@ namespace CompositeC1Contrib.SiteUpdate
                 return list;
             }
 
-            var files = Directory.GetFiles(folder, "*.zip");
+            var files = C1Directory.GetFiles(folder, "*.zip");
             foreach (var f in files)
             {
                 try
                 {
-                    var fi = new FileInfo(f);
+                    var fi = new C1FileInfo(f);
                     var packageInformation = PackageSystemServices.GetPackageInformationFromZipfile(f);
                     var changelog = ZipFileHelper.GetContentFromFile(f, "changelog.txt");
 
@@ -56,7 +56,7 @@ namespace CompositeC1Contrib.SiteUpdate
 
         public Stream GetZipStream(SiteUpdateInformation update)
         {
-            var basePath = HostingEnvironment.MapPath(_location);
+            var basePath = PathUtil.Resolve(_location);
             var folder = Path.Combine(basePath, update.InstallationId.ToString());
             var file = Path.Combine(folder, update.FileName);
 

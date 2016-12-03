@@ -14,7 +14,7 @@ namespace CompositeC1Contrib
     [ConfigurationElementType(typeof(NonConfigurableElementActionProvider))]
     public class GenericActionProvider : IElementActionProvider
     {
-        private ProviderContainer<IElementActionProviderFor> _providerContainer = new ProviderContainer<IElementActionProviderFor>();
+        private readonly ProviderContainer<IElementActionProviderFor> _providerContainer = new ProviderContainer<IElementActionProviderFor>();
 
         public IEnumerable<ElementAction> GetActions(EntityToken entityToken)
         {

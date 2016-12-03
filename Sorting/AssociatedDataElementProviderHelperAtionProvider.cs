@@ -18,9 +18,13 @@ namespace CompositeC1Contrib.Sorting
     {
         private static readonly Type SortableType = typeof(IGenericSortable);        
 
-        public IEnumerable<Type> ProviderFor
+        public IEnumerable<Type> ProviderFor => new[] { typeof(AssociatedDataElementProviderHelperEntityToken) };
+
+        public void AddActions(Element element)
         {
-            get { return new[] { typeof(AssociatedDataElementProviderHelperEntityToken) }; }
+            var actions = Provide(element.ElementHandle.EntityToken);
+
+            element.AddAction(actions);
         }
 
         public IEnumerable<ElementAction> Provide(EntityToken entityToken)
@@ -28,19 +32,21 @@ namespace CompositeC1Contrib.Sorting
             var associatedToken = (AssociatedDataElementProviderHelperEntityToken)entityToken;
 
             var type = TypeManager.GetType(associatedToken.Payload);
-            if (SortableType.IsAssignableFrom(type))
+            if (!SortableType.IsAssignableFrom(type))
             {
-                var pageId = associatedToken.Id;
+                yield break;
+            }
 
-                using (new DataScope(DataScopeIdentifier.Administrated))
+            var pageId = associatedToken.Id;
+
+            using (new DataScope(DataScopeIdentifier.Administrated))
+            {
+                var instances = DataFacade.GetData(type).Cast<IPageFolderData>().Where(f => f.PageId == Guid.Parse(associatedToken.Id));
+                if (instances.Any())
                 {
-                    var instances = DataFacade.GetData(type).Cast<IPageFolderData>().Where(f => f.PageId == Guid.Parse(associatedToken.Id));
-                    if (instances.Any())
-                    {
-                        var url = "Sort.aspx?type=" + type.FullName + "&pageId=" + pageId;
+                    var url = "Sort.aspx?type=" + type.FullName + "&pageId=" + pageId;
 
-                        yield return Actions.CreateSortAction(url, String.Empty);
-                    }
+                    yield return Actions.CreateSortAction(url, String.Empty);
                 }
             }
         }

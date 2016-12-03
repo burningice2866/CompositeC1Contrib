@@ -9,15 +9,15 @@ namespace CompositeC1Contrib.Composition
 {
     public abstract class HooklessElementProvider : IHooklessElementProvider
     {
-        protected ProviderContainer<IElementProviderFor> EntityTokenHandlers { get; private set; }
-        protected ProviderContainer<IElementActionProviderFor> ElementActionProviders { get; private set; }
+        protected ProviderContainer<IElementProviderFor> EntityTokenHandlers { get; }
+        protected ProviderContainer<IElementActionProviderFor> ElementActionProviders { get; }
 
         public ElementProviderContext Context
         {
             protected get; set;
         }
 
-        public HooklessElementProvider(string contract)
+        protected HooklessElementProvider(string contract)
         {
             EntityTokenHandlers = new ProviderContainer<IElementProviderFor>(contract);
             ElementActionProviders = new ProviderContainer<IElementActionProviderFor>(contract);
@@ -58,6 +58,6 @@ namespace CompositeC1Contrib.Composition
             return elements;
         }
 
-        public abstract IEnumerable<Element> GetRootsImpl(SearchToken seachToken);
+        protected abstract IEnumerable<Element> GetRootsImpl(SearchToken seachToken);
     }
 }

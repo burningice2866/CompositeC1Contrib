@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Web.Hosting;
 
+using Composite.Core.IO;
 using Composite.Data;
 
 using CompositeC1Contrib.ECommerce.Configuration;
@@ -15,7 +15,7 @@ namespace CompositeC1Contrib.ECommerce
     {
         private static readonly object Lock = new object();
 
-        public static readonly string RootPath = HostingEnvironment.MapPath("~/App_Data/ECommerce");
+        public static readonly string RootPath = PathUtil.Resolve("~/App_Data/ECommerce");
 
         private static readonly ECommerceSection Section = ECommerceSection.GetSection();
 
@@ -68,10 +68,7 @@ namespace CompositeC1Contrib.ECommerce
             }
         }
 
-        public static bool IsTestMode
-        {
-            get { return Section.TestMode; }
-        }
+        public static bool IsTestMode => Section.TestMode;
 
         public static IShopOrder CreateNewOrder(decimal totalAmount)
         {

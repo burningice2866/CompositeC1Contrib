@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Web.Hosting;
 using System.Xml.Linq;
 
 using Composite.Core;
@@ -17,7 +16,7 @@ namespace CompositeC1Contrib.FunctionProvider
 {
     public abstract class FileBasedFunctionProvider<T> : IFunctionProvider where T : FileBasedFunction<T>
     {
-        private static readonly object _lock = new object();
+        private readonly object _lock = new object();
 
         private readonly IDictionary<string, FileBasedFunction<T>> _functionCache = new Dictionary<string, FileBasedFunction<T>>();
 
@@ -29,8 +28,8 @@ namespace CompositeC1Contrib.FunctionProvider
         protected abstract Type BaseType { get; }
 
         public FunctionNotifier FunctionNotifier { private get; set; }
-        public string VirtualPath { get; private set; }
-        public string PhysicalPath { get; private set; }
+        public string VirtualPath { get; }
+        public string PhysicalPath { get; }
 
         public IEnumerable<IFunction> Functions
         {
@@ -38,15 +37,15 @@ namespace CompositeC1Contrib.FunctionProvider
             {
                 var returnList = new List<FileBasedFunction<T>>();
 
-                var files = new DirectoryInfo(PhysicalPath).EnumerateFiles("*." + FileExtension, SearchOption.AllDirectories).Where(f => !f.Name.StartsWith("_", StringComparison.Ordinal));
+                var files = new C1DirectoryInfo(PhysicalPath).GetFiles("*." + FileExtension, SearchOption.AllDirectories).Where(f => !f.Name.StartsWith("_", StringComparison.Ordinal));
                 foreach (var file in files)
                 {
                     var parts = file.FullName.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
 
-                    string ns = String.Empty;
-                    string name = Path.GetFileNameWithoutExtension(parts[parts.Length - 1]);
+                    var ns = String.Empty;
+                    var name = Path.GetFileNameWithoutExtension(parts[parts.Length - 1]);
 
-                    for (int i = parts.Length - 2; i > 0; i--)
+                    for (var i = parts.Length - 2; i > 0; i--)
                     {
                         if (parts[i].Equals(_rootFolder, StringComparison.OrdinalIgnoreCase))
                         {
@@ -67,7 +66,7 @@ namespace CompositeC1Contrib.FunctionProvider
                     }
                     catch (Exception exc)
                     {
-                        Log.LogError(String.Format("Error instantiating {0} function", _name), exc);
+                        Log.LogError($"Error instantiating {_name} function", exc);
 
                         if (_functionCache.ContainsKey(virtualPath))
                         {
@@ -97,11 +96,11 @@ namespace CompositeC1Contrib.FunctionProvider
             _name = name;
 
             VirtualPath = folder;
-            PhysicalPath = HostingEnvironment.MapPath(VirtualPath);
+            PhysicalPath = PathUtil.Resolve(VirtualPath);
 
-            _rootFolder = PhysicalPath.Split(new[] { Path.DirectorySeparatorChar }).Last();
+            _rootFolder = PhysicalPath.Split(Path.DirectorySeparatorChar).Last();
 
-            C1FileSystemWatcher watcher = new C1FileSystemWatcher(PhysicalPath, "*")
+            var watcher = new C1FileSystemWatcher(PhysicalPath, "*")
             {
                 IncludeSubdirectories = true
             };
@@ -176,8 +175,8 @@ namespace CompositeC1Contrib.FunctionProvider
         private string GetDescription(object obj)
         {
             var attr = obj.GetType().GetCustomAttributes(typeof(FunctionDescriptionAttribute), false).Cast<FunctionDescriptionAttribute>().FirstOrDefault();
-            
-            return attr != null ? attr.Description : String.Format("A {0} function", _name);
+
+            return attr != null ? attr.Description : $"A {_name} function";
         }
 
         private void watcher_Changed(object sender, FileSystemEventArgs e)

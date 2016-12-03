@@ -21,7 +21,7 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider
             AuxiliarySecurityAncestorFacade.AddAuxiliaryAncestorProvider<DataEntityToken>(this);
         }
 
-        public override IEnumerable<Element> GetRootsImpl(SearchToken searchToken)
+        protected override IEnumerable<Element> GetRootsImpl(SearchToken searchToken)
         {
             var elementHandle = Context.CreateElementHandle(new LocalizationElementProviderEntityToken());
             var rootElement = new Element(elementHandle)

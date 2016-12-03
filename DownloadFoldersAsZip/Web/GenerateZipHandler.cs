@@ -13,10 +13,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
 {
     public class GenerateZipHandler : IHttpHandler
     {
-        public bool IsReusable
-        {
-            get { return true; }
-        }
+        public bool IsReusable => true;
 
         public void ProcessRequest(HttpContext ctx)
         {
@@ -132,7 +129,7 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip.Web
             }
 
             var folders = C1Directory.GetDirectories(absolutePath);
-            foreach (string folder in folders)
+            foreach (var folder in folders)
             {
                 CompressFolder(folder, zipArchive, folderOffset);
             }

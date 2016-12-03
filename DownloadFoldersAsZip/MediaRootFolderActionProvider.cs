@@ -13,9 +13,13 @@ namespace CompositeC1Contrib.DownloadFoldersAsZip
     [Export(typeof(IElementActionProviderFor))]
     public class MediaRootFolderActionProvider : IElementActionProviderFor
     {
-        public IEnumerable<Type> ProviderFor
+        public IEnumerable<Type> ProviderFor => new[] { typeof(MediaRootFolderProviderEntityToken) };
+
+        public void AddActions(Element element)
         {
-            get { return new[] { typeof(MediaRootFolderProviderEntityToken) }; }
+            var actions = Provide(element.ElementHandle.EntityToken);
+
+            element.AddAction(actions);
         }
 
         public IEnumerable<ElementAction> Provide(EntityToken entityToken)

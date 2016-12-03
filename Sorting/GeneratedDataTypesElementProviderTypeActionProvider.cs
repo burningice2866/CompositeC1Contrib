@@ -17,39 +17,46 @@ namespace CompositeC1Contrib.Sorting
     {
         private static readonly Type SortableType = typeof(IGenericSortable);
 
-        public IEnumerable<Type> ProviderFor
+        public IEnumerable<Type> ProviderFor => new[] { typeof(GeneratedDataTypesElementProviderTypeEntityToken) };
+
+        public void AddActions(Element element)
         {
-            get { return new[] { typeof(GeneratedDataTypesElementProviderTypeEntityToken) }; }
+            var actions = Provide(element.ElementHandle.EntityToken);
+
+            element.AddAction(actions);
         }
 
         public IEnumerable<ElementAction> Provide(EntityToken entityToken)
         {
             var generatedDataTypetoken = (GeneratedDataTypesElementProviderTypeEntityToken)entityToken;
-            if (generatedDataTypetoken.Source == "GeneratedDataTypesElementProvider")
+            if (generatedDataTypetoken.Source != "GeneratedDataTypesElementProvider")
             {
-                var type = TypeManager.GetType(generatedDataTypetoken.SerializedTypeName);
-
-                if (!typeof(IPageMetaData).IsAssignableFrom(type))
-                {
-                    string message;
-                    string icon;
-
-                    if (typeof(IGenericSortable).IsAssignableFrom(type))
-                    {
-                        message = "Disable sorting";
-                        icon = "delete";
-                    }
-                    else
-                    {
-                        message = "Enable sorting";
-                        icon = "accept";
-                    }
-
-                    var actionToken = new ToggleSuperInterfaceActionToken(SortableType);
-
-                    yield return Actions.CreateInterfaceToggleAction(actionToken, icon, message);
-                }
+                yield break;
             }
+
+            var type = TypeManager.GetType(generatedDataTypetoken.SerializedTypeName);
+            if (typeof(IPageMetaData).IsAssignableFrom(type))
+            {
+                yield break;
+            }
+
+            string message;
+            string icon;
+
+            if (typeof(IGenericSortable).IsAssignableFrom(type))
+            {
+                message = "Disable sorting";
+                icon = "delete";
+            }
+            else
+            {
+                message = "Enable sorting";
+                icon = "accept";
+            }
+
+            var actionToken = new ToggleSuperInterfaceActionToken(SortableType);
+
+            yield return Actions.CreateInterfaceToggleAction(actionToken, icon, message);
         }
     }
 }

@@ -16,11 +16,13 @@ namespace CompositeC1Contrib.Sorting
     [Export(typeof(IElementActionProviderFor))]
     public class DataActionProvider : IElementActionProviderFor
     {
-        private static readonly Type SortableType = typeof(IGenericSortable);
+        public IEnumerable<Type> ProviderFor => new[] { typeof(DataEntityToken) };
 
-        public IEnumerable<Type> ProviderFor
+        public void AddActions(Element element)
         {
-            get { return new[] { typeof(DataEntityToken) }; }
+            var actions = Provide(element.ElementHandle.EntityToken);
+
+            element.AddAction(actions);
         }
 
         public IEnumerable<ElementAction> Provide(EntityToken entityToken)
@@ -28,18 +30,20 @@ namespace CompositeC1Contrib.Sorting
             var dataToken = (DataEntityToken)entityToken;
             var type = dataToken.InterfaceType;
 
-            if (typeof(IPage).IsAssignableFrom(type))
+            if (!typeof(IPage).IsAssignableFrom(type))
             {
-                var page = (IPage)dataToken.Data;
+                yield break;
+            }
 
-                using (var data = new DataConnection(PublicationScope.Unpublished))
+            var page = (IPage)dataToken.Data;
+
+            using (var data = new DataConnection(PublicationScope.Unpublished))
+            {
+                if (data.Get<IPageStructure>().Count(ps => ps.ParentId == page.Id) > 1)
                 {
-                    if (data.Get<IPageStructure>().Count(ps => ps.ParentId == page.Id) > 1)
-                    {
-                        var url = "SortPages.aspx?pageId=" + page.Id;
+                    var url = "SortPages.aspx?pageId=" + page.Id;
 
-                        yield return Actions.CreateSortAction(url, StringResourceSystemFacade.GetString("CompositeC1Contrib.Sorting", "Childpages"));
-                    }
+                    yield return Actions.CreateSortAction(url, StringResourceSystemFacade.GetString("CompositeC1Contrib.Sorting", "Childpages"));
                 }
             }
         }
