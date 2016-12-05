@@ -5,7 +5,7 @@
 
   <mi:PackageInformation name="CompositeC1Contrib.ECommerce"
                          groupName="Contribution.CompositeC1Contrib"
-                         version="0.6.0" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/ECommerce"
+                         version="0.7.0" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/ECommerce"
                          readMoreUrl="https://github.com/burningice2866/CompositeC1Contrib/tree/master/ECommerce"
                          id="ae333251-499a-498a-8ef2-bf717f08a3a2"
                          canBeUninstalled="true"
