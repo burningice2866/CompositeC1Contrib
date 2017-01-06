@@ -27,7 +27,7 @@ namespace CompositeC1Contrib.Localization
         [ImmutableFieldId("030afa96-984c-46eb-ad2f-5255a0376caa")]
         string ResourceSet { get; set; }
 
-        [StoreFieldType(PhysicalStoreFieldType.String, 128)]
+        [StoreFieldType(PhysicalStoreFieldType.String, 128, IsNullable = true)]
         [ImmutableFieldId("de0adf81-c222-4e16-ae3e-7cda0c8585ed")]
         string Type { get; set; }
     }

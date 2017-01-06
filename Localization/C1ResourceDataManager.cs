@@ -40,7 +40,7 @@ namespace CompositeC1Contrib.Localization
 
             using (var data = new DataConnection())
             {
-                var resourceKey = data.Get<IResourceKey>().SingleOrDefault(r => r.ResourceSet == _resourceSet && r.Key == key);
+                var resourceKey = data.Get<IResourceKey>().SingleOrDefault(r => Equals(r.ResourceSet, _resourceSet) && r.Key == key);
                 if (resourceKey == null)
                 {
                     return null;
@@ -64,8 +64,7 @@ namespace CompositeC1Contrib.Localization
             {
                 var query = from rv in data.Get<IResourceValue>()
                             join r in data.Get<IResourceKey>() on rv.KeyId equals r.Id
-                            where r.ResourceSet == _resourceSet
-                            where rv.Culture == _culture.Name
+                            where Equals(r.ResourceSet, _resourceSet) && rv.Culture == _culture.Name
                             select new { r.Key, rv.Value };
 
                 foreach (var itm in query)
@@ -89,7 +88,7 @@ namespace CompositeC1Contrib.Localization
             {
                 using (var data = new DataConnection())
                 {
-                    var resourceKey = data.Get<IResourceKey>().SingleOrDefault(k => k.ResourceSet == _resourceSet && k.Key == key);
+                    var resourceKey = data.Get<IResourceKey>().SingleOrDefault(k => Equals(k.ResourceSet, _resourceSet) && k.Key == key);
                     if (resourceKey == null)
                     {
                         resourceKey = data.CreateNew<IResourceKey>();
@@ -122,7 +121,7 @@ namespace CompositeC1Contrib.Localization
 
             using (var data = new DataConnection())
             {
-                var resourceKey = data.Get<IResourceKey>().Single(r => r.ResourceSet == _resourceSet && r.Key == key);
+                var resourceKey = data.Get<IResourceKey>().Single(r => Equals(r.ResourceSet, _resourceSet) && r.Key == key);
                 var resourceValue = data.Get<IResourceValue>().Single(r => r.KeyId == resourceKey.Id && r.Culture == _cultureName);
 
                 resourceValue.Value = value.ToString();
@@ -180,7 +179,7 @@ namespace CompositeC1Contrib.Localization
             {
                 using (var data = new DataConnection())
                 {
-                    var resourceKey = data.Get<IResourceKey>().SingleOrDefault(r => r.ResourceSet == _resourceSet && r.Key == key);
+                    var resourceKey = data.Get<IResourceKey>().SingleOrDefault(r => Equals(r.ResourceSet, _resourceSet) && r.Key == key);
                     if (resourceKey != null)
                     {
                         var resourceValue = data.Get<IResourceValue>().SingleOrDefault(r => r.KeyId == resourceKey.Id && r.Culture == _cultureName);

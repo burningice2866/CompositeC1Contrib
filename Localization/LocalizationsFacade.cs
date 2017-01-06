@@ -105,17 +105,21 @@ namespace CompositeC1Contrib.Localization
         {
             Verify.ArgumentNotNull(ns, "ns");
 
-            if (ns.Length > 0)
-            {
-                ns = ns + ".";
-            }
-
             using (var data = new DataConnection())
             {
-                return from k in data.Get<IResourceKey>()
-                       where k.ResourceSet == resourceSet && k.Key.StartsWith(ns)
-                       orderby k.Key
-                       select k;
+                IQueryable<IResourceKey> query = from k in data.Get<IResourceKey>()
+                                                 where Equals(k.ResourceSet, resourceSet)
+                                                 orderby k.Key
+                                                 select k;
+
+                if (ns.Length > 0)
+                {
+                    ns = ns + ".";
+
+                    query = from k in query where k.Key.StartsWith(ns) select k;
+                }
+
+                return query;
             }
         }
     }
