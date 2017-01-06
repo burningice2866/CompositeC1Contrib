@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Workflow.Activities;
+
 using Composite.C1Console.Workflow;
 using Composite.C1Console.Workflow.Activities;
 
@@ -35,7 +36,8 @@ namespace CompositeC1Contrib.Workflows
             // SaveCodeActivity
             // 
             saveCodeActivity.Name = "SaveCodeActivity";
-            saveCodeActivity.ExecuteCode += OnFinish;
+            saveCodeActivity.ExecuteCode += (sender, e) => { SetCultureInfo(); OnFinish(sender, e); };
+
             // 
             // elseBranchActivity
             // 
@@ -44,7 +46,7 @@ namespace CompositeC1Contrib.Workflows
             // ifValidateActivity
             // 
             ifValidateActivity.Activities.Add(saveCodeActivity);
-            codecondition1.Condition += OnValidate;
+            codecondition1.Condition += (sender, e) => { SetCultureInfo(); OnValidate(sender, e); };
             ifValidateActivity.Condition = codecondition1;
             ifValidateActivity.Name = "ifValidateActivity";
             // 
@@ -82,7 +84,7 @@ namespace CompositeC1Contrib.Workflows
             // initCodeActivity
             // 
             initCodeActivity.Name = "initCodeActivity";
-            initCodeActivity.ExecuteCode += OnInitialize;
+            initCodeActivity.ExecuteCode += (sender, e) => { SetCultureInfo(); OnInitialize(sender, e); };
             // 
             // setStateActivity1
             // 

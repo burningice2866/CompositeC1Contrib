@@ -53,7 +53,7 @@ namespace CompositeC1Contrib.Workflows
             // saveCodeActivity
             // 
             saveCodeActivity.Name = "saveCodeActivity";
-            saveCodeActivity.ExecuteCode += OnFinish;
+            saveCodeActivity.ExecuteCode += (sender, e) => { SetCultureInfo(); OnFinish(sender, e); };
             // 
             // ifElseBranchActivity2
             // 
@@ -64,7 +64,7 @@ namespace CompositeC1Contrib.Workflows
             // 
             ifElseBranchActivity1.Activities.Add(saveCodeActivity);
             ifElseBranchActivity1.Activities.Add(setStateActivity5);
-            codecondition1.Condition += OnValidate;
+            codecondition1.Condition += (sender, e) => { SetCultureInfo(); OnValidate(sender, e); };
             ifElseBranchActivity1.Condition = codecondition1;
             ifElseBranchActivity1.Name = "ifElseBranchActivity1";
             // 
@@ -107,7 +107,7 @@ namespace CompositeC1Contrib.Workflows
             // initCodeActivity
             // 
             initCodeActivity.Name = "initCodeActivity";
-            initCodeActivity.ExecuteCode += OnInitialize;
+            initCodeActivity.ExecuteCode += (sender, e) => { SetCultureInfo(); OnInitialize(sender, e); };
             // 
             // setStateActivity2
             // 

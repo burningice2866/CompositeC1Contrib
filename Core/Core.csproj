@@ -93,6 +93,9 @@
     <Compile Include="Web\RouteCollectionExtensions.cs" />
     <Compile Include="Web\UI\PageRendererHelper.cs" />
     <Compile Include="Web\RequestInfo.cs" />
+    <Compile Include="Workflows\BaseFormsWorkflow.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Workflows\Basic1StepDialogWorkflow.cs">
       <SubType>Component</SubType>
     </Compile>
