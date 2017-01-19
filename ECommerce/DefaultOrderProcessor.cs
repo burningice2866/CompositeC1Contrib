@@ -5,6 +5,7 @@ using System.Web;
 
 using Composite.Core.IO;
 
+using CompositeC1Contrib.ECommerce.Configuration;
 using CompositeC1Contrib.ECommerce.Data.Types;
 
 namespace CompositeC1Contrib.ECommerce
@@ -72,6 +73,47 @@ namespace CompositeC1Contrib.ECommerce
             return null;
         }
 
+        public virtual string HandleCancel(HttpContextBase context)
+        {
+            var config = ECommerceSection.GetSection();
+
+            var pageUrl = GetPageUrl(config.MainPageId);
+            if (String.IsNullOrEmpty(pageUrl))
+            {
+                pageUrl = "/";
+            }
+
+            return pageUrl + "?reason=cancel";
+        }
+
         public virtual void PostProcessOrder(IShopOrder order) { }
+
+        public static string GetPageUrl(string id)
+        {
+            var pathInfo = String.Empty;
+
+            if (id.Contains("/"))
+            {
+                var split = id.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                id = split[0];
+                pathInfo = split[1];
+            }
+
+            var node = SiteMap.Provider.FindSiteMapNodeFromKey(id);
+            if (node == null)
+            {
+                return null;
+            }
+
+            var url = node.Url;
+
+            if (!String.IsNullOrEmpty(pathInfo))
+            {
+                url += "/" + pathInfo;
+            }
+
+            return url;
+        }
     }
 }

@@ -32,13 +32,15 @@ namespace CompositeC1Contrib.ECommerce
                         {
                             if (String.IsNullOrEmpty(Section.OrderProcessor))
                             {
-                                return null;
+                                return new DefaultOrderProcessor();
                             }
 
                             var type = Type.GetType(Section.OrderProcessor);
                             if (type == null)
                             {
-                                return null;
+                                ECommerceLog.WriteLog($"Unknown orderprocessor type '{Section.OrderProcessor}'");
+
+                                return new DefaultOrderProcessor();
                             }
 
                             try
@@ -48,6 +50,8 @@ namespace CompositeC1Contrib.ECommerce
                             catch (Exception e)
                             {
                                 ECommerceLog.WriteLog("Error instantiating orderprocessor", e);
+
+                                return new DefaultOrderProcessor();
                             }
                         }
                     }

@@ -65,9 +65,9 @@ namespace CompositeC1Contrib.ECommerce.Web
 
         public Task HandleCancel()
         {
-            ECommerceLog.WriteLog("Cancel request recieved, redirecting to main page");
+            ECommerceLog.WriteLog("Cancel request recieved");
 
-            var pageUrl = GetPageUrl(Config.MainPageId) + "?reason=cancel";
+            var pageUrl = OrderProcessor.HandleCancel(_context);
 
             RedirectOrIFrame(pageUrl);
 
@@ -179,21 +179,18 @@ namespace CompositeC1Contrib.ECommerce.Web
 
         private void Receipt(IShopOrder order)
         {
-            if (OrderProcessor != null)
+            var pageUrlOverride = OrderProcessor.HandleContinue(_context, order);
+            if (!String.IsNullOrEmpty(pageUrlOverride))
             {
-                var pageUrlOverride = OrderProcessor.HandleContinue(_context, order);
-                if (!String.IsNullOrEmpty(pageUrlOverride))
-                {
-                    RedirectOrIFrame(pageUrlOverride);
+                RedirectOrIFrame(pageUrlOverride);
 
-                    return;
-                }
+                return;
             }
 
-            var pageUrl = GetPageUrl(Config.ReceiptPageId);
+            var pageUrl = DefaultOrderProcessor.GetPageUrl(Config.ReceiptPageId);
             if (String.IsNullOrEmpty(pageUrl))
             {
-                pageUrl = GetPageUrl(Config.MainPageId);
+                pageUrl = DefaultOrderProcessor.GetPageUrl(Config.MainPageId);
                 if (String.IsNullOrEmpty(pageUrl))
                 {
                     pageUrl = "/";
@@ -228,34 +225,6 @@ namespace CompositeC1Contrib.ECommerce.Web
         private void HtmlContent(string content)
         {
             _context.Response.Write(content);
-        }
-
-        private static string GetPageUrl(string id)
-        {
-            string pathInfo = null;
-
-            if (id.Contains("/"))
-            {
-                var split = id.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-
-                id = split[0];
-                pathInfo = split[1];
-            }
-
-            var node = SiteMap.Provider.FindSiteMapNodeFromKey(id);
-            if (node == null)
-            {
-                return null;
-            }
-
-            var url = node.Url;
-
-            if (!String.IsNullOrEmpty(pathInfo))
-            {
-                url += "/" + pathInfo;
-            }
-
-            return url;
         }
     }
 }

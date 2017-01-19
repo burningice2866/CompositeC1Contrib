@@ -8,6 +8,7 @@ namespace CompositeC1Contrib.ECommerce
     {
         string GenerateNextOrderId(OrderCreationSettings settings);
         string HandleContinue(HttpContextBase context, IShopOrder order);
+        string HandleCancel(HttpContextBase context);
         void PostProcessOrder(IShopOrder order);
     }
 }

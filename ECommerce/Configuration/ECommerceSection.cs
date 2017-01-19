@@ -53,7 +53,7 @@ namespace CompositeC1Contrib.ECommerce.Configuration
             set { this["useIFrame"] = value; }
         }
 
-        [ConfigurationProperty("orderProcessor", IsRequired = false, DefaultValue = "CompositeC1Contrib.ECommerce.DefaultOrderProcessor, ECommerce")]
+        [ConfigurationProperty("orderProcessor", IsRequired = false)]
         public string OrderProcessor
         {
             get { return (string)this["orderProcessor"]; }
