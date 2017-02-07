@@ -38,7 +38,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
 
     public class GenerateClassWithKeysActionExecutor : IActionExecutor
     {
-        private static string LocalPath = "InstalledPackages/CompositeC1Contrib.Localization";
+        private const string LocalPath = "InstalledPackages/CompositeC1Contrib.Localization";
 
         public FlowToken Execute(EntityToken entityToken, ActionToken actionToken, FlowControllerServicesContainer flowControllerServicesContainer)
         {
@@ -49,7 +49,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
 
             var content = generator.Generate();
 
-            var dir = PathUtil.Resolve("~/" + UrlUtils.AdminRootPath + "/" + LocalPath);
+            var dir = PathUtil.Resolve("~" + Path.Combine("/", UrlUtils.AdminRootPath, LocalPath));
             if (!C1Directory.Exists(dir))
             {
                 C1Directory.CreateDirectory(dir);

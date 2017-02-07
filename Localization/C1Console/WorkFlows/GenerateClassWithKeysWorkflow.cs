@@ -36,7 +36,8 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
                 UserSettings.LastSpecifiedNamespace = ns;
             }
 
-            ExecuteAction(EntityToken, new GenerateClassWithKeysActionToken(ns));
+            CloseCurrentView();
+            ExecuteAction(EntityToken, new GenerateClassWithKeysActionToken(ns));            
         }
     }
 }
