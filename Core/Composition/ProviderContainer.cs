@@ -47,13 +47,19 @@ namespace CompositeC1Contrib.Composition
 
         public IEnumerable<T> GetProvidersFor(EntityToken entityToken)
         {
-            IList<T> providers;
-            if (_providers.TryGetValue(entityToken.GetType(), out providers))
+            var providers = new List<T>();
+
+            var entityTokenType = entityToken.GetType();
+
+            foreach (var kvp in _providers)
             {
-                return providers;
+                if (kvp.Key == entityTokenType || kvp.Key.IsAssignableFrom(entityTokenType))
+                {
+                    providers.AddRange(kvp.Value);
+                }
             }
 
-            return Enumerable.Empty<T>();
+            return providers;
         }
     }
 }

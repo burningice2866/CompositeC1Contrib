@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" standalone="yes"?>
+<mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
+  <mi:PackageRequirements minimumCompositeVersion="4.2.5249.32246"
+                          maximumCompositeVersion="9.9999.9999.9999" />
+
+  <mi:PackageInformation name="CompositeC1Contrib.FunctionRoutes"
+                         groupName="Contribution.CompositeC1Contrib"
+                         version="1.0.0" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/FunctionRoutes"
+                         readMoreUrl="https://github.com/burningice2866/CompositeC1Contrib/tree/master/FunctionRoutes"
+                         id="e0e60ffb-4ee7-474d-8135-4b7cdf1768ec"
+                         canBeUninstalled="true"
+                         systemLocking="hard"
+                         flushOnCompletion="false">
+    <Description>Exposes Functions as Routes</Description>
+    <TechnicalDetails>Exposes Functions as Routes</TechnicalDetails>
+  </mi:PackageInformation>
+
+  <mi:PackageFragmentInstallers>
+    <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentUninstaller, Composite">
+      <Files>
+        <File sourceFilename="~\Bin\CompositeC1Contrib.Core.dll" targetFilename="~\Bin\CompositeC1Contrib.Core.dll" allowOverwrite="true" />
+        <File sourceFilename="~\Bin\CompositeC1Contrib.FunctionRoutes.dll" targetFilename="~\Bin\CompositeC1Contrib.FunctionRoutes.dll" allowOverwrite="true" />
+      </Files>
+
+      <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.XmlFileMergePackageFragmentUninstaller, Composite">
+        <XmlFileMerges>
+          <XmlFileMerge changeDefinitionPath="~\config\App_Data\Composite\composite.config" targetFilePath="~\App_Data\Composite\composite.config" />
+        </XmlFileMerges>
+      </mi:Add>
+    </mi:Add>
+  </mi:PackageFragmentInstallers>
+</mi:PackageInstaller>
