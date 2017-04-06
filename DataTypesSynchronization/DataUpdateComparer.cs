@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 
 using Composite.Data;
@@ -9,6 +10,7 @@ namespace CompositeC1Contrib.DataTypesSynchronization
     public class DataUpdateComparer<T> where T : class, IData
     {
         private readonly IEnumerable<T> _list;
+        private readonly IEnumerable<PropertyInfo> _propertiesToIgnore;
         private readonly Logger _logger;
         private readonly CancellationToken _cancellationToken;
 
@@ -17,6 +19,8 @@ namespace CompositeC1Contrib.DataTypesSynchronization
             _list = list;
             _logger = logger;
             _cancellationToken = cancellationToken;
+
+            _propertiesToIgnore = typeof(T).GetProperties().Where(p => p.GetCustomAttribute<SynchronizeIgnoreAttribute>() != null).ToList();
         }
 
         public DataUpdateCompareResult<T> DataUpdate(bool allowDelete = true)
@@ -76,7 +80,7 @@ namespace CompositeC1Contrib.DataTypesSynchronization
             }
         }
 
-        private static bool PublicInstancePropertiesUpdateCompare(T existingItem, T newItem, params string[] propsToIgnore)
+        private bool PublicInstancePropertiesUpdateCompare(T existingItem, T newItem)
         {
             if (existingItem == newItem)
             {
@@ -86,11 +90,10 @@ namespace CompositeC1Contrib.DataTypesSynchronization
             var isEqual = true;
 
             var type = typeof(T);
-            var ignoreList = new List<string>(propsToIgnore);
 
             foreach (var prop in type.GetProperties())
             {
-                if (ignoreList.Contains(prop.Name))
+                if (_propertiesToIgnore.Contains(prop))
                 {
                     continue;
                 }

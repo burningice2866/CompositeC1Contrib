@@ -61,6 +61,7 @@
     <Compile Include="SynchronizationFrequency.cs" />
     <Compile Include="SynchronizationJob.cs" />
     <Compile Include="SynchronizationTypeDefinition.cs" />
+    <Compile Include="SynchronizeIgnoreAttribute.cs" />
     <Compile Include="SynchronizeDataAttribute.cs" />
     <Compile Include="Web\UI\SyncrhonizationPage.cs">
       <SubType>ASPXCodeBehind</SubType>

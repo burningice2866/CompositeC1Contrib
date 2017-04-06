@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-using Composite.Core.Types;
+using Composite.Data;
 
 namespace CompositeC1Contrib.DataTypesSynchronization
 {
@@ -26,8 +26,26 @@ namespace CompositeC1Contrib.DataTypesSynchronization
 
         private void Init()
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            var types = assemblies.SelectMany(assembly => assemblies.GetTypes()).Where(t => t.GetCustomAttribute(typeof(SynchronizeDataAttribute)) != null);
+            var types = new List<Type>();
+
+            try
+            {
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    try
+                    {
+                        var synchronizeTypes = from t in asm.GetTypes()
+                                               where t.IsInterface
+                                                    && typeof(IData).IsAssignableFrom(t)
+                                                    && t.GetCustomAttribute<SynchronizeDataAttribute>() != null
+                                               select t;
+
+                        types.AddRange(synchronizeTypes);
+                    }
+                    catch { }
+                }
+            }
+            catch { }
 
             var updateModelTypeMethod = typeof(SynchronizationJob).GetMethod("UpdateModelType", BindingFlags.Instance | BindingFlags.NonPublic);
 

@@ -111,7 +111,11 @@ namespace CompositeC1Contrib.DataTypesSynchronization
             _log.AppendToLog("Synchronizing {0}", typeof(TModel).Name);
 
             var modelType = typeof(TModel);
-            var provider = DataTypesSynchronizationConfiguration.Current.DataProviders.First(d => d.IsProviderFor(modelType));
+            var provider = DataTypesSynchronizationConfiguration.Current.DataProviders.FirstOrDefault(d => d.IsProviderFor(modelType));
+            if (provider == null)
+            {
+                return;
+            }
 
             var iList = new List<TData>();
             var list = ((IEnumerable<TModel>)provider.GetData(modelType)).ToList();
