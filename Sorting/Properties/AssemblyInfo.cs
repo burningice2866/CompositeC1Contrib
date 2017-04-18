@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("BurningIce")]
 [assembly: AssemblyProduct("CompositeC1Contrib.Sorting")]
-[assembly: AssemblyCopyright("Copyright © BurnngIce A/S 2014")]
+[assembly: AssemblyCopyright("Copyright © BurnngIce 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

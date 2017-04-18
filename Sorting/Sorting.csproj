@@ -68,33 +68,33 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\arrow.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\page.css" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_diagonals-thick_18_b81900_40x40.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_diagonals-thick_20_666666_40x40.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_flat_10_000000_40x100.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_glass_100_f6f6f6_1x400.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_glass_100_fdf5ce_1x400.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_glass_65_ffffff_1x400.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_gloss-wave_35_f6a828_500x100.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_highlight-soft_100_eeeeee_1x100.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_highlight-soft_75_ffe45c_1x100.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-icons_222222_256x240.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-icons_228ef1_256x240.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-icons_ef8c08_256x240.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-icons_ffd27a_256x240.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-icons_ffffff_256x240.png" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\jquery-ui-1.8.16.custom.css" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\js\jquery-1.6.2.min.js" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\js\jquery-ui-1.8.16.custom.min.js" />
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\Sort.aspx">
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\arrow.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\page.css" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_diagonals-thick_18_b81900_40x40.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_diagonals-thick_20_666666_40x40.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_flat_10_000000_40x100.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_glass_100_f6f6f6_1x400.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_glass_100_fdf5ce_1x400.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_gloss-wave_35_f6a828_500x100.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_highlight-soft_100_eeeeee_1x100.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-bg_highlight-soft_75_ffe45c_1x100.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-icons_222222_256x240.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-icons_228ef1_256x240.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-icons_ef8c08_256x240.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-icons_ffd27a_256x240.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\css\ui-lightness\jquery-ui-1.8.16.custom.css" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\js\jquery-1.6.2.min.js" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\js\jquery-ui-1.8.16.custom.min.js" />
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\Sort.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
-    <Content Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\SortPages.aspx">
+    <Content Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\SortPages.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
-    <Content Include="Package\Composite\InstalledPackages\localization\CompositeC1Contrib.Sorting.da-dk.xml" />
-    <Content Include="Package\Composite\InstalledPackages\localization\CompositeC1Contrib.Sorting.en-us.xml" />
+    <Content Include="Package\content\Composite\InstalledPackages\localization\CompositeC1Contrib.Sorting.da-dk.xml" />
+    <Content Include="Package\content\Composite\InstalledPackages\localization\CompositeC1Contrib.Sorting.en-us.xml" />
     <Content Include="Package\install.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -108,21 +108,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Package\Composite\InstalledPackages\CompositeC1Contrib.Sorting\_Default.master">
+    <None Include="Package\content\Composite\InstalledPackages\CompositeC1Contrib.Sorting\_Default.master">
       <SubType>ASPXCodeBehind</SubType>
     </None>
+    <None Include="Package\config\App_Data\Composite\composite.config" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>del "$(ProjectDir)Package\Bin\"
-mkdir "$(ProjectDir)Package\Bin\"
+    <PostBuildEvent>mkdir "$(ProjectDir)Package\Bin\"
 
-copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"
-
-del "$(ProjectDir)\Package\package.zip"
-
-"$(ProjectDir)..\References\7z.exe" a "$(ProjectDir)\Package\package.zip" -tzip -r "$(ProjectDir)\Package\*"</PostBuildEvent>
+copy "$(TargetDir)CompositeC1Contrib.Core.dll" "$(ProjectDir)Package\Bin\CompositeC1Contrib.Core.dll"
+copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)Package\Bin\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

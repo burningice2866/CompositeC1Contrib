@@ -18,6 +18,7 @@
   <mi:PackageFragmentInstallers>
     <mi:Add installerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentInstaller, Composite" uninstallerType="Composite.Core.PackageSystem.PackageFragmentInstallers.FilePackageFragmentUninstaller, Composite">
       <Files>
+        <File sourceFilename="~\bin\CompositeC1Contrib.Core.dll" targetFilename="~\bin\CompositeC1Contrib.Core.dll" allowOverwrite="true" />
         <File sourceFilename="~\bin\CompositeC1Contrib.Localization.dll" targetFilename="~\bin\CompositeC1Contrib.Localization.dll" allowOverwrite="true" />
       </Files>
 
