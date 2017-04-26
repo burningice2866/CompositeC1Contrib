@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
+using Composite.Core.Types;
 using Composite.Data;
 
 namespace CompositeC1Contrib.DataTypesSynchronization
@@ -20,7 +21,9 @@ namespace CompositeC1Contrib.DataTypesSynchronization
             _logger = logger;
             _cancellationToken = cancellationToken;
 
-            _propertiesToIgnore = typeof(T).GetProperties().Where(p => p.GetCustomAttribute<SynchronizeIgnoreAttribute>() != null).ToList();
+            _propertiesToIgnore = (from property in typeof(T).GetPropertiesRecursively()
+                                   where property.GetCustomAttribute<SynchronizeIgnoreAttribute>() != null
+                                   select property).ToList();
         }
 
         public DataUpdateCompareResult<T> DataUpdate(bool allowDelete = true)
@@ -89,9 +92,11 @@ namespace CompositeC1Contrib.DataTypesSynchronization
 
             var isEqual = true;
 
-            var type = typeof(T);
+            var properties = from property in typeof(T).GetPropertiesRecursively()
+                             where property.DeclaringType != typeof(IData)
+                             select property;
 
-            foreach (var prop in type.GetProperties())
+            foreach (var prop in properties)
             {
                 if (_propertiesToIgnore.Contains(prop))
                 {
