@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -11,7 +12,7 @@ namespace CompositeC1Contrib.DataTypesSynchronization
     public class DataUpdateComparer<T> where T : class, IData
     {
         private readonly IEnumerable<T> _list;
-        private readonly IEnumerable<PropertyInfo> _propertiesToIgnore;
+        private readonly IList<PropertyInfo> _propertiesToCompare;
         private readonly Logger _logger;
         private readonly CancellationToken _cancellationToken;
 
@@ -21,9 +22,35 @@ namespace CompositeC1Contrib.DataTypesSynchronization
             _logger = logger;
             _cancellationToken = cancellationToken;
 
-            _propertiesToIgnore = (from property in typeof(T).GetPropertiesRecursively()
-                                   where property.GetCustomAttribute<SynchronizeIgnoreAttribute>() != null
-                                   select property).ToList();
+            var properties = (from property in typeof(T).GetPropertiesRecursively()
+                              where property.DeclaringType != typeof(IData)
+                              select property).ToList();
+
+            var propertiesToInclude = (from property in properties
+                                       where property.GetCustomAttribute<SynchronizeIncludeAttribute>() != null
+                                       select property).ToList();
+
+            var propertiesToIgnore = (from property in properties
+                                      where property.GetCustomAttribute<SynchronizeIgnoreAttribute>() != null
+                                      select property).ToList();
+
+            if (propertiesToInclude.Any() && propertiesToIgnore.Any())
+            {
+                throw new InvalidOperationException("Include and Ignore attributes cannot be used at the same time");
+            }
+
+            if (propertiesToInclude.Any())
+            {
+                _propertiesToCompare = propertiesToInclude;
+            }
+            else if (propertiesToIgnore.Any())
+            {
+                _propertiesToCompare = properties.Except(propertiesToIgnore).ToList();
+            }
+            else
+            {
+                _propertiesToCompare = properties;
+            }
         }
 
         public DataUpdateCompareResult<T> DataUpdate(bool allowDelete = true)
@@ -92,17 +119,8 @@ namespace CompositeC1Contrib.DataTypesSynchronization
 
             var isEqual = true;
 
-            var properties = from property in typeof(T).GetPropertiesRecursively()
-                             where property.DeclaringType != typeof(IData)
-                             select property;
-
-            foreach (var prop in properties)
+            foreach (var prop in _propertiesToCompare)
             {
-                if (_propertiesToIgnore.Contains(prop))
-                {
-                    continue;
-                }
-
                 var existingValue = prop.GetValue(existingItem, null);
                 var newValue = prop.GetValue(newItem, null);
 
