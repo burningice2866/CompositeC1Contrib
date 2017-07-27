@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Resources;
 
 using Composite.Data;
+using CompositeC1Contrib.Localization.Configuration;
 
 namespace CompositeC1Contrib.Localization
 {
@@ -19,6 +20,13 @@ namespace CompositeC1Contrib.Localization
         public C1ResourceManager(string resourceSet)
         {
             BaseNameField = resourceSet;
+
+            var config = LocalizationSection.GetSection();
+
+            if (config != null)
+            {
+                IgnoreCase = config.IgnoreCase;
+            }
 
             StoreEventHandler invalidateCache = (sender, e) =>
             {

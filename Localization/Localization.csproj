@@ -49,6 +49,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.Composition.Registration" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
@@ -92,6 +93,7 @@
     <Compile Include="C1ResourceDataManager.cs" />
     <Compile Include="C1ResourceManager.cs" />
     <Compile Include="C1Console\ElementProvider\EntityTokens\NamespaceFolderEntityToken.cs" />
+    <Compile Include="Configuration\LocalizationSection.cs" />
     <Compile Include="ImportExport\ImportExportModelResource.cs" />
     <Compile Include="ImportExport\ImportExportModelResourceSet.cs" />
     <Compile Include="ImportExport\ImportExportModelLanguage.cs" />
