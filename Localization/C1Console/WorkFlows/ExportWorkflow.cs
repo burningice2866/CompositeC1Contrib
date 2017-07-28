@@ -52,7 +52,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
 
         public static IDictionary<string, string> GetResourceSets()
         {
-            var ret = new Dictionary<string, string>() { };
+            var ret = new Dictionary<string, string>();
 
             using (var data = new DataConnection())
             {

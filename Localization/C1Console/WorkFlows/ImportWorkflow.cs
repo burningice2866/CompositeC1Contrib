@@ -41,7 +41,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
                 var sb = new StringBuilder();
 
                 sb.AppendLine("Languages: " + String.Join(", ", result.Languages.Select(l => l.Name)));
-                sb.AppendLine("ResourceSets: " + String.Join(", ", result.ResourceSets.Select(s => s == null ? "Website" : s)));
+                sb.AppendLine("ResourceSets: " + String.Join(", ", result.ResourceSets.Select(s => s ?? "Website")));
                 sb.AppendLine();
                 sb.AppendLine("Keys added: " + result.KeysAdded);
                 sb.AppendLine("Values added: " + result.ValuesAdded);

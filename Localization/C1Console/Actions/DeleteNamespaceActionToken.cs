@@ -10,16 +10,13 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
     [ActionExecutor(typeof(DeleteNamespaceActionExecutor))]
     public class DeleteNamespaceActionToken : ActionToken
     {
-        static private readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Delete };
+        private static readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Delete };
 
-        public override IEnumerable<PermissionType> PermissionTypes
-        {
-            get { return _permissionTypes; }
-        }
+        public override IEnumerable<PermissionType> PermissionTypes => _permissionTypes;
 
         public override string Serialize()
         {
-            return "DeleteNamespaceActionExecutor";
+            return nameof(DeleteNamespaceActionToken);
         }
 
         public static ActionToken Deserialize(string serializedData)

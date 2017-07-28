@@ -117,8 +117,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Package\config\App_Data\Composite\composite.config" />
-    <None Include="Package\config\web.config" />
+    <None Include="Package\Config\App_Data\Composite\composite.config" />
+    <None Include="Package\Config\web.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
@@ -128,8 +128,8 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Localization\AddResource.xml" />
-    <Content Include="Package\content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Localization\EditResource.xml">
+    <Content Include="Package\Content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Localization\AddResource.xml" />
+    <Content Include="Package\Content\Composite\content\forms\InstalledPackages\CompositeC1Contrib.Localization\EditResource.xml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Package\install.xml" />

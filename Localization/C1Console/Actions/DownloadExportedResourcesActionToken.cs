@@ -13,16 +13,13 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
     [ActionExecutor(typeof(DownloadExportedResourcesActionExecutor))]
     public class DownloadExportedResourcesActionToken : ActionToken
     {
-        static private readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Read };
+        private static readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Read };
 
-        public override IEnumerable<PermissionType> PermissionTypes
-        {
-            get { return _permissionTypes; }
-        }
+        public override IEnumerable<PermissionType> PermissionTypes => _permissionTypes;
 
-        public string[] Languages { get; private set; }
-        public string[] ResourceSets { get; private set; }
-        public string Namespace { get; private set; }
+        public string[] Languages { get; }
+        public string[] ResourceSets { get; }
+        public string Namespace { get; }
 
         public DownloadExportedResourcesActionToken(string[] languages, string[] resourceSets, string ns)
         {
@@ -33,11 +30,12 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
 
         public override string Serialize()
         {
-            var nvc = new NameValueCollection();
-
-            nvc.Add("languages", String.Join(",", Languages));
-            nvc.Add("resourceSets", String.Join(",", ResourceSets));
-            nvc.Add("namespace", Namespace);
+            var nvc = new NameValueCollection
+            {
+                {"languages", String.Join(",", Languages)},
+                {"resourceSets", String.Join(",", ResourceSets)},
+                {"namespace", Namespace}
+            };
 
             return String.Join("&", nvc.AllKeys.Select(k => k + "=" + String.Join(",", nvc[k])));
         }
@@ -50,7 +48,6 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
 
     public class DownloadExportedResourcesActionExecutor : IActionExecutor
     {
-
         public FlowToken Execute(EntityToken entityToken, ActionToken actionToken, FlowControllerServicesContainer flowControllerServicesContainer)
         {
             var token = (DownloadExportedResourcesActionToken)actionToken;

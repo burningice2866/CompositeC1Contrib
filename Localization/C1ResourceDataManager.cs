@@ -16,6 +16,8 @@ namespace CompositeC1Contrib.Localization
         private readonly CultureInfo _culture;
         private readonly string _cultureName = String.Empty;
 
+        public C1ResourceDataManager(string resourceSet) : this(resourceSet, CultureInfo.CurrentUICulture) { }
+
         public C1ResourceDataManager(string resourceSet, CultureInfo culture)
         {
             Verify.ArgumentNotNull(culture, nameof(culture));

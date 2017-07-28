@@ -14,8 +14,8 @@ namespace CompositeC1Contrib.Localization.Configuration
         [ConfigurationProperty("ignoreCase", IsRequired = false, DefaultValue = false)]
         public bool IgnoreCase
         {
-            get { return (bool)this["ignoreCase"]; }
-            set { this["ignoreCase"] = value; }
+            get => (bool)this["ignoreCase"];
+            set => this["ignoreCase"] = value;
         }
     }
 }

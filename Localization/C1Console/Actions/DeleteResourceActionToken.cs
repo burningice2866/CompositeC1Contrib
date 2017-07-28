@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 using Composite.C1Console.Actions;
 using Composite.C1Console.Security;
+using Composite.C1Console.Users;
 using Composite.Data;
 
 namespace CompositeC1Contrib.Localization.C1Console.Actions
@@ -10,16 +10,13 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
     [ActionExecutor(typeof(DeleteResourceActionExecutor))]
     public class DeleteResourceActionToken : ActionToken
     {
-        static private readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Delete };
+        private static readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Delete };
 
-        public override IEnumerable<PermissionType> PermissionTypes
-        {
-            get { return _permissionTypes; }
-        }
+        public override IEnumerable<PermissionType> PermissionTypes => _permissionTypes;
 
         public override string Serialize()
         {
-            return "DeleteResourceActionToken";
+            return nameof(DeleteResourceActionToken);
         }
 
         public static ActionToken Deserialize(string serializedData)
@@ -32,16 +29,10 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
     {
         public FlowToken Execute(EntityToken entityToken, ActionToken actionToken, FlowControllerServicesContainer flowControllerServicesContainer)
         {
-            var dataToken = (DataEntityToken)entityToken;
-            var key = (IResourceKey)dataToken.Data;
+            var key = (IResourceKey)((DataEntityToken)entityToken).Data;
+            var resourceManager = new C1ResourceDataManager(key.ResourceSet, UserSettings.ActiveLocaleCultureInfo);
 
-            using (var data = new DataConnection())
-            {
-                var values = data.Get<IResourceValue>().Where(v => v.KeyId == key.Id);
-
-                data.Delete<IResourceValue>(values);
-                data.Delete(key);
-            }
+            resourceManager.DeleteResource(key.Key);
 
             new ParentTreeRefresher(flowControllerServicesContainer).PostRefreshMesseges(entityToken);
 

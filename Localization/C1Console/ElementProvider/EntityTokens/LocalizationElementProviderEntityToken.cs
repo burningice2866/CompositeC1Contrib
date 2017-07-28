@@ -8,20 +8,11 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider.EntityTokens
     [SecurityAncestorProvider(typeof(NoAncestorSecurityAncestorProvider))]
     public class LocalizationElementProviderEntityToken : EntityToken
     {
-        public override string Id
-        {
-            get { return "LocalizationElementProviderEntityToken"; }
-        }
+        public override string Id => "LocalizationElementProviderEntityToken";
 
-        public override string Source
-        {
-            get { return String.Empty; }
-        }
+        public override string Source => String.Empty;
 
-        public override string Type
-        {
-            get { return String.Empty; }
-        }
+        public override string Type => String.Empty;
 
         public static EntityToken Deserialize(string serializedData)
         {
