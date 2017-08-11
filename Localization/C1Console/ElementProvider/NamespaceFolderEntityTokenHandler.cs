@@ -19,30 +19,32 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider
     [Export("Localization", typeof(IElementProviderFor))]
     public class NamespaceFolderEntityTokenHandler : IElementProviderFor
     {
-        public IEnumerable<Type> ProviderFor
-        {
-            get { return new[] { typeof(NamespaceFolderEntityToken), typeof(LocalizationElementProviderEntityToken) }; }
-        }
+        public IEnumerable<Type> ProviderFor => new[] { typeof(NamespaceFolderEntityToken), typeof(LocalizationElementProviderEntityToken) };
 
         public IEnumerable<Element> Provide(ElementProviderContext context, EntityToken token)
         {
+            var resourceSet = String.Empty;
             var ns = String.Empty;
 
-            var nsToken = token as NamespaceFolderEntityToken;
-            if (nsToken != null)
+            if (token is LocalizationEntityToken localizationEntityToken)
             {
-                ns = nsToken.Namespace;
+                resourceSet = localizationEntityToken.ResourceSet;
             }
 
-            foreach (var el in GetNamespaceAndResourceElements(context, ns))
+            if (token is NamespaceFolderEntityToken namespaceToken)
+            {
+                ns = namespaceToken.Namespace;
+            }
+
+            foreach (var el in GetNamespaceAndResourceElements(context, resourceSet, ns))
             {
                 yield return el;
             }
         }
 
-        private static IEnumerable<Element> GetNamespaceAndResourceElements(ElementProviderContext context, string ns)
+        private static IEnumerable<Element> GetNamespaceAndResourceElements(ElementProviderContext context, string resourceSet, string ns)
         {
-            var resources = LocalizationsFacade.GetResourceKeys(ns);
+            var resources = LocalizationsFacade.GetResourceKeys(ns, resourceSet);
 
             var folders = new List<string>();
             var elements = new List<Element>();
@@ -50,7 +52,6 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider
             foreach (var key in resources)
             {
                 var label = key.Key;
-
                 if (label == ns)
                 {
                     continue;
@@ -61,7 +62,6 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider
                 if (!String.IsNullOrEmpty(ns))
                 {
                     var nsParts = ns.Split('.');
-
                     if (nsParts.Length > labelParts.Length)
                     {
                         continue;
@@ -84,23 +84,8 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider
                 {
                     var token = key.GetDataEntityToken();
 
-                    var dragAndDropInfo = new ElementDragAndDropInfo(typeof(IResourceKey));
-
-                    dragAndDropInfo.AddDropType(typeof(NamespaceFolderEntityToken));
-                    dragAndDropInfo.SupportsIndexedPosition = false;
-
                     var elementHandle = context.CreateElementHandle(token);
-                    var element = new Element(elementHandle, dragAndDropInfo)
-                    {
-                        VisualData = new ElementVisualizedData
-                        {
-                            Label = label,
-                            ToolTip = label,
-                            HasChildren = false,
-                            Icon = ResourceHandle.BuildIconFromDefaultProvider("localization-element-closed-root"),
-                            OpenedIcon = ResourceHandle.BuildIconFromDefaultProvider("localization-element-opened-root")
-                        }
-                    };
+                    var element = CreateResourceElement(resourceSet, label, elementHandle);
 
                     var editActionToken = new WorkflowActionToken(typeof(EditResourceWorkflow), new[] { PermissionType.Edit });
                     element.AddAction(new ElementAction(new ActionHandle(editActionToken))
@@ -138,7 +123,7 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider
                     handleNamespace = ns + "." + handleNamespace;
                 }
 
-                var folderElement = NamespaceFolderEntityToken.CreateElement(context, folder, handleNamespace);
+                var folderElement = NamespaceFolderEntityToken.CreateElement(context, folder, resourceSet, handleNamespace);
 
                 var deleteActionToken = new ConfirmWorkflowActionToken("Are you sure?", typeof(DeleteNamespaceActionToken));
                 folderElement.AddAction(new ElementAction(new ActionHandle(deleteActionToken))
@@ -162,6 +147,41 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider
             {
                 yield return el;
             }
+        }
+
+        private static Element CreateResourceElement(string resourceSet, string label, ElementHandle elementHandle)
+        {
+            if (String.IsNullOrEmpty(resourceSet))
+            {
+                var dragAndDropInfo = new ElementDragAndDropInfo(typeof(IResourceKey));
+
+                dragAndDropInfo.AddDropType(typeof(NamespaceFolderEntityToken));
+                dragAndDropInfo.SupportsIndexedPosition = false;
+
+                return new Element(elementHandle, dragAndDropInfo)
+                {
+                    VisualData = new ElementVisualizedData
+                    {
+                        Label = label,
+                        ToolTip = label,
+                        HasChildren = false,
+                        Icon = ResourceHandle.BuildIconFromDefaultProvider("localization-element-closed-root"),
+                        OpenedIcon = ResourceHandle.BuildIconFromDefaultProvider("localization-element-opened-root")
+                    }
+                };
+            }
+
+            return new Element(elementHandle)
+            {
+                VisualData = new ElementVisualizedData
+                {
+                    Label = label,
+                    ToolTip = label,
+                    HasChildren = false,
+                    Icon = ResourceHandle.BuildIconFromDefaultProvider("localization-element-closed-root"),
+                    OpenedIcon = ResourceHandle.BuildIconFromDefaultProvider("localization-element-opened-root")
+                }
+            };
         }
     }
 }

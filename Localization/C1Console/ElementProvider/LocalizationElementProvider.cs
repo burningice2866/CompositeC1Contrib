@@ -23,23 +23,23 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider
 
         protected override IEnumerable<Element> GetRootsImpl(SearchToken searchToken)
         {
-            var elementHandle = Context.CreateElementHandle(new LocalizationElementProviderEntityToken());
+            var elementHandle = Context.CreateElementHandle(new LocalizationElementProviderEntityToken(String.Empty));
             var rootElement = new Element(elementHandle)
             {
                 VisualData = new ElementVisualizedData
                 {
                     Label = "Localization",
                     ToolTip = "Localization",
-                    HasChildren = LocalizationsFacade.GetResourceKeys(String.Empty).Any(),
+                    HasChildren = LocalizationsFacade.GetResourceKeys(String.Empty, String.Empty).Any(),
                     Icon = new ResourceHandle("Composite.Icons", "localization-element-closed-root"),
                     OpenedIcon = new ResourceHandle("Composite.Icons", "localization-element-opened-root")
                 }
             };
 
+            rootElement.AddAction(Actions.GetAddAction());
+            rootElement.AddAction(Actions.GetGenerateClassAction());
             rootElement.AddAction(Actions.GetImportAction());
             rootElement.AddAction(Actions.GetExportAction());
-            rootElement.AddAction(Actions.GetGenerateClassAction());
-            rootElement.AddAction(Actions.GetAddAction());
 
             return new[] { rootElement };
         }
@@ -64,7 +64,7 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider
                 var parts = key.Key.Split('.');
                 var ns = String.Join(".", parts.Take(parts.Length - 1));
 
-                dictionary.Add(token, new[] { new NamespaceFolderEntityToken(ns) });
+                dictionary.Add(token, new[] { new NamespaceFolderEntityToken(key.ResourceSet, ns) });
             }
 
             return dictionary;
@@ -74,8 +74,7 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider
         {
             var destinationNamespace = (NamespaceFolderEntityToken)newParentEntityToken;
 
-            var dataToken = draggedEntityToken as DataEntityToken;
-            if (dataToken != null)
+            if (draggedEntityToken is DataEntityToken dataToken)
             {
                 var draggedResource = (IResourceKey)dataToken.Data;
 
@@ -87,16 +86,16 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider
                 }
             }
 
-            var namespaceFolderToken = draggedEntityToken as NamespaceFolderEntityToken;
-            if (namespaceFolderToken != null)
+            if (draggedEntityToken is NamespaceFolderEntityToken namespaceFolderToken)
             {
                 var key = namespaceFolderToken.Namespace.Split('.').Last();
 
-                LocalizationsFacade.RenameNamespace(namespaceFolderToken.Namespace, destinationNamespace.Namespace + "." + key);
+                LocalizationsFacade.RenameNamespace(namespaceFolderToken.Namespace, destinationNamespace.Namespace + "." + key, destinationNamespace.ResourceSet);
             }
 
             var treeRefresher = new SpecificTreeRefresher(draggedElementFlowControllerServicesContainer);
-            treeRefresher.PostRefreshMesseges(new LocalizationElementProviderEntityToken());
+
+            treeRefresher.PostRefreshMesseges(new LocalizationElementProviderEntityToken(destinationNamespace.ResourceSet));
 
             return true;
         }

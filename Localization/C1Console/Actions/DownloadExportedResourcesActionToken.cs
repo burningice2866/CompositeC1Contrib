@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Web;
 
 using Composite.C1Console.Actions;
 using Composite.C1Console.Events;
@@ -42,7 +43,13 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
 
         public static ActionToken Deserialize(string serializedData)
         {
-            return new GenerateClassWithKeysActionToken(serializedData);
+            var nvc = HttpUtility.ParseQueryString(serializedData);
+
+            var languages = nvc["languages"].Split(',');
+            var resourceSets = nvc["resourceSets"].Split(',');
+            var ns = nvc["namespace"];
+
+            return new DownloadExportedResourcesActionToken(languages, resourceSets, ns);
         }
     }
 

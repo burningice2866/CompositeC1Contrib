@@ -14,23 +14,26 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
 
         public override void OnInitialize(object sender, EventArgs e)
         {
-            if (BindingExist("Key"))
+            if (BindingExist("ResourceSet"))
             {
                 return;
             }
 
-            var namespaceToken = EntityToken as NamespaceFolderEntityToken;
-            if (namespaceToken != null)
-            {
-                var ns = namespaceToken.Namespace;
+            var resourceSet = String.Empty;
+            var ns = String.Empty;
 
-                Bindings.Add("Key", ns + ".");
-            }
-            else
+            if (EntityToken is LocalizationEntityToken localizationEntityToken)
             {
-                Bindings.Add("Key", String.Empty);
+                resourceSet = localizationEntityToken.ResourceSet;
             }
 
+            if (EntityToken is NamespaceFolderEntityToken namespaceToken)
+            {
+                ns = namespaceToken.Namespace + ".";
+            }
+
+            Bindings.Add("ResourceSet", resourceSet);
+            Bindings.Add("Key", ns);
             Bindings.Add("Type", ResourceType.Text.ToString());
         }
 
@@ -61,6 +64,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
 
         public override void OnFinish(object sender, EventArgs e)
         {
+            var resourceSet = GetBinding<string>("ResourceSet");
             var key = GetBinding<string>("Key");
             var type = GetBinding<string>("Type");
 
@@ -69,6 +73,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
                 var resourceKey = data.CreateNew<IResourceKey>();
 
                 resourceKey.Id = Guid.NewGuid();
+                resourceKey.ResourceSet = String.IsNullOrEmpty(resourceSet) ? null : resourceSet;
                 resourceKey.Key = key;
                 resourceKey.Type = type;
 

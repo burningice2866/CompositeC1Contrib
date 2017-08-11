@@ -29,13 +29,13 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
     {
         public FlowToken Execute(EntityToken entityToken, ActionToken actionToken, FlowControllerServicesContainer flowControllerServicesContainer)
         {
-            var ns = ((NamespaceFolderEntityToken)entityToken).Namespace;
+            var namespaceToken = (NamespaceFolderEntityToken)entityToken;
 
-            LocalizationsFacade.DeleteNamespace(ns);
+            LocalizationsFacade.DeleteNamespace(namespaceToken.Namespace, namespaceToken.ResourceSet);
 
             var treeRefresher = new SpecificTreeRefresher(flowControllerServicesContainer);
 
-            treeRefresher.PostRefreshMesseges(new LocalizationElementProviderEntityToken());
+            treeRefresher.PostRefreshMesseges(new LocalizationElementProviderEntityToken(namespaceToken.ResourceSet));
 
             return null;
         }

@@ -69,7 +69,9 @@
     <Compile Include="C1Console\Actions\GenerateClassWithKeysActionToken.cs" />
     <Compile Include="C1Console\Actions\DeleteResourceActionToken.cs" />
     <Compile Include="C1Console\ElementProvider\Actions.cs" />
+    <Compile Include="C1Console\ElementProvider\EntityTokens\LocalizationEntityToken.cs" />
     <Compile Include="C1Console\ElementProvider\EntityTokens\ResourceSetFolderEntityToken.cs" />
+    <Compile Include="C1Console\ElementProvider\LocalizationPageAttachingProvider.cs" />
     <Compile Include="C1Console\ElementProvider\LocalizationElementProvider.cs" />
     <Compile Include="C1Console\ElementProvider\NamespaceFolderEntityTokenHandler.cs" />
     <Compile Include="C1Console\FormUtils.cs" />

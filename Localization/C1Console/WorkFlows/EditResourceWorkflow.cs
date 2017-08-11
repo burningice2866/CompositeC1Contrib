@@ -89,7 +89,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
 
                         var treeRefresher = CreateSpecificTreeRefresher();
 
-                        treeRefresher.PostRefreshMesseges(new LocalizationElementProviderEntityToken());
+                        treeRefresher.PostRefreshMesseges(new LocalizationElementProviderEntityToken(ResourceKey.ResourceSet));
                     }
 
                     var resourceValues = data.Get<IResourceValue>().Where(v => v.KeyId == ResourceKey.Id).ToDictionary(v => v.Culture);
@@ -100,8 +100,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
 
                         var value = GetBinding<string>(bindingKey);
 
-                        IResourceValue resourceValue;
-                        if (resourceValues.TryGetValue(culture.Name, out resourceValue))
+                        if (resourceValues.TryGetValue(culture.Name, out IResourceValue resourceValue))
                         {
                             resourceValue.Value = value;
 
@@ -132,24 +131,20 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
             var markupProvider = new FormDefinitionFileMarkupProvider(XmlFilePath);
 
             var formDocument = XDocument.Load(markupProvider.GetReader());
-            if (formDocument.Root == null)
-            {
-                return;
-            }
 
-            var layoutXElement = formDocument.Root.Element(Namespaces.BindingForms10 + FormKeyTagNames.Layout);
-            if (layoutXElement == null)
-            {
-                return;
-            }
+            var layoutXElement = formDocument.Root?.Element(Namespaces.BindingForms10 + FormKeyTagNames.Layout);
 
-            var placeHolderXElement = layoutXElement.Element(Namespaces.BindingFormsStdUiControls10 + "PlaceHolder");
+            var placeHolderXElement = layoutXElement?.Element(Namespaces.BindingFormsStdUiControls10 + "PlaceHolder");
             if (placeHolderXElement == null)
             {
                 return;
             }
 
             var bindingsXElement = formDocument.Root.Element(Namespaces.BindingForms10 + FormKeyTagNames.Bindings);
+            if (bindingsXElement == null)
+            {
+                return;
+            }
 
             var resourceType = (ResourceType)Enum.Parse(typeof(ResourceType), ResourceKey.Type);
             if (resourceType == ResourceType.Xhtml)
@@ -169,8 +164,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
                     var bindingKey = GetBindingKey(culture);
                     var bindingValue = String.Empty;
 
-                    IResourceValue resourceValue;
-                    if (resourceValues.TryGetValue(culture.Name, out resourceValue))
+                    if (resourceValues.TryGetValue(culture.Name, out IResourceValue resourceValue))
                     {
                         bindingValue = resourceValue.Value;
                     }
@@ -248,7 +242,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
                     }
             }
 
-            throw new ArgumentOutOfRangeException("type", String.Format("Specified Resource Type is not supported '{0}'", type));
+            throw new ArgumentOutOfRangeException(nameof(type), $"Specified Resource Type is not supported '{type}'");
         }
 
         private static XElement CreateReadOnlyResourceValueElement(CultureInfo culture, string key)

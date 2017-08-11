@@ -3,6 +3,7 @@ using System;
 using Composite.C1Console.Users;
 
 using CompositeC1Contrib.Localization.C1Console.Actions;
+using CompositeC1Contrib.Localization.C1Console.ElementProvider.EntityTokens;
 using CompositeC1Contrib.Workflows;
 
 namespace CompositeC1Contrib.Localization.C1Console.Workflows
@@ -13,16 +14,20 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
 
         public override void OnInitialize(object sender, EventArgs e)
         {
-            if (BindingExist("Namespace"))
+            if (BindingExist("ResourceSet"))
             {
                 return;
             }
 
+            var token = (LocalizationEntityToken)EntityToken;
+
+            Bindings.Add("ResourceSet", token.ResourceSet);
             Bindings.Add("Namespace", UserSettings.LastSpecifiedNamespace);
         }
 
         public override void OnFinish(object sender, EventArgs e)
         {
+            var resourceSet = GetBinding<string>("ResourceSet");
             var ns = GetBinding<string>("Namespace");
 
             if (!UserSettings.LastSpecifiedNamespace.Equals(ns, StringComparison.InvariantCulture))
@@ -31,7 +36,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
             }
 
             CloseCurrentView();
-            ExecuteAction(EntityToken, new GenerateClassWithKeysActionToken(ns));
+            ExecuteAction(EntityToken, new GenerateClassWithKeysActionToken(resourceSet, ns));
         }
     }
 }

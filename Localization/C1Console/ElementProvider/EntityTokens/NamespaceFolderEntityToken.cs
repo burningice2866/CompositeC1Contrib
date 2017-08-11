@@ -9,32 +9,44 @@ using Composite.Core.ResourceSystem;
 namespace CompositeC1Contrib.Localization.C1Console.ElementProvider.EntityTokens
 {
     [SecurityAncestorProvider(typeof(NamespaceFolderAncestorProvider))]
-    public class NamespaceFolderEntityToken : EntityToken
+    public class NamespaceFolderEntityToken : LocalizationEntityToken
     {
-        public override string Type => String.Empty;
-
-        public override string Source => String.Empty;
-
         public override string Id => Namespace;
 
         public string Namespace { get; }
 
-        public NamespaceFolderEntityToken(string ns)
+        public NamespaceFolderEntityToken(string resourceSet, string ns) : base(resourceSet)
         {
             Namespace = ns;
         }
 
-        public static Element CreateElement(ElementProviderContext context, string label, string ns)
+        public static Element CreateElement(ElementProviderContext context, string label, string resourceSet, string ns)
         {
-            var dragAndDropInfo = new ElementDragAndDropInfo(typeof(NamespaceFolderEntityToken));
+            var folderHandle = context.CreateElementHandle(new NamespaceFolderEntityToken(resourceSet, ns));
 
-            dragAndDropInfo.AddDropType(typeof(NamespaceFolderEntityToken));
-            dragAndDropInfo.AddDropType(typeof(IResourceKey));
+            if (String.IsNullOrEmpty(resourceSet))
+            {
+                var dragAndDropInfo = new ElementDragAndDropInfo(typeof(NamespaceFolderEntityToken));
 
-            dragAndDropInfo.SupportsIndexedPosition = false;
+                dragAndDropInfo.AddDropType(typeof(NamespaceFolderEntityToken));
+                dragAndDropInfo.AddDropType(typeof(IResourceKey));
 
-            var folderHandle = context.CreateElementHandle(new NamespaceFolderEntityToken(ns));
-            var folderElement = new Element(folderHandle, dragAndDropInfo)
+                dragAndDropInfo.SupportsIndexedPosition = false;
+
+                return new Element(folderHandle, dragAndDropInfo)
+                {
+                    VisualData = new ElementVisualizedData
+                    {
+                        Label = label,
+                        ToolTip = label,
+                        HasChildren = true,
+                        Icon = ResourceHandle.BuildIconFromDefaultProvider("datagroupinghelper-folder-closed"),
+                        OpenedIcon = ResourceHandle.BuildIconFromDefaultProvider("datagroupinghelper-folder-open")
+                    }
+                };
+            }
+
+            return new Element(folderHandle)
             {
                 VisualData = new ElementVisualizedData
                 {
@@ -45,8 +57,6 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider.EntityTokens
                     OpenedIcon = ResourceHandle.BuildIconFromDefaultProvider("datagroupinghelper-folder-open")
                 }
             };
-
-            return folderElement;
         }
 
         public override string Serialize()
@@ -56,9 +66,9 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider.EntityTokens
 
         public static EntityToken Deserialize(string serializedEntityToken)
         {
-            DoDeserialize(serializedEntityToken, out string _, out string _, out string id);
+            DoDeserialize(serializedEntityToken, out string _, out string source, out string id);
 
-            return new NamespaceFolderEntityToken(id);
+            return new NamespaceFolderEntityToken(source, id);
         }
     }
 
@@ -75,12 +85,12 @@ namespace CompositeC1Contrib.Localization.C1Console.ElementProvider.EntityTokens
             var split = namespaceToken.Namespace.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
             if (split.Length == 1)
             {
-                return new[] { new LocalizationElementProviderEntityToken() };
+                return new[] { new LocalizationElementProviderEntityToken(namespaceToken.ResourceSet) };
             }
 
             var parentName = String.Join(".", split.Take(split.Length - 1));
 
-            return new[] { new NamespaceFolderEntityToken(parentName) };
+            return new[] { new NamespaceFolderEntityToken(namespaceToken.ResourceSet, parentName) };
         }
     }
 }

@@ -10,13 +10,18 @@ namespace CompositeC1Contrib.Localization
 {
     public static class LocalizationsFacade
     {
-        public static void DeleteNamespace(string ns, string resourceSet = null)
+        public static void DeleteNamespace(string ns, string resourceSet)
         {
+            if (resourceSet == String.Empty)
+            {
+                resourceSet = null;
+            }
+
             using (var transaction = TransactionsFacade.CreateNewScope())
             {
                 using (var data = new DataConnection())
                 {
-                    var keys = data.Get<IResourceKey>().Where(r => r.ResourceSet == null && r.Key.StartsWith(ns)).ToList();
+                    var keys = data.Get<IResourceKey>().Where(r => r.ResourceSet == resourceSet && r.Key.StartsWith(ns)).ToList();
                     foreach (var key in keys)
                     {
                         var values = data.Get<IResourceValue>().Where(v => v.KeyId == key.Id);
@@ -31,10 +36,15 @@ namespace CompositeC1Contrib.Localization
             }
         }
 
-        public static void RenameNamespace(string ns, string newNs, string resourceSet = null)
+        public static void RenameNamespace(string ns, string newNs, string resourceSet)
         {
             Verify.ArgumentNotNull(ns, "ns");
             Verify.ArgumentNotNull(newNs, "newNs");
+
+            if (resourceSet == String.Empty)
+            {
+                resourceSet = null;
+            }
 
             using (var data = new DataConnection())
             {
@@ -48,10 +58,15 @@ namespace CompositeC1Contrib.Localization
             }
         }
 
-        public static void CopyNamespace(string ns, string newNs, string resourceSet = null)
+        public static void CopyNamespace(string ns, string newNs, string resourceSet)
         {
             Verify.ArgumentNotNull(ns, "ns");
             Verify.ArgumentNotNull(newNs, "newNs");
+
+            if (resourceSet == String.Empty)
+            {
+                resourceSet = null;
+            }
 
             using (var transaction = TransactionsFacade.CreateNewScope())
             {
@@ -101,9 +116,14 @@ namespace CompositeC1Contrib.Localization
             }
         }
 
-        public static IEnumerable<IResourceKey> GetResourceKeys(string ns, string resourceSet = null)
+        public static IEnumerable<IResourceKey> GetResourceKeys(string ns, string resourceSet)
         {
             Verify.ArgumentNotNull(ns, "ns");
+
+            if (resourceSet == String.Empty)
+            {
+                resourceSet = null;
+            }
 
             using (var data = new DataConnection())
             {

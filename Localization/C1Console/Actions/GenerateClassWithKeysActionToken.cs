@@ -14,25 +14,33 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
     [ActionExecutor(typeof(GenerateClassWithKeysActionExecutor))]
     public class GenerateClassWithKeysActionToken : ActionToken
     {
+        private const string Seperator = "<|>";
         private static readonly IEnumerable<PermissionType> _permissionTypes = new[] { PermissionType.Read };
 
         public override IEnumerable<PermissionType> PermissionTypes => _permissionTypes;
 
+        public string ResourceSet { get; }
         public string Namespace { get; }
 
-        public GenerateClassWithKeysActionToken(string ns)
+        public GenerateClassWithKeysActionToken(string resourceSet, string ns)
         {
+            ResourceSet = resourceSet;
             Namespace = ns;
         }
 
         public override string Serialize()
         {
-            return Namespace;
+            return Namespace + Seperator + ResourceSet;
         }
 
         public static ActionToken Deserialize(string serializedData)
         {
-            return new GenerateClassWithKeysActionToken(serializedData);
+            var split = serializedData.Split(new[] { Seperator }, StringSplitOptions.RemoveEmptyEntries);
+
+            var resourceSet = split[0];
+            var ns = split[1];
+
+            return new GenerateClassWithKeysActionToken(resourceSet, ns);
         }
     }
 
@@ -42,10 +50,10 @@ namespace CompositeC1Contrib.Localization.C1Console.Actions
 
         public FlowToken Execute(EntityToken entityToken, ActionToken actionToken, FlowControllerServicesContainer flowControllerServicesContainer)
         {
-            var ns = ((GenerateClassWithKeysActionToken)actionToken).Namespace;
+            var token = (GenerateClassWithKeysActionToken)actionToken;
 
-            var resourceKeys = LocalizationsFacade.GetResourceKeys(String.Empty).Select(k => k.Key);
-            var generator = new ClassKeysGenerator(resourceKeys, ns);
+            var resourceKeys = LocalizationsFacade.GetResourceKeys(String.Empty, token.ResourceSet).Select(k => k.Key);
+            var generator = new ClassKeysGenerator(resourceKeys, token.Namespace);
 
             var content = generator.Generate();
 
