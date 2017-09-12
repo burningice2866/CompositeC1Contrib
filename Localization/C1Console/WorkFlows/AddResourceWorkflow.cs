@@ -50,7 +50,9 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
 
             using (var data = new DataConnection())
             {
-                var keyExists = data.Get<IResourceKey>().Any(k => k.Key == key);
+                var resourceSet = GetBinding<string>("ResourceSet");
+
+                var keyExists = data.Get<IResourceKey>().Any(k => Equals(k.ResourceSet, resourceSet) && k.Key == key);
                 if (keyExists)
                 {
                     ShowFieldMessage("ResourceKey", "Resource with this key already exists");
