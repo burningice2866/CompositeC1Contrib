@@ -16,7 +16,7 @@ namespace CompositeC1Contrib.Sorting
     [Export(typeof(IElementActionProviderFor))]
     public class AssociatedDataElementProviderHelperAtionProvider : IElementActionProviderFor
     {
-        private static readonly Type SortableType = typeof(IGenericSortable);        
+        private static readonly Type SortableType = typeof(IGenericSortable);
 
         public IEnumerable<Type> ProviderFor => new[] { typeof(AssociatedDataElementProviderHelperEntityToken) };
 
@@ -41,7 +41,7 @@ namespace CompositeC1Contrib.Sorting
 
             using (new DataScope(DataScopeIdentifier.Administrated))
             {
-                var instances = DataFacade.GetData(type).Cast<IPageFolderData>().Where(f => f.PageId == Guid.Parse(associatedToken.Id));
+                var instances = DataFacade.GetData(type).Cast<IPageDataFolder>().Where(f => f.PageId == Guid.Parse(associatedToken.Id));
                 if (instances.Any())
                 {
                     var url = "Sort.aspx?type=" + type.FullName + "&pageId=" + pageId;
