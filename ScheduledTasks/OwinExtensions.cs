@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Linq;
 
+using Composite.C1Console.Elements;
+
 using CompositeC1Contrib.Composition;
+using CompositeC1Contrib.ScheduledTasks.C1Console;
 using CompositeC1Contrib.ScheduledTasks.Configuration;
 
 using Hangfire;
@@ -17,13 +20,11 @@ namespace CompositeC1Contrib.ScheduledTasks
         {
             var options = new ScheduledTasksConfiguration();
 
-            if (configurationCallback != null)
-            {
-                configurationCallback(options);
-            }
+            configurationCallback?.Invoke(options);
 
             var configuration = GlobalConfiguration.Configuration;
 
+            configuration.UseActivator(new C1CMSContainerJobActivator());
             configuration.UseLogProvider(new C1LogProvider());
             configuration.UseStorage(options.JobStorage);
 
@@ -45,6 +46,8 @@ namespace CompositeC1Contrib.ScheduledTasks
             });
 
             ScheduledTasksSection.EnsureJobsFromConfig();
+
+            UrlToEntityTokenFacade.Register(new UrlToEntityTokenMapper());
         }
     }
 }

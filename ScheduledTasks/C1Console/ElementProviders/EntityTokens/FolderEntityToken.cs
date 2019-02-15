@@ -8,22 +8,13 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders.EntityTok
     [SecurityAncestorProvider(typeof(FolderAncestorProvider))]
     public class FolderEntityToken : EntityToken
     {
-        public override string Id
-        {
-            get { return "FolderEntityToken"; }
-        }
+        public TaskType TaskType { get; }
 
-        public override string Source
-        {
-            get { return String.Empty; }
-        }
+        public override string Id => nameof(FolderEntityToken);
 
-        public override string Type
-        {
-            get { return TaskType.ToString(); }
-        }
+        public override string Source => TaskType.ToString();
 
-        public TaskType TaskType { get; private set; }
+        public override string Type => String.Empty;
 
         public FolderEntityToken(TaskType type)
         {
@@ -37,13 +28,9 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders.EntityTok
 
         public static EntityToken Deserialize(string serializedEntityToken)
         {
-            string type;
-            string source;
-            string id;
+            DoDeserialize(serializedEntityToken, out _, out var source, out _);
 
-            DoDeserialize(serializedEntityToken, out type, out source, out id);
-
-            var taskType = (TaskType)Enum.Parse(typeof (TaskType), type);
+            var taskType = (TaskType)Enum.Parse(typeof(TaskType), source);
 
             return new FolderEntityToken(taskType);
         }

@@ -23,11 +23,7 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders
         private static readonly ActionGroup ActionGroup = new ActionGroup(ActionGroupPriority.PrimaryHigh);
         private static readonly ActionLocation ActionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = true, ActionGroup = ActionGroup };
 
-        private ElementProviderContext _context;
-        public ElementProviderContext Context
-        {
-            set { _context = value; }
-        }
+        public ElementProviderContext Context { private get; set; }
 
         public ScheduledTasksElementProvider()
         {
@@ -47,7 +43,7 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders
                 {
                     foreach (var job in connection.GetRecurringJobs())
                     {
-                        var recurringTaskElementHandle = _context.CreateElementHandle(new TaskEntityToken(TaskType.Recurring, job.Id));
+                        var recurringTaskElementHandle = Context.CreateElementHandle(new TaskEntityToken(TaskType.Recurring, job.Id));
                         var recurringTaskElement = new Element(recurringTaskElementHandle)
                         {
                             VisualData = new ElementVisualizedData
@@ -92,7 +88,7 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders
                 {
                     foreach (var job in monitoringApi.ScheduledJobs(0, int.MaxValue))
                     {
-                        var scheduledTaskElementHandle = _context.CreateElementHandle(new TaskEntityToken(TaskType.Scheduled, job.Key));
+                        var scheduledTaskElementHandle = Context.CreateElementHandle(new TaskEntityToken(TaskType.Scheduled, job.Key));
                         var scheduledTaskElement = new Element(scheduledTaskElementHandle)
                         {
                             VisualData = new ElementVisualizedData
@@ -136,7 +132,7 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders
 
             if (entityToken is ScheduledTasksElementProviderEntityToken)
             {
-                var recurringTasksElementHandle = _context.CreateElementHandle(new FolderEntityToken(TaskType.Recurring));
+                var recurringTasksElementHandle = Context.CreateElementHandle(new FolderEntityToken(TaskType.Recurring));
                 var recurringTasksElement = new Element(recurringTasksElementHandle)
                 {
                     VisualData = new ElementVisualizedData
@@ -158,7 +154,7 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders
 
                 yield return recurringTasksElement;
 
-                var scheduledTasksElementHandle = _context.CreateElementHandle(new FolderEntityToken(TaskType.Scheduled));
+                var scheduledTasksElementHandle = Context.CreateElementHandle(new FolderEntityToken(TaskType.Scheduled));
                 var scheduledTasksElement = new Element(scheduledTasksElementHandle)
                 {
                     VisualData = new ElementVisualizedData
@@ -184,7 +180,7 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders
 
         public IEnumerable<Element> GetRoots(SearchToken searchToken)
         {
-            var elementHandle = _context.CreateElementHandle(new ScheduledTasksElementProviderEntityToken());
+            var elementHandle = Context.CreateElementHandle(new ScheduledTasksElementProviderEntityToken());
             var rootElement = new Element(elementHandle)
             {
                 VisualData = new ElementVisualizedData
@@ -231,9 +227,9 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders
             }
 
             var attribute = Attribute.GetCustomAttribute(job.Method, typeof(DisplayNameAttribute), true) as DisplayNameAttribute;
-            if ((attribute == null) || (attribute.DisplayName == null))
+            if (attribute?.DisplayName == null)
             {
-                return String.Format("{0}.{1}", job.Type.Name, job.Method.Name);
+                return $"{job.Type.Name}.{job.Method.Name}";
             }
             try
             {

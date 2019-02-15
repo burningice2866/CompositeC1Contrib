@@ -8,28 +8,16 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders.EntityTok
     [SecurityAncestorProvider(typeof(TaskAncestorProvider))]
     public class TaskEntityToken : EntityToken
     {
-        private readonly string _id;
-        public override string Id
-        {
-            get { return _id; }
-        }
+        public TaskType TaskType { get; }
 
-        public override string Source
-        {
-            get { return TaskType.ToString(); }
-        }
-
-        public override string Type
-        {
-            get { return String.Empty; }
-        }
-
-        public TaskType TaskType { get; private set; }
+        public override string Id { get; }
+        public override string Source => TaskType.ToString();
+        public override string Type => String.Empty;
 
         public TaskEntityToken(TaskType type, string id)
         {
             TaskType = type;
-            _id = id;
+            Id = id;
         }
 
         public override string Serialize()
@@ -39,11 +27,7 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders.EntityTok
 
         public static EntityToken Deserialize(string serializedEntityToken)
         {
-            string type;
-            string source;
-            string id;
-
-            DoDeserialize(serializedEntityToken, out type, out source, out id);
+            DoDeserialize(serializedEntityToken, out _, out var source, out var id);
 
             var taskType = (TaskType)Enum.Parse(typeof (TaskType), source);
 

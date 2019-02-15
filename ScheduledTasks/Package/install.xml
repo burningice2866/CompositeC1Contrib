@@ -1,18 +1,18 @@
 ﻿<?xml version="1.0" standalone="yes"?>
 <mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
-  <mi:PackageRequirements minimumCompositeVersion="4.2.5249.32246"
+  <mi:PackageRequirements minimumCompositeVersion="6.0.6248.33161"
                           maximumCompositeVersion="9.9999.9999.9999" />
 
   <mi:PackageInformation name="CompositeC1Contrib.ScheduledTasks"
                          groupName="Contribution.CompositeC1Contrib"
-                         version="0.4.2" author="@burningice" website="http://compositec1contrib.codeplex.com"
-                         readMoreUrl="http://compositec1contrib.codeplex.com"
+                         version="0.5.0" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/ScheduledTasks"
+                         readMoreUrl="https://github.com/burningice2866/CompositeC1Contrib/tree/master/ScheduledTasks"
                          id="4eec6c4d-33d7-4916-99f3-d9225928f038"
                          canBeUninstalled="true"
                          systemLocking="hard"
                          flushOnCompletion="false">
-    <Description>Task scheduling.</Description>
-    <TechnicalDetails>Task scheduling.</TechnicalDetails>
+    <Description>Task scheduling</Description>
+    <TechnicalDetails>Task scheduling</TechnicalDetails>
   </mi:PackageInformation>
 
   <mi:PackageFragmentInstallers>

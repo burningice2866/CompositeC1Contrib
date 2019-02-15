@@ -8,20 +8,11 @@ namespace CompositeC1Contrib.ScheduledTasks.C1Console.ElementProviders.EntityTok
     [SecurityAncestorProvider(typeof(NoAncestorSecurityAncestorProvider))]
     public class ScheduledTasksElementProviderEntityToken : EntityToken
     {
-        public override string Id
-        {
-            get { return "MailElementProviderEntityToken"; }
-        }
+        public override string Id => "MailElementProviderEntityToken";
 
-        public override string Source
-        {
-            get { return String.Empty; }
-        }
+        public override string Source => String.Empty;
 
-        public override string Type
-        {
-            get { return String.Empty; }
-        }
+        public override string Type => String.Empty;
 
         public static EntityToken Deserialize(string serializedData)
         {
