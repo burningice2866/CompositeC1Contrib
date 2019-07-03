@@ -13,7 +13,7 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 {
     public class SortData : BaseSortPage
     {
-        private static readonly MethodInfo SelectMethod = StaticReflection.GetGenericMethodInfo(() => Select<IGenericSortable>(null, null, null));
+        private static readonly MethodInfo SelectMethod = StaticReflection.GetGenericMethodInfo(() => Select<IGenericSortable>(null, null));
 
         [WebMethod]
         public static void UpdateOrder(string type, string consoleId, string entityToken, string serializedOrder)
@@ -58,31 +58,41 @@ namespace CompositeC1Contrib.Sorting.Web.UI
         {
             sType = HttpUtility.UrlDecode(sType);
             sFilter = sFilter != null ? HttpUtility.UrlDecode(sFilter) : String.Empty;
+
             var type = TypeManager.GetType(sType);
 
             using (new DataScope(DataScopeIdentifier.Administrated))
             {
                 var data = DataFacade.GetData(type);
 
-                if (typeof(IPageFolderData).IsAssignableFrom(type))
+                if (typeof(IPageDataFolder).IsAssignableFrom(type))
                 {
                     var pageId = Guid.Parse(sPageId);
 
-                    data = data.OfType<IPageFolderData>().Where(f => f.PageId == pageId);
+                    data = data.OfType<IPageDataFolder>().Where(f => f.PageId == pageId);
                 }
 
-                if (String.IsNullOrEmpty(sFilter))
+                if (!String.IsNullOrEmpty(sFilter))
                 {
-                    return GetInstancesWithoutFilter(data);
+                    var filterArgs = new Dictionary<string, object>();
+
+                    var filterFields = sFilter.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var field in filterFields)
+                    {
+                        var filterParts = field.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (filterParts.Length == 2)
+                        {
+                            filterArgs.Add(filterParts[0], filterParts[1]);
+                        }
+                    }
+
+                    if (filterArgs.Any())
+                    {
+                        return GetInstancesWithFilter(data, type, filterArgs);
+                    }
                 }
 
-                var filterParts = sFilter.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
-                if (filterParts.Length != 2)
-                {
-                    return GetInstancesWithoutFilter(data);
-                }
-
-                return GetInstancesWithFilter(data, type, filterParts[0], filterParts[1]);
+                return GetInstancesWithoutFilter(data);
             }
         }
 
@@ -91,32 +101,37 @@ namespace CompositeC1Contrib.Sorting.Web.UI
             return data.OfType<IGenericSortable>().OrderBy(g => g.LocalOrdering);
         }
 
-        private static IEnumerable<IGenericSortable> GetInstancesWithFilter(IQueryable data, Type type, string field, object value)
+        private static IEnumerable<IGenericSortable> GetInstancesWithFilter(IQueryable data, Type type, Dictionary<string, object> filter)
         {
             var generic = SelectMethod.MakeGenericMethod(type);
 
-            return (IQueryable<IGenericSortable>)generic.Invoke(null, new[] { data, field, value });
+            return (IQueryable<IGenericSortable>)generic.Invoke(null, new object[] { data, filter });
         }
 
-        private static IQueryable<T> Select<T>(IQueryable<T> data, string field, object value) where T : class, IGenericSortable
+        private static IQueryable<T> Select<T>(IQueryable<T> data, Dictionary<string, object> filter) where T : class, IGenericSortable
         {
             data = data.OrderBy(g => g.LocalOrdering);
 
             var dataType = typeof(T);
 
-            var propInfo = dataType.GetPropertiesRecursively(p => p.Name == field).Single();
-            var propType = propInfo.PropertyType;
+            foreach (var kvp in filter)
+            {
+                var propInfo = dataType.GetPropertiesRecursively(p => p.Name == kvp.Key).Single();
+                var propType = propInfo.PropertyType;
 
-            var paramExpr = Expression.Parameter(dataType);
-            var propExpr = Expression.Property(paramExpr, propInfo);
+                var paramExpr = Expression.Parameter(dataType);
+                var propExpr = Expression.Property(paramExpr, propInfo);
 
-            value = ValueTypeConverter.Convert(value, propType);
+                var value = ValueTypeConverter.Convert(kvp.Value, propType);
 
-            var valueExpr = Expression.Constant(value);
-            var equalExpr = Expression.Equal(propExpr, valueExpr);
-            var lambda = Expression.Lambda<Func<T, bool>>(equalExpr, paramExpr);
+                var valueExpr = Expression.Constant(value);
+                var equalExpr = Expression.Equal(propExpr, valueExpr);
+                var lambda = Expression.Lambda<Func<T, bool>>(equalExpr, paramExpr);
 
-            return data.Where(lambda);
+                data = data.Where(lambda);
+            }
+
+            return data;
         }
 
         private static void UpdateOrder(Type type, string serializedOrder)
