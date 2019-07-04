@@ -14,7 +14,7 @@ using CompositeC1Contrib.Composition;
 namespace CompositeC1Contrib.Sorting
 {
     [Export(typeof(IElementActionProviderFor))]
-    public class AssociatedDataElementProviderHelperAtionProvider : IElementActionProviderFor
+    public class AssociatedDataElementProviderHelperActionProvider : IElementActionProviderFor
     {
         private static readonly Type SortableType = typeof(IGenericSortable);
 
