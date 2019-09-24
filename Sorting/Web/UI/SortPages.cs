@@ -45,10 +45,10 @@ namespace CompositeC1Contrib.Sorting.Web.UI
         {
             using (var data = new DataConnection(PublicationScope.Unpublished))
             {
-                var pages = data.Get<IPage>();
-                var structure = data.Get<IPageStructure>().Where(s => s.ParentId == pageId).OrderBy(s => s.LocalOrdering);
-
-                return structure.Join(pages, s => s.Id, p => p.Id, (s, p) => p);
+                return data.Get<IPageStructure>()
+                    .Where(s => s.ParentId == pageId)
+                    .OrderBy(s => s.LocalOrdering)
+                    .Select(f=> PageManager.GetPageById(f.Id));
             }
         }
 
