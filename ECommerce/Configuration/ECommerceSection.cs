@@ -3,93 +3,92 @@ using System.Collections.Concurrent;
 using System.Configuration;
 using System.Web.Configuration;
 
+using CompositeC1Contrib.ECommerce.PaymentProviders;
+
 namespace CompositeC1Contrib.ECommerce.Configuration
 {
     public class ECommerceSection : ConfigurationSection
     {
         private const string ConfigPath = "compositeC1Contrib/eCommerce";
 
-        private static ConcurrentDictionary<string, PaymentProvider> _providers = new ConcurrentDictionary<string, PaymentProvider>();
+        private static readonly ConcurrentDictionary<string, PaymentProviderBase> ProvidersInstances = new ConcurrentDictionary<string, PaymentProviderBase>();
 
         [ConfigurationProperty("defaultProvider")]
         public string DefaultProvider
         {
-            get { return (string)this["defaultProvider"]; }
-            set { this["defaultProvider"] = value; }
+            get => (string)this["defaultProvider"];
+            set => this["defaultProvider"] = value;
         }
 
         [ConfigurationProperty("baseUrl", IsRequired = false)]
         public string BaseUrl
         {
-            get { return (string)this["baseUrl"]; }
-            set { this["baseUrl"] = value; }
+            get => (string)this["baseUrl"];
+            set => this["baseUrl"] = value;
         }
 
         [ConfigurationProperty("mainPageId", IsRequired = false)]
         public string MainPageId
         {
-            get { return (string)this["mainPageId"]; }
-            set { this["mainPageId"] = value; }
+            get => (string)this["mainPageId"];
+            set => this["mainPageId"] = value;
         }
 
         [ConfigurationProperty("receiptPageId", IsRequired = false)]
         public string ReceiptPageId
         {
-            get { return (string)this["receiptPageId"]; }
-            set { this["receiptPageId"] = value; }
+            get => (string)this["receiptPageId"];
+            set => this["receiptPageId"] = value;
         }
 
         [ConfigurationProperty("testMode", DefaultValue = false)]
         public bool TestMode
         {
-            get { return (bool)this["testMode"]; }
-            set { this["testMode"] = value; }
+            get => (bool)this["testMode"];
+            set => this["testMode"] = value;
         }
 
         [ConfigurationProperty("useIFrame", DefaultValue = false)]
         public bool UseIFrame
         {
-            get { return (bool)this["useIFrame"]; }
-            set { this["useIFrame"] = value; }
+            get => (bool)this["useIFrame"];
+            set => this["useIFrame"] = value;
         }
 
         [ConfigurationProperty("orderProcessor", IsRequired = false)]
         public string OrderProcessor
         {
-            get { return (string)this["orderProcessor"]; }
-            set { this["orderProcessor"] = value; }
+            get => (string)this["orderProcessor"];
+            set => this["orderProcessor"] = value;
         }
 
         [ConfigurationProperty("defaultCurrency", IsRequired = false, DefaultValue = Currency.DKK)]
         public Currency DefaultCurrency
         {
-            get { return (Currency)this["defaultCurrency"]; }
-            set { this["defaultCurrency"] = value; }
+            get => (Currency)this["defaultCurrency"];
+            set => this["defaultCurrency"] = value;
         }
 
         [ConfigurationProperty("minimumOrderIdLength", IsRequired = false, DefaultValue = -1)]
         public int MinimumOrderIdLength
         {
-            get { return (int)this["minimumOrderIdLength"]; }
-            set { this["minimumOrderIdLength"] = value; }
+            get => (int)this["minimumOrderIdLength"];
+            set => this["minimumOrderIdLength"] = value;
         }
 
         [ConfigurationProperty("orderIdPrefix", IsRequired = false)]
         public string OrderIdPrefix
         {
-            get { return (string)this["orderIdPrefix"]; }
-            set { this["orderIdPrefix"] = value; }
+            get => (string)this["orderIdPrefix"];
+            set => this["orderIdPrefix"] = value;
         }
 
         [ConfigurationProperty("providers")]
-        public ProviderSettingsCollection Providers
-        {
-            get { return (ProviderSettingsCollection)base["providers"]; }
-        }
+        public ProviderSettingsCollection Providers => (ProviderSettingsCollection)base["providers"];
 
-        public PaymentProvider GetProviderInstance(string name)
+        public PaymentProviderBase GetProviderInstance(string name)
         {
-            return _providers.GetOrAdd(name, s =>
+            return ProvidersInstances.GetOrAdd(name, s =>
             {
                 var settings = Providers[name];
 
@@ -101,7 +100,7 @@ namespace CompositeC1Contrib.ECommerce.Configuration
 
                 try
                 {
-                    return (PaymentProvider)ProvidersHelper.InstantiateProvider(settings, type);
+                    return (PaymentProviderBase)ProvidersHelper.InstantiateProvider(settings, type);
                 }
                 catch (Exception e)
                 {

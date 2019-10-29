@@ -11,9 +11,9 @@ using Composite.Data;
 
 using CompositeC1Contrib.ECommerce.Data.Types;
 
-namespace CompositeC1Contrib.ECommerce
+namespace CompositeC1Contrib.ECommerce.PaymentProviders
 {
-    public class QuickpayProvider : PaymentProvider
+    public class QuickpayProvider : PaymentProviderBase
     {
         private const string Protocol = "4";
         private const string Msgtype = "authorize";
@@ -21,15 +21,12 @@ namespace CompositeC1Contrib.ECommerce
 
         protected string Md5Secret { get; private set; }
 
-        protected override string PaymentWindowEndpoint
-        {
-            get { return "https://secure.quickpay.dk/form/"; }
-        }
+        protected override string PaymentWindowEndpoint => "https://secure.quickpay.dk/form/";
 
         public override void Initialize(string name, NameValueCollection config)
         {
             Md5Secret = ExtractConfigurationValue(config, "md5Secret", true);
-            
+
             base.Initialize(name, config);
         }
 
@@ -116,7 +113,7 @@ namespace CompositeC1Contrib.ECommerce
             });
         }
 
-        public override async Task<IShopOrder> HandleCallbackAsync(HttpContextBase context)
+        protected override void HandleCallbackInternal(HttpContextBase context, IShopOrder order)
         {
             /*  Documentation.  Response data fields
             msgtype	/^[a-z]$/	Defines which action was performed - Each message type is described in detail later
@@ -167,73 +164,57 @@ namespace CompositeC1Contrib.ECommerce
             008 	Error in request data.
             */
 
-            var orderId = await ResolveOrderIdFromRequestAsync(context.Request);
+
+            var form = context.Request.Form;
+
+            var qpstat = GetFormString("qpstat", form);
+            if (qpstat != StatusOk)
+            {
+                order.WriteLog("debug", "Error in status, values is " + qpstat + " but " + StatusOk + " was expected");
+
+                return;
+            }
+
+            var msgtype = GetFormString("msgtype", form);
+            var amount = GetFormString("amount", form);
+            var currency = GetFormString("currency", form);
+            var time = GetFormString("time", form);
+            var state = GetFormString("state", form);
+            var qpstatmsg = GetFormString("qpstatmsg", form);
+            var chstat = GetFormString("chstat", form);
+            var chstatmsg = GetFormString("chstatmsg", form);
+            var merchant = GetFormString("merchant", form);
+            var merchantemail = GetFormString("merchantemail", form);
+            var transactionId = GetFormString("transaction", form);
+            var cardtype = GetFormString("cardtype", form);
+            var cardnumber = GetFormString("cardnumber", form);
+            var cardexpire = GetFormString("cardexpire", form);
+            var splitpayment = GetFormString("splitpayment", form);
+            var fraudprobability = GetFormString("fraudprobability", form);
+            var fraudremarks = GetFormString("fraudremarks", form);
+            var fraudreport = GetFormString("fraudreport", form);
+            var fee = GetFormString("fee", form);
+            var md5Check = GetFormString("md5check", form);
+
+            var serverMd5Check = GetMd5(String.Concat(
+                msgtype, order.Id, amount, currency, time, state, qpstat, qpstatmsg, chstat, chstatmsg,
+                merchant, merchantemail, transactionId, cardtype, cardnumber, cardexpire, splitpayment,
+                fraudprobability, fraudremarks, fraudreport, fee, Md5Secret
+                ));
+
+            if (md5Check != serverMd5Check)
+            {
+                order.WriteLog("debug", "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
+
+                return;
+            }
 
             using (var data = new DataConnection())
             {
-                var order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderId);
-                if (order == null)
-                {
-                    ECommerceLog.WriteLog("Error, no order with number " + orderId);
-
-                    return null;
-                }
-
-                if (order.PaymentStatus == (int)PaymentStatus.Authorized)
-                {
-                    order.WriteLog("debug", "Payment is already authorized");
-
-                    return order;
-                }
-
-                var form = context.Request.Form;
-
-                var qpstat = GetFormString("qpstat", form);
-                if (qpstat != StatusOk)
-                {
-                    order.WriteLog("debug", "Error in status, values is " + qpstat + " but " + StatusOk + " was expected");
-
-                    return order;
-                }
-
-                var msgtype = GetFormString("msgtype", form);
-                var amount = GetFormString("amount", form);
-                var currency = GetFormString("currency", form);
-                var time = GetFormString("time", form);
-                var state = GetFormString("state", form);
-                var qpstatmsg = GetFormString("qpstatmsg", form);
-                var chstat = GetFormString("chstat", form);
-                var chstatmsg = GetFormString("chstatmsg", form);
-                var merchant = GetFormString("merchant", form);
-                var merchantemail = GetFormString("merchantemail", form);
-                var transactionId = GetFormString("transaction", form);
-                var cardtype = GetFormString("cardtype", form);
-                var cardnumber = GetFormString("cardnumber", form);
-                var cardexpire = GetFormString("cardexpire", form);
-                var splitpayment = GetFormString("splitpayment", form);
-                var fraudprobability = GetFormString("fraudprobability", form);
-                var fraudremarks = GetFormString("fraudremarks", form);
-                var fraudreport = GetFormString("fraudreport", form);
-                var fee = GetFormString("fee", form);
-                var md5Check = GetFormString("md5check", form);
-
-                var serverMd5Check = GetMd5(String.Concat(
-                    msgtype, orderId, amount, currency, time, state, qpstat, qpstatmsg, chstat, chstatmsg,
-                    merchant, merchantemail, transactionId, cardtype, cardnumber, cardexpire, splitpayment,
-                    fraudprobability, fraudremarks, fraudreport, fee, Md5Secret
-                    ));
-
-                if (md5Check != serverMd5Check)
-                {
-                    order.WriteLog("debug", "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
-
-                    return order;
-                }
-
-                var paymentRequest = data.Get<IPaymentRequest>().Single(r => r.ShopOrderId == order.Id);
+                var paymentRequest = order.GetPaymentRequest();
 
                 paymentRequest.Accepted = true;
-                paymentRequest.AuthorizationData = OrderDataToXml(form);
+                paymentRequest.AuthorizationData = form.ToXml();
                 paymentRequest.AuthorizationTransactionId = transactionId;
                 paymentRequest.PaymentMethod = cardtype;
 
@@ -244,8 +225,6 @@ namespace CompositeC1Contrib.ECommerce
                 data.Update(order);
 
                 order.WriteLog("authorized");
-
-                return order;
             }
         }
 

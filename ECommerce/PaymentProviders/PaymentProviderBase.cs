@@ -4,23 +4,27 @@ using System.Configuration;
 using System.Configuration.Provider;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Linq;
 
+using Composite.Data;
+
 using CompositeC1Contrib.ECommerce.Configuration;
 using CompositeC1Contrib.ECommerce.Data.Types;
 
-namespace CompositeC1Contrib.ECommerce
+namespace CompositeC1Contrib.ECommerce.PaymentProviders
 {
-    public abstract class PaymentProvider : ProviderBase
+    public abstract class PaymentProviderBase : ProviderBase
     {
+        private static readonly ECommerceSection Config = ECommerceSection.GetSection();
+        private static readonly IOrderProcessor OrderProcessor = ECommerce.OrderProcessor;
+
         protected const string ContinueUrl = "/ecommerce/continue";
         protected const string CancelUrl = "/ecommerce/cancel";
         protected const string CallbackUrl = "/ecommerce/callback";
-
-        private static readonly ECommerceSection Config = ECommerceSection.GetSection();
 
         protected abstract string PaymentWindowEndpoint { get; }
 
@@ -28,10 +32,7 @@ namespace CompositeC1Contrib.ECommerce
         protected string Language { get; private set; }
         protected string PaymentMethods { get; private set; }
 
-        protected bool IsTestMode
-        {
-            get { return Config.TestMode; }
-        }
+        protected bool IsTestMode => Config.TestMode;
 
         public override void Initialize(string name, NameValueCollection config)
         {
@@ -56,13 +57,7 @@ namespace CompositeC1Contrib.ECommerce
 
         protected Currency ResolveCurrency(IShopOrder order)
         {
-            var currency = Config.DefaultCurrency;
-            if (Enum.TryParse<Currency>(order.Currency, out currency))
-            {
-                return currency;
-            }
-
-            return Config.DefaultCurrency;
+            return Enum.TryParse<Currency>(order.Currency, out var currency) ? currency : Config.DefaultCurrency;
         }
 
         protected decimal GetMinorCurrencyUnit(decimal amount, Currency currency)
@@ -108,38 +103,19 @@ namespace CompositeC1Contrib.ECommerce
                 new XElement("head",
                     new XElement("title", "Payment window")),
                 new XElement("body",
-                    new XAttribute("onload", String.Format("document.{0}.submit()", formName)),
+                    new XAttribute("onload", $"document.{formName}.submit()"),
                     form));
 
-            order.WriteLog("paymentwindow generated", form.ToString());
+            order.WriteLog("Payment window generated", form.ToString());
 
             return html.ToString();
-        }
-
-        protected static string OrderDataToXml(NameValueCollection values)
-        {
-            var orderXml = new XElement("data");
-
-            foreach (var name in values.AllKeys)
-            {
-                var value = values[name];
-                if (!String.IsNullOrEmpty(value))
-                {
-                    orderXml.Add(new XElement("item",
-                        new XAttribute("name", name),
-                        new XAttribute("value", value)
-                    ));
-                }
-            }
-
-            return orderXml.ToString();
         }
 
         protected string ExtractConfigurationValue(NameValueCollection config, string key, bool required)
         {
             if (config == null)
             {
-                throw new ArgumentNullException("config");
+                throw new ArgumentNullException(nameof(config));
             }
 
             var value = config[key];
@@ -193,7 +169,49 @@ namespace CompositeC1Contrib.ECommerce
         }
 
         public abstract string GeneratePaymentWindow(IShopOrder order, Uri currentUri);
+
+        public async Task<IShopOrder> HandleCallbackAsync(HttpContextBase context)
+        {
+            var order = await ResolveOrderAsync(context);
+            if (order == null)
+            {
+                return null;
+            }
+
+            if (order.PaymentStatus == (int)PaymentStatus.Authorized)
+            {
+                order.WriteLog("debug", "Payment is already authorized");
+
+                return order;
+            }
+
+            var handled = OrderProcessor.HandleCallback(context, order);
+            if (!handled)
+            {
+                HandleCallbackInternal(context, order);
+            }
+
+            return order;
+        }
+
+        protected virtual async Task<IShopOrder> ResolveOrderAsync(HttpContextBase context)
+        {
+            var orderId = await ResolveOrderIdFromRequestAsync(context.Request);
+
+            using (var data = new DataConnection())
+            {
+                var order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderId);
+                if (order == null)
+                {
+                    ECommerceLog.WriteLog("Error, no order with id " + orderId);
+                }
+
+                return order;
+            }
+        }
+
         public abstract Task<string> ResolveOrderIdFromRequestAsync(HttpRequestBase request);
-        public abstract Task<IShopOrder> HandleCallbackAsync(HttpContextBase context);
+
+        protected virtual void HandleCallbackInternal(HttpContextBase context, IShopOrder order) { }
     }
 }

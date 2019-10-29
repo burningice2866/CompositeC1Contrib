@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Globalization;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,9 +10,9 @@ using Composite.Data;
 
 using CompositeC1Contrib.ECommerce.Data.Types;
 
-namespace CompositeC1Contrib.ECommerce
+namespace CompositeC1Contrib.ECommerce.PaymentProviders
 {
-    public class DibsProvider : PaymentProvider
+    public class DibsProvider : PaymentProviderBase
     {
         private const string StatusOk = "2";
         private const string UniqueOID = "yes";
@@ -21,15 +20,12 @@ namespace CompositeC1Contrib.ECommerce
         protected string Md5Secret { get; private set; }
         protected string Md5Secret2 { get; private set; }
 
-        protected override string PaymentWindowEndpoint
-        {
-            get { return "https://payment.architrade.com/paymentweb/start.action"; }
-        }
+        protected override string PaymentWindowEndpoint => "https://payment.architrade.com/paymentweb/start.action";
 
         public override void Initialize(string name, NameValueCollection config)
         {
-            Md5Secret = ExtractConfigurationValue(config, "md5Secret", true);
-            Md5Secret2 = ExtractConfigurationValue(config, "md5Secret2", true);
+            Md5Secret = ExtractConfigurationValue(config, "md5Secret", false);
+            Md5Secret2 = ExtractConfigurationValue(config, "md5Secret2", false);
 
             base.Initialize(name, config);
         }
@@ -45,7 +41,6 @@ namespace CompositeC1Contrib.ECommerce
 
             // optional parameters
             var test = IsTestMode ? "yes" : String.Empty;
-            var md5Key = CalcMd5Key(MerchantId, order.Id, currency, amount);
             var cancelUrl = ParseUrl(CancelUrl, currentUri);
             var callbackUrl = ParseUrl(CallbackUrl, currentUri);
 
@@ -58,12 +53,16 @@ namespace CompositeC1Contrib.ECommerce
                 {"currency", ((int)currency).ToString()},
                 {"uniqueoid", UniqueOID},
                 {"test", test},
-                {"md5key", md5Key},
                 {"lang", Language},
                 {"cancelurl", cancelUrl},
                 {"callbackurl", callbackUrl},
                 {"paytype", paytype}
             };
+
+            if (TryCalcMd5Key(MerchantId, order.Id, currency, amount, out var md5Key))
+            {
+                data.Add("md5key", md5Key);
+            }
 
             return GetFormPost(order, data);
         }
@@ -78,56 +77,42 @@ namespace CompositeC1Contrib.ECommerce
             });
         }
 
-        public override async Task<IShopOrder> HandleCallbackAsync(HttpContextBase context)
+        protected override void HandleCallbackInternal(HttpContextBase context, IShopOrder order)
         {
             // http://tech.dibs.dk/integration_methods/flexwin/return_pages/
 
-            var orderid = await ResolveOrderIdFromRequestAsync(context.Request);
+            var form = context.Request.Form;
 
-            using (var data = new DataConnection())
+            var statuscode = GetFormString("statuscode", form);
+            if (statuscode != StatusOk)
             {
-                var order = data.Get<IShopOrder>().SingleOrDefault(f => f.Id == orderid);
-                if (order == null)
-                {
-                    ECommerceLog.WriteLog("Error, no order with number " + orderid);
+                order.WriteLog("debug", "Error in status, values is " + statuscode + " but " + StatusOk + " was expected");
 
-                    return null;
-                }
+                return;
+            }
 
-                if (order.PaymentStatus == (int)PaymentStatus.Authorized)
-                {
-                    order.WriteLog("debug", "Payment is already authorized");
+            var authkey = GetFormString("authkey", form);
+            var transact = GetFormString("transact", form);
+            var currency = ResolveCurrency(order);
+            var amount = GetMinorCurrencyUnit(order.OrderTotal, currency).ToString("0", CultureInfo.InvariantCulture);
 
-                    return order;
-                }
-
-                var form = context.Request.Form;
-
-                var statuscode = GetFormString("statuscode", form);
-                if (statuscode != StatusOk)
-                {
-                    order.WriteLog("debug", "Error in status, values is " + statuscode + " but " + StatusOk + " was expected");
-
-                    return order;
-                }
-
-                var authkey = GetFormString("authkey", form);
-                var transact = GetFormString("transact", form);
-                var currency = ResolveCurrency(order);
-                var amount = GetMinorCurrencyUnit(order.OrderTotal, currency).ToString("0", CultureInfo.InvariantCulture);
-
+            if (HasMd5Key())
+            {
                 var isValid = authkey == CalcAuthKey(transact, currency, amount);
                 if (!isValid)
                 {
                     order.WriteLog("debug", "Error, MD5 Check doesn't match. This may just be an error in the setting or it COULD be a hacker trying to fake a completed order");
 
-                    return order;
+                    return;
                 }
+            }
 
-                var paymentRequest = data.Get<IPaymentRequest>().Single(r => r.ShopOrderId == order.Id);
+            using (var data = new DataConnection())
+            {
+                var paymentRequest = order.GetPaymentRequest();
 
                 paymentRequest.Accepted = true;
-                paymentRequest.AuthorizationData = OrderDataToXml(form);
+                paymentRequest.AuthorizationData = form.ToXml();
                 paymentRequest.AuthorizationTransactionId = transact;
                 paymentRequest.PaymentMethod = GetFormString("paytype", form);
 
@@ -138,18 +123,28 @@ namespace CompositeC1Contrib.ECommerce
                 data.Update(order);
 
                 order.WriteLog("authorized");
-
-                return order;
             }
         }
 
-        private string CalcMd5Key(string merchantId, string orderId, Currency currency, string amount)
+        private bool HasMd5Key()
         {
+            return !String.IsNullOrEmpty(Md5Secret) && !String.IsNullOrEmpty(Md5Secret2);
+        }
+
+        private bool TryCalcMd5Key(string merchantId, string orderId, Currency currency, string amount, out string md5Key)
+        {
+            if (!HasMd5Key())
+            {
+                md5Key = null;
+
+                return false;
+            }
+
             var sb = new StringBuilder();
 
             using (var md5 = MD5.Create())
             {
-                var s = Md5Secret + String.Format("merchant={0}&orderid={1}&currency={2}&amount={3}", merchantId, orderId, (int)currency, amount);
+                var s = Md5Secret + $"merchant={merchantId}&orderid={orderId}&currency={(int)currency}&amount={amount}";
                 var bytes = Encoding.ASCII.GetBytes(s);
                 var hash = md5.ComputeHash(bytes);
 
@@ -170,7 +165,9 @@ namespace CompositeC1Contrib.ECommerce
                 }
             }
 
-            return sb.ToString();
+            md5Key = sb.ToString();
+
+            return true;
         }
 
         private string CalcAuthKey(string transact, Currency currency, string amount)
@@ -179,7 +176,7 @@ namespace CompositeC1Contrib.ECommerce
 
             using (var md5 = MD5.Create())
             {
-                var s = Md5Secret + String.Format("transact={0}&amount={1}&currency={2}", transact, amount, (int)currency);
+                var s = Md5Secret + $"transact={transact}&amount={amount}&currency={(int)currency}";
                 var bytes = Encoding.ASCII.GetBytes(s);
                 var hash = md5.ComputeHash(bytes);
 

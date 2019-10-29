@@ -16,9 +16,9 @@ using CompositeC1Contrib.ECommerce.Data.Types;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace CompositeC1Contrib.ECommerce
+namespace CompositeC1Contrib.ECommerce.PaymentProviders
 {
-    public class QuickpayV10Provider : PaymentProvider
+    public class QuickpayV10Provider : PaymentProviderBase
     {
         protected string AgreementId { get; private set; }
         protected string PrivateKey { get; private set; }
@@ -28,10 +28,7 @@ namespace CompositeC1Contrib.ECommerce
         protected Uri ApiEndpoint { get; private set; }
         protected string ApiUserApiKey { get; private set; }
 
-        protected override string PaymentWindowEndpoint
-        {
-            get { return "https://payment.quickpay.net"; }
-        }
+        protected override string PaymentWindowEndpoint => "https://payment.quickpay.net";
 
         public override void Initialize(string name, NameValueCollection config)
         {
@@ -49,7 +46,7 @@ namespace CompositeC1Contrib.ECommerce
             ApiEndpoint = new Uri(apiEndpoint);
 
             ApiUserApiKey = ExtractConfigurationValue(config, "apiUserApiKey", true);
-            
+
             base.Initialize(name, config);
         }
 
@@ -138,7 +135,7 @@ namespace CompositeC1Contrib.ECommerce
             return orderId;
         }
 
-        public override async Task<IShopOrder> HandleCallbackAsync(HttpContextBase context)
+        protected override async Task<IShopOrder> ResolveOrderAsync(HttpContextBase context)
         {
             //http://tech.quickpay.net/api/callback/
 
@@ -154,8 +151,7 @@ namespace CompositeC1Contrib.ECommerce
 
             var json = (JObject)JsonConvert.DeserializeObject(input);
 
-            IShopOrder order;
-            return TryAuthorizeOrder(json, out order) ? order : null;
+            return TryAuthorizeOrder(json, out IShopOrder order) ? order : null;
         }
 
         private bool TryAuthorizeOrder(JObject json, out IShopOrder order)
@@ -195,7 +191,7 @@ namespace CompositeC1Contrib.ECommerce
                     return false;
                 }
 
-                var paymentRequest = data.Get<IPaymentRequest>().Single(r => r.ShopOrderId == orderId);
+                var paymentRequest = order.GetPaymentRequest();
 
                 paymentRequest.Accepted = true;
                 paymentRequest.AuthorizationData = json.ToString();
@@ -221,7 +217,7 @@ namespace CompositeC1Contrib.ECommerce
             return Sign(data, PaymentUserApiKey);
         }
 
-        private string Sign(string data, string key)
+        private static string Sign(string data, string key)
         {
             var encoding = Encoding.UTF8;
             var hmac = new HMACSHA256(encoding.GetBytes(key));

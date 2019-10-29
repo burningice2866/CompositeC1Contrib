@@ -21,7 +21,7 @@ namespace CompositeC1Contrib.ECommerce
 
         public static void CreatePaymentRequest(this IShopOrder order, string provider)
         {
-            Verify.ArgumentCondition(ECommerce.Providers.ContainsKey(provider), "provider", String.Format("Provider '{0}' doesn't exist", provider));
+            Verify.ArgumentCondition(ECommerce.Providers.ContainsKey(provider), nameof(provider), $"Provider '{provider}' doesn't exist");
 
             using (var data = new DataConnection())
             {
@@ -32,6 +32,14 @@ namespace CompositeC1Contrib.ECommerce
                 request.Accepted = false;
 
                 data.Add(request);
+            }
+        }
+
+        public static IPaymentRequest GetPaymentRequest(this IShopOrder order)
+        {
+            using (var data = new DataConnection())
+            {
+                return data.Get<IPaymentRequest>().SingleOrDefault(r => r.ShopOrderId == order.Id);
             }
         }
 

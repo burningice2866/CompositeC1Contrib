@@ -60,12 +60,17 @@ namespace CompositeC1Contrib.ECommerce
                     hashMachineName = hashMachineName.Substring(0, maxMachineNameLength);
                 }
 
-                sOrderId = String.Format("TEST-{0}-{1}", hashMachineName, sOrderId);
+                sOrderId = $"TEST-{hashMachineName}-{sOrderId}";
             }
 
             sOrderId = sOrderId.Trim();
 
             return sOrderId;
+        }
+
+        public virtual bool HandleCallback(HttpContextBase context, IShopOrder order)
+        {
+            return false;
         }
 
         public virtual string HandleContinue(HttpContextBase context, IShopOrder order)

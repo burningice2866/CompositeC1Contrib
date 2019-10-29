@@ -9,6 +9,7 @@ using Composite.Data;
 
 using CompositeC1Contrib.ECommerce.Configuration;
 using CompositeC1Contrib.ECommerce.Data.Types;
+using CompositeC1Contrib.ECommerce.PaymentProviders;
 
 namespace CompositeC1Contrib.ECommerce.Web
 {
@@ -16,7 +17,7 @@ namespace CompositeC1Contrib.ECommerce.Web
     {
         private static readonly ECommerceSection Config = ECommerceSection.GetSection();
         private static readonly IOrderProcessor OrderProcessor = ECommerce.OrderProcessor;
-        private static readonly IReadOnlyDictionary<string, PaymentProvider> Providers = ECommerce.Providers;
+        private static readonly IReadOnlyDictionary<string, PaymentProviderBase> Providers = ECommerce.Providers;
 
         private readonly HttpContextBase _context;
 
@@ -28,8 +29,12 @@ namespace CompositeC1Contrib.ECommerce.Web
         public Task HandleDefault()
         {
             var orderId = _context.Request.QueryString["orderid"];
+            if (String.IsNullOrEmpty(orderId))
+            {
+                orderId = _context.Request.Form["orderoid"];
+            }
 
-            ECommerceLog.WriteLog("Default request recieved on orderid " + orderId);
+            ECommerceLog.WriteLog("Default request received on order id " + orderId);
 
             using (var data = new DataConnection())
             {
@@ -43,7 +48,7 @@ namespace CompositeC1Contrib.ECommerce.Web
                     return Task.FromResult(0);
                 }
 
-                order.WriteLog("paymentwindow requested");
+                order.WriteLog("Payment window requested");
 
                 if (order.PaymentStatus == (int)PaymentStatus.Authorized)
                 {
@@ -65,7 +70,7 @@ namespace CompositeC1Contrib.ECommerce.Web
 
         public Task HandleCancel()
         {
-            ECommerceLog.WriteLog("Cancel request recieved");
+            ECommerceLog.WriteLog("Cancel request received");
 
             var pageUrl = OrderProcessor.HandleCancel(_context);
 
@@ -76,7 +81,7 @@ namespace CompositeC1Contrib.ECommerce.Web
 
         public async Task HandleCallback()
         {
-            ECommerceLog.WriteLog("Callback request recieved");
+            ECommerceLog.WriteLog("Callback request received");
 
             var orderId = await ResolveOrderIdFromRequestAsync(_context.Request);
             var provider = ResolvePaymentProvider(orderId);
@@ -99,8 +104,12 @@ namespace CompositeC1Contrib.ECommerce.Web
         public async Task HandleContinue()
         {
             var orderId = _context.Request.QueryString["orderid"];
+            if (String.IsNullOrEmpty(orderId))
+            {
+                orderId = _context.Request.Form["orderid"];
+            }
 
-            ECommerceLog.WriteLog("Continue request recieved on orderid " + orderId);
+            ECommerceLog.WriteLog("Continue request received on order id " + orderId);
 
             using (var data = new DataConnection())
             {
@@ -149,7 +158,7 @@ namespace CompositeC1Contrib.ECommerce.Web
             }
         }
 
-        private async Task<string> ResolveOrderIdFromRequestAsync(HttpRequestBase request)
+        private static async Task<string> ResolveOrderIdFromRequestAsync(HttpRequestBase request)
         {
             foreach (var provider in Providers.Values)
             {
@@ -160,17 +169,17 @@ namespace CompositeC1Contrib.ECommerce.Web
                 }
             }
 
-            throw new InvalidOperationException("OrderId couldn't be resolved");
+            throw new InvalidOperationException("Order id couldn't be resolved");
         }
 
-        private PaymentProvider ResolvePaymentProvider(string orderId)
+        private static PaymentProviderBase ResolvePaymentProvider(string orderId)
         {
             using (var data = new DataConnection())
             {
                 var paymentRequest = data.Get<IPaymentRequest>().SingleOrDefault(r => r.ShopOrderId == orderId);
                 if (paymentRequest == null)
                 {
-                    throw new InvalidOperationException(String.Format("There is no payment request for order '{0}'", orderId));
+                    throw new InvalidOperationException($"There is no payment request for order '{orderId}'");
                 }
 
                 return ECommerce.Providers[paymentRequest.ProviderName];

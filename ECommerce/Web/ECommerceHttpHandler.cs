@@ -5,10 +5,7 @@ namespace CompositeC1Contrib.ECommerce.Web
 {
     public class ECommerceHttpHandler : HttpTaskAsyncHandler
     {
-        public override bool IsReusable
-        {
-            get { return true; }
-        }
+        public override bool IsReusable => true;
 
         public override Task ProcessRequestAsync(HttpContext context)
         {

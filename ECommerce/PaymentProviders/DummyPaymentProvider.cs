@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Linq;
 
 using Composite.Data;
 
-using CompositeC1Contrib.ECommerce;
 using CompositeC1Contrib.ECommerce.Data.Types;
 
-namespace CompositeC1Contrib.ECommerce
+namespace CompositeC1Contrib.ECommerce.PaymentProviders
 {
-    public class DummyPaymentProvider : PaymentProvider
+    public class DummyPaymentProvider : PaymentProviderBase
     {
-        protected override string PaymentWindowEndpoint
-        {
-            get { return String.Empty; }
-        }
+        protected override string PaymentWindowEndpoint => String.Empty;
 
         public override string GeneratePaymentWindow(IShopOrder order, Uri currentUri)
         {
@@ -63,26 +58,16 @@ namespace CompositeC1Contrib.ECommerce
             });
         }
 
-        public override async Task<IShopOrder> HandleCallbackAsync(HttpContextBase context)
+        protected override void HandleCallbackInternal(HttpContextBase context, IShopOrder order)
         {
-            var orderid = await ResolveOrderIdFromRequestAsync(context.Request);
-
             using (var data = new DataConnection())
             {
-                var order = data.Get<IShopOrder>().Single(f => f.Id == orderid);
-                if (order == null)
-                {
-                    ECommerceLog.WriteLog("Error, no order with number " + orderid);
-
-                    return null;
-                }
-
                 var form = context.Request.Form;
 
-                var paymentRequest = data.Get<IPaymentRequest>().Single(r => r.ShopOrderId == order.Id);
+                var paymentRequest = order.GetPaymentRequest();
 
                 paymentRequest.Accepted = true;
-                paymentRequest.AuthorizationData = OrderDataToXml(form);
+                paymentRequest.AuthorizationData = form.ToXml();
                 paymentRequest.AuthorizationTransactionId = Guid.NewGuid().ToString().Substring(0, 32);
                 paymentRequest.PaymentMethod = PaymentMethods;
 
@@ -91,8 +76,6 @@ namespace CompositeC1Contrib.ECommerce
                 order.PaymentStatus = (int)PaymentStatus.Authorized;
 
                 data.Update(order);
-
-                return order;
             }
         }
     }

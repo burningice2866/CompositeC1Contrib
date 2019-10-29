@@ -8,6 +8,7 @@ using Composite.Data;
 
 using CompositeC1Contrib.ECommerce.Configuration;
 using CompositeC1Contrib.ECommerce.Data.Types;
+using CompositeC1Contrib.ECommerce.PaymentProviders;
 
 namespace CompositeC1Contrib.ECommerce
 {
@@ -61,7 +62,7 @@ namespace CompositeC1Contrib.ECommerce
             }
         }
 
-        public static IReadOnlyDictionary<string, PaymentProvider> Providers
+        public static IReadOnlyDictionary<string, PaymentProviderBase> Providers
         {
             get
             {
