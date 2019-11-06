@@ -12,15 +12,25 @@ namespace CompositeC1Contrib.ECommerce
 {
     public static class ShopOrderExtensions
     {
-        public static void CreatePaymentRequest(this IShopOrder order)
+        public static IPaymentRequest CreatePaymentRequest(this IShopOrder order)
         {
             var defaultProvider = ECommerceSection.GetSection().DefaultProvider;
 
-            CreatePaymentRequest(order, defaultProvider);
+            return CreatePaymentRequest(order, defaultProvider);
         }
 
-        public static void CreatePaymentRequest(this IShopOrder order, string provider)
+        public static IPaymentRequest CreatePaymentRequest(this IShopOrder order, string provider)
         {
+            return CreatePaymentRequest(order, new CreatePaymentRequestOptions
+            {
+                Provider = provider
+            });
+        }
+
+        public static IPaymentRequest CreatePaymentRequest(this IShopOrder order, CreatePaymentRequestOptions options)
+        {
+            var provider = options.Provider;
+
             Verify.ArgumentCondition(ECommerce.Providers.ContainsKey(provider), nameof(provider), $"Provider '{provider}' doesn't exist");
 
             using (var data = new DataConnection())
@@ -30,8 +40,11 @@ namespace CompositeC1Contrib.ECommerce
                 request.ShopOrderId = order.Id;
                 request.ProviderName = provider;
                 request.Accepted = false;
+                request.CancelUrl = options.CancelUrl;
 
-                data.Add(request);
+                request = data.Add(request);
+
+                return request;
             }
         }
 

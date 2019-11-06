@@ -13,8 +13,10 @@ namespace CompositeC1Contrib.ECommerce.PaymentProviders
     {
         protected override string PaymentWindowEndpoint => String.Empty;
 
-        public override string GeneratePaymentWindow(IShopOrder order, Uri currentUri)
+        public override string GeneratePaymentWindow(IShopOrder order, IPaymentRequest paymentRequest, Uri currentUri)
         {
+            var cancelUrl = ParseUrl(paymentRequest.CancelUrl ?? CancelUrl, currentUri);
+
             var links = new XElement("div",
                 new XElement("form",
                     new XAttribute("target", "_blank"),
@@ -32,7 +34,7 @@ namespace CompositeC1Contrib.ECommerce.PaymentProviders
                     new XAttribute("value", "Callback"))),
 
                 new XElement("a",
-                    new XAttribute("href", CancelUrl),
+                    new XAttribute("href", cancelUrl),
                     new XAttribute("target", "_blank"), "Cancel"),
 
                 new XElement("a",

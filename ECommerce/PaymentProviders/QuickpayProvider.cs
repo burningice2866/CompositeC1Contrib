@@ -30,7 +30,7 @@ namespace CompositeC1Contrib.ECommerce.PaymentProviders
             base.Initialize(name, config);
         }
 
-        public override string GeneratePaymentWindow(IShopOrder order, Uri currentUri)
+        public override string GeneratePaymentWindow(IShopOrder order, IPaymentRequest paymentRequest, Uri currentUri)
         {
             /*  Documentation. Request data fields
             Name	Regular expression	Description
@@ -58,7 +58,7 @@ namespace CompositeC1Contrib.ECommerce.PaymentProviders
             var currency = ResolveCurrency(order);
             var amount = GetMinorCurrencyUnit(order.OrderTotal, currency).ToString("0", CultureInfo.InvariantCulture);
             var continueUrl = ParseContinueUrl(order, currentUri);
-            var cancelUrl = ParseUrl(CancelUrl, currentUri);
+            var cancelUrl = ParseUrl(paymentRequest.CancelUrl ?? CancelUrl, currentUri);
 
             // optional parameters
             var callbackurl = ParseUrl(CallbackUrl, currentUri);

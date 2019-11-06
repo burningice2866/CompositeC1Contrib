@@ -2,7 +2,7 @@
 
 namespace CompositeC1Contrib.ECommerce
 {
-    public class OrderCreationSettings
+    public class CreateOrderOptions
     {
         public string OrderIdPrefix { get; set; }
         public int MinimumOrderIdLength { get; set; }
@@ -10,7 +10,7 @@ namespace CompositeC1Contrib.ECommerce
         public Currency Currency { get; set; }
         public string CustomData { get; set; }
 
-        public OrderCreationSettings()
+        public CreateOrderOptions()
         {
             var section = ECommerceSection.GetSection();
 

@@ -59,8 +59,15 @@ namespace CompositeC1Contrib.ECommerce.Web
                     return Task.FromResult(0);
                 }
 
+                var paymentRequest = order.GetPaymentRequest();
+                if (paymentRequest == null)
+                {
+                    throw new InvalidOperationException($"There is no payment request for order '{orderId}'");
+                }
+
                 var provider = ResolvePaymentProvider(order.Id);
-                var window = provider.GeneratePaymentWindow(order, _context.Request.Url);
+
+                var window = provider.GeneratePaymentWindow(order, paymentRequest, _context.Request.Url);
 
                 HtmlContent(window);
             }

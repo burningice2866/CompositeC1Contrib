@@ -6,7 +6,7 @@ namespace CompositeC1Contrib.ECommerce
 {
     public interface IOrderProcessor
     {
-        string GenerateNextOrderId(OrderCreationSettings settings);
+        string GenerateNextOrderId(CreateOrderOptions settings);
         bool HandleCallback(HttpContextBase context, IShopOrder order);
         string HandleContinue(HttpContextBase context, IShopOrder order);
         string HandleCancel(HttpContextBase context);

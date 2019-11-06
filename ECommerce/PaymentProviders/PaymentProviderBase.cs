@@ -168,7 +168,7 @@ namespace CompositeC1Contrib.ECommerce.PaymentProviders
             }
         }
 
-        public abstract string GeneratePaymentWindow(IShopOrder order, Uri currentUri);
+        public abstract string GeneratePaymentWindow(IShopOrder order, IPaymentRequest paymentRequest, Uri currentUri);
 
         public async Task<IShopOrder> HandleCallbackAsync(HttpContextBase context)
         {

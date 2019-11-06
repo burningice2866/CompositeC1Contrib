@@ -50,13 +50,13 @@ namespace CompositeC1Contrib.ECommerce.PaymentProviders
             base.Initialize(name, config);
         }
 
-        public override string GeneratePaymentWindow(IShopOrder order, Uri currentUri)
+        public override string GeneratePaymentWindow(IShopOrder order, IPaymentRequest paymentRequest, Uri currentUri)
         {
             var currency = ResolveCurrency(order);
             var amount = GetMinorCurrencyUnit(order.OrderTotal, currency).ToString("0", CultureInfo.InvariantCulture);
 
             var continueUrl = ParseContinueUrl(order, currentUri);
-            var cancelUrl = ParseUrl(CancelUrl, currentUri);
+            var cancelUrl = ParseUrl(paymentRequest.CancelUrl ?? CancelUrl, currentUri);
             var callbackUrl = ParseUrl(CallbackUrl, currentUri);
 
             var param = new NameValueCollection

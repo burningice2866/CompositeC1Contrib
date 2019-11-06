@@ -1,10 +1,8 @@
-﻿using System;
-
-using Microsoft.Practices.EnterpriseLibrary.Validation.Validators;
-
-using Composite.Data;
+﻿using Composite.Data;
 using Composite.Data.Hierarchy;
 using Composite.Data.Hierarchy.DataAncestorProviders;
+
+using Microsoft.Practices.EnterpriseLibrary.Validation.Validators;
 
 namespace CompositeC1Contrib.ECommerce.Data.Types
 {
@@ -43,5 +41,9 @@ namespace CompositeC1Contrib.ECommerce.Data.Types
         [StoreFieldType(PhysicalStoreFieldType.String, 16, IsNullable = true)]
         [ImmutableFieldId("91b15b0e-77ff-41ad-a984-a74b72d67879")]
         string PaymentMethod { get; set; }
+
+        [StoreFieldType(PhysicalStoreFieldType.LargeString, IsNullable = true)]
+        [ImmutableFieldId("995019d6-90a8-4451-97fb-6372cb664668")]
+        string CancelUrl { get; set; }
     }
 }

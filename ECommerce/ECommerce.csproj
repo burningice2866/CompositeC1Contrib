@@ -77,11 +77,12 @@
     <Compile Include="ECommerce.cs" />
     <Compile Include="ECommerceBackgroundProcess.cs" />
     <Compile Include="IOrderProcessor.cs" />
-    <Compile Include="OrderCreationSettings.cs" />
+    <Compile Include="CreateOrderOptions.cs" />
     <Compile Include="PaymentProviders\PaymentProviderBase.cs" />
     <Compile Include="PaymentProviders\DibsProvider.cs" />
     <Compile Include="PaymentProviders\QuickpayProvider.cs" />
     <Compile Include="Data\Types\IShopOrder.cs" />
+    <Compile Include="CreatePaymentRequestOptions.cs" />
     <Compile Include="PaymentStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PaymentProviders\QuickpayV10Provider.cs" />

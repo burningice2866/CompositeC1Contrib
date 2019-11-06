@@ -30,7 +30,7 @@ namespace CompositeC1Contrib.ECommerce.PaymentProviders
             base.Initialize(name, config);
         }
 
-        public override string GeneratePaymentWindow(IShopOrder order, Uri currentUri)
+        public override string GeneratePaymentWindow(IShopOrder order, IPaymentRequest paymentRequest, Uri currentUri)
         {
             // http://tech.dibs.dk/integration_methods/flexwin/parameters/
 
@@ -41,7 +41,7 @@ namespace CompositeC1Contrib.ECommerce.PaymentProviders
 
             // optional parameters
             var test = IsTestMode ? "yes" : String.Empty;
-            var cancelUrl = ParseUrl(CancelUrl, currentUri);
+            var cancelUrl = ParseUrl(paymentRequest.CancelUrl ?? CancelUrl, currentUri);
             var callbackUrl = ParseUrl(CallbackUrl, currentUri);
 
             var data = new NameValueCollection

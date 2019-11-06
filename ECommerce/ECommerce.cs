@@ -39,7 +39,7 @@ namespace CompositeC1Contrib.ECommerce
                             var type = Type.GetType(Section.OrderProcessor);
                             if (type == null)
                             {
-                                ECommerceLog.WriteLog($"Unknown orderprocessor type '{Section.OrderProcessor}'");
+                                ECommerceLog.WriteLog($"Unknown order processor type '{Section.OrderProcessor}'");
 
                                 return new DefaultOrderProcessor();
                             }
@@ -50,7 +50,7 @@ namespace CompositeC1Contrib.ECommerce
                             }
                             catch (Exception e)
                             {
-                                ECommerceLog.WriteLog("Error instantiating orderprocessor", e);
+                                ECommerceLog.WriteLog("Error instantiating order processor", e);
 
                                 return new DefaultOrderProcessor();
                             }
@@ -77,7 +77,7 @@ namespace CompositeC1Contrib.ECommerce
 
         public static IShopOrder CreateNewOrder(decimal totalAmount)
         {
-            return CreateNewOrder(new OrderCreationSettings
+            return CreateNewOrder(new CreateOrderOptions
             {
                 TotalAmount = totalAmount
             });
@@ -85,7 +85,7 @@ namespace CompositeC1Contrib.ECommerce
 
         public static IShopOrder CreateNewOrder(decimal totalAmount, Currency currency)
         {
-            return CreateNewOrder(new OrderCreationSettings
+            return CreateNewOrder(new CreateOrderOptions
             {
                 TotalAmount = totalAmount,
                 Currency = currency
@@ -94,7 +94,7 @@ namespace CompositeC1Contrib.ECommerce
 
         public static IShopOrder CreateNewOrder(decimal totalAmount, Currency currency, string customData)
         {
-            return CreateNewOrder(new OrderCreationSettings
+            return CreateNewOrder(new CreateOrderOptions
             {
                 TotalAmount = totalAmount,
                 Currency = currency,
@@ -104,21 +104,21 @@ namespace CompositeC1Contrib.ECommerce
 
         public static IShopOrder CreateNewOrder(decimal totalAmount, string customData)
         {
-            return CreateNewOrder(new OrderCreationSettings
+            return CreateNewOrder(new CreateOrderOptions
             {
                 TotalAmount = totalAmount,
                 CustomData = customData
             });
         }
 
-        public static IShopOrder CreateNewOrder(OrderCreationSettings settings)
+        public static IShopOrder CreateNewOrder(CreateOrderOptions options)
         {
             if (OrderProcessor == null)
             {
-                throw new InvalidOperationException("No order processor present, can't generate a new orderid");
+                throw new InvalidOperationException("No order processor present, can't generate a new order id");
             }
 
-            var orderId = OrderProcessor.GenerateNextOrderId(settings);
+            var orderId = OrderProcessor.GenerateNextOrderId(options);
 
             using (var data = new DataConnection())
             {
@@ -126,9 +126,9 @@ namespace CompositeC1Contrib.ECommerce
 
                 order.Id = orderId;
                 order.CreatedOn = DateTime.UtcNow;
-                order.OrderTotal = settings.TotalAmount;
-                order.Currency = settings.Currency.ToString();
-                order.CustomData = settings.CustomData;
+                order.OrderTotal = options.TotalAmount;
+                order.Currency = options.Currency.ToString();
+                order.CustomData = options.CustomData;
 
                 order = data.Add(order);
 

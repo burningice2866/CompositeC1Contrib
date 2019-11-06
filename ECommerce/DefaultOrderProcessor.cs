@@ -15,7 +15,7 @@ namespace CompositeC1Contrib.ECommerce
         private static readonly object Lock = new object();
         private static readonly string LastUsedOrderIdFile = Path.Combine(ECommerce.RootPath, "LastUsedOrderId.txt");
 
-        public virtual string GenerateNextOrderId(OrderCreationSettings settings)
+        public virtual string GenerateNextOrderId(CreateOrderOptions settings)
         {
             int orderId;
 
