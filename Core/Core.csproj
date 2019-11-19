@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CompositeC1Contrib</RootNamespace>
     <AssemblyName>CompositeC1Contrib.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -30,13 +30,17 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Composite, Version=4.2.5249.32246, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CompositeC1.Core.4.2\lib\net45\Composite.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Composite, Version=6.2.6436.18972, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CompositeC1.Core.6.2\lib\net461\Composite.dll</HintPath>
+    </Reference>
+    <Reference Include="Composite.Workflows, Version=6.2.6436.18979, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CompositeC1.Core.6.2\lib\net461\Composite.Workflows.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.1.0\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\CompositeC1.Core.4.2\lib\net45\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\CompositeC1.Core.6.2\lib\net461\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -91,6 +95,7 @@
     <Compile Include="Web\IContentFilter.cs" />
     <Compile Include="Web\GlobalizationModule.cs" />
     <Compile Include="Web\RouteCollectionExtensions.cs" />
+    <Compile Include="Web\ServiceBasedRouteHandler.cs" />
     <Compile Include="Web\UI\PageRendererHelper.cs" />
     <Compile Include="Web\RequestInfo.cs" />
     <Compile Include="Workflows\BaseFormsWorkflow.cs">
