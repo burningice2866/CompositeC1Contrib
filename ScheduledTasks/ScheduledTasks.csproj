@@ -34,11 +34,14 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Composite, Version=6.0.6248.33161, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CompositeC1.Core.6.0\lib\net461\Composite.dll</HintPath>
+    <Reference Include="Composite, Version=6.2.6436.18972, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CompositeC1.Core.6.2\lib\net461\Composite.dll</HintPath>
     </Reference>
     <Reference Include="Hangfire.Core, Version=1.6.20.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hangfire.Core.1.6.20\lib\net45\Hangfire.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.1.0\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" standalone="yes"?>
 <mi:PackageInstaller xmlns:mi="http://www.composite.net/ns/management/packageinstaller/1.0">
-  <mi:PackageRequirements minimumCompositeVersion="6.0.6248.33161"
+  <mi:PackageRequirements minimumCompositeVersion="6.2.6436.18972"
                           maximumCompositeVersion="9.9999.9999.9999" />
 
   <mi:PackageInformation name="CompositeC1Contrib.ScheduledTasks"
                          groupName="Contribution.CompositeC1Contrib"
-                         version="0.5.0" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/ScheduledTasks"
+                         version="0.5.1" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/ScheduledTasks"
                          readMoreUrl="https://github.com/burningice2866/CompositeC1Contrib/tree/master/ScheduledTasks"
                          id="4eec6c4d-33d7-4916-99f3-d9225928f038"
                          canBeUninstalled="true"
