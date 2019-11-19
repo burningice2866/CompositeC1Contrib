@@ -63,6 +63,7 @@
     <Compile Include="Composition\IProviderFor.cs" />
     <Compile Include="Composition\ProviderContainer.cs" />
     <Compile Include="Composition\SafeDirectoryCatalog.cs" />
+    <Compile Include="Data\DataConnectionExtensions.cs" />
     <Compile Include="Data\InheritanceDataFacade.cs" />
     <Compile Include="FunctionContextContainerExtensions.cs" />
     <Compile Include="FunctionProvider\FileBasedFunction.cs" />
