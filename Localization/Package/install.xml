@@ -5,7 +5,7 @@
 
   <mi:PackageInformation name="CompositeC1Contrib.Localization"
                          groupName="Contribution.CompositeC1Contrib"
-                         version="0.4.1" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/Localization"
+                         version="0.4.2" author="@burningice" website="https://github.com/burningice2866/CompositeC1Contrib/tree/master/Localization"
                          readMoreUrl="https://github.com/burningice2866/CompositeC1Contrib/tree/master/Localization"
                          id="383903a9-0a2a-4729-aace-aa9a2781a372"
                          canBeUninstalled="true"

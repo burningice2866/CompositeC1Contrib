@@ -155,9 +155,9 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
             using (var data = new DataConnection())
             {
                 var resourceValues = data.Get<IResourceValue>().Where(v => v.KeyId == ResourceKey.Id).ToDictionary(v => v.Culture);
-                var userLocales = UserSettings.GetActiveLocaleCultureInfos(UserSettings.Username).ToList();
+                var userLocales = UserSettings.ActiveLocaleCultureInfos.ToList();
 
-                var isAdministratior = PermissionsFacade.IsAdministrator(UserSettings.Username);
+                var isAdministrator = PermissionsFacade.IsAdministrator(UserSettings.Username);
 
                 foreach (var culture in DataLocalizationFacade.ActiveLocalizationCultures)
                 {
@@ -173,7 +173,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
 
                     bindingsXElement.Add(CreateBindingElement(bindingKey));
 
-                    if (isAdministratior || userLocales.Contains(culture))
+                    if (isAdministrator || userLocales.Contains(culture))
                     {
                         placeHolderXElement.Add(CreateEditResourceValueElement(culture, bindingKey, resourceType));
                     }

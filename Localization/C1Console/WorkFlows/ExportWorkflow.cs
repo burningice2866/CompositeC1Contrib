@@ -20,8 +20,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
             {
                 var ns = String.Empty;
 
-                var nsToken = EntityToken as NamespaceFolderEntityToken;
-                if (nsToken != null)
+                if (EntityToken is NamespaceFolderEntityToken nsToken)
                 {
                     ns = nsToken.Namespace;
                 }
@@ -36,12 +35,12 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
         {
             var ret = new Dictionary<string, string>();
 
-            var isAdministratior = PermissionsFacade.IsAdministrator(UserSettings.Username);
-            var userLocales = UserSettings.GetActiveLocaleCultureInfos(UserSettings.Username).ToList();
+            var isAdministrator = PermissionsFacade.IsAdministrator(UserSettings.Username);
+            var userLocales = UserSettings.ActiveLocaleCultureInfos.ToList();
 
             foreach (var culture in DataLocalizationFacade.ActiveLocalizationCultures)
             {
-                if (isAdministratior || userLocales.Contains(culture))
+                if (isAdministrator || userLocales.Contains(culture))
                 {
                     ret.Add(culture.Name, culture.DisplayName);
                 }
@@ -56,9 +55,7 @@ namespace CompositeC1Contrib.Localization.C1Console.Workflows
 
             using (var data = new DataConnection())
             {
-                var query = (from key in data.Get<IResourceKey>()
-                             select key.ResourceSet).Distinct();
-
+                var query = data.Get<IResourceKey>().Select(r => r.ResourceSet).Distinct();
                 foreach (var q in query)
                 {
                     if (q == null)
