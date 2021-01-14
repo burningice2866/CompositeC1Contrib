@@ -13,7 +13,7 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 {
     public class SortData : BaseSortPage
     {
-        private static readonly MethodInfo SelectMethod = StaticReflection.GetGenericMethodInfo(() => Select<IGenericSortable>(null, null));
+        private static readonly MethodInfo SelectMethod = typeof(SortData).GetMethod(nameof(Select), BindingFlags.Static | BindingFlags.NonPublic);
 
         [WebMethod]
         public static void UpdateOrder(string type, string consoleId, string entityToken, string serializedOrder)
@@ -74,7 +74,7 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 
                 if (!String.IsNullOrEmpty(sFilter))
                 {
-                    var filterArgs = new Dictionary<string, object>();
+                    var filterArgs = new Dictionary<string, string>();
 
                     var filterFields = sFilter.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var field in filterFields)
@@ -101,14 +101,14 @@ namespace CompositeC1Contrib.Sorting.Web.UI
             return data.OfType<IGenericSortable>().OrderBy(g => g.LocalOrdering);
         }
 
-        private static IEnumerable<IGenericSortable> GetInstancesWithFilter(IQueryable data, Type type, Dictionary<string, object> filter)
+        private static IEnumerable<IGenericSortable> GetInstancesWithFilter(IQueryable data, Type type, Dictionary<string, string> filter)
         {
             var generic = SelectMethod.MakeGenericMethod(type);
 
             return (IQueryable<IGenericSortable>)generic.Invoke(null, new object[] { data, filter });
         }
 
-        private static IQueryable<T> Select<T>(IQueryable<T> data, Dictionary<string, object> filter) where T : class, IGenericSortable
+        private static IQueryable<T> Select<T>(IQueryable<T> data, Dictionary<string, string> filter) where T : class, IGenericSortable
         {
             data = data.OrderBy(g => g.LocalOrdering);
 
@@ -122,9 +122,9 @@ namespace CompositeC1Contrib.Sorting.Web.UI
                 var paramExpr = Expression.Parameter(dataType);
                 var propExpr = Expression.Property(paramExpr, propInfo);
 
-                var value = ValueTypeConverter.Convert(kvp.Value, propType);
+                var value = ChangeType(kvp.Value, propType);
 
-                var valueExpr = Expression.Constant(value);
+                var valueExpr = Expression.Constant(value, propType);
                 var equalExpr = Expression.Equal(propExpr, valueExpr);
                 var lambda = Expression.Lambda<Func<T, bool>>(equalExpr, paramExpr);
 
@@ -142,7 +142,7 @@ namespace CompositeC1Contrib.Sorting.Web.UI
             {
                 using (new DataScope(dataScope))
                 {
-                    var instances = DataFacade.GetData(type).OfType<IGenericSortable>().ToList();
+                    var instances = DataFacade.GetData(type).Cast<IGenericSortable>().ToList();
 
                     foreach (var instance in instances)
                     {
@@ -158,6 +158,20 @@ namespace CompositeC1Contrib.Sorting.Web.UI
                     }
                 }
             }
+        }
+
+        private static object ChangeType(string value, Type type)
+        {
+            var underlyingType = Nullable.GetUnderlyingType(type);
+
+            if (value == "{{null}}" && (underlyingType != null || !type.IsValueType))
+            {
+                return null;
+            }
+
+            var convertToType = underlyingType ?? type; // Convert.ChangeType fails on Nullable<T> types
+
+            return convertToType == typeof(Guid) ? new Guid(value) : Convert.ChangeType(value, convertToType);
         }
     }
 }

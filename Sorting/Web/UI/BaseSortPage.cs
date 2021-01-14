@@ -13,10 +13,7 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 {
     public class BaseSortPage : Page
     {
-        protected new SortMasterPage Master
-        {
-            get { return (SortMasterPage)base.Master; }
-        }
+        protected new SortMasterPage Master => (SortMasterPage)base.Master;
 
         protected static string HashId(IData data)
         {
@@ -29,7 +26,7 @@ namespace CompositeC1Contrib.Sorting.Web.UI
 
                 var sb = new StringBuilder();
 
-                for (int i = 0; i < hash.Length; i++)
+                for (var i = 0; i < hash.Length; i++)
                 {
                     sb.Append(hash[i].ToString("X2"));
                 }
@@ -38,9 +35,9 @@ namespace CompositeC1Contrib.Sorting.Web.UI
             }
         }
 
-        protected static void UpdateParents(string seralizedEntityToken, string consoleId)
+        protected static void UpdateParents(string serializedEntityToken, string consoleId)
         {
-            var entityToken = EntityTokenSerializer.Deserialize(seralizedEntityToken);
+            var entityToken = EntityTokenSerializer.Deserialize(serializedEntityToken);
             var graph = new RelationshipGraph(entityToken, RelationshipGraphSearchOption.Both);
 
             if (graph.Levels.Count() <= 1)
@@ -65,9 +62,9 @@ namespace CompositeC1Contrib.Sorting.Web.UI
             var newOrder = new Dictionary<string, int>();
 
             serializedOrder = serializedOrder.Replace("instance[]=", ",").Replace("&", String.Empty);
-            var split = serializedOrder.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-            for (int i = 0; i < split.Length; i++)
+            var split = serializedOrder.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            for (var i = 0; i < split.Length; i++)
             {
                 newOrder.Add(split[i], i);
             }

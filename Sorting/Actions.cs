@@ -12,7 +12,7 @@ namespace CompositeC1Contrib.Sorting
         private static readonly ActionGroup ActionGroup = new ActionGroup("Default", ActionGroupPriority.PrimaryLow);
         private static readonly ActionLocation ActionLocation = new ActionLocation { ActionType = ActionType.Add, IsInFolder = false, IsInToolbar = false, ActionGroup = ActionGroup };
 
-        private static string baseUrl = UrlUtils.ResolveAdminUrl("InstalledPackages/CompositeC1Contrib.Sorting/");
+        private static readonly string BaseUrl = UrlUtils.ResolveAdminUrl("InstalledPackages/CompositeC1Contrib.Sorting/");
 
         public static ElementAction CreateSortAction(string url, string label)
         {
@@ -25,7 +25,7 @@ namespace CompositeC1Contrib.Sorting
                 label = StringResourceSystemFacade.GetString("CompositeC1Contrib.Sorting", "Sort") + " " + label;
             }
 
-            var urlAction = new UrlActionToken(label, baseUrl + url, new[] { PermissionType.Edit, PermissionType.Publish });
+            var urlAction = new UrlActionToken(label, BaseUrl + url, new[] { PermissionType.Edit, PermissionType.Publish });
 
             return new ElementAction(new ActionHandle(urlAction))
             {

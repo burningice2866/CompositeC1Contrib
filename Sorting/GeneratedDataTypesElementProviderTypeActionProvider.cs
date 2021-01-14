@@ -28,13 +28,13 @@ namespace CompositeC1Contrib.Sorting
 
         public IEnumerable<ElementAction> Provide(EntityToken entityToken)
         {
-            var generatedDataTypetoken = (GeneratedDataTypesElementProviderTypeEntityToken)entityToken;
-            if (generatedDataTypetoken.Source != "GeneratedDataTypesElementProvider")
+            var generatedDataTypeToken = (GeneratedDataTypesElementProviderTypeEntityToken)entityToken;
+            if (generatedDataTypeToken.Source != "GeneratedDataTypesElementProvider")
             {
                 yield break;
             }
 
-            var type = TypeManager.GetType(generatedDataTypetoken.SerializedTypeName);
+            var type = TypeManager.GetType(generatedDataTypeToken.SerializedTypeName);
             if (typeof(IPageMetaData).IsAssignableFrom(type))
             {
                 yield break;
